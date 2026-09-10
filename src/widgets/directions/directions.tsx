@@ -1,103 +1,58 @@
-/* oxlint-disable jsx-a11y/no-noninteractive-tabindex -- Scrollable regions need keyboard focus (WCAG 2.1.1). */
-import { useEffect, useRef, useState } from 'react';
-import { directions } from '../../entities/direction/model/directions';
-import { DirectionCard } from '../../entities/direction/ui/direction-card';
-import {
-  DirectionFilter,
-  useDirectionGroup,
-} from '../../features/filter-directions/ui/direction-filter';
+import { Link } from 'react-router-dom';
+import { BookOpen, NotebookPen, Shapes, ListChecks } from 'lucide-react';
+const formats = [
+  {
+    id: 'subject',
+    icon: BookOpen,
+    title: 'Занятия по предметам',
+    description: 'Школьная программа и занятия по отдельным темам.',
+    label: '1–11 классы',
+  },
+  {
+    id: 'homework',
+    icon: NotebookPen,
+    title: 'Домашние задания',
+    description: 'Выполнение домашних заданий вместе с вашим ребёнком.',
+    label: '1–11 классы',
+  },
+  {
+    id: 'exam',
+    icon: ListChecks,
+    title: 'Подготовка к экзаменам',
+    description: 'Занятия по выбранному предмету для ОГЭ или ЕГЭ.',
+    label: '9–11 классы',
+  },
+  {
+    id: 'foundation',
+    icon: Shapes,
+    title: 'Первые годы учёбы',
+    description: 'Подготовка к школе и помощь ученикам начальных классов.',
+    label: 'До школы · 1–4 классы',
+  },
+];
 export function Directions() {
-  const group = useDirectionGroup();
-  const items = directions.filter(
-    (d) => group === 'Все направления' || d.group === group,
-  );
-  const track = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState({ index: 0, end: false });
-  useEffect(() => {
-    const el = track.current;
-    if (!el) return;
-    el.scrollTo({ left: 0, behavior: 'instant' });
-    const update = () => {
-      const card = el.firstElementChild as HTMLElement | null;
-      const step = (card?.offsetWidth ?? 1) + 18;
-      setPosition({
-        index: Math.round(el.scrollLeft / step),
-        end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 5,
-      });
-    };
-    update();
-    el.addEventListener('scroll', update, { passive: true });
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => {
-      el.removeEventListener('scroll', update);
-      observer.disconnect();
-    };
-  }, [group]);
-  const move = (sign: number) => {
-    const el = track.current;
-    if (el)
-      el.scrollBy({
-        left: sign * ((el.firstElementChild as HTMLElement).offsetWidth + 18),
-        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          ? 'instant'
-          : 'smooth',
-      });
-  };
-  // Keyboard focus on a scrollable region makes the carousel usable without a pointer.
   return (
     <section
+      className="section container"
       id="directions"
-      className="section directions-section"
-      aria-labelledby="directions-title"
+      aria-labelledby="formats-title"
     >
-      <div className="container">
-        <div className="section-heading">
-          <h2 id="directions-title">Направления</h2>
-        </div>
-        <DirectionFilter />
+      <div className="section-heading">
+        <h2 id="formats-title">Что будем изучать?</h2>
+        <span className="section-caption">Выберите подходящие занятия</span>
       </div>
-      <div className="carousel-shell">
-        <section
-          className="direction-track"
-          ref={track}
-          aria-roledescription="карусель"
-          tabIndex={0}
-          aria-label="Направления занятий — прокручиваемая лента"
-        >
-          {items.map((direction) => (
-            <DirectionCard key={direction.id} direction={direction} />
-          ))}
-        </section>
-      </div>
-      <div className="container carousel-footer">
-        <div className="carousel-controls">
-          <span className="carousel-counter" aria-live="polite">
-            {String(Math.min(position.index + 1, items.length)).padStart(
-              2,
-              '0',
-            )}
-            <span> / {String(items.length).padStart(2, '0')}</span>
-          </span>
-          <button
-            type="button"
-            className="carousel-button"
-            disabled={position.index === 0}
-            onClick={() => move(-1)}
-            aria-label="Предыдущее направление"
-          >
-            Назад
-          </button>
-          <button
-            type="button"
-            className="carousel-button"
-            disabled={position.end}
-            onClick={() => move(1)}
-            aria-label="Следующее направление"
-          >
-            Далее
-          </button>
-        </div>
+      <div className="format-grid">
+        {formats.map(({ id, icon: Icon, title, description, label }) => (
+          <Link className="format-card" to={'/lessons?goal=' + id} key={id}>
+            <div className="format-meta">
+              <Icon size={25} strokeWidth={1.5} aria-hidden="true" />
+              <span>{label}</span>
+            </div>
+            <h3>{title}</h3>
+            <p>{description}</p>
+            <span className="format-action">Выбрать</span>
+          </Link>
+        ))}
       </div>
     </section>
   );

@@ -16,6 +16,7 @@ import HomePage from '../pages/home/home-page';
 import { Footer } from '../widgets/footer/footer';
 import './styles.css';
 const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
+const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { hasError: boolean }
@@ -109,12 +110,13 @@ function App() {
             <Suspense
               fallback={
                 <output className="container loading-block">
-                  Загружаем направление…
+                  Загружаем занятия…
                 </output>
               }
             >
               <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/lessons" element={<LessonsPage />} />
                 <Route path="/direction/:id" element={<DirectionPage />} />
                 <Route path="*" element={<DirectionPage />} />
               </Routes>

@@ -1,34 +1,30 @@
 import { PRICE_LABEL } from '../../shared/config/site';
-import { ActionLink } from '../../shared/ui/action-link';
 export function Pricing() {
   return (
     <section
-      className="section container"
+      className="price-section container"
       id="price"
       aria-labelledby="price-title"
     >
-      <div className="price-panel">
-        <div className="price-copy">
-          <h2 id="price-title">
-            Одна цена.
-            <br />
-            Для всех направлений.
-          </h2>
-          <p>Индивидуально с преподавателем.</p>
-        </div>
-        <div className="price-ticket">
-          <div className="ticket-value">{PRICE_LABEL}</div>
-          <p>за 60 минут</p>
-          <div className="free-row">
-            <span>
-              Первое короткое
-              <br />
-              знакомство
-            </span>
-            <strong>Бесплатно</strong>
-          </div>
-          <ActionLink>Написать в Telegram</ActionLink>
-        </div>
+      <div>
+        <h2 id="price-title">
+          Один на один.
+          <br />
+          По одной цене.
+        </h2>
+        <p>Для всех предметов и направлений.</p>
+      </div>
+      <div className="price-amount">
+        <strong>{PRICE_LABEL}</strong>
+        <span>60 минут с преподавателем</span>
+      </div>
+      <div className="price-intro">
+        <strong>Сначала — знакомство</strong>
+        <p>
+          Короткая бесплатная встреча,
+          <br />
+          чтобы обсудить занятия.
+        </p>
       </div>
     </section>
   );

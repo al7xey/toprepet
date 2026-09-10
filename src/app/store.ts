@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { directionFilterSlice } from '../features/filter-directions/model/slice';
+import { lessonSlice } from '../features/select-lesson/model/slice';
 export const store = configureStore({
-  reducer: { directionFilter: directionFilterSlice.reducer },
+  reducer: { lesson: lessonSlice.reducer },
 });
 export type RootState = ReturnType<typeof store.getState>;

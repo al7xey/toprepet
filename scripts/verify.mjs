@@ -6,62 +6,82 @@ const server = await createServer({
   appType: 'custom',
 });
 try {
-  const { directions, groups } = await server.ssrLoadModule(
-    '/src/entities/direction/model/directions.ts',
-  );
-  const { directionFilterSlice, setGroup } = await server.ssrLoadModule(
-    '/src/features/filter-directions/model/slice.ts',
-  );
-  const { PRICE, PRICE_LABEL, telegramLink } = await server.ssrLoadModule(
+  const { initialSelection, selectionDescription, legacyGoal, isGoal } =
+    await server.ssrLoadModule('/src/entities/lesson/model/catalog.ts');
+  const {
+    lessonSlice,
+    setGoal,
+    setSubject,
+    setGrade,
+    setExam,
+    resetSelection,
+  } = await server.ssrLoadModule('/src/features/select-lesson/model/slice.ts');
+  const { PRICE, telegramLink } = await server.ssrLoadModule(
     '/src/shared/config/site.ts',
   );
-  assert.equal(PRICE, 1200);
-  assert.equal(directions.length, 7);
-  assert.equal(new Set(directions.map((d) => d.id)).size, 7);
-  assert.deepEqual(
-    directions.map((d) => d.id),
-    [
-      'school-start',
-      'primary',
-      'school-program',
-      'homework',
-      'subjects',
-      'oge',
-      'ege',
-    ],
-  );
-  let state = directionFilterSlice.reducer(undefined, { type: 'init' });
-  assert.equal(state.group, groups[0]);
-  for (const group of groups) {
-    state = directionFilterSlice.reducer(state, setGroup(group));
-    const visible = directions.filter(
-      (d) => state.group === groups[0] || d.group === state.group,
-    );
-    assert.equal(
-      visible.length,
-      {
-        'Все направления': 7,
-        'Начало учёбы': 2,
-        'Школьная программа': 3,
-        Экзамены: 2,
-      }[group],
-    );
-  }
-  const url = new URL(telegramLink('ОГЭ & ЕГЭ'));
+  const reduce = lessonSlice.reducer;
+  let state = reduce(undefined, { type: 'init' });
+  state = reduce(state, setGoal('homework'));
+  state = reduce(state, setSubject('Математика'));
+  state = reduce(state, setGrade('5'));
+  const url = new URL(telegramLink(selectionDescription(state)));
   assert.equal(url.origin + url.pathname, 'https://t.me/a17xey');
-  assert.ok(url.searchParams.get('text').includes('ОГЭ & ЕГЭ'));
+  assert.match(
+    url.searchParams.get('text'),
+    /Домашние задания · Математика · 5 класс/,
+  );
+  assert.equal(PRICE, 1200);
   assert.equal(telegramLink(), 'https://t.me/a17xey');
+  assert.match(
+    new URL(telegramLink('ОГЭ & ЕГЭ')).searchParams.get('text'),
+    /ОГЭ & ЕГЭ/,
+  );
+
+  state = reduce(state, setGoal('exam'));
+  assert.equal(state.grade, '9');
+  state = reduce(state, setExam('ЕГЭ'));
+  assert.equal(state.grade, '11');
+  assert.equal(state.subject, 'Математика');
+  assert.match(selectionDescription(state), /ЕГЭ · 11 класс/);
+  assert.deepEqual(reduce(state, setGrade('5')), state);
+
+  state = reduce(state, setGoal('foundation'));
+  assert.equal(state.subject, '');
+  assert.equal(state.grade, '');
+  state = reduce(state, setSubject('Подготовка к школе'));
+  assert.equal(state.grade, 'До школы');
+  state = reduce(state, setSubject('Начальные классы'));
+  assert.equal(state.grade, '');
+  state = reduce(state, setGrade('3'));
+  assert.equal(state.grade, '3');
+  for (const action of [
+    setGoal('bad'),
+    setSubject('Физика'),
+    setGrade('11'),
+    setExam('bad'),
+  ]) {
+    assert.deepEqual(reduce(state, action), state);
+  }
+  state = reduce(state, setGoal('subject'));
+  assert.equal(state.subject, '');
+  assert.equal(state.grade, '3');
+  assert.deepEqual(reduce(state, resetSelection()), initialSelection);
+  assert.equal(Object.keys(legacyGoal).length, 7);
+  assert.ok(Object.values(legacyGoal).every(isGoal));
+  assert.equal(Object.hasOwn(legacyGoal, 'constructor'), false);
+  assert.equal(isGoal('__proto__'), false);
+
   const { createElement: h } = await import('react');
   const { renderToStaticMarkup } = await import('react-dom/server');
   const { MemoryRouter, Routes, Route } = await import('react-router-dom');
   const { default: DirectionPage } = await server.ssrLoadModule(
     '/src/pages/direction/direction-page.tsx',
   );
-  for (const direction of directions) {
+  for (const id of ['missing', 'constructor', '__proto__']) {
     const html = renderToStaticMarkup(
       h(
         MemoryRouter,
-        { initialEntries: [`/direction/${direction.id}`] },
+        { initialEntries: ['/direction/' + id] },
         h(
           Routes,
           null,
@@ -69,26 +89,10 @@ try {
         ),
       ),
     );
-    assert.ok(html.includes(direction.label));
-    assert.ok(html.includes(PRICE_LABEL));
-    assert.ok(html.includes('бесплатно'));
-    assert.ok(!html.includes('<form'));
-    assert.ok(html.includes('https://t.me/a17xey?text='));
+    assert.ok(html.includes('404'));
   }
-  const unknown = renderToStaticMarkup(
-    h(
-      MemoryRouter,
-      { initialEntries: ['/direction/missing'] },
-      h(
-        Routes,
-        null,
-        h(Route, { path: '/direction/:id', element: h(DirectionPage) }),
-      ),
-    ),
-  );
-  assert.ok(unknown.includes('404'));
   console.log(
-    'PASS: seven routes, unknown-route fallback, all four Redux filters, fixed price, encoded Telegram draft, no contact forms.',
+    'PASS: lesson selection transitions, incompatible values, exam grades, reset, Telegram draft, fixed price and legacy-route fallbacks.',
   );
 } finally {
   await server.close();
