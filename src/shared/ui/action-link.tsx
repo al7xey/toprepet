@@ -1,4 +1,3 @@
-import { ArrowUpRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { telegramLink } from '../config/site';
 export function ActionLink({
@@ -18,7 +17,6 @@ export function ActionLink({
       rel="noopener noreferrer"
     >
       {children}
-      <ArrowUpRight size={19} aria-hidden="true" />
     </a>
   );
 }

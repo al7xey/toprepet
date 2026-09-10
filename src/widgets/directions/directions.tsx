@@ -1,6 +1,5 @@
 /* oxlint-disable jsx-a11y/no-noninteractive-tabindex -- Scrollable regions need keyboard focus (WCAG 2.1.1). */
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { directions } from '../../entities/direction/model/directions';
 import { DirectionCard } from '../../entities/direction/ui/direction-card';
 import {
@@ -82,21 +81,21 @@ export function Directions() {
           </span>
           <button
             type="button"
-            className="round-button"
+            className="carousel-button"
             disabled={position.index === 0}
             onClick={() => move(-1)}
             aria-label="Предыдущее направление"
           >
-            <ArrowLeft size={19} />
+            Назад
           </button>
           <button
             type="button"
-            className="round-button"
+            className="carousel-button"
             disabled={position.end}
             onClick={() => move(1)}
             aria-label="Следующее направление"
           >
-            <ArrowRight size={19} />
+            Далее
           </button>
         </div>
       </div>

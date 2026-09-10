@@ -27,7 +27,7 @@ export function Pricing() {
             </span>
             <strong>Бесплатно</strong>
           </div>
-          <ActionLink>Начать со знакомства</ActionLink>
+          <ActionLink>Написать в Telegram</ActionLink>
         </div>
       </div>
     </section>

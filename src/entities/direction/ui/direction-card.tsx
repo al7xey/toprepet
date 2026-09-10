@@ -1,4 +1,3 @@
-import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Direction } from '../model/directions';
 import { PRICE_LABEL } from '../../../shared/config/site';
@@ -17,7 +16,7 @@ export function DirectionCard({ direction }: { direction: Direction }) {
           to={`/direction/${direction.id}`}
           aria-label={`Подробнее: ${direction.label}`}
         >
-          <ArrowUpRight size={23} aria-hidden="true" />
+          Подробнее
         </Link>
       </div>
     </article>

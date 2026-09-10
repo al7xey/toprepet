@@ -1159,3 +1159,143 @@ h2 span {
     font-size: 2.75rem;
   }
 }
+/* Explicit, labelled controls instead of standalone arrow icons. */
+.hero-image-caption {
+  position: absolute;
+  left: 24px;
+  top: 24px;
+  margin: 0;
+  color: #203b60;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: #f4f8ffed;
+}
+.hero-actions {
+  gap: 12px;
+}
+.hero-actions .button-light {
+  background: #fff;
+  border-color: #d5ddec;
+  color: #263a58;
+}
+.hero-actions .button-light:hover {
+  background: #eaf0fc;
+  border-color: #b6c7e7;
+}
+.header-contact {
+  border-color: #d5ddec;
+  min-height: 48px;
+  box-shadow: 0 2px 5px #203b6005;
+}
+.header-contact:hover {
+  background: #eaf0fc;
+}
+.card-bottom {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 18px;
+}
+.card-open {
+  width: 100%;
+  height: auto;
+  min-height: 48px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: white;
+  border: 1px solid #ffffff;
+  color: #2458ee;
+  font-size: 0.875rem;
+  font-weight: 650;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card-open:hover {
+  background: #2458ee;
+  border-color: #2458ee;
+  color: #fff;
+}
+.direction-card {
+  min-height: 340px;
+}
+.carousel-button {
+  min-width: 76px;
+  min-height: 44px;
+  padding: 11px 18px;
+  background: #fff;
+  border: 1px solid #d5ddec;
+  border-radius: 14px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.carousel-button:hover:not(:disabled) {
+  background: #eaf0fc;
+  border-color: #b6c7e7;
+}
+.carousel-button:disabled {
+  opacity: 1;
+  background: #f0f2f6;
+  color: #8590a2;
+  border-color: transparent;
+}
+.detail-back {
+  margin-bottom: 25px;
+}
+.faq-trigger {
+  border-radius: 14px;
+  padding-inline: 16px;
+  background: #eff2f7;
+}
+.faq-item {
+  margin-bottom: 10px;
+}
+.faq-trigger [data-slot='accordion-trigger-icon'] {
+  display: none !important;
+}
+.faq-trigger::after {
+  content: '+';
+  font-size: 1.35rem;
+  line-height: 1;
+  flex-shrink: 0;
+  font-weight: 450;
+  color: #536b8a;
+}
+.faq-trigger[aria-expanded='true']::after {
+  content: '−';
+}
+.faq-answer {
+  padding: 16px 16px 22px;
+}
+@media (min-width: 700px) {
+  .hero-image-caption {
+    left: 28px;
+    top: 28px;
+  }
+  .hero-actions .button {
+    flex: 1;
+    white-space: nowrap;
+  }
+  .hero-actions {
+    align-items: stretch;
+  }
+  .direction-card {
+    min-height: 340px;
+  }
+}
+@media (min-width: 1100px) {
+  .hero-image-caption {
+    left: 30px;
+    top: 30px;
+    font-size: 1.0625rem;
+  }
+  .hero-actions .button {
+    padding-inline: 20px;
+  }
+  .direction-card {
+    min-height: 350px;
+  }
+}

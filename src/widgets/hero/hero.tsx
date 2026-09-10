@@ -1,4 +1,3 @@
-import { ArrowDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PRICE_LABEL } from '../../shared/config/site';
 import { ActionLink } from '../../shared/ui/action-link';
@@ -19,10 +18,9 @@ export function Hero() {
           <span>/ 60 минут</span>
         </div>
         <div className="hero-actions">
-          <ActionLink>Давайте знакомиться</ActionLink>
-          <Link className="text-link" to="/#directions">
+          <ActionLink>Написать в Telegram</ActionLink>
+          <Link className="button button-light" to="/#directions">
             Выбрать направление
-            <ArrowDown size={17} aria-hidden="true" />
           </Link>
         </div>
         <p className="hero-note">Первое короткое знакомство — бесплатно</p>
@@ -36,6 +34,11 @@ export function Hero() {
           height="1086"
           fetchPriority="high"
         />
+        <p className="hero-image-caption">
+          Маленькие шаги.
+          <br />
+          Большие открытия.
+        </p>
       </div>
     </section>
   );

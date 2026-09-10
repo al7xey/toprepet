@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Check } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { directions } from '../../entities/direction/model/directions';
 import { PRICE_LABEL } from '../../shared/config/site';
 import { ActionLink } from '../../shared/ui/action-link';
@@ -25,14 +25,12 @@ export default function DirectionPage() {
         </h1>
         <Link to="/" className="button">
           На главную
-          <ArrowLeft size={18} />
         </Link>
       </section>
     );
   return (
     <section className="container detail-page">
-      <Link className="text-link" to="/#directions">
-        <ArrowLeft size={18} aria-hidden="true" />
+      <Link className="button button-light detail-back" to="/#directions">
         Все направления
       </Link>
       <div className={`detail-panel ${direction.color}`}>
@@ -51,7 +49,7 @@ export default function DirectionPage() {
         <aside className="detail-price">
           <strong>{PRICE_LABEL}</strong>
           <p>за 60 минут</p>
-          <ActionLink topic={direction.label}>Обсудить занятия</ActionLink>
+          <ActionLink topic={direction.label}>Написать в Telegram</ActionLink>
           <p className="detail-free">Первое короткое знакомство — бесплатно.</p>
           <span className="detail-fine">
             Преподавателя, формат и расписание уточним в переписке.

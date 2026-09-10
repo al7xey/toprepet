@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
 import { TELEGRAM_URL } from '../../shared/config/site';
 export function Header() {
   return (
@@ -22,7 +21,6 @@ export function Header() {
         rel="noopener noreferrer"
       >
         Написать
-        <ArrowUpRight size={17} aria-hidden="true" />
       </a>
     </header>
   );

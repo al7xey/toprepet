@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowUpRight } from 'lucide-react';
 import { ActionLink } from '../../shared/ui/action-link';
 import { PRICE_LABEL, TELEGRAM_URL } from '../../shared/config/site';
 export function Footer() {
@@ -20,7 +19,7 @@ export function Footer() {
   return (
     <>
       <section className="closing container">
-        <h2>Давайте знакомиться.</h2>
+        <h2>Обсудим вашу задачу.</h2>
         <div className="closing-bottom">
           <ActionLink className="button-white">Написать в Telegram</ActionLink>
         </div>
@@ -49,7 +48,6 @@ export function Footer() {
         </div>
         <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer">
           Написать
-          <ArrowUpRight size={17} aria-hidden="true" />
         </a>
       </div>
     </>
