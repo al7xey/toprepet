@@ -20,27 +20,16 @@ export function Footer() {
   return (
     <>
       <section className="closing container">
-        <span className="section-kicker">ВСЁ НАЧИНАЕТСЯ С «ПРИВЕТ»</span>
-        <h2>
-          Одно сообщение.
-          <br />
-          Первый шаг к пониманию.
-        </h2>
+        <h2>Давайте знакомиться.</h2>
         <div className="closing-bottom">
-          <p>
-            Расскажите, с чем нужна помощь.
-            <br />
-            Остальное обсудим вместе.
-          </p>
           <ActionLink className="button-white">Написать в Telegram</ActionLink>
         </div>
       </section>
       <footer className="footer container">
         <div>
           <Link to="/" className="brand">
-            toprepet<span className="brand-dot">✳</span>
+            toprepet
           </Link>
-          <p>Сервис частных репетиторов</p>
         </div>
         <div className="footer-links">
           <Link to="/#directions">Направления</Link>
@@ -56,7 +45,7 @@ export function Footer() {
       >
         <div>
           <strong>{PRICE_LABEL}</strong>
-          <span>60 минут · любое направление</span>
+          <span>60 минут</span>
         </div>
         <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer">
           Написать

@@ -8,7 +8,7 @@ export function Header() {
         <span className="brand-mark" aria-hidden="true">
           t<span>•</span>
         </span>
-        toprepet<span className="brand-dot">✳</span>
+        toprepet
       </Link>
       <nav className="desktop-nav" aria-label="Основная навигация">
         <Link to="/#directions">Направления</Link>

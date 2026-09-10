@@ -37,8 +37,7 @@ export default function DirectionPage() {
       </Link>
       <div className={`detail-panel ${direction.color}`}>
         <div className="detail-copy">
-          <span className="section-kicker">{direction.label}</span>
-          <h1>{direction.title}</h1>
+          <h1>{direction.label}</h1>
           <p>{direction.detail}</p>
           <ul>
             {direction.points.map((point) => (
@@ -50,7 +49,6 @@ export default function DirectionPage() {
           </ul>
         </div>
         <aside className="detail-price">
-          <span className="section-kicker">ИНДИВИДУАЛЬНОЕ ЗАНЯТИЕ</span>
           <strong>{PRICE_LABEL}</strong>
           <p>за 60 минут</p>
           <ActionLink topic={direction.label}>Обсудить занятия</ActionLink>
@@ -59,17 +57,6 @@ export default function DirectionPage() {
             Преподавателя, формат и расписание уточним в переписке.
           </span>
         </aside>
-      </div>
-      <div className="detail-next">
-        <h2>Можно начать без готового плана.</h2>
-        <p>
-          Напишите класс, предмет и что сейчас вызывает вопросы. Этого
-          достаточно для первого разговора.
-        </p>
-        <Link className="text-link" to="/#start">
-          Как всё устроено
-          <ArrowLeft className="flip-icon" size={18} />
-        </Link>
       </div>
     </section>
   );

@@ -1043,3 +1043,119 @@ h2 span {
     -webkit-backdrop-filter: none;
   }
 }
+/* Minimal surfaces: spacing replaces decorative dividers. */
+.hero-copy {
+  align-self: center;
+}
+.hero-visual {
+  min-height: 320px;
+}
+.hero-note {
+  margin-top: 20px;
+}
+.header-contact {
+  border-color: transparent;
+}
+.direction-card {
+  min-height: 300px;
+  padding: 28px;
+}
+.direction-card h3 {
+  font-size: 1.75rem;
+  letter-spacing: -0.8px;
+  line-height: 1.25;
+  margin-bottom: 18px;
+}
+.direction-card > p {
+  margin-bottom: 30px;
+}
+.card-bottom {
+  border: 0;
+  padding-top: 16px;
+}
+.filter-chip {
+  border-color: transparent;
+  background: #eef1f6;
+}
+.round-button {
+  border-color: transparent;
+}
+.price-ticket {
+  box-shadow: none;
+}
+.ticket-value {
+  margin-top: 0;
+}
+.free-row {
+  margin-top: 30px;
+}
+.step {
+  border: 0;
+  padding-top: 0;
+}
+.step-head {
+  margin-bottom: 18px;
+}
+.faq-section h2 {
+  margin-top: 0;
+}
+.faq-item,
+.faq-item:first-child {
+  border: 0;
+}
+.faq-trigger {
+  padding-block: 18px;
+}
+.closing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.closing h2 {
+  margin: 0;
+}
+.closing .button {
+  margin-top: 0;
+}
+@media (min-width: 700px) {
+  .hero-visual {
+    min-height: 400px;
+  }
+  .hero-copy {
+    padding-block: 15px;
+  }
+  .direction-card {
+    min-height: 310px;
+  }
+  .desktop-nav {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .detail-price > strong {
+    margin-top: 0;
+  }
+}
+@media (min-width: 1100px) {
+  .hero-visual {
+    min-height: 450px;
+  }
+  .direction-card {
+    min-height: 320px;
+  }
+  .direction-card h3 {
+    font-size: 1.875rem;
+  }
+  .price-panel {
+    gap: 60px;
+  }
+  .price-copy h2 {
+    font-size: 2.6rem;
+  }
+  .closing h2 {
+    font-size: 2.75rem;
+  }
+}

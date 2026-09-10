@@ -6,8 +6,8 @@ import {
 } from '../../shared/ui/accordion';
 const questions = [
   [
-    'TopRepet — это онлайн-школа?',
-    'TopRepet — сервис частных репетиторов. Вы обсуждаете свою задачу и занятия с конкретным преподавателем. Мы не представляем TopRepet как образовательную организацию.',
+    'Кто проводит занятия?',
+    'Частные репетиторы. Анкеты пока готовятся — сведения о преподавателе можно уточнить в Telegram.',
   ],
   [
     'Что будет на бесплатном знакомстве?',
@@ -38,17 +38,7 @@ export default function Faq() {
       aria-labelledby="faq-title"
     >
       <div>
-        <span className="section-kicker">04 / МОЖНО СПРОСИТЬ</span>
-        <h2 id="faq-title">
-          Остались
-          <br />
-          <span>вопросы?</span>
-        </h2>
-        <p>
-          Собрали то, что обычно
-          <br />
-          хочется уточнить перед стартом.
-        </p>
+        <h2 id="faq-title">Вопросы</h2>
       </div>
       <Accordion className="faq-list">
         {questions.map(([q, a], i) => (

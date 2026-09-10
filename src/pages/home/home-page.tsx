@@ -8,13 +8,6 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <div className="benefit-strip container">
-        <span>Любая учебная задача</span>
-        <i />
-        <span>Одна понятная цена</span>
-        <i />
-        <span>Внимание к вашему темпу</span>
-      </div>
       <Directions />
       <Pricing />
       <GettingStarted />

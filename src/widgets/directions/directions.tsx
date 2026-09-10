@@ -53,21 +53,8 @@ export function Directions() {
       aria-labelledby="directions-title"
     >
       <div className="container">
-        <div className="section-topline">
-          <span className="section-kicker">01 / С ЧЕМ ПОМОЧЬ</span>
-          <span className="section-side-note">У каждого свой старт</span>
-        </div>
         <div className="section-heading">
-          <h2 id="directions-title">
-            Ваша задача.
-            <br />
-            <span>Наше внимание.</span>
-          </h2>
-          <p>
-            Выбирайте то, что важно сейчас.
-            <br />
-            Стоимость занятия от этого не меняется.
-          </p>
+          <h2 id="directions-title">Направления</h2>
         </div>
         <DirectionFilter />
       </div>
@@ -85,10 +72,6 @@ export function Directions() {
         </section>
       </div>
       <div className="container carousel-footer">
-        <span className="carousel-hint">
-          Листайте и найдите своё направление{' '}
-          <ArrowRight size={16} aria-hidden="true" />
-        </span>
         <div className="carousel-controls">
           <span className="carousel-counter" aria-live="polite">
             {String(Math.min(position.index + 1, items.length)).padStart(
