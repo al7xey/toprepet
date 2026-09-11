@@ -571,27 +571,17 @@ h2 {
   color: #fff;
 }
 .price-section {
-  position: relative;
-  overflow: hidden;
   margin-top: 64px;
   padding: 32px 26px;
-  background: #fff8e8;
+  background: linear-gradient(135deg, #fff0df 0%, #fff7f1 72%);
   color: var(--ink);
-  border: 1px solid var(--line);
   border-radius: var(--radius);
   display: grid;
   gap: 28px;
   scroll-margin-top: calc(var(--header-height) + 24px);
 }
-.price-section::before {
-  content: '';
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 8px;
-  background: var(--highlight);
-}
 .price-section h2 {
-  font-size: 2rem;
+  font-size: 1.85rem;
   line-height: 1.22;
   margin-bottom: 12px;
 }
@@ -607,7 +597,6 @@ h2 {
   letter-spacing: -0.065em;
   line-height: 1.15;
   white-space: nowrap;
-  color: var(--accent);
 }
 .price-amount > span {
   display: block;
@@ -618,18 +607,6 @@ h2 {
 .price-offer {
   display: grid;
   gap: 20px;
-  padding: 22px;
-  border-radius: 22px;
-  background: #fff;
-  border: 1px solid #f1dfb7;
-}
-.price-free {
-  width: max-content;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: var(--highlight);
-  color: var(--ink) !important;
-  font-weight: 650;
 }
 .price-offer .button {
   width: 100%;

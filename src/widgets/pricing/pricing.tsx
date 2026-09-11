@@ -8,15 +8,19 @@ export function Pricing() {
       aria-labelledby="price-title"
     >
       <div className="price-copy">
-        <h2 id="price-title">Одна цена на любое занятие.</h2>
-        <p>Предмет, домашние задания, ОГЭ или ЕГЭ.</p>
+        <h2 id="price-title">
+          Одна цена
+          <br />
+          на все занятия.
+        </h2>
+        <p>Любой предмет, домашние задания или подготовка к экзаменам.</p>
       </div>
       <div className="price-offer">
         <div className="price-amount">
           <strong>{PRICE_LABEL}</strong>
-          <span>60 минут · индивидуально</span>
+          <span>за 60 минут один на один</span>
         </div>
-        <p className="price-free">Первое знакомство — бесплатно</p>
+        <p>Первое короткое знакомство — бесплатно.</p>
         <ActionLink>Написать</ActionLink>
       </div>
     </section>
