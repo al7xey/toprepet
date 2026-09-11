@@ -86,10 +86,12 @@ export function Teachers() {
                     <Camera size={25} strokeWidth={1.7} aria-hidden="true" />
                     <small>Фото готовится</small>
                   </span>
-                  <span className="teacher-number">0{index + 1}</span>
-                  <strong>{role}</strong>
-                  <span className="teacher-subject">{subject}</span>
-                  <span className="teacher-open">Открыть анкету</span>
+                  <span className="teacher-glass">
+                    <span className="teacher-number">0{index + 1}</span>
+                    <strong>{role}</strong>
+                    <span className="teacher-subject">{subject}</span>
+                    <span className="teacher-open">Открыть анкету</span>
+                  </span>
                 </summary>
                 <div className="teacher-details">
                   <p>{intro}</p>

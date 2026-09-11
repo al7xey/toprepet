@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { AnimatedLearning } from '../../shared/ui/animated-learning';
 import { PRICE_LABEL } from '../../shared/config/site';
 export function Hero() {
   return (
@@ -26,7 +25,15 @@ export function Hero() {
         </Link>
         <p className="hero-note">Первое короткое знакомство — бесплатно</p>
       </div>
-      <AnimatedLearning />
+      <div
+        className="hero-visual"
+        aria-label="Стоимость занятия — 1 200 рублей"
+      >
+        <span className="hero-visual-kicker">TopRepet</span>
+        <strong>{PRICE_LABEL}</strong>
+        <span>за 60 минут</span>
+        <i aria-hidden="true" />
+      </div>
     </section>
   );
 }
