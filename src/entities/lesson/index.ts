@@ -3,6 +3,7 @@ export {
   subjects,
   foundationSubjects,
   exams,
+  examSubjects,
   initialSelection,
   availableGrades,
   selectionDescription,

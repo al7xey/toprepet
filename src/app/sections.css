@@ -52,7 +52,7 @@
   padding-top: 26px;
 }
 .back-link {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--muted);
   display: inline-block;
   padding-block: 10px;
@@ -110,7 +110,7 @@
   border-radius: 13px;
   min-height: 49px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 1rem;
   text-align: center;
   line-height: 1.5;
   transition:
@@ -119,10 +119,10 @@
   min-width: 0;
 }
 .choice-option:hover {
-  background: #eee8f6;
+  background: #eaf0fb;
 }
 .choice-option.is-selected {
-  background: #f0ebf9;
+  background: #e8efff;
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -169,7 +169,7 @@
   min-height: 120px;
 }
 .selection-facts p {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--muted);
   margin-bottom: 9px;
 }
@@ -182,7 +182,7 @@
   margin-bottom: 9px;
 }
 .selection-facts > span {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: #6c7482;
 }
 .summary-price {
@@ -198,11 +198,11 @@
   white-space: nowrap;
 }
 .summary-price > span {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--muted);
 }
 .summary-free {
-  font-size: 0.75rem;
+  font-size: 1rem;
   line-height: 1.65;
   color: #626d82;
   margin: 10px 0 23px;
@@ -211,7 +211,7 @@
   width: 100%;
 }
 .summary-note {
-  font-size: 0.75rem;
+  font-size: 1rem;
   line-height: 1.65;
   color: #7b818c;
   margin: 14px 0 0;
@@ -223,7 +223,7 @@
   padding: 10px 0 0;
   margin: 12px auto 0;
   color: #727c90;
-  font-size: 0.75rem;
+  font-size: 1rem;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -257,7 +257,7 @@
     font-size: 1rem;
   }
   .lessons-page {
-    padding-top: 25px;
+    padding-top: calc(var(--header-height) + 24px);
   }
   .page-heading {
     margin-bottom: 48px;
@@ -271,14 +271,14 @@
   }
   .selection-summary {
     position: sticky;
-    top: 30px;
+    top: calc(var(--header-height) + 24px);
     padding: 27px;
   }
   .option-section {
     margin-bottom: 36px;
   }
   .choice-option {
-    font-size: 0.875rem;
+    font-size: 1rem;
     padding-inline: 12px;
   }
   .grade-options {
@@ -297,7 +297,7 @@
     gap: 85px;
   }
   .choice-option {
-    font-size: 0.875rem;
+    font-size: 1rem;
   }
   .page-heading h1 {
     font-size: 3.6rem;
@@ -320,7 +320,7 @@
   }
   .selection-summary {
     position: sticky;
-    top: 25px;
+    top: calc(var(--header-height) + 24px);
     padding: 24px;
   }
   .subject-options {

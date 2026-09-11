@@ -5,6 +5,7 @@ import {
   subjects,
   foundationSubjects,
   exams,
+  examSubjects,
   availableGrades,
   selectionDescription,
   type LessonSelection,
@@ -38,7 +39,12 @@ export function LessonPicker({
     if (initialSubject) dispatch(setSubject(initialSubject));
     if (initialExam) dispatch(setExam(initialExam));
   }, [dispatch, initialGoal, initialSubject, initialExam]);
-  const items = selection.goal === 'foundation' ? foundationSubjects : subjects;
+  const items =
+    selection.goal === 'foundation'
+      ? foundationSubjects
+      : selection.goal === 'exam'
+        ? examSubjects
+        : subjects;
   const grades = availableGrades(
     selection.goal,
     selection.subject,

@@ -6,9 +6,15 @@ import {
   subjects,
   foundationSubjects,
   exams,
+  examSubjects,
 } from '../../../entities/lesson';
 function normalize(state: typeof initialSelection) {
-  const allowed = state.goal === 'foundation' ? foundationSubjects : subjects;
+  const allowed =
+    state.goal === 'foundation'
+      ? foundationSubjects
+      : state.goal === 'exam'
+        ? examSubjects
+        : subjects;
   if (state.subject && !allowed.some((s) => s === state.subject))
     state.subject = '';
   if (state.goal === 'exam') state.grade = state.exam === 'ЕГЭ' ? '11' : '9';
@@ -35,7 +41,11 @@ export const lessonSlice = createSlice({
     },
     setSubject(state, action: PayloadAction<string>) {
       const allowed =
-        state.goal === 'foundation' ? foundationSubjects : subjects;
+        state.goal === 'foundation'
+          ? foundationSubjects
+          : state.goal === 'exam'
+            ? examSubjects
+            : subjects;
       if (action.payload !== '' && !allowed.some((s) => s === action.payload))
         return;
       state.subject = action.payload;

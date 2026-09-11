@@ -10,9 +10,9 @@ export function Brand() {
       >
         <rect width="36" height="36" rx="12" fill="currentColor" />
         <path
-          d="M10 13h16M15 9v15c0 3 2 4 5 4h2M24 18v10"
+          d="M17 9v14a4 4 0 0 0 4 4h3M11 15h13"
           stroke="white"
-          strokeWidth="3.4"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

@@ -39,11 +39,14 @@ try {
 
   state = reduce(state, setGoal('exam'));
   assert.equal(state.grade, '9');
+  assert.equal(state.subject, '');
+  state = reduce(state, setSubject('Информатика'));
   state = reduce(state, setExam('ЕГЭ'));
   assert.equal(state.grade, '11');
-  assert.equal(state.subject, 'Математика');
+  assert.equal(state.subject, 'Информатика');
   assert.match(selectionDescription(state), /ЕГЭ · 11 класс/);
   assert.deepEqual(reduce(state, setGrade('5')), state);
+  assert.deepEqual(reduce(state, setSubject('Математика')), state);
 
   state = reduce(state, setGoal('foundation'));
   assert.equal(state.subject, '');

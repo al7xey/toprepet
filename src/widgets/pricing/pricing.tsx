@@ -1,4 +1,5 @@
 import { PRICE_LABEL } from '../../shared/config/site';
+import { ActionLink } from '../../shared/ui/action-link';
 export function Pricing() {
   return (
     <section
@@ -6,21 +7,21 @@ export function Pricing() {
       id="price"
       aria-labelledby="price-title"
     >
-      <div>
+      <div className="price-copy">
         <h2 id="price-title">
           Одна цена
           <br />
           на все занятия.
         </h2>
-        <p>Для любого предмета и класса.</p>
+        <p>Любой предмет, домашние задания или подготовка к экзаменам.</p>
       </div>
-      <div className="price-amount">
-        <strong>{PRICE_LABEL}</strong>
-        <span>за 60 минут один на один</span>
-      </div>
-      <div className="price-intro">
-        <strong>Знакомство — бесплатно</strong>
-        <p>Обсудите с преподавателем цель и удобное время занятий.</p>
+      <div className="price-offer">
+        <div className="price-amount">
+          <strong>{PRICE_LABEL}</strong>
+          <span>за 60 минут один на один</span>
+        </div>
+        <p>Первое короткое знакомство — бесплатно.</p>
+        <ActionLink>Написать</ActionLink>
       </div>
     </section>
   );

@@ -24,6 +24,7 @@ export const foundationSubjects = [
   'Начальные классы',
 ] as const;
 export const exams = ['ОГЭ', 'ЕГЭ'] as const;
+export const examSubjects = ['Информатика'] as const;
 export const isGoal = (value: unknown): value is Goal =>
   goals.some((item) => item.id === value);
 export interface LessonSelection {
