@@ -10,6 +10,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from '../../../components/ui/carousel';
 import { TELEGRAM_URL } from '../../shared/config/site';
 
@@ -55,21 +57,27 @@ export function Teachers() {
       id="teachers"
       aria-labelledby="teachers-title"
     >
-      <div className="section-heading teachers-heading">
-        <div>
-          <p className="eyebrow">Люди TopRepet</p>
-          <h2 id="teachers-title">Молодые преподаватели</h2>
-          <p className="section-caption">
-            Познакомьтесь с направлением и напишите нам — анкеты дополняются.
-          </p>
-        </div>
-      </div>
       <Carousel
         className="teachers-carousel"
         tabIndex={0}
         aria-label="Преподаватели"
         opts={{ align: 'start', containScroll: 'trimSnaps' }}
       >
+        <div className="section-heading teachers-heading">
+          <div>
+            <h2 id="teachers-title">Молодые преподаватели</h2>
+          </div>
+          <div className="carousel-controls">
+            <CarouselPrevious
+              className="carousel-arrow"
+              aria-label="Предыдущие преподаватели"
+            />
+            <CarouselNext
+              className="carousel-arrow"
+              aria-label="Следующие преподаватели"
+            />
+          </div>
+        </div>
         <CarouselContent className="teacher-track">
           {teachers.map(({ role, subject, intro, achievements }, index) => (
             <CarouselItem
@@ -90,7 +98,9 @@ export function Teachers() {
                     <span className="teacher-number">0{index + 1}</span>
                     <strong>{role}</strong>
                     <span className="teacher-subject">{subject}</span>
-                    <span className="teacher-open">Открыть анкету</span>
+                    <span className="teacher-open button button-primary">
+                      Открыть анкету
+                    </span>
                   </span>
                 </summary>
                 <div className="teacher-details">
