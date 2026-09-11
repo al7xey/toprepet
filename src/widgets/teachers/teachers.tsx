@@ -1,5 +1,11 @@
 import { Link } from 'react-router-dom';
-import { BadgeCheck, Code2, GraduationCap, MessageCircle } from 'lucide-react';
+import {
+  BadgeCheck,
+  Camera,
+  Code2,
+  GraduationCap,
+  MessageCircle,
+} from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
@@ -65,45 +71,47 @@ export function Teachers() {
         opts={{ align: 'start', containScroll: 'trimSnaps' }}
       >
         <CarouselContent className="teacher-track">
-          {teachers.map(
-            ({ icon: Icon, role, subject, intro, achievements }, index) => (
-              <CarouselItem
-                className="teacher-slide"
-                key={role}
-                aria-label={`${index + 1} из ${teachers.length}: ${role}`}
-              >
-                <details className="teacher-card">
-                  <summary>
-                    <span className="teacher-icon">
-                      <Icon size={25} strokeWidth={1.7} aria-hidden="true" />
-                    </span>
-                    <span className="teacher-number">0{index + 1}</span>
-                    <strong>{role}</strong>
-                    <span className="teacher-subject">{subject}</span>
-                    <span className="teacher-open">Подробнее</span>
-                  </summary>
-                  <div className="teacher-details">
-                    <p>{intro}</p>
-                    <h4>Достижения</h4>
-                    <ul>
-                      {achievements.map((achievement) => (
-                        <li key={achievement}>{achievement}</li>
-                      ))}
-                    </ul>
-                    <Link
-                      className="button button-secondary teacher-contact"
-                      to={TELEGRAM_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <MessageCircle size={18} aria-hidden="true" /> Написать в
-                      Telegram
-                    </Link>
-                  </div>
-                </details>
-              </CarouselItem>
-            ),
-          )}
+          {teachers.map(({ role, subject, intro, achievements }, index) => (
+            <CarouselItem
+              className="teacher-slide"
+              key={role}
+              aria-label={`${index + 1} из ${teachers.length}: ${role}`}
+            >
+              <details className="teacher-card">
+                <summary>
+                  <span
+                    className={`teacher-photo teacher-photo-${index + 1}`}
+                    aria-label="Фото преподавателя появится после подтверждения анкеты"
+                  >
+                    <Camera size={25} strokeWidth={1.7} aria-hidden="true" />
+                    <small>Фото готовится</small>
+                  </span>
+                  <span className="teacher-number">0{index + 1}</span>
+                  <strong>{role}</strong>
+                  <span className="teacher-subject">{subject}</span>
+                  <span className="teacher-open">Открыть анкету</span>
+                </summary>
+                <div className="teacher-details">
+                  <p>{intro}</p>
+                  <h4>Достижения</h4>
+                  <ul>
+                    {achievements.map((achievement) => (
+                      <li key={achievement}>{achievement}</li>
+                    ))}
+                  </ul>
+                  <Link
+                    className="button button-secondary teacher-contact"
+                    to={TELEGRAM_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle size={18} aria-hidden="true" /> Написать в
+                    Telegram
+                  </Link>
+                </div>
+              </details>
+            </CarouselItem>
+          ))}
         </CarouselContent>
       </Carousel>
     </section>

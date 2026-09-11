@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { NumberGame } from '../../features/number-game';
+import { AnimatedLearning } from '../../shared/ui/animated-learning';
 import { PRICE_LABEL } from '../../shared/config/site';
 export function Hero() {
   return (
@@ -26,7 +26,7 @@ export function Hero() {
         </Link>
         <p className="hero-note">Первое короткое знакомство — бесплатно</p>
       </div>
-      <NumberGame />
+      <AnimatedLearning />
     </section>
   );
 }

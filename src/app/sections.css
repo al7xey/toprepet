@@ -33,7 +33,7 @@
   content: '+';
   font-size: 1.4rem;
   font-weight: 450;
-  color: #7c8494;
+  color: #8a7774;
   flex-shrink: 0;
 }
 .faq-trigger[aria-expanded='true']::after {
@@ -45,7 +45,7 @@
 .faq-answer p {
   font-size: 1rem;
   line-height: 1.75;
-  color: #6d7480;
+  color: #766866;
   margin: 0;
 }
 .lessons-page {
@@ -119,10 +119,10 @@
   min-width: 0;
 }
 .choice-option:hover {
-  background: #eaf0fb;
+  background: #fff0ed;
 }
 .choice-option.is-selected {
-  background: #e8efff;
+  background: #f9e2df;
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -183,7 +183,7 @@
 }
 .selection-facts > span {
   font-size: 1rem;
-  color: #6c7482;
+  color: #766866;
 }
 .summary-price {
   margin-top: 22px;
@@ -204,7 +204,7 @@
 .summary-free {
   font-size: 1rem;
   line-height: 1.65;
-  color: #626d82;
+  color: #766866;
   margin: 10px 0 23px;
 }
 .selection-summary .button {
@@ -213,7 +213,7 @@
 .summary-note {
   font-size: 1rem;
   line-height: 1.65;
-  color: #7b818c;
+  color: #8a7774;
   margin: 14px 0 0;
 }
 .reset-selection {
@@ -222,7 +222,7 @@
   background: transparent;
   padding: 10px 0 0;
   margin: 12px auto 0;
-  color: #727c90;
+  color: #8a7774;
   font-size: 1rem;
   text-decoration: underline;
   text-underline-offset: 3px;

@@ -4,6 +4,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from '../../../components/ui/carousel';
 
 const formats = [
@@ -60,6 +62,16 @@ export function Directions() {
             <p className="section-caption">
               По предметам, домашним заданиям или экзаменам.
             </p>
+          </div>
+          <div className="carousel-controls">
+            <CarouselPrevious
+              className="carousel-arrow"
+              aria-label="Предыдущие занятия"
+            />
+            <CarouselNext
+              className="carousel-arrow"
+              aria-label="Следующие занятия"
+            />
           </div>
         </div>
         <CarouselContent className="format-track" id="format-slides">
