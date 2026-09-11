@@ -4,38 +4,35 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from '../../../components/ui/carousel';
 
 const formats = [
   {
     id: 'subject',
     icon: BookOpen,
-    title: 'Понять предмет',
-    description:
-      'От одной сложной темы до школьной программы. Выберите нужный предмет.',
+    title: 'Школьные предметы',
+    description: 'Объясняем темы и закрепляем знания на практике.',
     label: '1–11 классы',
   },
   {
     id: 'homework',
     icon: NotebookPen,
-    title: 'Сделать домашнее задание',
-    description: 'Решаем задания вместе с ребёнком и объясняем каждый шаг.',
+    title: 'Домашние задания',
+    description:
+      'Выполняем задания вместе с ребёнком, с объяснением каждого шага.',
     label: '1–11 классы',
   },
   {
     id: 'exam',
     icon: ListChecks,
-    title: 'Подготовиться к ОГЭ и ЕГЭ',
-    description:
-      'Повторяем темы и тренируемся на заданиях выбранного экзамена.',
+    title: 'ОГЭ и ЕГЭ',
+    description: 'Повторяем программу и разбираем экзаменационные задания.',
     label: '9–11 классы',
   },
   {
     id: 'foundation',
     icon: Shapes,
-    title: 'Начать учиться',
+    title: 'Первые годы учёбы',
     description: 'Подготовка к школе и занятия для учеников начальных классов.',
     label: 'До школы · 1–4 классы',
   },
@@ -49,6 +46,7 @@ export function Directions() {
     >
       <Carousel
         className="formats-carousel"
+        tabIndex={0}
         aria-label="Направления занятий"
         opts={{
           align: 'start',
@@ -58,20 +56,10 @@ export function Directions() {
       >
         <div className="section-heading">
           <div>
-            <h2 id="formats-title">Занятия под вашу задачу</h2>
-            <p className="section-caption">Любой предмет. Одна цена.</p>
-          </div>
-          <div className="carousel-controls">
-            <CarouselPrevious
-              className="carousel-arrow"
-              aria-label="Предыдущие занятия"
-              aria-controls="format-slides"
-            />
-            <CarouselNext
-              className="carousel-arrow"
-              aria-label="Следующие занятия"
-              aria-controls="format-slides"
-            />
+            <h2 id="formats-title">Выберите занятия</h2>
+            <p className="section-caption">
+              По предметам, домашним заданиям или экзаменам.
+            </p>
           </div>
         </div>
         <CarouselContent className="format-track" id="format-slides">

@@ -5,12 +5,13 @@ export function Hero() {
     <section className="hero container" aria-labelledby="hero-title">
       <div className="hero-copy">
         <h1 id="hero-title">
-          Сложные темы —<br />
-          <span>простым языком.</span>
+          Репетитор для
+          <br />
+          <span>вашего ребёнка.</span>
         </h1>
         <p className="hero-description">
-          Репетитор объяснит школьный предмет, поможет с домашними заданиями и
-          подготовкой к экзаменам.
+          Школьные предметы, домашние задания и экзамены. Индивидуально, в
+          удобном темпе.
         </p>
         <div className="hero-price">
           <span className="hero-price-label">Любое занятие</span>
@@ -22,9 +23,7 @@ export function Hero() {
         <Link className="button button-primary" to="/lessons">
           Выбрать занятия
         </Link>
-        <p className="hero-note">
-          Короткое знакомство с преподавателем — бесплатно
-        </p>
+        <p className="hero-note">Первое короткое знакомство — бесплатно</p>
       </div>
       <div className="hero-photo">
         <img

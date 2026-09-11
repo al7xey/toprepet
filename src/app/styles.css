@@ -1,16 +1,16 @@
 @import url('./sections.css');
 :root {
   font-family: 'Manrope Variable', Arial, sans-serif;
-  color: #252037;
+  color: #292634;
   background: #fff;
   font-synthesis: none;
   font-weight: 450;
-  --ink: #252037;
+  --ink: #292634;
   --muted: #716b7d;
-  --accent: #6842e8;
-  --accent-hover: #5430cd;
-  --surface: #f5f1ff;
-  --line: #e9e2f5;
+  --accent: #6854bd;
+  --accent-hover: #55429f;
+  --surface: #f7f5fb;
+  --line: #e9e5f0;
   --radius: 28px;
   scroll-behavior: smooth;
 }
@@ -48,7 +48,7 @@ p {
 h1,
 h2,
 h3 {
-  font-weight: 650;
+  font-weight: 620;
 }
 a:focus-visible,
 button:focus-visible,
@@ -122,12 +122,12 @@ main:focus {
 .button:not(.button-secondary):not(.button-light) {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 6px 18px #6842e81a;
+  box-shadow: none;
 }
 .button-primary:hover,
 .button:not(.button-secondary):not(.button-light):hover {
   background: var(--accent-hover);
-  box-shadow: 0 8px 24px #6842e829;
+  box-shadow: none;
 }
 .button-secondary,
 .button-light {
@@ -157,7 +157,7 @@ main:focus {
 }
 h1 {
   font-size: clamp(2rem, 9.1vw, 3.8rem);
-  letter-spacing: -0.055em;
+  letter-spacing: -0.05em;
   line-height: 1.13;
   margin-bottom: 22px;
 }
@@ -189,8 +189,8 @@ h1 span {
 }
 .hero-price strong {
   font-size: 2.7rem;
-  font-weight: 750;
-  letter-spacing: -0.065em;
+  font-weight: 680;
+  letter-spacing: -0.055em;
   white-space: nowrap;
   color: var(--accent);
 }
@@ -262,6 +262,10 @@ h2 {
   display: flex;
   margin-left: -16px;
   touch-action: pan-y pinch-zoom;
+  cursor: grab;
+}
+.format-track:active {
+  cursor: grabbing;
 }
 .format-slide {
   flex: 0 0 88%;
@@ -273,19 +277,19 @@ h2 {
   width: 100%;
   padding: 25px;
   border-radius: 26px;
-  background: linear-gradient(155deg, #f8f5ff, #efebff);
+  background: #faf9fc;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  min-height: 330px;
-  border: 1px solid #e6def7;
+  min-height: 300px;
+  border: 1px solid var(--line);
   transition:
     border-color 0.18s,
     box-shadow 0.18s;
 }
 .format-card:hover {
-  border-color: #b49ae9;
-  box-shadow: inset 0 0 0 1px #b49ae9;
+  border-color: #c4b7de;
+  box-shadow: 0 5px 18px #40305e08;
 }
 .format-meta {
   display: flex;
@@ -300,13 +304,10 @@ h2 {
   color: #706380;
 }
 .format-icon {
-  display: grid;
-  place-items: center;
-  width: 50px;
-  height: 50px;
-  border-radius: 16px;
-  background: var(--accent);
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  color: var(--accent);
 }
 .format-card h3 {
   font-size: 1.5rem;
@@ -342,50 +343,11 @@ h2 {
   border-color: var(--accent);
   color: #fff;
 }
-.carousel-controls {
-  display: flex;
-  gap: 10px;
-  flex-shrink: 0;
-}
-.formats-carousel .carousel-arrow {
-  position: static;
-  inset: auto;
-  transform: none;
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  width: 46px;
-  height: 46px;
-  min-width: 46px;
-  padding: 0;
-  border: 1px solid #d9cdf4;
-  background: var(--accent);
-  color: #fff;
-  box-shadow: none;
-  touch-action: manipulation;
-  transition: background 0.18s;
-}
-.carousel-arrow svg {
-  width: 21px;
-  height: 21px;
-}
-.formats-carousel .carousel-arrow:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
-.formats-carousel .carousel-arrow:disabled {
-  background: #f3effa;
-  color: #b2a6c5;
-  border-color: #ebe5f5;
-  cursor: default;
-  opacity: 1;
-}
 .price-section {
   margin-top: 64px;
   padding: 32px 26px;
-  background: linear-gradient(120deg, #5d32db, #7f4eed);
-  color: #fff;
+  background: #f2edf9;
+  color: var(--ink);
   border-radius: var(--radius);
   display: grid;
   gap: 28px;
@@ -398,7 +360,7 @@ h2 {
 }
 .price-section p {
   font-size: 0.9375rem;
-  color: #f0e9ff;
+  color: #70677f;
   margin-bottom: 0;
 }
 .price-amount strong {
@@ -412,7 +374,7 @@ h2 {
 .price-amount > span {
   display: block;
   font-size: 0.875rem;
-  color: #f0e9ff;
+  color: #70677f;
   margin-top: 10px;
 }
 .price-intro > strong {
@@ -500,7 +462,7 @@ h2 {
   }
   .format-card {
     padding: 28px;
-    min-height: 360px;
+    min-height: 320px;
   }
   .hero-photo {
     height: 410px;
@@ -530,7 +492,7 @@ h2 {
     font-size: clamp(2.3rem, 4.25vw, 3.4rem);
   }
   .hero-photo {
-    height: 470px;
+    height: 450px;
   }
   .hero .button {
     width: auto;
@@ -549,7 +511,7 @@ h2 {
     font-size: clamp(2.8rem, 4.2vw, 3.5rem);
   }
   .hero-photo {
-    height: 500px;
+    height: 450px;
     border-radius: 36px;
   }
   .hero-description {
@@ -571,7 +533,7 @@ h2 {
     flex-basis: 31.5%;
   }
   .format-card {
-    min-height: 375px;
+    min-height: 330px;
   }
   .price-section {
     margin-top: 80px;
@@ -593,27 +555,27 @@ h2 {
 }
 @media (min-width: 1200px) {
   .hero {
-    gap: 70px;
+    gap: 64px;
     padding-top: 44px;
   }
   .hero h1 {
     font-size: 3.5rem;
   }
   .hero-photo {
-    height: 530px;
+    height: 490px;
   }
   .format-card {
     padding: 30px;
   }
   .format-card h3 {
-    font-size: 1.65rem;
+    font-size: 1.5rem;
   }
   .price-section {
     padding: 48px;
     gap: 44px;
   }
   .price-amount strong {
-    font-size: 4rem;
+    font-size: 3.5rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {

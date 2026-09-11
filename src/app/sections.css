@@ -119,12 +119,12 @@
   min-width: 0;
 }
 .choice-option:hover {
-  background: #eee6fc;
+  background: #eee8f6;
 }
 .choice-option.is-selected {
-  background: #eee5ff;
+  background: #f0ebf9;
   border-color: var(--accent);
-  color: #5c32cc;
+  color: var(--accent);
 }
 .choice-option:has(:focus-visible) {
   outline: 3px solid var(--accent);
