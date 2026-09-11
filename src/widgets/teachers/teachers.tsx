@@ -65,7 +65,10 @@ export function Teachers() {
       >
         <div className="section-heading teachers-heading">
           <div>
-            <h2 id="teachers-title">Молодые преподаватели</h2>
+            <h2 id="teachers-title">Топ репеты</h2>
+            <p className="section-caption">
+              Молодые преподаватели для школьных предметов и домашних заданий.
+            </p>
           </div>
           <div className="carousel-controls">
             <CarouselPrevious
@@ -95,7 +98,6 @@ export function Teachers() {
                     <small>Фото готовится</small>
                   </span>
                   <span className="teacher-glass">
-                    <span className="teacher-number">0{index + 1}</span>
                     <strong>{role}</strong>
                     <span className="teacher-subject">{subject}</span>
                     <span className="teacher-open button button-primary">

@@ -8,7 +8,7 @@ export function Pricing() {
       aria-labelledby="price-title"
     >
       <div className="price-copy">
-        <h2 id="price-title">Одна цена для каждого занятия.</h2>
+        <h2 id="price-title">Одна цена на любое занятие.</h2>
         <p>Предмет, домашние задания, ОГЭ или ЕГЭ.</p>
       </div>
       <div className="price-offer">

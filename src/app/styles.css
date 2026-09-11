@@ -364,11 +364,6 @@ h2 {
   backdrop-filter: blur(18px);
   box-shadow: 0 12px 28px #7d351f14;
 }
-.teacher-number {
-  color: var(--accent);
-  font-size: 1rem;
-  font-weight: 700;
-}
 .teacher-card summary strong {
   font-size: 1.3rem;
   line-height: 1.3;
@@ -580,7 +575,7 @@ h2 {
   overflow: hidden;
   margin-top: 64px;
   padding: 32px 26px;
-  background: #fff;
+  background: #fff8e8;
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -593,7 +588,7 @@ h2 {
   position: absolute;
   inset: 0 auto 0 0;
   width: 8px;
-  background: linear-gradient(180deg, var(--accent), var(--highlight));
+  background: var(--highlight);
 }
 .price-section h2 {
   font-size: 2rem;
@@ -625,7 +620,8 @@ h2 {
   gap: 20px;
   padding: 22px;
   border-radius: 22px;
-  background: var(--accent-soft);
+  background: #fff;
+  border: 1px solid #f1dfb7;
 }
 .price-free {
   width: max-content;
