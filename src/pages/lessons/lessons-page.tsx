@@ -9,7 +9,7 @@ export default function LessonsPage() {
   useEffect(() => {
     document.title = 'Выбрать занятия — TopRepet';
     return () => {
-      document.title = 'TopRepet — учиться с поддержкой';
+      document.title = 'TopRepet — любое занятие за 1 200 ₽';
     };
   }, []);
   return (
@@ -18,7 +18,7 @@ export default function LessonsPage() {
         На главную
       </Link>
       <header className="page-heading">
-        <h1>Занятия для вашего ребёнка</h1>
+        <h1>Выберите занятия для ребёнка</h1>
         <p>Выберите предмет и цель, затем напишите нам в Telegram.</p>
       </header>
       <LessonPicker

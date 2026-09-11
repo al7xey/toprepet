@@ -8,23 +8,19 @@ export function Pricing() {
     >
       <div>
         <h2 id="price-title">
-          Один на один.
+          Любое занятие.
           <br />
-          По одной цене.
+          Одна цена.
         </h2>
-        <p>Для всех предметов и направлений.</p>
+        <p>Любой предмет, класс и направление.</p>
       </div>
       <div className="price-amount">
         <strong>{PRICE_LABEL}</strong>
-        <span>60 минут с преподавателем</span>
+        <span>за 60 минут один на один</span>
       </div>
       <div className="price-intro">
-        <strong>Сначала — знакомство</strong>
-        <p>
-          Короткая бесплатная встреча,
-          <br />
-          чтобы обсудить занятия.
-        </p>
+        <strong>Сначала познакомимся</strong>
+        <p>Короткая встреча с преподавателем — бесплатно.</p>
       </div>
     </section>
   );

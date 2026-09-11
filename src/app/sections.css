@@ -22,7 +22,7 @@
   text-align: left;
   align-items: center;
   line-height: 1.5;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 560;
   outline: revert;
 }
@@ -43,7 +43,7 @@
   padding: 0 30px 24px 0;
 }
 .faq-answer p {
-  font-size: 0.9375rem;
+  font-size: 1rem;
   line-height: 1.75;
   color: #6d7480;
   margin: 0;
@@ -52,7 +52,7 @@
   padding-top: 26px;
 }
 .back-link {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--muted);
   display: inline-block;
   padding-block: 10px;
@@ -70,7 +70,7 @@
   margin-bottom: 17px;
 }
 .page-heading p {
-  font-size: 0.9375rem;
+  font-size: 1rem;
   color: var(--muted);
   max-width: 560px;
   margin: 0;
@@ -105,12 +105,12 @@
   justify-content: center;
   position: relative;
   padding: 14px 12px;
-  background: #f5f6f9;
+  background: var(--surface);
   border: 1px solid transparent;
   border-radius: 13px;
   min-height: 49px;
   cursor: pointer;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   text-align: center;
   line-height: 1.5;
   transition:
@@ -119,12 +119,12 @@
   min-width: 0;
 }
 .choice-option:hover {
-  background: #eceff6;
+  background: #eee6fc;
 }
 .choice-option.is-selected {
-  background: #eef0ff;
-  border-color: #7283ef;
-  color: #334ac8;
+  background: #eee5ff;
+  border-color: var(--accent);
+  color: #5c32cc;
 }
 .choice-option:has(:focus-visible) {
   outline: 3px solid var(--accent);
@@ -169,7 +169,7 @@
   min-height: 120px;
 }
 .selection-facts p {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--muted);
   margin-bottom: 9px;
 }
@@ -198,7 +198,7 @@
   white-space: nowrap;
 }
 .summary-price > span {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--muted);
 }
 .summary-free {
@@ -278,7 +278,7 @@
     margin-bottom: 36px;
   }
   .choice-option {
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     padding-inline: 12px;
   }
   .grade-options {

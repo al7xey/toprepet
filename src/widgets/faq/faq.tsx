@@ -29,11 +29,7 @@ export default function Faq() {
       id="faq"
       aria-labelledby="faq-title"
     >
-      <h2 id="faq-title">
-        Перед первым
-        <br />
-        занятием
-      </h2>
+      <h2 id="faq-title">О занятиях — коротко</h2>
       <Accordion className="faq-list">
         {questions.map(([q, a], i) => (
           <AccordionItem key={q} value={String(i)} className="faq-item">
