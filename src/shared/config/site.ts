@@ -10,7 +10,7 @@ export function telegramLink(topic?: string) {
     'Хочу записаться на занятие в TopRepet.',
     details,
     '',
-    'Первое занятие бесплатно.',
+    'Бесплатное знакомство: 20 минут и индивидуальный план.',
   ].join('\n');
   return `${TELEGRAM_URL}?text=${encodeURIComponent(message)}`;
 }

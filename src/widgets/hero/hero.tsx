@@ -28,7 +28,7 @@ export function Hero() {
         </Link>
         <p className="hero-note">
           <ArrowUp aria-hidden="true" />
-          <span>Первое занятие <strong>бесплатно</strong></span>
+          <span><strong>Бесплатное знакомство</strong> — 20 минут и индивидуальный план</span>
         </p>
       </div>
     </section>

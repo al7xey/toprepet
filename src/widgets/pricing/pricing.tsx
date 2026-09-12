@@ -20,7 +20,7 @@ export function Pricing() {
           <strong>{PRICE_LABEL}</strong>
           <span>за 60 минут один на один</span>
         </div>
-        <p className="price-free">Первое занятие бесплатно</p>
+        <p className="price-free">Бесплатное знакомство: 20 минут и индивидуальный план</p>
         <Link className="button button-primary" to="/lessons">
           Выбрать занятие
         </Link>
