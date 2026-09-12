@@ -8,7 +8,7 @@ export function Hero() {
         <h1 id="hero-title">
           top репет
           <br />
-          <span>top результат</span>
+          <span>топ результат</span>
         </h1>
         <p className="hero-description">
           Индивидуальные занятия с репетитором под вашу цель, темп и задачи.
