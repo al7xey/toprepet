@@ -6,7 +6,7 @@ export function Hero() {
     <section className="hero container" aria-labelledby="hero-title">
       <div className="hero-copy">
         <h1 id="hero-title">
-          top репет
+          Топ репет
           <br />
           <span>топ результат</span>
         </h1>
