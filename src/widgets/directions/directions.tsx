@@ -58,9 +58,9 @@ export function Directions() {
       >
         <div className="section-heading">
           <div>
-            <h2 id="formats-title">Выберите занятия</h2>
+            <h2 id="formats-title">Что будем изучать</h2>
             <p className="section-caption">
-              По предметам, домашним заданиям или экзаменам.
+              Предметы, домашние задания и подготовка к экзаменам.
             </p>
           </div>
           <div className="carousel-controls">
