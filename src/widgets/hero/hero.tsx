@@ -6,13 +6,12 @@ export function Hero() {
     <section className="hero container" aria-labelledby="hero-title">
       <div className="hero-copy">
         <h1 id="hero-title">
-          Занятия, которые
+          top репет
           <br />
-          <span>подходят ребёнку.</span>
+          <span>top результат</span>
         </h1>
         <p className="hero-description">
-          Предметы, домашние задания и экзамены — под задачу, график и темп
-          вашего ребёнка.
+          Индивидуальные занятия с репетитором под вашу цель, темп и задачи.
         </p>
       </div>
       <div className="hero-offer">
