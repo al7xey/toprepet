@@ -121,6 +121,9 @@
 
 .price-section .price-free,
 .summary-free { background: transparent; }
+.price-copy,
+.price-offer { min-width: 0; }
+.price-section .price-free { width: auto; max-width: 100%; overflow-wrap: anywhere; }
 .summary-free { font-size: 1.05rem; }
 
 .menu-toggle {
@@ -140,6 +143,11 @@
   .hero-offer { padding-top: 12px; }
   .hero-offer > .button { max-width: none; }
   .hero-note { max-width: none; }
+}
+@media (max-width: 759px) {
+  .price-section { grid-template-columns: 1fr; }
+  .price-section h2 { max-width: 13ch; }
+  .price-offer .button { max-width: 360px; }
 }
 @media (min-width: 1000px) {
   .hero { grid-template-columns: minmax(0, 1fr) 360px; gap: 86px; padding-top: 64px; }
