@@ -50,13 +50,12 @@ export function availableGrades(goal: Goal, subject: string, exam: string) {
   return Array.from({ length: 11 }, (_, i) => String(i + 1));
 }
 export function selectionDescription(s: LessonSelection) {
-  const parts: string[] = [goals.find((g) => g.id === s.goal)!.label];
-  if (s.subject) parts.push(s.subject);
-  if (s.goal === 'exam') parts.push(s.exam);
-  if (s.grade)
-    parts.push(s.grade === 'До школы' ? s.grade : s.grade + ' класс');
-  if (s.promoCode.trim()) parts.push('Промокод: ' + s.promoCode.trim());
-  return parts.join(' · ');
+  const lines: string[] = [`Направление: ${goals.find((g) => g.id === s.goal)!.label}`];
+  if (s.subject) lines.push(`Предмет: ${s.subject}`);
+  if (s.goal === 'exam') lines.push(`Экзамен: ${s.exam}`);
+  if (s.grade) lines.push(`Класс: ${s.grade === 'До школы' ? s.grade : s.grade + ' класс'}`);
+  if (s.promoCode.trim()) lines.push(`Промокод: ${s.promoCode.trim()}`);
+  return lines.join('\n');
 }
 export const legacyGoal: Record<string, Goal> = {
   'school-start': 'foundation',

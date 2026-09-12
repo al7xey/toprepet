@@ -14,6 +14,8 @@ export function Hero() {
           Школьные предметы, домашние задания и экзамены. Индивидуально, в
           удобном темпе.
         </p>
+      </div>
+      <div className="hero-offer">
         <div className="hero-price">
           <span className="hero-price-label">Любое занятие</span>
           <div>
@@ -24,7 +26,10 @@ export function Hero() {
         <Link className="button button-primary" to="/lessons">
           Выбрать занятия
         </Link>
-        <p className="hero-note"><ArrowUpLeft aria-hidden="true" /><span>Первое занятие <strong>бесплатно</strong></span></p>
+        <p className="hero-note">
+          <ArrowUpLeft aria-hidden="true" />
+          <span>Первое занятие <strong>бесплатно</strong></span>
+        </p>
       </div>
     </section>
   );

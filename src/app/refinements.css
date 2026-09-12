@@ -87,3 +87,62 @@
   .reveal-enter, .hero-note svg { animation: none; }
   .mobile-menu, [data-slot='sheet-overlay'] { transition: none; }
 }
+
+/* Final visual pass: one warm orange system, tighter cards, and a clearer offer. */
+.hero { display: grid; gap: 32px; }
+.hero-copy { max-width: 760px; }
+.hero-offer { min-width: 0; }
+.hero-offer > .button { width: 100%; max-width: 350px; }
+.hero-note { position: relative; }
+.hero-note svg { transform: rotate(-10deg); }
+.hero-note span { font-size: 1.02rem; }
+
+.teacher-photo,
+.teacher-photo-2,
+.teacher-photo-3,
+.teacher-profile-photo,
+.teacher-profile-photo.teacher-photo-2,
+.teacher-profile-photo.teacher-photo-3 {
+  background: linear-gradient(155deg, #ffd8ad 0%, #f47b3b 54%, #c94a25 100%);
+}
+.teacher-card { height: 332px; }
+.teacher-glass { background: rgb(255 249 244 / 86%); }
+.teacher-card strong { color: var(--ink); }
+
+.choice-option.is-selected,
+.choice-option.is-selected:hover,
+.choice-option.is-selected:active {
+  background: #ffd7b9;
+  color: var(--accent-hover);
+  font-weight: 750;
+}
+.choice-option:focus-visible { outline-color: var(--accent); }
+
+.price-section .price-free,
+.summary-free { background: transparent; }
+.summary-free { font-size: 1.05rem; }
+
+.menu-toggle {
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  border-radius: 14px;
+}
+.menu-toggle:hover,
+.menu-toggle:active,
+.menu-toggle:focus-visible { background: #fff0df; color: var(--accent); }
+.mobile-menu nav a { border-left: 4px solid transparent; border-radius: 16px; }
+.mobile-menu nav a:hover,
+.mobile-menu nav a.active { background: #fff0df; color: var(--accent-hover); border-left-color: var(--accent); }
+
+@media (min-width: 760px) {
+  .hero { grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); align-items: center; gap: 56px; }
+  .hero-offer { padding-top: 12px; }
+  .hero-offer > .button { max-width: none; }
+  .hero-note { max-width: none; }
+}
+@media (min-width: 1000px) {
+  .hero { grid-template-columns: minmax(0, 1fr) 360px; gap: 86px; padding-top: 64px; }
+  .hero h1 { margin-bottom: 34px; }
+  .hero-offer { padding-top: 22px; }
+}
