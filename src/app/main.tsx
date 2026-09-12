@@ -17,6 +17,7 @@ import { Footer } from '../widgets/footer/footer';
 import './styles.css';
 const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
 const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
+const TeacherPage = lazy(() => import('../pages/teacher/teacher-page'));
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { hasError: boolean }
@@ -117,6 +118,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/lessons" element={<LessonsPage />} />
+                <Route path="/teacher/:id" element={<TeacherPage />} />
                 <Route path="/direction/:id" element={<DirectionPage />} />
                 <Route path="*" element={<DirectionPage />} />
               </Routes>

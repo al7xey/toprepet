@@ -20,6 +20,13 @@
 * {
   box-sizing: border-box;
 }
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
 body {
   margin: 0;
   min-width: 0;
@@ -69,6 +76,7 @@ main:focus {
 }
 .container {
   width: min(1184px, calc(100% - 40px));
+  max-width: calc(100% - 40px);
   margin-inline: auto;
 }
 .site-header {
@@ -294,28 +302,27 @@ h2 {
   min-width: 0;
   padding-left: 16px;
   display: flex;
+  align-items: flex-start;
 }
 .teacher-card {
+  position: relative;
   width: 100%;
+  min-width: 0;
+  align-self: flex-start;
+  height: 390px;
   border: 1px solid var(--line);
   border-radius: 25px;
   background: #fff;
   overflow: hidden;
-}
-.teacher-card summary {
-  list-style: none;
   display: block;
   padding: 0;
   cursor: pointer;
-}
-.teacher-card summary::-webkit-details-marker {
-  display: none;
 }
 .teacher-photo {
   position: relative;
   display: grid;
   width: 100%;
-  height: 290px;
+  height: 100%;
   min-width: 0;
   border-radius: 0;
   place-items: center;
@@ -352,10 +359,13 @@ h2 {
   background: linear-gradient(150deg, #ffd28f 0%, #f36f36 54%, #b63f34 100%);
 }
 .teacher-glass {
-  position: relative;
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
   display: grid;
   gap: 8px;
-  margin: -44px 16px 0;
+  margin: 0;
   padding: 18px 19px 20px;
   border: 1px solid #ffffffbb;
   border-radius: 22px;
@@ -363,8 +373,11 @@ h2 {
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
   box-shadow: 0 12px 28px #7d351f14;
+  height: 184px;
+  grid-template-rows: minmax(48px, auto) minmax(46px, auto) auto;
+  align-content: start;
 }
-.teacher-card summary strong {
+.teacher-card strong {
   font-size: 1.3rem;
   line-height: 1.3;
 }
@@ -387,52 +400,92 @@ h2 {
   border-radius: 12px;
   color: #fff;
   text-decoration: none;
+  align-self: end;
 }
-/* Keep the photo block dominant; details open below the glass caption. */
-.teacher-card summary + .teacher-details {
-  margin-top: 18px;
+.teacher-profile {
+  padding-block: 28px 72px;
 }
-.teacher-details {
-  border-top: 1px solid var(--line);
-  padding: 22px 24px 25px;
-}
-.teacher-details p {
-  font-size: 1rem;
+.teacher-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
   color: var(--muted);
-  margin-bottom: 20px;
-}
-.teacher-details h4 {
-  margin: 0 0 12px;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 650;
 }
-.teacher-details ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 23px;
+.teacher-profile-grid {
   display: grid;
-  gap: 11px;
+  gap: 28px;
+  min-width: 0;
 }
-.teacher-details li {
-  position: relative;
-  padding-left: 23px;
+.teacher-profile-photo {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
+  background: linear-gradient(150deg, #ffd5b0 0%, #f47a3b 54%, #bf3e22 100%);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 650;
+}
+.teacher-profile-photo.teacher-photo-2 {
+  background: linear-gradient(150deg, #ffe39f 0%, #f48a38 54%, #c34b25 100%);
+}
+.teacher-profile-photo.teacher-photo-3 {
+  background: linear-gradient(150deg, #ffd28f 0%, #f36f36 54%, #b63f34 100%);
+}
+.teacher-profile-copy {
+  min-width: 0;
+}
+.teacher-profile-copy h1 {
+  font-size: clamp(2rem, 8vw, 3.25rem);
+  margin-bottom: 14px;
+}
+.teacher-profile-subject {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 18px;
+}
+.teacher-profile-copy > p:not(.eyebrow):not(.teacher-profile-subject) {
+  color: var(--muted);
+  font-size: 1rem;
+  margin-bottom: 30px;
+}
+.teacher-profile-copy h2 {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+.teacher-achievements {
+  display: grid;
+  gap: 12px;
+  padding: 0;
+  margin: 0 0 28px;
+  list-style: none;
+}
+.teacher-achievements li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
   font-size: 1rem;
   line-height: 1.5;
 }
-.teacher-details li::before {
-  content: '•';
-  position: absolute;
-  left: 2px;
+.teacher-achievements svg {
+  margin-top: 2px;
   color: var(--accent);
-  font-size: 1.35rem;
-  line-height: 1;
 }
-.teacher-contact {
+.teacher-profile-contact {
   width: 100%;
   gap: 9px;
-}
-.teacher-contact svg {
-  flex: 0 0 auto;
 }
 .format-track:active {
   cursor: grabbing;
@@ -693,6 +746,9 @@ h2 {
   .teacher-slide {
     flex-basis: 48%;
   }
+  .teacher-card {
+    height: 420px;
+  }
   .format-card {
     padding: 28px;
     min-height: 320px;
@@ -703,6 +759,9 @@ h2 {
   }
   .footer-contact {
     max-width: none;
+  }
+  .teacher-profile-contact {
+    width: auto;
   }
 }
 @media (min-width: 760px) {
@@ -720,6 +779,16 @@ h2 {
   .hero .button {
     width: auto;
     min-width: 220px;
+  }
+  .teacher-profile-grid {
+    grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+    align-items: start;
+    gap: 48px;
+  }
+  .teacher-profile-photo {
+    aspect-ratio: 4 / 5;
+    position: sticky;
+    top: calc(var(--header-height) + 24px);
   }
 }
 @media (min-width: 1000px) {
