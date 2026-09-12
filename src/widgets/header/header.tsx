@@ -9,7 +9,6 @@ export function Header() {
   const { pathname, hash } = useLocation();
   const navigation = () => [
     ['/lessons', 'Занятия'], ['/#price', 'Стоимость'],
-    ['/#how-it-works', 'Как проходят'],
     ['/#teachers', 'Преподаватели'], ['/#faq', 'Вопросы'],
   ].map(([to, label]) => (
     <Link key={to} to={to} className={pathname + hash === to ? 'active' : undefined}
