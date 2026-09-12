@@ -41,7 +41,7 @@ export function Teachers() {
           </div>
         </div>
         <CarouselContent className="teacher-track">
-          {teachers.map(({ id, role, subject }, index) => (
+          {teachers.map(({ id, role }, index) => (
             <CarouselItem
               className="teacher-slide"
               key={role}
@@ -57,7 +57,6 @@ export function Teachers() {
                 </span>
                 <span className="teacher-glass">
                   <strong>{role}</strong>
-                  <span className="teacher-subject">{subject}</span>
                   <span className="teacher-open button button-primary">
                     Открыть анкету
                   </span>

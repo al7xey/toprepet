@@ -1,5 +1,5 @@
 import { PRICE_LABEL } from '../../shared/config/site';
-import { ActionLink } from '../../shared/ui/action-link';
+import { Link } from 'react-router-dom';
 export function Pricing() {
   return (
     <section
@@ -20,8 +20,10 @@ export function Pricing() {
           <strong>{PRICE_LABEL}</strong>
           <span>за 60 минут один на один</span>
         </div>
-        <p>Первое короткое знакомство — бесплатно.</p>
-        <ActionLink>Написать</ActionLink>
+        <p className="price-free">Первое занятие бесплатно</p>
+        <Link className="button button-primary" to="/lessons">
+          Выбрать занятие
+        </Link>
       </div>
     </section>
   );

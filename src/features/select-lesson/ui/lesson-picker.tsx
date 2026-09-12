@@ -119,7 +119,7 @@ export function LessonPicker({
           <strong>{PRICE_LABEL}</strong>
           <span>/ 60 минут</span>
         </div>
-        <p className="summary-free">Первое короткое знакомство — бесплатно</p>
+        <p className="summary-free">Первое занятие бесплатно</p>
         <ActionLink topic={selectionDescription(selection)}>
           Написать в Telegram
         </ActionLink>

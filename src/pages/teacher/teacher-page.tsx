@@ -33,11 +33,14 @@ export default function TeacherPage() {
           <span>Фото готовится</span>
         </div>
         <div className="teacher-profile-copy">
-          <p className="eyebrow">Топ репеты</p>
-          <h1 id="teacher-name">{teacher.role}</h1>
-          <p className="teacher-profile-subject">{teacher.subject}</p>
+          <h1 id="teacher-name">{teacher.name}</h1>
+          <p className="teacher-profile-role">{teacher.role}</p>
+          <div className="teacher-subject-list" aria-label="Предметы">
+            {teacher.subjects.map((subject) => (
+              <span key={subject}>{subject}</span>
+            ))}
+          </div>
           <p>{teacher.intro}</p>
-          <h2>О преподавателе</h2>
           <ul className="teacher-achievements">
             {teacher.achievements.map((achievement) => (
               <li key={achievement}>

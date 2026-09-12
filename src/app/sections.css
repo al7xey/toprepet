@@ -119,12 +119,18 @@
   min-width: 0;
 }
 .choice-option:hover {
-  background: #fff0ed;
+  background: #fff4c2;
 }
 .choice-option.is-selected {
-  background: #f9e2df;
-  border-color: var(--accent);
-  color: var(--accent);
+  background: var(--highlight);
+  border-color: #e7b736;
+  color: var(--ink);
+}
+.choice-option.is-selected:hover,
+.choice-option.is-selected:active {
+  background: #ffcc4d;
+  border-color: #dca820;
+  color: var(--ink);
 }
 .choice-option:has(:focus-visible) {
   outline: 3px solid var(--accent);
@@ -204,7 +210,11 @@
 .summary-free {
   font-size: 1rem;
   line-height: 1.65;
-  color: #766866;
+  color: var(--ink);
+  background: var(--highlight);
+  border-radius: 12px;
+  padding: 10px 13px;
+  font-weight: 700;
   margin: 10px 0 23px;
 }
 .selection-summary .button {

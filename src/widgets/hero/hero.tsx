@@ -23,7 +23,7 @@ export function Hero() {
         <Link className="button button-primary" to="/lessons">
           Выбрать занятия
         </Link>
-        <p className="hero-note">Первое короткое знакомство — бесплатно</p>
+        <p className="hero-note">Первое занятие бесплатно</p>
       </div>
     </section>
   );
