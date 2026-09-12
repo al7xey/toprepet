@@ -15,6 +15,7 @@ import { Header } from '../widgets/header/header';
 import HomePage from '../pages/home/home-page';
 import { Footer } from '../widgets/footer/footer';
 import './styles.css';
+import './refinements.css';
 const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
 const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
 const TeacherPage = lazy(() => import('../pages/teacher/teacher-page'));
@@ -54,7 +55,7 @@ class ErrorBoundary extends Component<
   }
 }
 function ScrollManager() {
-  const { pathname, hash } = useLocation();
+  const { pathname, hash, key } = useLocation();
   useEffect(() => {
     if (!hash) {
       window.scrollTo(0, 0);
@@ -87,7 +88,7 @@ function ScrollManager() {
       observer.disconnect();
       clearTimeout(timeout);
     };
-  }, [pathname, hash]);
+  }, [pathname, hash, key]);
   return null;
 }
 function App() {

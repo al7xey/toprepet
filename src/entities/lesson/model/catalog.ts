@@ -32,12 +32,14 @@ export interface LessonSelection {
   subject: string;
   grade: string;
   exam: string;
+  promoCode: string;
 }
 export const initialSelection: LessonSelection = {
   goal: 'subject',
   subject: '',
   grade: '',
   exam: 'ОГЭ',
+  promoCode: '',
 };
 export function availableGrades(goal: Goal, subject: string, exam: string) {
   if (goal === 'exam') return [exam === 'ЕГЭ' ? '11' : '9'];
@@ -53,6 +55,7 @@ export function selectionDescription(s: LessonSelection) {
   if (s.goal === 'exam') parts.push(s.exam);
   if (s.grade)
     parts.push(s.grade === 'До школы' ? s.grade : s.grade + ' класс');
+  if (s.promoCode.trim()) parts.push('Промокод: ' + s.promoCode.trim());
   return parts.join(' · ');
 }
 export const legacyGoal: Record<string, Goal> = {

@@ -17,10 +17,12 @@ import {
   setGrade,
   setExam,
   resetSelection,
+  setPromoCode,
 } from '../model/slice';
 import { ChoiceGroup } from '../../../shared/ui/choice-group';
 import { ActionLink } from '../../../shared/ui/action-link';
 import { PRICE_LABEL } from '../../../shared/config/site';
+import { PromoCode } from '../../promo-code';
 export function LessonPicker({
   initialGoal,
   initialSubject = '',
@@ -103,18 +105,13 @@ export function LessonPicker({
       </div>
       <aside className="selection-summary" aria-labelledby="selection-title">
         <h2 id="selection-title">Ваши занятия</h2>
-        <div className="selection-facts" aria-live="polite">
-          <p>{goals.find((g) => g.id === selection.goal)!.label}</p>
-          <strong>{selection.subject || 'Предмет можно уточнить'}</strong>
-          <span>
-            {selection.goal === 'exam' ? selection.exam + ' · ' : ''}
-            {selection.grade
-              ? selection.grade === 'До школы'
-                ? 'До школы'
-                : selection.grade + ' класс'
-              : 'Класс можно уточнить'}
-          </span>
-        </div>
+        <dl className="selection-facts" aria-live="polite">
+          <div><dt>Направление</dt><dd>{goals.find((g) => g.id === selection.goal)!.label}</dd></div>
+          <div><dt>Предмет</dt><dd>{selection.subject || 'Не выбран'}</dd></div>
+          <div><dt>{selection.goal === 'exam' ? 'Экзамен' : 'Класс'}</dt>
+            <dd>{selection.goal === 'exam' ? selection.exam : selection.grade || 'Не выбран'}</dd></div>
+        </dl>
+        <PromoCode value={selection.promoCode} onChange={(value) => dispatch(setPromoCode(value))} />
         <div className="summary-price">
           <strong>{PRICE_LABEL}</strong>
           <span>/ 60 минут</span>
@@ -123,9 +120,6 @@ export function LessonPicker({
         <ActionLink topic={selectionDescription(selection)}>
           Написать в Telegram
         </ActionLink>
-        <p className="summary-note">
-          Наличие преподавателя и расписание уточним в переписке.
-        </p>
         <button
           className="reset-selection"
           type="button"

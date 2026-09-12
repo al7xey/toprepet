@@ -34,6 +34,9 @@ export const lessonSlice = createSlice({
   name: 'lesson',
   initialState: initialSelection,
   reducers: {
+    setPromoCode(state, action: PayloadAction<string>) {
+      state.promoCode = action.payload.slice(0, 64);
+    },
     setGoal(state, action: PayloadAction<string>) {
       if (!isGoal(action.payload)) return;
       state.goal = action.payload;
@@ -70,5 +73,5 @@ export const lessonSlice = createSlice({
     },
   },
 });
-export const { setGoal, setSubject, setGrade, setExam, resetSelection } =
+export const { setGoal, setSubject, setGrade, setExam, setPromoCode, resetSelection } =
   lessonSlice.actions;
