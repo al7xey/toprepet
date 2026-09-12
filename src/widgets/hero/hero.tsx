@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { PRICE_LABEL } from '../../shared/config/site';
-import { ArrowUpLeft } from 'lucide-react';
+import { ArrowUp } from 'lucide-react';
 export function Hero() {
   return (
     <section className="hero container" aria-labelledby="hero-title">
@@ -27,7 +27,7 @@ export function Hero() {
           Выбрать занятия
         </Link>
         <p className="hero-note">
-          <ArrowUpLeft aria-hidden="true" />
+          <ArrowUp aria-hidden="true" />
           <span>Первое занятие <strong>бесплатно</strong></span>
         </p>
       </div>
