@@ -1014,12 +1014,12 @@
 }
 
 .section-heading { margin-bottom: 24px; }
-.price-section { margin-top: 56px; }
+.price-section { margin-top: 22px; }
 .contact-section { padding-top: 56px; }
 
 @media (min-width: 760px) {
   .section,
   .teachers-section { padding-top: 72px; }
-  .price-section { margin-top: 72px; }
+  .price-section { margin-top: 24px; }
   .contact-section { padding-top: 72px; }
 }
