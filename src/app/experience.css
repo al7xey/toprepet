@@ -751,3 +751,189 @@
   [data-slot='sheet-overlay'],
   .messenger-button { transition: none; }
 }
+
+/* Hero composition: the illustration supports the offer instead of spanning the page. */
+.hero {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'copy'
+    'offer'
+    'art';
+  gap: 28px;
+}
+
+.hero-copy { grid-area: copy; }
+.hero-offer { grid-area: offer; }
+
+.hero-art {
+  grid-area: art;
+  grid-column: auto;
+  width: 100%;
+  height: 210px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 32px;
+  background: transparent;
+  box-shadow: 0 18px 48px rgb(32 40 56 / 8%);
+}
+
+.hero-art img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: inherit;
+  object-fit: cover;
+  object-position: center 48%;
+}
+
+/* A Kwork-inspired sequence with one line that ends at the first and last markers. */
+.process-grid {
+  position: relative;
+  display: grid;
+  gap: 34px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.process-grid::before,
+.process-grid::after {
+  content: '';
+  position: absolute;
+  top: 29px;
+  bottom: 29px;
+  left: 28px;
+  width: 3px;
+  border-radius: 99px;
+}
+
+.process-grid::before { background: #ffe0cf; }
+
+.process-grid::after {
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+.reveal-enter .process-grid::after {
+  animation: process-line-y 1.25s cubic-bezier(.2, .75, .25, 1) forwards;
+}
+
+.process-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.process-marker {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--accent);
+}
+
+.reveal-enter .process-marker { animation: process-pop .38s ease-out both; }
+.reveal-enter .process-item:nth-child(2) .process-marker { animation-delay: .25s; }
+.reveal-enter .process-item:nth-child(3) .process-marker { animation-delay: .5s; }
+.reveal-enter .process-item:nth-child(4) .process-marker { animation-delay: .75s; }
+
+.process-copy { padding-top: 2px; }
+
+.process-index {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--accent);
+  font-size: .875rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.process-copy h3 {
+  margin-bottom: 7px;
+  font-size: 1.3rem;
+  font-weight: 780;
+  line-height: 1.25;
+  letter-spacing: -.025em;
+}
+
+.process-copy p {
+  max-width: 480px;
+  margin: 0;
+  color: var(--body-muted);
+  font-size: 1rem;
+  line-height: 1.58;
+}
+
+@keyframes process-line-y { to { transform: scaleY(1); } }
+@keyframes process-line-x { to { transform: scaleX(1); } }
+@keyframes process-pop {
+  from { opacity: .35; transform: scale(.82); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@media (min-width: 760px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 430px);
+    grid-template-areas:
+      'copy art'
+      'offer art';
+    column-gap: 64px;
+    row-gap: 26px;
+    align-items: start;
+  }
+
+  .hero-art {
+    width: 100%;
+    height: 100%;
+    min-height: 455px;
+    max-height: 510px;
+    align-self: stretch;
+  }
+
+  .process-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 28px;
+    max-width: none;
+  }
+
+  .process-grid::before,
+  .process-grid::after {
+    top: 28px;
+    right: 12.5%;
+    bottom: auto;
+    left: 12.5%;
+    width: auto;
+    height: 3px;
+  }
+
+  .process-grid::after {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .reveal-enter .process-grid::after { animation-name: process-line-x; }
+
+  .process-item {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    text-align: center;
+  }
+
+  .process-marker { justify-self: center; }
+  .process-copy p { margin-inline: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .process-grid::after { transform: none; animation: none; }
+  .process-marker { animation: none !important; }
+}

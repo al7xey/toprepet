@@ -1,18 +1,25 @@
-const steps = [
+import { BookOpen, Flag, ListChecks, MessageCircle, type LucideIcon } from 'lucide-react';
+
+const steps: Array<{ title: string; text: string; icon: LucideIcon }> = [
   {
-    title: 'Знакомство',
-    lead: '20 минут бесплатно',
-    text: 'Уточняем цель, удобный график и составляем индивидуальный план.',
+    title: 'Выберите задачу',
+    text: 'Предмет, домашние задания или подготовка к экзамену.',
+    icon: ListChecks,
   },
   {
-    title: 'Занятия по плану',
-    lead: '60 минут один на один',
-    text: 'Разбираем нужные темы, практикуемся и закрепляем материал.',
+    title: 'Познакомьтесь бесплатно',
+    text: 'За 20 минут обсудим цель, график и индивидуальный план.',
+    icon: MessageCircle,
   },
   {
-    title: 'Достижение цели',
-    lead: 'Сверяемся с планом',
-    text: 'Отмечаем освоенные темы и определяем следующий этап занятий.',
+    title: 'Занимайтесь по плану',
+    text: '60 минут один на один: объяснение, практика и закрепление.',
+    icon: BookOpen,
+  },
+  {
+    title: 'Двигайтесь к цели',
+    text: 'Сверяемся с планом и выбираем следующий учебный шаг.',
+    icon: Flag,
   },
 ];
 
@@ -20,15 +27,18 @@ export function HowItWorks() {
   return (
     <section className="section container how-section" id="how" aria-labelledby="how-title">
       <div className="section-heading">
-        <h2 id="how-title">Как начинаются занятия</h2>
+        <h2 id="how-title">Как всё устроено</h2>
       </div>
-      <ol className="journey-list">
-        {steps.map((step, index) => (
-          <li className="journey-item" key={step.title}>
-            <span className="journey-number" aria-hidden="true">{index + 1}</span>
-            <div className="journey-copy">
-              <h3>{step.title}</h3>
-              <p><strong>{step.lead}</strong><br />{step.text}</p>
+      <ol className="process-grid">
+        {steps.map(({ title, text, icon: Icon }, index) => (
+          <li className="process-item" key={title}>
+            <span className="process-marker" aria-hidden="true">
+              <Icon size={25} strokeWidth={1.9} />
+            </span>
+            <div className="process-copy">
+              <span className="process-index">0{index + 1}</span>
+              <h3>{title}</h3>
+              <p>{text}</p>
             </div>
           </li>
         ))}
