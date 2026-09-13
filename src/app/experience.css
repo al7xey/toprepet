@@ -957,14 +957,17 @@
 }
 
 /* Keep the route compact: smaller orange markers, larger numerals and a quicker draw. */
+.process-grid { gap: 0; }
+
 .process-item {
   grid-template-columns: 48px minmax(0, 1fr);
+  min-height: 124px;
 }
 
 .process-item:not(:last-child)::after {
   top: 48px;
   left: 23px;
-  height: calc(100% + 34px - 48px);
+  height: calc(100% - 48px);
 }
 
 .process-marker {
@@ -998,22 +1001,25 @@
 
   .process-item {
     grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
   }
+
+  .process-grid { gap: 28px; }
 }
 
 /* Keep the page rhythm compact between the main sections. */
 .section,
 .teachers-section {
-  padding-top: 48px;
+  padding-top: 56px;
 }
 
 .section-heading { margin-bottom: 24px; }
-.price-section { margin-top: 48px; }
-.contact-section { padding-top: 48px; }
+.price-section { margin-top: 56px; }
+.contact-section { padding-top: 56px; }
 
 @media (min-width: 760px) {
   .section,
-  .teachers-section { padding-top: 64px; }
-  .price-section { margin-top: 64px; }
-  .contact-section { padding-top: 64px; }
+  .teachers-section { padding-top: 72px; }
+  .price-section { margin-top: 72px; }
+  .contact-section { padding-top: 72px; }
 }
