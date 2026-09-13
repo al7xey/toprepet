@@ -164,6 +164,8 @@
 .hero-art {
   position: relative;
   grid-column: 1 / -1;
+  width: min(100%, 560px);
+  justify-self: start;
   min-width: 0;
   padding: 2px;
   overflow: hidden;
@@ -178,8 +180,8 @@
   display: block;
   width: 100%;
   height: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: 30px;
+  aspect-ratio: 16 / 9;
+  border-radius: 26px;
   object-fit: cover;
   object-position: center 48%;
 }
@@ -399,6 +401,7 @@
   max-width: 700px;
   margin: 0 auto;
   padding: 4px 0;
+  overflow: hidden;
   list-style: none;
 }
 
@@ -411,7 +414,28 @@
   width: 3px;
   border-radius: 99px;
   background: linear-gradient(var(--accent), #ffc5a5);
+  transform: scaleY(0);
+  transform-origin: top;
+  z-index: 0;
 }
+
+.journey-list::after {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 32px;
+  left: 22px;
+  width: 12px;
+  height: 12px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 1px #ffd7c2;
+  opacity: 0;
+}
+
+.reveal-enter .journey-list::before { animation: journey-line 1s cubic-bezier(.2, .75, .25, 1) forwards; }
+.reveal-enter .journey-list::after { animation: journey-traveler 2.8s ease-in-out .7s infinite; }
 
 .journey-item {
   position: relative;
@@ -627,6 +651,12 @@
 }
 
 @keyframes journey-draw { to { stroke-dashoffset: 0; } }
+@keyframes journey-line { to { transform: scaleY(1); } }
+@keyframes journey-traveler {
+  0%, 8% { top: 32px; opacity: 0; }
+  16%, 80% { opacity: 1; }
+  88%, 100% { top: calc(100% - 32px); opacity: 0; }
+}
 
 @media (min-width: 600px) {
   .price-section { grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr); padding: 42px; }
@@ -642,7 +672,7 @@
 
   .hero h1 { font-size: clamp(2.8rem, 5vw, 4rem); }
   .hero-offer { padding-top: 12px; }
-  .hero-art img { aspect-ratio: 2.35 / 1; }
+  .hero-art img { aspect-ratio: 16 / 9; }
 
   .teacher-profile-grid { grid-template-columns: 256px minmax(0, 1fr); }
 
@@ -678,7 +708,7 @@
   .teachers-section { padding-top: 116px; }
 
   .hero { gap: 48px 86px; padding-top: 64px; }
-  .hero-art img { aspect-ratio: 2.55 / 1; }
+  .hero-art img { aspect-ratio: 16 / 9; }
 
   .formats-carousel { width: 100%; max-width: 1008px; }
   .teachers-carousel { width: 100%; max-width: 680px; }
@@ -715,6 +745,8 @@
 
   .journey-path-progress { stroke-dashoffset: 0; }
   .journey-runner { display: none; }
+  .journey-list::before { transform: scaleY(1); animation: none; }
+  .journey-list::after { display: none; }
   .mobile-menu,
   [data-slot='sheet-overlay'],
   .messenger-button { transition: none; }
