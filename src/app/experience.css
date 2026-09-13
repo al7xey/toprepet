@@ -1073,12 +1073,12 @@
   bottom: 10px;
   left: 10px;
   height: 132px;
-  padding: 14px 16px;
+  padding: 12px;
   border-radius: 23px;
   background: rgb(255 249 244 / 78%);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 5px;
 }
 
@@ -1100,6 +1100,7 @@
 }
 
 .teacher-open.button {
+  align-self: end;
   min-height: 40px;
   padding: 8px 12px;
   border-radius: 16px;
