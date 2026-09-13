@@ -1072,7 +1072,7 @@
   right: 10px;
   bottom: 10px;
   left: 10px;
-  height: 112px;
+  height: 124px;
   padding: 12px;
   border-radius: 23px;
   background: rgb(255 249 244 / 78%);
@@ -1080,7 +1080,7 @@
   backdrop-filter: blur(10px);
   grid-template-rows: auto auto auto;
   align-content: start;
-  gap: 5px;
+  gap: 8px;
 }
 
 .teacher-card strong {
