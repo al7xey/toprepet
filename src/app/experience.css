@@ -1016,19 +1016,22 @@
   }
 }
 
-/* One smaller, shared rhythm between the main sections. */
+/* One measured gap between every adjacent section. */
 .section,
 .teachers-section {
-  padding-top: 56px;
+  padding-top: 0;
 }
 
+.directions-section { padding-top: 85px; }
+.how-section,
+.teachers-section,
+.contact-section { margin-top: 85px; }
+.contact-section { padding-top: 0; }
 .section-heading { margin-bottom: 24px; }
-.price-section { margin-top: 22px; }
-.contact-section { padding-top: 56px; }
+.price-section {
+  margin-top: 51px;
+}
 
 @media (min-width: 760px) {
-  .section,
-  .teachers-section { padding-top: 72px; }
-  .price-section { margin-top: 24px; }
-  .contact-section { padding-top: 72px; }
+  .price-section { margin-top: 21px; }
 }
