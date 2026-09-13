@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Camera } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
@@ -41,19 +40,15 @@ export function Teachers() {
           </div>
         </div>
         <CarouselContent className="teacher-track">
-          {teachers.map(({ id, role }, index) => (
+          {teachers.map(({ id, role, photo }, index) => (
             <CarouselItem
               className="teacher-slide"
               key={role}
               aria-label={`${index + 1} из ${teachers.length}: ${role}`}
             >
               <Link className="teacher-card" to={`/teacher/${id}`} draggable={false}>
-                <span
-                  className={`teacher-photo teacher-photo-${index + 1}`}
-                  aria-label="Фото преподавателя появится после подтверждения анкеты"
-                >
-                  <Camera size={25} strokeWidth={1.7} aria-hidden="true" />
-                  <small>Фото готовится</small>
+                <span className={`teacher-photo teacher-photo-${index + 1}`}>
+                  <img src={photo} alt="" loading="lazy" draggable={false} />
                 </span>
                 <span className="teacher-glass">
                   <strong>{role}</strong>

@@ -1,4 +1,4 @@
-import { ArrowLeft, Camera, Check, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Check, MessageCircle } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { findTeacher } from '../../entities/teacher';
 import { TELEGRAM_URL } from '../../shared/config/site';
@@ -27,8 +27,7 @@ export default function TeacherPage() {
       </Link>
       <div className="teacher-profile-grid">
         <div className="teacher-profile-photo">
-          <Camera size={28} strokeWidth={1.7} aria-hidden="true" />
-          <span>Фото готовится</span>
+          <img src={teacher.photo} alt={`Фото: ${teacher.name}`} />
         </div>
         <div className="teacher-profile-copy">
           <p className="teacher-profile-placeholder">Пример анкеты — данные преподавателя уточняются</p>

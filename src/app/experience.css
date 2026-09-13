@@ -1016,22 +1016,42 @@
   }
 }
 
-/* One measured gap between every adjacent section. */
+.teacher-photo {
+  padding: 0;
+  background: #f7e8dc;
+}
+
+.teacher-photo::before { display: none; }
+
+.teacher-photo img,
+.teacher-profile-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+.teacher-profile-photo {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  background: #f7e8dc;
+}
+
+/* Restore the original section spacing. */
 .section,
 .teachers-section {
-  padding-top: 0;
+  padding-top: 96px;
 }
 
-.directions-section { padding-top: 85px; }
-.how-section,
-.teachers-section,
-.contact-section { margin-top: 85px; }
-.contact-section { padding-top: 0; }
-.section-heading { margin-bottom: 24px; }
-.price-section {
-  margin-top: 51px;
-}
+.section-heading { margin-bottom: 32px; }
+.price-section { margin-top: 96px; }
+.contact-section { padding-top: 96px; }
 
 @media (min-width: 760px) {
-  .price-section { margin-top: 21px; }
+  .section,
+  .teachers-section { padding-top: 116px; }
+  .price-section { margin-top: 116px; }
+  .contact-section { padding-top: 116px; }
 }
