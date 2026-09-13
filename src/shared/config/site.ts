@@ -1,16 +1,16 @@
 export const PRICE = 1200;
 export const PRICE_LABEL = new Intl.NumberFormat('ru-RU').format(PRICE) + ' ₽';
 export const TELEGRAM_URL = 'https://t.me/a17xey';
-export function telegramLink(topic?: string) {
-  if (!topic) return TELEGRAM_URL;
-  const details = topic.replaceAll(' · ', '\n');
-  const message = [
+export function enquiryMessage(topic?: string) {
+  return [
     'Здравствуйте!',
     '',
-    'Хочу записаться на занятие в TopRepet.',
-    details,
+    'Хочу записаться на бесплатное знакомство в TopRepet.',
+    topic || 'Помогите подобрать занятия для ребёнка.',
     '',
-    'Бесплатное знакомство: 20 минут и индивидуальный план.',
+    'Давайте обсудим цель, индивидуальный план и удобное время.',
   ].join('\n');
-  return `${TELEGRAM_URL}?text=${encodeURIComponent(message)}`;
+}
+export function telegramLink(topic?: string) {
+  return `${TELEGRAM_URL}?text=${encodeURIComponent(enquiryMessage(topic))}`;
 }

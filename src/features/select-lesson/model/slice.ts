@@ -17,14 +17,13 @@ function normalize(state: typeof initialSelection) {
         : subjects;
   if (state.subject && !allowed.some((s) => s === state.subject))
     state.subject = '';
-  if (state.goal === 'exam') state.grade = state.exam === 'ЕГЭ' ? '11' : '9';
-  else if (
+  if (
     state.goal === 'foundation' &&
     state.subject === 'Подготовка к школе'
   )
     state.grade = 'До школы';
   else if (
-    !availableGrades(state.goal, state.subject, state.exam).includes(
+    !availableGrades(state.goal, state.subject).includes(
       state.grade,
     )
   )
@@ -56,7 +55,7 @@ export const lessonSlice = createSlice({
     },
     setGrade(state, action: PayloadAction<string>) {
       if (
-        !availableGrades(state.goal, state.subject, state.exam).includes(
+        !availableGrades(state.goal, state.subject).includes(
           action.payload,
         )
       )

@@ -16,6 +16,7 @@ import HomePage from '../pages/home/home-page';
 import { Footer } from '../widgets/footer/footer';
 import './styles.css';
 import './refinements.css';
+import './experience.css';
 const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
 const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
 const TeacherPage = lazy(() => import('../pages/teacher/teacher-page'));

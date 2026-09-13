@@ -41,8 +41,7 @@ export const initialSelection: LessonSelection = {
   exam: 'ОГЭ',
   promoCode: '',
 };
-export function availableGrades(goal: Goal, subject: string, exam: string) {
-  if (goal === 'exam') return [exam === 'ЕГЭ' ? '11' : '9'];
+export function availableGrades(goal: Goal, subject: string) {
   if (goal === 'foundation')
     return subject === 'Подготовка к школе'
       ? ['До школы']

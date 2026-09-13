@@ -13,30 +13,29 @@ const formats = [
     id: 'subject',
     icon: BookOpen,
     title: 'Школьные предметы',
-    description: 'Объясняем темы и закрепляем знания на практике.',
+    description: 'Разберём тему и закрепим её на практике.',
     label: '1–11 классы',
   },
   {
     id: 'homework',
     icon: NotebookPen,
     title: 'Домашние задания',
-    description:
-      'Выполняем задания вместе с ребёнком, с объяснением каждого шага.',
+    description: 'Выполним вместе, объясняя каждый шаг.',
     label: '1–11 классы',
   },
   {
     id: 'exam',
     icon: ListChecks,
-    title: 'ОГЭ и ЕГЭ',
-    description: 'Повторяем программу и разбираем экзаменационные задания.',
+    title: 'ОГЭ и ЕГЭ: информатика',
+    description: 'Разберём алгоритмы и задания экзаменационного формата.',
     label: '9–11 классы',
   },
   {
     id: 'foundation',
     icon: Shapes,
-    title: 'Первые годы учёбы',
-    description: 'Подготовка к школе и занятия для учеников начальных классов.',
-    label: 'До школы · 1–4 классы',
+    title: 'До школы и 1–4 классы',
+    description: 'Подготовка к школе и помощь с начальной программой.',
+    label: 'До школы / 1–4 классы',
   },
 ];
 export function Directions() {
@@ -58,10 +57,7 @@ export function Directions() {
       >
         <div className="section-heading">
           <div>
-            <h2 id="formats-title">Что будем изучать</h2>
-            <p className="section-caption">
-              Предметы, домашние задания и подготовка к экзаменам.
-            </p>
+            <h2 id="formats-title">Выберите занятия</h2>
           </div>
           <div className="carousel-controls">
             <CarouselPrevious
@@ -100,6 +96,7 @@ export function Directions() {
           ))}
         </CarouselContent>
       </Carousel>
+      <p className="availability-note">Для ОГЭ и ЕГЭ сейчас доступна только информатика. По другим экзаменационным предметам ищем преподавателей.</p>
     </section>
   );
 }

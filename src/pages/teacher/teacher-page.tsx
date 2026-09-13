@@ -33,6 +33,7 @@ export default function TeacherPage() {
           <span>Фото готовится</span>
         </div>
         <div className="teacher-profile-copy">
+          <p className="teacher-profile-placeholder">Пример анкеты — данные преподавателя уточняются</p>
           <h1 id="teacher-name">{teacher.name}</h1>
           <p className="teacher-profile-role">{teacher.role}</p>
           <div className="teacher-subject-list" aria-label="Предметы">

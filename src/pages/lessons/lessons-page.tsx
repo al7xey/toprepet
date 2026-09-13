@@ -2,10 +2,11 @@ import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { LessonPicker } from '../../features/select-lesson';
 import { isGoal } from '../../entities/lesson';
+import { Contact } from '../../widgets/contact/contact';
 export default function LessonsPage() {
   const [params] = useSearchParams();
   const value = params.get('goal');
-  const goal = isGoal(value) ? value : 'subject';
+  const goal = isGoal(value) ? value : undefined;
   useEffect(() => {
     document.title = 'Выбрать занятия — TopRepet';
     return () => {
@@ -13,13 +14,14 @@ export default function LessonsPage() {
     };
   }, []);
   return (
+    <>
     <section className="lessons-page container">
       <Link to="/" className="back-link">
         На главную
       </Link>
       <header className="page-heading">
-        <h1>Выберите занятия для ребёнка</h1>
-        <p>Выберите предмет и цель, затем напишите нам в Telegram.</p>
+        <h1>Какие занятия нужны?</h1>
+        <p>Отметьте цель, предмет и класс. Выбор и промокод добавим в сообщение менеджеру.</p>
       </header>
       <LessonPicker
         initialGoal={goal}
@@ -27,5 +29,7 @@ export default function LessonsPage() {
         initialExam={params.get('exam') || ''}
       />
     </section>
+    <Contact onLessonsPage />
+    </>
   );
 }

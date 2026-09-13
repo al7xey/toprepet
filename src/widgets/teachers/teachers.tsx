@@ -26,7 +26,7 @@ export function Teachers() {
           <div>
             <h2 id="teachers-title">Топ репеты</h2>
             <p className="section-caption">
-              Молодые преподаватели для школьных предметов и домашних заданий.
+              Молодые преподаватели для занятий в понятном ребёнку темпе.
             </p>
           </div>
           <div className="carousel-controls">
@@ -47,7 +47,7 @@ export function Teachers() {
               key={role}
               aria-label={`${index + 1} из ${teachers.length}: ${role}`}
             >
-              <Link className="teacher-card" to={`/teacher/${id}`}>
+              <Link className="teacher-card" to={`/teacher/${id}`} draggable={false}>
                 <span
                   className={`teacher-photo teacher-photo-${index + 1}`}
                   aria-label="Фото преподавателя появится после подтверждения анкеты"

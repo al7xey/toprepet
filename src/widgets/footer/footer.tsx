@@ -1,20 +1,19 @@
 import { Brand } from '../../shared/ui/brand';
-import { TELEGRAM_URL } from '../../shared/config/site';
+import { Link } from 'react-router-dom';
 export function Footer() {
   return (
     <footer className="footer container">
       <div>
         <Brand />
+        <p>Сервис частных репетиторов</p>
         <p>© {new Date().getFullYear()} TopRepet</p>
       </div>
-      <a
-        href={TELEGRAM_URL}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        to="/#contact"
         className="footer-contact"
       >
-        Написать в Telegram
-      </a>
+        Связаться с менеджером
+      </Link>
     </footer>
   );
 }

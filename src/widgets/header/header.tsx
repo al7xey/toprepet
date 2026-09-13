@@ -3,13 +3,12 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetTitle } from '../../../components/ui/sheet';
 import { Brand } from '../../shared/ui/brand';
-import { TELEGRAM_URL } from '../../shared/config/site';
 export function Header() {
   const [open, setOpen] = useState(false);
   const { pathname, hash } = useLocation();
   const navigation = () => [
     ['/lessons', 'Занятия'], ['/#price', 'Стоимость'],
-    ['/#teachers', 'Преподаватели'], ['/#faq', 'Вопросы'],
+    ['/#teachers', 'Преподаватели'], ['/#faq', 'Вопросы'], ['/#contact', 'Контакты'],
   ].map(([to, label]) => (
     <Link key={to} to={to} className={pathname + hash === to ? 'active' : undefined}
       aria-current={pathname + hash === to ? 'location' : undefined}
@@ -22,14 +21,12 @@ export function Header() {
         <nav className="header-nav" aria-label="Основная навигация">
           {navigation()}
         </nav>
-        <div className="header-actions"><a
+        <div className="header-actions"><Link
           className="button button-secondary header-contact"
-          href={TELEGRAM_URL}
-          target="_blank"
-          rel="noopener noreferrer"
+          to="/#contact"
         >
           Написать
-        </a>
+        </Link>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger className="menu-toggle" aria-label="Открыть меню"><Menu size={23} /></SheetTrigger>
           <SheetContent className="mobile-menu" showCloseButton={false}>
