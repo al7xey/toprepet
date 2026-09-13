@@ -2,6 +2,7 @@ export interface Teacher {
   id: string;
   name: string;
   role: string;
+  cardLabel: string;
   photo: string;
   subjects: readonly string[];
   intro: string;
@@ -13,6 +14,7 @@ export const teachers: readonly Teacher[] = [
     id: 'informatics',
     name: 'Иван Иванов',
     role: 'Репетитор по информатике',
+    cardLabel: 'Информатика',
     photo: '/images/tutor-informatics.png',
     subjects: ['Информатика', 'ОГЭ', 'ЕГЭ'],
     intro:
@@ -26,6 +28,7 @@ export const teachers: readonly Teacher[] = [
     id: 'english',
     name: 'Анна Петрова',
     role: 'Репетитор по английскому',
+    cardLabel: 'Английский',
     photo: '/images/tutor-english.png',
     subjects: ['Английский', 'Школьная программа', 'Разговорная практика'],
     intro:

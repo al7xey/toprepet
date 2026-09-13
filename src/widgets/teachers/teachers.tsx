@@ -40,7 +40,7 @@ export function Teachers() {
           </div>
         </div>
         <CarouselContent className="teacher-track">
-          {teachers.map(({ id, role, photo }, index) => (
+          {teachers.map(({ id, role, cardLabel, photo }, index) => (
             <CarouselItem
               className="teacher-slide"
               key={role}
@@ -51,7 +51,7 @@ export function Teachers() {
                   <img src={photo} alt="" loading="lazy" draggable={false} />
                 </span>
                 <span className="teacher-glass">
-                  <strong>{role}</strong>
+                  <strong>{cardLabel}</strong>
                   <span className="teacher-open button button-primary">
                     Открыть анкету
                   </span>

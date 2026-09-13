@@ -1055,3 +1055,41 @@
   .price-section { margin-top: 116px; }
   .contact-section { padding-top: 116px; }
 }
+
+/* Keep the portraits visible while the card label stays compact and readable. */
+.teacher-photo img {
+  object-position: center top;
+}
+
+.teacher-glass {
+  right: 10px;
+  bottom: 10px;
+  left: 10px;
+  height: 124px;
+  padding: 12px 14px;
+  border-radius: 20px;
+  background: rgb(255 249 244 / 68%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  grid-template-rows: minmax(38px, 1fr) auto;
+  gap: 6px;
+}
+
+.teacher-card strong {
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.teacher-open.button {
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 15px;
+  font-size: .95rem;
+}
+
+/* Bring the teachers section closer to the final step above it. */
+.teachers-section { padding-top: 72px; }
+
+@media (min-width: 760px) {
+  .teachers-section { padding-top: 88px; }
+}
