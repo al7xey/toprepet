@@ -1058,26 +1058,32 @@
 
 /* Keep the portraits visible while the card label stays compact and readable. */
 .teacher-photo img {
-  object-fit: contain;
-  object-position: center top;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Match the source portraits' 4:5 ratio so neither edge is cropped. */
+.teacher-card {
+  height: auto;
+  aspect-ratio: 4 / 5;
 }
 
 .teacher-glass {
   right: 10px;
   bottom: 10px;
   left: 10px;
-  height: 96px;
-  padding: 10px 12px;
-  border-radius: 18px;
-  background: rgb(255 249 244 / 50%);
-  -webkit-backdrop-filter: blur(7px);
-  backdrop-filter: blur(7px);
+  height: 124px;
+  padding: 12px 14px;
+  border-radius: 20px;
+  background: rgb(255 249 244 / 68%);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   grid-template-rows: auto auto auto;
-  gap: 4px;
+  gap: 6px;
 }
 
 .teacher-card strong {
-  font-size: 1rem;
+  font-size: 1.05rem;
   line-height: 1.2;
 }
 
@@ -1092,10 +1098,10 @@
 }
 
 .teacher-open.button {
-  min-height: 34px;
-  padding: 6px 10px;
-  border-radius: 13px;
-  font-size: .87rem;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 15px;
+  font-size: .95rem;
 }
 
 /* Bring the teachers section closer to the final step above it. */

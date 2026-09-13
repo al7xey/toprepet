@@ -16,7 +16,7 @@ export const teachers: readonly Teacher[] = [
     name: 'Иван Иванов',
     role: 'Репетитор по информатике',
     cardLabel: 'Информатика',
-    cardDetail: 'Школьные предметы и домашние задания',
+    cardDetail: 'ОГЭ, ЕГЭ, домашние задания',
     photo: '/images/tutor-informatics.png',
     subjects: ['Информатика', 'ОГЭ', 'ЕГЭ'],
     intro:
@@ -31,7 +31,7 @@ export const teachers: readonly Teacher[] = [
     name: 'Анна Петрова',
     role: 'Репетитор по английскому',
     cardLabel: 'Английский',
-    cardDetail: 'Школьная программа и разговорная практика',
+    cardDetail: 'Школьная программа, разговорная практика',
     photo: '/images/tutor-english.png',
     subjects: ['Английский', 'Школьная программа', 'Разговорная практика'],
     intro:
