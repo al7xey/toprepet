@@ -1007,19 +1007,28 @@
   .process-grid { gap: 28px; }
 }
 
-/* Restore the original page rhythm between the main sections. */
-.section,
-.teachers-section {
-  padding-top: 96px;
+@media (min-width: 1000px) {
+  /* Four desktop direction cards should fit the viewport without clipping. */
+  .format-track { margin-left: -8px; }
+  .format-slide {
+    flex: 0 0 25%;
+    padding-left: 8px;
+  }
 }
 
-.section-heading { margin-bottom: 32px; }
-.price-section { margin-top: 96px; }
-.contact-section { padding-top: 96px; }
+/* One smaller, shared rhythm between the main sections. */
+.section,
+.teachers-section {
+  padding-top: 56px;
+}
+
+.section-heading { margin-bottom: 24px; }
+.price-section { margin-top: 22px; }
+.contact-section { padding-top: 56px; }
 
 @media (min-width: 760px) {
   .section,
-  .teachers-section { padding-top: 116px; }
-  .price-section { margin-top: 116px; }
-  .contact-section { padding-top: 116px; }
+  .teachers-section { padding-top: 72px; }
+  .price-section { margin-top: 24px; }
+  .contact-section { padding-top: 72px; }
 }
