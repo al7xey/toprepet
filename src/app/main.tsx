@@ -20,6 +20,7 @@ import './experience.css';
 const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
 const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
 const TeacherPage = lazy(() => import('../pages/teacher/teacher-page'));
+const TeacherJoinPage = lazy(() => import('../pages/teacher/teacher-join-page'));
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { hasError: boolean }
@@ -121,6 +122,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/lessons" element={<LessonsPage />} />
                 <Route path="/teacher/:id" element={<TeacherPage />} />
+                <Route path="/teacher/join" element={<TeacherJoinPage />} />
                 <Route path="/direction/:id" element={<DirectionPage />} />
                 <Route path="*" element={<DirectionPage />} />
               </Routes>

@@ -1,7 +1,10 @@
+import { Link } from 'react-router-dom';
+
 const steps = [
   {
     title: 'Выберите задачу',
     text: 'Предмет, домашние задания или подготовка к экзамену.',
+    action: 'Напишите менеджеру',
   },
   {
     title: 'Познакомьтесь бесплатно',
@@ -24,7 +27,7 @@ export function HowItWorks() {
         <h2 id="how-title">Как всё устроено</h2>
       </div>
       <ol className="process-grid">
-        {steps.map(({ title, text }, index) => (
+        {steps.map(({ title, text, action }, index) => (
           <li className="process-item" key={title}>
             <span className="process-marker" aria-hidden="true">
               {index + 1}
@@ -32,6 +35,7 @@ export function HowItWorks() {
             <div className="process-copy">
               <h3>{title}</h3>
               <p>{text}</p>
+              {action && <Link className="process-link" to="/#contact">{action} <span aria-hidden="true">↗</span></Link>}
             </div>
           </li>
         ))}
