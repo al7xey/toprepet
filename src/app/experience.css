@@ -807,6 +807,7 @@
   left: 28px;
   width: 3px;
   border-radius: 99px;
+  display: none;
 }
 
 .process-grid::before { background: #ffe0cf; }
@@ -818,7 +819,7 @@
 }
 
 .reveal-enter .process-grid::after {
-  animation: process-line-y 1.25s cubic-bezier(.2, .75, .25, 1) forwards;
+  animation: process-line-y 2.8s cubic-bezier(.2, .75, .25, 1) forwards;
 }
 
 .process-item {
@@ -829,6 +830,27 @@
   align-items: start;
 }
 
+.process-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  top: 58px;
+  left: 28px;
+  width: 3px;
+  height: calc(100% + 34px - 58px);
+  border-radius: 99px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+.reveal-enter .process-item:not(:last-child)::after {
+  animation: process-line-y 1.2s cubic-bezier(.2, .75, .25, 1) forwards;
+}
+
+.reveal-enter .process-item:nth-child(2)::after { animation-delay: .9s; }
+.reveal-enter .process-item:nth-child(3)::after { animation-delay: 1.8s; }
+
 .process-marker {
   position: relative;
   z-index: 1;
@@ -836,10 +858,12 @@
   place-items: center;
   width: 58px;
   height: 58px;
-  border: 2px solid var(--accent);
+  border: 0;
   border-radius: 50%;
-  background: #fff;
-  color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.125rem;
+  font-weight: 800;
 }
 
 .reveal-enter .process-marker { animation: process-pop .38s ease-out both; }
@@ -848,15 +872,6 @@
 .reveal-enter .process-item:nth-child(4) .process-marker { animation-delay: .75s; }
 
 .process-copy { padding-top: 2px; }
-
-.process-index {
-  display: block;
-  margin-bottom: 5px;
-  color: var(--accent);
-  font-size: .875rem;
-  font-weight: 800;
-  letter-spacing: .08em;
-}
 
 .process-copy h3 {
   margin-bottom: 7px;
@@ -914,6 +929,7 @@
     left: 12.5%;
     width: auto;
     height: 3px;
+    display: block;
   }
 
   .process-grid::after {
@@ -921,7 +937,9 @@
     transform-origin: left;
   }
 
-  .reveal-enter .process-grid::after { animation-name: process-line-x; }
+  .reveal-enter .process-grid::after { animation-name: process-line-x; animation-duration: 2.8s; }
+
+  .process-item:not(:last-child)::after { display: none; }
 
   .process-item {
     grid-template-columns: minmax(0, 1fr);
