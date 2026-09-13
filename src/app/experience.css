@@ -1072,36 +1072,39 @@
   right: 10px;
   bottom: 10px;
   left: 10px;
-  height: 124px;
-  padding: 12px 14px;
-  border-radius: 20px;
-  background: rgb(255 249 244 / 68%);
+  height: 132px;
+  padding: 14px 16px;
+  border-radius: 23px;
+  background: rgb(255 249 244 / 78%);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   grid-template-rows: auto auto auto;
-  gap: 6px;
+  gap: 5px;
 }
 
 .teacher-card strong {
-  font-size: 1.05rem;
-  line-height: 1.2;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.22;
 }
 
 .teacher-card-detail {
   display: block;
   overflow: hidden;
   color: var(--body-muted);
-  font-size: .75rem;
+  font-size: .8rem;
+  font-weight: 650;
   line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .teacher-open.button {
-  min-height: 38px;
+  min-height: 40px;
   padding: 8px 12px;
-  border-radius: 15px;
-  font-size: .95rem;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 800;
 }
 
 /* Bring the teachers section closer to the final step above it. */
