@@ -8,6 +8,7 @@ import {
   exams,
   examSubjects,
   availableGrades,
+  initialSelection,
   type LessonSelection,
   type Goal,
 } from '../../../entities/lesson';
@@ -59,6 +60,12 @@ export function LessonPicker({
     selection.subject,
     selection.exam,
   );
+  const hasSelection =
+    selection.goal !== initialSelection.goal ||
+    selection.subject !== initialSelection.subject ||
+    selection.grade !== initialSelection.grade ||
+    selection.exam !== initialSelection.exam ||
+    selection.promoCode.trim() !== '';
   return (
     <div className="lesson-layout">
       <div className="lesson-options">
@@ -80,7 +87,8 @@ export function LessonPicker({
               value={selection.exam}
               options={exams.map((v) => ({ value: v, label: v }))}
               onChange={(v) => dispatch(setExam(v))}
-            className="exam-options"
+              className="exam-options"
+              allowDeselect
           />
           <p className="availability-note">Сейчас готовим к экзаменам только по информатике. По другим предметам ищем преподавателей.</p>
           </section>
@@ -93,6 +101,7 @@ export function LessonPicker({
             options={items.map((v) => ({ value: v, label: v }))}
             onChange={(v) => dispatch(setSubject(v))}
             className="subject-options"
+            allowDeselect
           />
         </section>
           <section className="option-section">
@@ -106,6 +115,7 @@ export function LessonPicker({
               }))}
               onChange={(v) => dispatch(setGrade(v))}
               className="grade-options"
+              allowDeselect
             />
           </section>
       </div>
@@ -125,13 +135,15 @@ export function LessonPicker({
         </div>
         <p className="summary-free">Бесплатное знакомство: 20 минут и индивидуальный план</p>
         <Link className="button button-primary" to="/lessons#contact">Выбрать мессенджер</Link>
-        <button
-          className="reset-selection"
-          type="button"
-          onClick={() => dispatch(resetSelection())}
-        >
-          Сбросить выбор
-        </button>
+        {hasSelection && (
+          <button
+            className="reset-selection"
+            type="button"
+            onClick={() => dispatch(resetSelection())}
+          >
+            Сбросить
+          </button>
+        )}
       </aside>
     </div>
   );

@@ -1,7 +1,7 @@
-import { ArrowLeft, Check, MessageCircle } from 'lucide-react';
+import { ArrowLeft, MessageCircle } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { findTeacher } from '../../entities/teacher';
-import { TELEGRAM_URL } from '../../shared/config/site';
+import { telegramLink } from '../../shared/config/site';
 
 export default function TeacherPage() {
   const { id } = useParams();
@@ -31,44 +31,35 @@ export default function TeacherPage() {
         </div>
         <div className="teacher-profile-copy">
           <h1 id="teacher-name">{teacher.name}</h1>
-          <p className="teacher-profile-role">{teacher.role}</p>
-          <div className="teacher-subject-list" aria-label="Предметы">
-            {teacher.subjects.map((subject) => (
-              <span key={subject}>{subject}</span>
-            ))}
+          <p className="teacher-profile-intro">{teacher.intro}</p>
+
+          <section className="teacher-profile-section" aria-labelledby="teacher-topics">
+            <h2 id="teacher-topics">С чем поможет</h2>
+            <div className="teacher-topic-grid">
+              {teacher.cardTicker.map((topic) => <span key={topic}>{topic}</span>)}
+            </div>
+          </section>
+
+          <section className="teacher-profile-section teacher-profile-approach" aria-labelledby="teacher-approach">
+            <h2 id="teacher-approach">Как проходят занятия</h2>
+            <p>{teacher.approach}</p>
+          </section>
+
+          <div className="teacher-profile-action">
+            <div>
+              <strong>Хотите заниматься с этим преподавателем?</strong>
+              <span>Менеджер уточнит расписание и поможет записаться.</span>
+            </div>
+            <a
+              className="button button-primary teacher-profile-contact"
+              href={telegramLink(`Хочу выбрать преподавателя: ${teacher.name}`)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <MessageCircle size={19} aria-hidden="true" />
+              Выбрать через менеджера
+            </a>
           </div>
-          <p>{teacher.intro}</p>
-          <ul className="teacher-achievements">
-            {teacher.achievements.map((achievement) => (
-              <li key={achievement}>
-                <Check size={19} aria-hidden="true" />
-                <span>{achievement}</span>
-              </li>
-            ))}
-          </ul>
-          <div className="teacher-profile-details">
-            <section>
-              <h2>Релевантный опыт</h2>
-              <ul>
-                {teacher.experience.map((item) => <li key={item}>{item}</li>)}
-              </ul>
-            </section>
-            <section>
-              <h2>Образование</h2>
-              <ul>
-                {teacher.education.map((item) => <li key={item}>{item}</li>)}
-              </ul>
-            </section>
-          </div>
-          <a
-            className="button button-primary teacher-profile-contact"
-            href={TELEGRAM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <MessageCircle size={19} aria-hidden="true" />
-            Написать в Telegram
-          </a>
         </div>
       </div>
     </section>

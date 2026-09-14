@@ -9,12 +9,14 @@ export function ChoiceGroup({
   options,
   onChange,
   className = '',
+  allowDeselect = false,
 }: {
   label: string;
   value: string;
   options: readonly Choice[];
   onChange: (value: string) => void;
   className?: string;
+  allowDeselect?: boolean;
 }) {
   return (
     <RadioGroup
@@ -29,6 +31,12 @@ export function ChoiceGroup({
       {options.map((option) => (
         <label
           key={option.value}
+          onClick={(event) => {
+            if (allowDeselect && value === option.value) {
+              event.preventDefault();
+              onChange('');
+            }
+          }}
           className={
             'choice-option' + (value === option.value ? ' is-selected' : '')
           }

@@ -55,6 +55,10 @@ export const lessonSlice = createSlice({
       normalize(state);
     },
     setGrade(state, action: PayloadAction<string>) {
+      if (action.payload === '') {
+        state.grade = '';
+        return;
+      }
       if (
         !availableGrades(state.goal, state.subject, state.exam).includes(
           action.payload,
@@ -64,6 +68,11 @@ export const lessonSlice = createSlice({
       state.grade = action.payload;
     },
     setExam(state, action: PayloadAction<string>) {
+      if (action.payload === '') {
+        state.exam = '';
+        state.grade = '';
+        return;
+      }
       if (!exams.some((e) => e === action.payload)) return;
       state.exam = action.payload;
       normalize(state);
