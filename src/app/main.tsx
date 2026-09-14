@@ -40,7 +40,7 @@ class ErrorBoundary extends Component<
           загрузить страницу.
         </h1>
         <p>Попробуйте обновить её или напишите нам напрямую.</p>
-        <a className="button" href="https://t.me/a17xey">
+        <a className="button" href="https://t.me/toprepet_manager">
           Написать в Telegram
         </a>
         <button

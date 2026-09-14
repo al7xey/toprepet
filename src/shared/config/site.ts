@@ -1,6 +1,6 @@
 export const PRICE = 1200;
 export const PRICE_LABEL = new Intl.NumberFormat('ru-RU').format(PRICE) + ' ₽';
-export const TELEGRAM_URL = 'https://t.me/a17xey';
+export const TELEGRAM_URL = 'https://t.me/toprepet_manager';
 export function enquiryMessage(topic?: string) {
   return [
     'Здравствуйте!',
