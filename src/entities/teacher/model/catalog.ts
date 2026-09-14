@@ -2,9 +2,7 @@ export interface Teacher {
   id: string;
   name: string;
   role: string;
-  cardTitle: string;
-  cardBadges: readonly string[];
-  topics: readonly string[];
+  cardTicker: readonly string[];
   photo: string;
   intro: string;
   approach: string;
@@ -15,9 +13,7 @@ export const teachers: readonly Teacher[] = [
     id: 'informatics',
     name: 'Алексей Семенов',
     role: 'Репетитор по информатике',
-    cardTitle: 'Подготовка к ОГЭ и ЕГЭ',
-    cardBadges: ['Информатика', 'Математика', 'Домашние задания'],
-    topics: [
+    cardTicker: [
       'Информатика',
       'ЕГЭ по информатике',
       'ОГЭ по информатике',
@@ -36,9 +32,7 @@ export const teachers: readonly Teacher[] = [
     id: 'english',
     name: 'Анастасия Афонина',
     role: 'Репетитор по английскому и истории',
-    cardTitle: 'Школьные предметы',
-    cardBadges: ['Английский', 'История', 'Начальные классы'],
-    topics: [
+    cardTicker: [
       'Английский',
       'История России',
       'Школьные предметы',

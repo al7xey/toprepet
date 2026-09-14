@@ -36,7 +36,7 @@ export default function TeacherPage() {
           <section className="teacher-profile-section" aria-labelledby="teacher-topics">
             <h2 id="teacher-topics">С чем поможет</h2>
             <div className="teacher-topic-grid">
-              {teacher.topics.map((topic) => <span key={topic}>{topic}</span>)}
+              {teacher.cardTicker.map((topic) => <span key={topic}>{topic}</span>)}
             </div>
           </section>
 
