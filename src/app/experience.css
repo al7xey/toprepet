@@ -1232,8 +1232,9 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 0;
-  max-width: 760px;
-  margin: 0 auto;
+  width: min(760px, 100%);
+  max-width: none;
+  margin: 0;
 }
 
 .process-grid::before,
@@ -1273,6 +1274,8 @@
   .process-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
+    width: min(760px, 100%);
+    margin: 0;
   }
 
   .process-grid::before,
