@@ -1201,6 +1201,10 @@
   transition: none;
 }
 
+.messenger-button .messenger-wordmark {
+  color: var(--accent);
+}
+
 .choice-option {
   transition: none;
 }
