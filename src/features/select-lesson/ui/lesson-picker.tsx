@@ -8,7 +8,6 @@ import {
   exams,
   examSubjects,
   availableGrades,
-  initialSelection,
   type LessonSelection,
   type Goal,
 } from '../../../entities/lesson';
@@ -60,12 +59,6 @@ export function LessonPicker({
     selection.subject,
     selection.exam,
   );
-  const hasSelection =
-    selection.goal !== initialSelection.goal ||
-    selection.subject !== initialSelection.subject ||
-    selection.grade !== initialSelection.grade ||
-    selection.exam !== initialSelection.exam ||
-    selection.promoCode.trim() !== '';
   return (
     <div className="lesson-layout">
       <div className="lesson-options">
@@ -75,8 +68,9 @@ export function LessonPicker({
             label="Цель занятий"
             value={selection.goal}
             options={goals.map((g) => ({ value: g.id, label: g.label }))}
-            onChange={(v) => dispatch(setGoal(v))}
+            onChange={(v) => dispatch(v ? setGoal(v) : resetSelection())}
             className="goal-options"
+            allowDeselect
           />
         </section>
         {selection.goal === 'exam' ? (
@@ -86,7 +80,7 @@ export function LessonPicker({
               label="Экзамен"
               value={selection.exam}
               options={exams.map((v) => ({ value: v, label: v }))}
-              onChange={(v) => dispatch(setExam(v))}
+              onChange={(v) => dispatch(v ? setExam(v) : resetSelection())}
               className="exam-options"
               allowDeselect
           />
@@ -99,7 +93,7 @@ export function LessonPicker({
             label={selection.goal === 'foundation' ? 'Направление' : 'Предмет'}
             value={selection.subject}
             options={items.map((v) => ({ value: v, label: v }))}
-            onChange={(v) => dispatch(setSubject(v))}
+            onChange={(v) => dispatch(v ? setSubject(v) : resetSelection())}
             className="subject-options"
             allowDeselect
           />
@@ -113,7 +107,7 @@ export function LessonPicker({
                 value: v,
                 label: v === 'До школы' ? v : v + ' класс',
               }))}
-              onChange={(v) => dispatch(setGrade(v))}
+              onChange={(v) => dispatch(v ? setGrade(v) : resetSelection())}
               className="grade-options"
               allowDeselect
             />
@@ -135,15 +129,6 @@ export function LessonPicker({
         </div>
         <p className="summary-free">Бесплатное знакомство: 20 минут и индивидуальный план</p>
         <Link className="button button-primary" to="/lessons#contact">Выбрать мессенджер</Link>
-        {hasSelection && (
-          <button
-            className="reset-selection"
-            type="button"
-            onClick={() => dispatch(resetSelection())}
-          >
-            Сбросить
-          </button>
-        )}
       </aside>
     </div>
   );
