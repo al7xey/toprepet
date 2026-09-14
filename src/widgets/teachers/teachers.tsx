@@ -50,11 +50,11 @@ export function Teachers() {
                 <span className={`teacher-photo teacher-photo-${index + 1}`}>
                   <img src={photo} alt="" loading="lazy" draggable={false} />
                 </span>
+                <span className="teacher-card-badges" aria-label="Предметы">
+                  {cardBadges.map((badge) => <span key={badge}>{badge}</span>)}
+                </span>
                 <span className="teacher-glass">
                   <strong className="teacher-card-title">{cardTitle}</strong>
-                  <span className="teacher-card-badges" aria-label="Предметы">
-                    {cardBadges.map((badge) => <span key={badge}>{badge}</span>)}
-                  </span>
                   <span className="teacher-open button button-primary">
                     Открыть анкету
                   </span>
