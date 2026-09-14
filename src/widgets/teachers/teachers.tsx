@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Carousel,
@@ -9,9 +10,32 @@ import {
 import { teachers } from '../../entities/teacher';
 
 export function Teachers() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isTickerActive, setIsTickerActive] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section || isTickerActive) return;
+    if (!('IntersectionObserver' in window)) {
+      setIsTickerActive(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsTickerActive(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '0px 0px -18% 0px', threshold: 0.2 });
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [isTickerActive]);
+
   return (
     <section
-      className="section container teachers-section"
+      ref={sectionRef}
+      className={`section container teachers-section${isTickerActive ? ' teachers-section-ticker-active' : ''}`}
       id="teachers"
       aria-labelledby="teachers-title"
     >
