@@ -12,6 +12,16 @@
       "permanent": true
     },
     {
+      "source": "/assets/index-:hash.js",
+      "destination": "https://toprepet.vercel.app/assets/index.js",
+      "permanent": false
+    },
+    {
+      "source": "/assets/index-:hash.css",
+      "destination": "https://toprepet.vercel.app/assets/index.css",
+      "permanent": false
+    },
+    {
       "source": "/assets/:path*",
       "has": [{ "type": "host", "value": "www.toprepet.ru" }],
       "destination": "https://toprepet.vercel.app/assets/:path*",
