@@ -6,6 +6,24 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/assets/:path*",
+      "has": [{ "type": "host", "value": "www.toprepet.ru" }],
+      "destination": "https://toprepet.vercel.app/assets/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/images/:path*",
+      "has": [{ "type": "host", "value": "www.toprepet.ru" }],
+      "destination": "https://toprepet.vercel.app/images/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/favicon.svg",
+      "has": [{ "type": "host", "value": "www.toprepet.ru" }],
+      "destination": "https://toprepet.vercel.app/favicon.svg",
+      "permanent": false
+    },
+    {
       "source": "/:path*",
       "has": [{ "type": "host", "value": "toprepet.ru" }],
       "destination": "https://www.toprepet.ru/:path*",
