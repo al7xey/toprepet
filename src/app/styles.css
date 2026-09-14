@@ -824,8 +824,35 @@ h2 {
 .not-found {
   padding-block: 65px;
 }
-.not-found .button {
-  margin-right: 10px;
+.not-found p {
+  max-width: 520px;
+}
+.error-messenger-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 180px));
+  gap: 12px;
+  margin-top: 22px;
+}
+.error-messenger-button {
+  min-height: 50px;
+  padding-inline: 16px;
+}
+.error-refresh-button {
+  width: min(100%, 180px);
+  margin-top: 14px;
+  background: #fff;
+  border-color: var(--line);
+  color: var(--ink);
+}
+.error-refresh-button:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--ink);
+}
+@media (max-width: 420px) {
+  .error-messenger-grid {
+    grid-template-columns: 1fr;
+  }
 }
 @media (min-width: 600px) {
   .container {
