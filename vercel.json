@@ -6,6 +6,12 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/",
+      "has": [{ "type": "host", "value": "toprepet.ru" }],
+      "destination": "https://www.toprepet.ru/",
+      "permanent": true
+    },
+    {
       "source": "/assets/:path*",
       "has": [{ "type": "host", "value": "www.toprepet.ru" }],
       "destination": "https://toprepet.vercel.app/assets/:path*",
