@@ -1,7 +1,7 @@
-import { ArrowLeft, MessageCircle } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { findTeacher } from '../../entities/teacher';
-import { telegramLink } from '../../shared/config/site';
+import { messengers, messengerLink } from '../../shared/config/contacts';
 
 export default function TeacherPage() {
   const { id } = useParams();
@@ -47,18 +47,22 @@ export default function TeacherPage() {
 
           <div className="teacher-profile-action">
             <div>
-              <strong>Хотите заниматься с этим преподавателем?</strong>
-              <span>Менеджер уточнит расписание и поможет записаться.</span>
+              <strong>Выберите удобный мессенджер</strong>
+              <span>Менеджер уточнит свободное время преподавателя и поможет записаться.</span>
             </div>
-            <a
-              className="button button-primary teacher-profile-contact"
-              href={telegramLink(`Хочу выбрать преподавателя: ${teacher.name}`)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <MessageCircle size={19} aria-hidden="true" />
-              Выбрать через менеджера
-            </a>
+            <div className="teacher-profile-messengers" aria-label="Мессенджеры для связи с менеджером">
+              {messengers.map((messenger) => (
+                <a
+                  key={messenger.id}
+                  className="messenger-button teacher-profile-contact"
+                  href={messengerLink(messenger, `Хочу выбрать преподавателя: ${teacher.name}`)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {messenger.label}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </div>

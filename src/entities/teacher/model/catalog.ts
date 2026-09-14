@@ -11,7 +11,7 @@ export interface Teacher {
 export const teachers: readonly Teacher[] = [
   {
     id: 'informatics',
-    name: 'Алексей Семенов',
+    name: 'Алексей',
     role: 'Репетитор по информатике',
     cardTicker: [
       'Информатика',
@@ -30,7 +30,7 @@ export const teachers: readonly Teacher[] = [
   },
   {
     id: 'english',
-    name: 'Анастасия Афонина',
+    name: 'Анастасия',
     role: 'Репетитор по английскому и истории',
     cardTicker: [
       'Английский',
