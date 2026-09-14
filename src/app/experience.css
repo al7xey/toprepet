@@ -1137,3 +1137,187 @@
 @media (min-width: 760px) {
   .teachers-section { padding-top: 88px; }
 }
+
+/* Current polish pass. */
+.teacher-card-ticker strong {
+  font-weight: 680;
+}
+
+.teacher-profile-grid {
+  align-items: start;
+}
+
+.teacher-profile-photo {
+  position: relative;
+  top: auto;
+  justify-self: start;
+  align-self: start;
+}
+
+.teacher-achievements-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.teacher-achievement-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+}
+
+.teacher-achievement-card h3 {
+  margin: 0 0 7px;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.teacher-achievement-card p {
+  margin: 0;
+  color: var(--body-muted);
+  font-size: .9375rem;
+  line-height: 1.55;
+}
+
+.teacher-profile-action {
+  gap: 14px;
+  margin-top: 0;
+  padding: 24px 0 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+}
+
+.teacher-profile-messengers {
+  gap: 12px;
+}
+
+.teacher-profile-messengers .messenger-button {
+  border-radius: 18px;
+}
+
+.messenger-button {
+  transition: none;
+}
+
+.choice-option {
+  transition: none;
+}
+
+.choice-option.is-selected,
+.choice-option.is-selected:hover,
+.choice-option.is-selected:active,
+.choice-option.is-selected:focus-visible {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--ink);
+  font-weight: 750;
+  box-shadow: none;
+}
+
+.lessons-page {
+  padding-top: 38px;
+}
+
+.lessons-page .page-heading {
+  margin-bottom: 34px;
+}
+
+.process-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.process-grid::before,
+.process-grid::after {
+  display: none;
+}
+
+.process-item {
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 20px;
+  min-height: 124px;
+  text-align: left;
+}
+
+.process-marker {
+  justify-self: start;
+}
+
+.process-copy p {
+  margin-inline: 0;
+}
+
+.process-item:not(:last-child)::after {
+  display: block;
+}
+
+@media (min-width: 760px) {
+  .teacher-achievements-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-profile-grid {
+    grid-template-columns: 256px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .process-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .process-grid::before,
+  .process-grid::after {
+    display: none;
+  }
+
+  .process-item {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 20px;
+    min-height: 124px;
+    text-align: left;
+  }
+
+  .process-marker {
+    justify-self: start;
+  }
+
+  .process-copy p {
+    margin-inline: 0;
+  }
+
+  .process-item:not(:last-child)::after {
+    display: block;
+  }
+}
+
+@media (min-width: 1000px) {
+  .formats-carousel,
+  .teachers-carousel {
+    width: 100%;
+    max-width: none;
+  }
+
+  .formats-carousel .section-heading,
+  .teachers-heading {
+    padding-right: 116px;
+  }
+
+  .format-track {
+    margin-left: -12px;
+  }
+
+  .format-slide {
+    flex: 0 0 25%;
+    padding-left: 12px;
+  }
+
+  .format-card {
+    min-height: 392px;
+  }
+}

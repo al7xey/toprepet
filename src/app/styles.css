@@ -827,15 +827,9 @@ h2 {
 .not-found p {
   max-width: 520px;
 }
-.error-messenger-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 180px));
-  gap: 12px;
+.not-found-messengers {
+  max-width: 520px;
   margin-top: 22px;
-}
-.error-messenger-button {
-  min-height: 50px;
-  padding-inline: 16px;
 }
 .error-refresh-button {
   width: min(100%, 180px);
@@ -850,7 +844,7 @@ h2 {
   color: var(--ink);
 }
 @media (max-width: 420px) {
-  .error-messenger-grid {
+  .not-found-messengers {
     grid-template-columns: 1fr;
   }
 }

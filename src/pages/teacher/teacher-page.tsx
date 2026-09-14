@@ -1,7 +1,7 @@
 import { ArrowLeft } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { findTeacher } from '../../entities/teacher';
-import { messengers, messengerLink } from '../../shared/config/contacts';
+import { MessengerLinks } from '../../shared/ui/messenger-links';
 
 export default function TeacherPage() {
   const { id } = useParams();
@@ -33,6 +33,18 @@ export default function TeacherPage() {
           <h1 id="teacher-name">{teacher.name}</h1>
           <p className="teacher-profile-intro">{teacher.intro}</p>
 
+          <section className="teacher-profile-section teacher-achievements-section" aria-labelledby="teacher-achievements">
+            <h2 id="teacher-achievements">Образование и достижения</h2>
+            <div className="teacher-achievements-grid">
+              {teacher.achievements.map((achievement) => (
+                <article className="teacher-achievement-card" key={achievement.title}>
+                  <h3>{achievement.title}</h3>
+                  <p>{achievement.text}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
           <section className="teacher-profile-section" aria-labelledby="teacher-topics">
             <h2 id="teacher-topics">С чем поможет</h2>
             <div className="teacher-topic-grid">
@@ -47,22 +59,14 @@ export default function TeacherPage() {
 
           <div className="teacher-profile-action">
             <div>
-              <strong>Выберите удобный мессенджер</strong>
+              <strong>Связаться с менеджером</strong>
               <span>Менеджер уточнит свободное время преподавателя и поможет записаться.</span>
             </div>
-            <div className="teacher-profile-messengers" aria-label="Мессенджеры для связи с менеджером">
-              {messengers.map((messenger) => (
-                <a
-                  key={messenger.id}
-                  className="messenger-button teacher-profile-contact"
-                  href={messengerLink(messenger, `Хочу выбрать преподавателя: ${teacher.name}`)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {messenger.label}
-                </a>
-              ))}
-            </div>
+            <MessengerLinks
+              topic={`Хочу выбрать преподавателя: ${teacher.name}`}
+              className="teacher-profile-messengers"
+              linkClassName="teacher-profile-contact"
+            />
           </div>
         </div>
       </div>

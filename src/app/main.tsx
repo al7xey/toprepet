@@ -14,7 +14,7 @@ import { store } from './store';
 import { Header } from '../widgets/header/header';
 import HomePage from '../pages/home/home-page';
 import { Footer } from '../widgets/footer/footer';
-import { messengers, messengerLink } from '../shared/config/contacts';
+import { MessengerLinks } from '../shared/ui/messenger-links';
 import './styles.css';
 import './refinements.css';
 import './experience.css';
@@ -41,19 +41,7 @@ class ErrorBoundary extends Component<
           загрузить страницу.
         </h1>
         <p>Попробуйте обновить страницу или напишите менеджеру в удобном мессенджере.</p>
-        <div className="error-messenger-grid" aria-label="Мессенджеры для связи">
-          {messengers.map((messenger) => (
-            <a
-              key={messenger.id}
-              className="button error-messenger-button"
-              href={messengerLink(messenger, 'Не загрузилась страница')}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {messenger.label}
-            </a>
-          ))}
-        </div>
+        <MessengerLinks topic="Не загрузилась страница" className="not-found-messengers" />
         <button
           className="button button-light error-refresh-button"
           onClick={() => window.location.reload()}
