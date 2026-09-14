@@ -1102,8 +1102,7 @@
   display: inline-flex;
   width: max-content;
   gap: 18px;
-  animation: teacherTickerRight 32s linear infinite;
-  transform: translateX(-50%);
+  animation: teacherTickerLeft 46s linear infinite;
 }
 
 .teacher-card-ticker strong {
@@ -1133,12 +1132,12 @@
   font-weight: 800;
 }
 
-@keyframes teacherTickerRight {
+@keyframes teacherTickerLeft {
   from {
-    transform: translateX(-50%);
+    transform: translateX(0);
   }
   to {
-    transform: translateX(0);
+    transform: translateX(-50%);
   }
 }
 
