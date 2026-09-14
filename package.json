@@ -9,7 +9,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "start": "vite preview --host 127.0.0.1",
-    "lint": "oxlint",
+    "lint": "oxlint src vite.config.ts components/ui/accordion.tsx components/ui/radio-group.tsx components/ui/carousel.tsx components/ui/sheet.tsx components/ui/button.tsx lib/utils.ts",
     "format": "oxfmt"
   },
   "dependencies": {

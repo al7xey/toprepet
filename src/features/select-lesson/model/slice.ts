@@ -23,11 +23,12 @@ function normalize(state: typeof initialSelection) {
   )
     state.grade = 'До школы';
   else if (
-    !availableGrades(state.goal, state.subject).includes(
+    !availableGrades(state.goal, state.subject, state.exam).includes(
       state.grade,
     )
   )
-    state.grade = '';
+    state.grade =
+      state.goal === 'exam' ? (state.exam === 'ЕГЭ' ? '11' : '9') : '';
 }
 export const lessonSlice = createSlice({
   name: 'lesson',
@@ -55,7 +56,7 @@ export const lessonSlice = createSlice({
     },
     setGrade(state, action: PayloadAction<string>) {
       if (
-        !availableGrades(state.goal, state.subject).includes(
+        !availableGrades(state.goal, state.subject, state.exam).includes(
           action.payload,
         )
       )

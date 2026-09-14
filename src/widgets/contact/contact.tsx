@@ -31,7 +31,7 @@ export function Contact({ onLessonsPage = false }: { onLessonsPage?: boolean }) 
     <section id="contact" className="contact-section container" aria-labelledby="contact-title">
       <div className="contact-heading">
         <h2 id="contact-title">Связаться с менеджером</h2>
-        <p>Выберите удобный мессенджер. Пока сайт развивается, менеджер поможет подобрать занятия — обычно отвечаем за 7 минут.</p>
+        <p>Пока связаться с нами можно через мессенджеры. Позже запись и общение будут доступны прямо на сайте. Обычно отвечаем за 7 минут.</p>
       </div>
       <div className="contact-actions">
         <div className="messenger-grid" aria-label="Мессенджеры для связи">
@@ -46,7 +46,7 @@ export function Contact({ onLessonsPage = false }: { onLessonsPage?: boolean }) 
           <p>Для Telegram и WhatsApp выбор{selection.promoCode.trim() ? ' и промокод' : ''} уже добавлен в сообщение. Для VK и MAX скопируйте текст.</p>
           <button type="button" className="copy-choice" onClick={copySelection}>{copyState === 'copied' ? <Check size={18} aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}Скопировать выбор</button>
           {!onLessonsPage && <Link className="inline-link" to="/lessons">Изменить</Link>}
-          <p className="copy-status" role="status">{copyState === 'copied' ? 'Текст скопирован — вставьте его в диалог' : copyState === 'failed' ? 'Скопируйте текст из поля ниже' : ''}</p>
+          <output className="copy-status">{copyState === 'copied' ? 'Текст скопирован — вставьте его в диалог' : copyState === 'failed' ? 'Скопируйте текст из поля ниже' : ''}</output>
           {copyState === 'failed' && <textarea aria-label="Текст сообщения для ручного копирования" value={enquiryMessage(topic)} readOnly rows={7} />}
         </div>}
       </div>

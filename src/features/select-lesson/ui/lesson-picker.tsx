@@ -57,6 +57,7 @@ export function LessonPicker({
   const grades = availableGrades(
     selection.goal,
     selection.subject,
+    selection.exam,
   );
   return (
     <div className="lesson-layout">

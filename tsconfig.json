@@ -27,6 +27,12 @@
   },
   "include": [
     "src",
-    "vite.config.ts"
+    "vite.config.ts",
+    "lib/utils.ts",
+    "components/ui/accordion.tsx",
+    "components/ui/button.tsx",
+    "components/ui/carousel.tsx",
+    "components/ui/radio-group.tsx",
+    "components/ui/sheet.tsx"
   ]
 }

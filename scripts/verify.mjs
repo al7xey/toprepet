@@ -28,10 +28,18 @@ try {
   assert.equal(url.origin + url.pathname, 'https://t.me/a17xey');
   assert.match(
     url.searchParams.get('text'),
-    /Домашние задания · Математика · 5 класс/,
+    /Направление: Домашние задания[\s\S]*Предмет: Математика[\s\S]*Класс: 5 класс/,
   );
   assert.equal(PRICE, 1200);
-  assert.equal(telegramLink(), 'https://t.me/a17xey');
+  const defaultTelegramUrl = new URL(telegramLink());
+  assert.equal(
+    defaultTelegramUrl.origin + defaultTelegramUrl.pathname,
+    'https://t.me/a17xey',
+  );
+  assert.match(
+    defaultTelegramUrl.searchParams.get('text'),
+    /Помогите подобрать занятия для ребёнка/,
+  );
   assert.match(
     new URL(telegramLink('ОГЭ & ЕГЭ')).searchParams.get('text'),
     /ОГЭ & ЕГЭ/,
@@ -44,7 +52,7 @@ try {
   state = reduce(state, setExam('ЕГЭ'));
   assert.equal(state.grade, '11');
   assert.equal(state.subject, 'Информатика');
-  assert.match(selectionDescription(state), /ЕГЭ · 11 класс/);
+  assert.match(selectionDescription(state), /Экзамен: ЕГЭ[\s\S]*Класс: 11 класс/);
   assert.deepEqual(reduce(state, setGrade('5')), state);
   assert.deepEqual(reduce(state, setSubject('Математика')), state);
 

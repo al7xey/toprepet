@@ -28,7 +28,7 @@ const formats = [
     icon: ListChecks,
     title: 'ОГЭ и ЕГЭ: информатика',
     description: 'Разберём алгоритмы и задания экзаменационного формата.',
-    label: '9–11 классы',
+    label: 'ОГЭ: 8–9 · ЕГЭ: 10–11',
   },
   {
     id: 'foundation',
