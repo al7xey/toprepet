@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
+const deploymentBase = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}/` : '/';
+
 export default defineConfig({
-  base: process.env.VERCEL === '1' ? 'https://toprepet.vercel.app/' : '/',
+  base: deploymentBase,
   plugins: [react()],
   resolve: { alias: { '@': fileURLToPath(new URL('./', import.meta.url)) } },
   server: { host: '127.0.0.1' },
