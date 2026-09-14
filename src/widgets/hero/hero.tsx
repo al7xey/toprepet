@@ -12,7 +12,7 @@ export function Hero() {
           <span>топ результат</span>
         </h1>
         <p className="hero-description">
-          Индивидуальные занятия с учётом цели, темпа и учебных задач ребёнка.
+          Индивидуальные занятия под вашу цель, темп и учебные задачи.
         </p>
       </div>
       <div className="hero-offer">
