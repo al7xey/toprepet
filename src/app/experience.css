@@ -1072,15 +1072,15 @@
   right: 10px;
   bottom: 10px;
   left: 10px;
-  height: 124px;
-  padding: 12px;
+  height: 96px;
+  padding: 11px 12px;
   border-radius: 23px;
   background: rgb(255 249 244 / 78%);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
-  grid-template-rows: auto auto auto;
-  align-content: start;
-  gap: 8px;
+  grid-template-rows: auto auto;
+  align-content: center;
+  gap: 10px;
 }
 
 .teacher-card strong {
@@ -1124,7 +1124,7 @@
 }
 
 .teacher-open.button {
-  align-self: end;
+  align-self: center;
   min-height: 40px;
   padding: 8px 12px;
   border-radius: 16px;
