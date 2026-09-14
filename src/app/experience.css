@@ -1102,7 +1102,8 @@
   display: inline-flex;
   width: max-content;
   gap: 18px;
-  animation: teacherTickerLeft 46s linear infinite;
+  animation: teacherTickerLeft 46s linear 1.4s infinite;
+  transform: translateX(0);
 }
 
 .teacher-card-ticker strong {
