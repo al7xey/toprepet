@@ -23,8 +23,9 @@ export function Contact({ onLessonsPage = false }: { onLessonsPage?: boolean }) 
   return (
     <section id="contact" className="contact-section container" aria-labelledby="contact-title">
       <div className="contact-heading">
-        <h2 id="contact-title">Связаться с менеджером</h2>
-        <p>Сейчас мы отвечаем в мессенджерах. Позже записаться на занятие и связаться с нами можно будет прямо на сайте. Среднее время ответа — 7 минут.</p>
+        <h2 id="contact-title">Начните занятия</h2>
+        <p>Выберите удобный мессенджер и напишите нам. Менеджер поможет с выбором занятия и преподавателя.</p>
+        <p><strong>Среднее время ответа — 7 минут.</strong></p>
       </div>
       <div className="contact-actions">
         <MessengerLinks topic={topic} />
