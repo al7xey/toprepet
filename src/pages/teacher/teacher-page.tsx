@@ -30,7 +30,6 @@ export default function TeacherPage() {
           <img src={teacher.photo} alt={`Фото: ${teacher.name}`} />
         </div>
         <div className="teacher-profile-copy">
-          <p className="teacher-profile-placeholder">Пример анкеты — данные преподавателя уточняются</p>
           <h1 id="teacher-name">{teacher.name}</h1>
           <p className="teacher-profile-role">{teacher.role}</p>
           <div className="teacher-subject-list" aria-label="Предметы">
@@ -47,6 +46,20 @@ export default function TeacherPage() {
               </li>
             ))}
           </ul>
+          <div className="teacher-profile-details">
+            <section>
+              <h2>Релевантный опыт</h2>
+              <ul>
+                {teacher.experience.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </section>
+            <section>
+              <h2>Образование</h2>
+              <ul>
+                {teacher.education.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </section>
+          </div>
           <a
             className="button button-primary teacher-profile-contact"
             href={TELEGRAM_URL}
