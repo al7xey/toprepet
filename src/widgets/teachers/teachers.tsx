@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Carousel,
@@ -10,32 +9,9 @@ import {
 import { teachers } from '../../entities/teacher';
 
 export function Teachers() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [isTickerActive, setIsTickerActive] = useState(false);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section || isTickerActive) return;
-    if (!('IntersectionObserver' in window)) {
-      setIsTickerActive(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setIsTickerActive(true);
-        observer.disconnect();
-      }
-    }, { rootMargin: '0px 0px -18% 0px', threshold: 0.2 });
-
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, [isTickerActive]);
-
   return (
     <section
-      ref={sectionRef}
-      className={`section container teachers-section${isTickerActive ? ' teachers-section-ticker-active' : ''}`}
+      className="section container teachers-section"
       id="teachers"
       aria-labelledby="teachers-title"
     >
@@ -49,7 +25,7 @@ export function Teachers() {
           <div>
             <h2 id="teachers-title">Топ репеты</h2>
             <p className="section-caption">
-              Молодые преподаватели для занятий в понятном ребёнку темпе.
+              Молодые преподаватели объясняют материал в темпе, комфортном для ребёнка.
             </p>
           </div>
           <div className="carousel-controls">
@@ -64,7 +40,7 @@ export function Teachers() {
           </div>
         </div>
         <CarouselContent className="teacher-track">
-          {teachers.map(({ id, role, cardTicker, photo }, index) => (
+          {teachers.map(({ id, role, cardTitle, cardBadges, photo }, index) => (
             <CarouselItem
               className="teacher-slide"
               key={role}
@@ -75,12 +51,9 @@ export function Teachers() {
                   <img src={photo} alt="" loading="lazy" draggable={false} />
                 </span>
                 <span className="teacher-glass">
-                  <span className="teacher-card-ticker" aria-label={cardTicker.join(', ')}>
-                    <span className="teacher-card-ticker-track" aria-hidden="true">
-                      {[...cardTicker, ...cardTicker].map((item, tickerIndex) => (
-                        <strong key={`${item}-${tickerIndex}`}>{item}</strong>
-                      ))}
-                    </span>
+                  <strong className="teacher-card-title">{cardTitle}</strong>
+                  <span className="teacher-card-badges" aria-label="Предметы">
+                    {cardBadges.map((badge) => <span key={badge}>{badge}</span>)}
                   </span>
                   <span className="teacher-open button button-primary">
                     Открыть анкету

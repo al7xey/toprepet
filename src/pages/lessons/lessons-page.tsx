@@ -21,7 +21,7 @@ export default function LessonsPage() {
       </Link>
       <header className="page-heading">
         <h1>Какие занятия нужны?</h1>
-        <p>Отметьте цель, предмет и класс. Выбор и промокод добавим в сообщение менеджеру.</p>
+        <p>Выберите цель, предмет и класс. Мы добавим выбранные параметры и промокод в сообщение менеджеру.</p>
       </header>
       <LessonPicker
         initialGoal={goal}

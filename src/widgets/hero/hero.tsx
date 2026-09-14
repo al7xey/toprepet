@@ -12,7 +12,7 @@ export function Hero() {
           <span>топ результат</span>
         </h1>
         <p className="hero-description">
-          Индивидуальные занятия с репетитором под вашу цель, темп и задачи.
+          Индивидуальные занятия с учётом цели, темпа и учебных задач ребёнка.
         </p>
       </div>
       <div className="hero-offer">
@@ -28,7 +28,7 @@ export function Hero() {
         </Link>
         <p className="hero-note">
           <ArrowUp aria-hidden="true" />
-          <span><strong>Бесплатное знакомство — 20 минут</strong><br />Уточним цель, выберем график и составим план</span>
+          <span><strong>Бесплатное знакомство — 20 минут</strong><br />Уточним цель, согласуем график и составим план</span>
         </p>
       </div>
       <div className="hero-art" aria-label="Индивидуальное занятие с репетитором">

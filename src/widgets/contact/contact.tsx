@@ -31,7 +31,7 @@ export function Contact({ onLessonsPage = false }: { onLessonsPage?: boolean }) 
     <section id="contact" className="contact-section container" aria-labelledby="contact-title">
       <div className="contact-heading">
         <h2 id="contact-title">Связаться с менеджером</h2>
-        <p>Пока связаться с нами можно через мессенджеры. Позже запись и общение будут доступны прямо на сайте. Обычно отвечаем за 7 минут.</p>
+        <p>Сейчас мы отвечаем в мессенджерах. Позже записаться на занятие и связаться с нами можно будет прямо на сайте. Среднее время ответа — 7 минут.</p>
       </div>
       <div className="contact-actions">
         <div className="messenger-grid" aria-label="Мессенджеры для связи">
@@ -43,7 +43,7 @@ export function Contact({ onLessonsPage = false }: { onLessonsPage?: boolean }) 
           })}
         </div>
         {hasSelection && <div className="contact-selection">
-          <p>Для Telegram и WhatsApp выбор{selection.promoCode.trim() ? ' и промокод' : ''} уже добавлен в сообщение. Для VK и MAX скопируйте текст.</p>
+          <p>Для Telegram и WhatsApp выбранные параметры{selection.promoCode.trim() ? ' и промокод' : ''} уже добавлены в сообщение. Для VK и MAX скопируйте текст.</p>
           <button type="button" className="copy-choice" onClick={copySelection}>{copyState === 'copied' ? <Check size={18} aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}Скопировать выбор</button>
           {!onLessonsPage && <Link className="inline-link" to="/lessons">Изменить</Link>}
           <output className="copy-status">{copyState === 'copied' ? 'Текст скопирован — вставьте его в диалог' : copyState === 'failed' ? 'Скопируйте текст из поля ниже' : ''}</output>
