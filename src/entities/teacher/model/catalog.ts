@@ -4,6 +4,7 @@ export interface Teacher {
   role: string;
   cardLabel: string;
   cardDetail: string;
+  cardTicker: readonly string[];
   photo: string;
   subjects: readonly string[];
   intro: string;
@@ -17,6 +18,15 @@ export const teachers: readonly Teacher[] = [
     role: 'Репетитор по информатике',
     cardLabel: 'Информатика',
     cardDetail: 'ОГЭ, ЕГЭ, домашние задания',
+    cardTicker: [
+      'Информатика',
+      'ЕГЭ по информатике',
+      'ОГЭ по информатике',
+      'Школьные предметы',
+      'Математика',
+      'Начальные классы',
+      'Домашние задания',
+    ],
     photo: '/images/tutor-informatics.png',
     subjects: ['Информатика', 'ОГЭ', 'ЕГЭ'],
     intro:
@@ -32,6 +42,14 @@ export const teachers: readonly Teacher[] = [
     role: 'Репетитор по английскому',
     cardLabel: 'Английский',
     cardDetail: 'Школьная программа, разговорная практика',
+    cardTicker: [
+      'Английский',
+      'История России',
+      'Школьные предметы',
+      'Начальные классы',
+      'Подготовка к школе',
+      'Домашние задания',
+    ],
     photo: '/images/tutor-english.png',
     subjects: ['Английский', 'Школьная программа', 'Разговорная практика'],
     intro:

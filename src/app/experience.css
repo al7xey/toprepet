@@ -1089,6 +1089,30 @@
   line-height: 1.22;
 }
 
+.teacher-card-ticker {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 11%, #000 89%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 11%, #000 89%, transparent);
+}
+
+.teacher-card-ticker-track {
+  display: inline-flex;
+  width: max-content;
+  gap: 18px;
+  animation: teacherTickerRight 32s linear infinite;
+  transform: translateX(-50%);
+}
+
+.teacher-card-ticker strong {
+  flex: 0 0 auto;
+  font-size: 1.08rem;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
 .teacher-card-detail {
   display: block;
   overflow: hidden;
@@ -1107,6 +1131,22 @@
   border-radius: 16px;
   font-size: 1rem;
   font-weight: 800;
+}
+
+@keyframes teacherTickerRight {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teacher-card-ticker-track {
+    animation: none;
+    transform: none;
+  }
 }
 
 /* Bring the teachers section closer to the final step above it. */

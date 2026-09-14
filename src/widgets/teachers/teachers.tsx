@@ -40,7 +40,7 @@ export function Teachers() {
           </div>
         </div>
         <CarouselContent className="teacher-track">
-          {teachers.map(({ id, role, cardLabel, cardDetail, photo }, index) => (
+          {teachers.map(({ id, role, cardTicker, cardDetail, photo }, index) => (
             <CarouselItem
               className="teacher-slide"
               key={role}
@@ -51,7 +51,13 @@ export function Teachers() {
                   <img src={photo} alt="" loading="lazy" draggable={false} />
                 </span>
                 <span className="teacher-glass">
-                  <strong>{cardLabel}</strong>
+                  <span className="teacher-card-ticker" aria-label={cardTicker.join(', ')}>
+                    <span className="teacher-card-ticker-track" aria-hidden="true">
+                      {[...cardTicker, ...cardTicker].map((item, tickerIndex) => (
+                        <strong key={`${item}-${tickerIndex}`}>{item}</strong>
+                      ))}
+                    </span>
+                  </span>
                   <small className="teacher-card-detail">{cardDetail}</small>
                   <span className="teacher-open button button-primary">
                     Открыть анкету
