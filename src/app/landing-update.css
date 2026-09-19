@@ -8,12 +8,7 @@
 .hero-carousel { position: relative; overflow: hidden; border-radius: inherit; background: #fff; }
 .hero-carousel-track { display: flex; margin-left: 0 !important; }
 .hero-carousel-slide { flex: 0 0 100%; padding-left: 0 !important; }
-.hero-carousel-slide picture { display: block; width: 100%; height: 100%; }
 .hero-carousel-slide img { width: 100%; height: 100%; aspect-ratio: 4 / 3; object-fit: contain; object-position: center; background: #fff; }
-@media (prefers-color-scheme: dark) {
-  .hero-carousel,
-  .hero-carousel-slide img { background: #000; }
-}
 .hero h1 { margin-bottom: 32px; }
 .hero-description { margin-bottom: 0; line-height: 1.6; }
 .hero-offer { max-width: none; }
