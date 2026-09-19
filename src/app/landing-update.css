@@ -1,6 +1,14 @@
 /* Photo-first mobile hero, with both actions and compact benefits together. */
 .hero { grid-template-areas: 'art' 'copy' 'offer'; padding-top: 24px; gap: 24px; }
 .hero-art { height: auto; aspect-ratio: 4 / 3; box-shadow: none; }
+.hero-carousel,
+.hero-carousel [data-slot='carousel-content'],
+.hero-carousel-track,
+.hero-carousel-slide { height: 100%; }
+.hero-carousel { position: relative; overflow: hidden; border-radius: inherit; background: #fff; }
+.hero-carousel-track { display: flex; margin-left: 0 !important; }
+.hero-carousel-slide { flex: 0 0 100%; padding-left: 0 !important; }
+.hero-carousel-slide img { width: 100%; height: 100%; aspect-ratio: 4 / 3; object-fit: contain; object-position: center; background: #fff; }
 .hero h1 { margin-bottom: 32px; }
 .hero-description { margin-bottom: 0; line-height: 1.6; }
 .hero-offer { max-width: none; }
@@ -49,7 +57,7 @@
 .free-intro-page .button { gap: 12px; }
 .free-intro-details { margin-top: 72px; }
 .free-intro-details h2, .free-intro-after h2 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.5rem); letter-spacing: -.04em; }
-.free-intro-details ul { display: grid; gap: 14px; padding: 0; margin: 24px 0 0; list-style: none; }
+.free-intro-details ul { display: grid; gap: 14px; max-width: 820px; padding: 0; margin: 24px 0 0; list-style: none; }
 .free-intro-details li { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; padding: 4px 0; line-height: 1.5; }
 .free-intro-details li svg { width: 44px; height: 44px; padding: 10px; border-radius: 14px; color: var(--accent); background: #fff5ef; }
 .free-intro-picker { padding-top: 24px; }
@@ -57,10 +65,12 @@
 .free-intro-after p { max-width: 660px; margin: 12px 0 0; color: #d9deea; line-height: 1.65; }
 .free-intro-after .button { width: 100%; }
 @media (min-width: 760px) {
-  .hero { grid-template-areas: 'copy art' 'offer art'; grid-template-columns: minmax(0, 1fr) minmax(340px, 1fr); gap: 24px 64px; padding-top: 48px; }
-  .hero-art { height: 100%; max-height: none; aspect-ratio: auto; }
+  .hero { grid-template-areas: 'copy art' 'offer art'; grid-template-columns: minmax(0, 1fr) minmax(340px, 1fr); align-items: start; gap: 28px 64px; padding-top: 48px; }
+  .hero-art { align-self: start; height: auto; max-height: none; aspect-ratio: 4 / 3; }
   .hero-benefits li { font-size: .88rem; }
-  .free-intro-steps, .free-intro-details ul { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .free-intro { max-width: none; }
+  .free-intro-steps { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .free-intro-details ul { grid-template-columns: minmax(0, 1fr); gap: 18px; }
   .free-intro-actions { justify-content: start; }
   .free-intro-actions .button { min-width: 190px; }
   .free-intro-page { padding-top: 56px; }
@@ -71,7 +81,7 @@
 }
 @media (max-width: 680px) {
   .hero { grid-template-areas: 'copy' 'art' 'offer'; gap: 20px; padding-top: 20px; }
-  .hero-art { height: 210px; aspect-ratio: auto; border-radius: 28px; }
+  .hero-art { height: auto; aspect-ratio: 4 / 3; border-radius: 28px; }
   .hero-art img { object-position: center 45%; }
   .hero h1 { margin-bottom: 0; }
   .hero-benefits { gap: 10px; margin-bottom: 26px; }

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Gift, UserRound, CalendarDays, ChartNoAxesColumnIncreasing } from 'lucide-react';
+import { HeroCarousel } from './hero-carousel';
 
 export function Hero() {
   return (
@@ -27,17 +28,7 @@ export function Hero() {
         </Link>
       </div>
       <div className="hero-art" aria-label="Индивидуальное занятие с репетитором">
-        <picture>
-          <source media="(max-width: 680px)" srcSet="/images/tutor-session-small.webp" />
-          <img
-            src="/images/tutor-session.webp"
-            width="1200"
-            height="800"
-            alt="Репетитор занимается с учеником за столом"
-            loading="eager"
-            decoding="async"
-          />
-        </picture>
+        <HeroCarousel />
       </div>
     </section>
   );
