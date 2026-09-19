@@ -1,8 +1,13 @@
 import { LessonPicker } from '../../features/select-lesson';
 import { Contact } from '../../widgets/contact/contact';
+import { CalendarDays, MessageCircle, Route } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const meetingPoints = ['Познакомимся с репетитором', 'Обсудим цель и текущие трудности', 'Определим формат и дальнейший план'];
+const meetingPoints = [
+  [MessageCircle, 'Познакомимся с репетитором'],
+  [CalendarDays, 'Обсудим цель и текущие трудности'],
+  [Route, 'Определим формат и дальнейший план'],
+] as const;
 
 export default function FreeIntroPage() {
   return (
@@ -17,7 +22,7 @@ export default function FreeIntroPage() {
       <section className="free-intro-details" aria-labelledby="meeting-plan-title">
         <h2 id="meeting-plan-title">Что успеем за 20 минут</h2>
         <ul>
-          {meetingPoints.map((text) => <li key={text}><strong>{text}</strong></li>)}
+          {meetingPoints.map(([Icon, text]) => <li key={text}><Icon aria-hidden="true" /><strong>{text}</strong></li>)}
         </ul>
       </section>
     </article>

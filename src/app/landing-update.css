@@ -50,9 +50,9 @@
 .free-intro-details { margin-top: 72px; }
 .free-intro-details h2, .free-intro-after h2 { margin: 0; font-size: clamp(1.7rem, 4vw, 2.5rem); letter-spacing: -.04em; }
 .free-intro-details ul { display: grid; gap: 14px; padding: 0; margin: 24px 0 0; list-style: none; }
-.free-intro-details li { position: relative; padding-left: 24px; line-height: 1.5; }
-.free-intro-details li::before { content: ''; position: absolute; top: .58em; left: 2px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
-.free-intro-picker { padding-top: 96px; }
+.free-intro-details li { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; padding: 4px 0; line-height: 1.5; }
+.free-intro-details li svg { width: 44px; height: 44px; padding: 10px; border-radius: 14px; color: var(--accent); background: #fff5ef; }
+.free-intro-picker { padding-top: 52px; }
 .free-intro-after { display: grid; gap: 24px; margin-top: 72px; padding: 32px 24px; border-radius: 28px; background: var(--ink); color: #fff; }
 .free-intro-after p { max-width: 660px; margin: 12px 0 0; color: #d9deea; line-height: 1.65; }
 .free-intro-after .button { width: 100%; }
