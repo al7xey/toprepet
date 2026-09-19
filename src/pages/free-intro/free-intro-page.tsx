@@ -1,5 +1,6 @@
-import { ArrowLeft, ArrowRight, CalendarDays, MessageCircle, Route } from 'lucide-react';
+import { ArrowRight, CalendarDays, MessageCircle, Route } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import LessonsPage from '../lessons/lessons-page';
 
 const meetingPoints = [
   [MessageCircle, 'Познакомимся с репетитором'],
@@ -9,10 +10,10 @@ const meetingPoints = [
 
 export default function FreeIntroPage() {
   return (
+    <>
     <article className="free-intro-page container">
-      <Link className="inline-link free-intro-back" to="/"><ArrowLeft size={18} aria-hidden="true" />Вернуться на главную</Link>
+      <Link className="back-link free-intro-back" to="/">На главную</Link>
       <header className="free-intro-hero">
-        <p className="free-intro-kicker">Бесплатно · 20 минут</p>
         <h1>Начните со знакомства</h1>
         <p>20 минут бесплатно с репетитором — познакомимся, обсудим вашу цель и определим дальнейший план занятий.</p>
         <Link className="button button-primary" to="/contact">Записаться <ArrowRight size={20} aria-hidden="true" /></Link>
@@ -25,13 +26,8 @@ export default function FreeIntroPage() {
         </ul>
       </section>
 
-      <section className="free-intro-after" aria-labelledby="after-title">
-        <div>
-          <h2 id="after-title">После знакомства</h2>
-          <p>Если всё подходит, выберем удобное время и начнём индивидуальные занятия.</p>
-        </div>
-        <Link className="button button-primary" to="/contact">Записаться <ArrowRight size={20} aria-hidden="true" /></Link>
-      </section>
     </article>
+    <LessonsPage />
+    </>
   );
 }

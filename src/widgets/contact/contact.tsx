@@ -23,7 +23,7 @@ export function Contact({ onLessonsPage = false, standalone = false }: { onLesso
   return (
     <section id="contact" className="contact-section container" aria-labelledby="contact-title">
       <div className="contact-heading">
-        {standalone && <p className="manager-back"><Link className="inline-link" to="/">← Вернуться на главную</Link></p>}
+        {standalone && <p className="manager-back"><Link className="back-link" to="/">На главную</Link></p>}
         {standalone ? <h1 id="contact-title">Напишите менеджеру</h1> : <h2 id="contact-title">Начните занятия</h2>}
         <p>{standalone ? 'Задайте вопрос о занятиях, выберите преподавателя или согласуйте время бесплатного знакомства. Свяжитесь с нами в удобном мессенджере.' : 'Выберите удобный мессенджер и напишите нам. Менеджер поможет с выбором занятия и преподавателя.'}</p>
         <p><strong>Среднее время ответа — 7 минут.</strong></p>

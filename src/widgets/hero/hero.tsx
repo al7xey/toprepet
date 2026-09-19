@@ -1,6 +1,14 @@
 import { Link } from 'react-router-dom';
 import { PRICE_LABEL } from '../../shared/config/site';
-import { ArrowRight, Gift, Target, CalendarDays, ChartNoAxesColumnIncreasing } from 'lucide-react';
+import { ArrowRight, Gift } from 'lucide-react';
+
+function BenefitIcon({ type }: { type: 'target' | 'calendar' | 'result' }) {
+  return <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    {type === 'target' && <><circle cx="16" cy="16" r="10"/><circle cx="16" cy="16" r="5"/><path d="M16 6V3M26 16h3"/></>}
+    {type === 'calendar' && <><rect x="5" y="7" width="22" height="20" rx="4"/><path d="M10 4v6M22 4v6M5 13h22M10 18h3M19 18h3M10 23h3M19 23h3"/></>}
+    {type === 'result' && <><path d="M6 26V17M13 26V11M20 26V15M27 26V5"/><path d="m6 12 7-6 7 3 7-7"/></>}
+  </svg>;
+}
 
 export function Hero() {
   return (
@@ -12,9 +20,9 @@ export function Hero() {
           <span>топ результат</span>
         </h1>
         <ul className="hero-benefits">
-          <li><Target aria-hidden="true" /><span>Индивидуальные занятия</span></li>
-          <li><CalendarDays aria-hidden="true" /><span>Удобный график</span></li>
-          <li><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Быстрый результат</span></li>
+          <li><BenefitIcon type="target" /><span>Индивидуальные<br />занятия</span></li>
+          <li><BenefitIcon type="calendar" /><span>Удобный<br />график</span></li>
+          <li><BenefitIcon type="result" /><span>Быстрый<br />результат</span></li>
         </ul>
       </div>
       <div className="hero-offer">
