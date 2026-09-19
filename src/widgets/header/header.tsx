@@ -5,13 +5,17 @@ import { Sheet, SheetTrigger, SheetContent, SheetClose, SheetTitle } from '../..
 import { Brand } from '../../shared/ui/brand';
 export function Header() {
   const [open, setOpen] = useState(false);
-  const { pathname, hash } = useLocation();
+  const { pathname } = useLocation();
   const navigation = () => [
-    ['/lessons', 'Занятия'], ['/#price', 'Стоимость'],
-    ['/#teachers', 'Преподаватели'], ['/#faq', 'Вопросы'], ['/#contact', 'Контакты'],
-  ].map(([to, label]) => (
-    <Link key={to} to={to} className={pathname + hash === to ? 'active' : undefined}
-      aria-current={pathname + hash === to ? 'location' : undefined}
+    { to: '/lessons', label: 'Занятия' },
+    { to: '/', label: 'Стоимость', scrollTo: 'price' },
+    { to: '/', label: 'Преподаватели', scrollTo: 'teachers' },
+    { to: '/', label: 'Вопросы', scrollTo: 'faq' },
+    { to: '/', label: 'Контакты', scrollTo: 'contact' },
+  ].map(({ to, label, scrollTo }) => (
+    <Link key={label} to={to} state={scrollTo ? { scrollTo } : undefined}
+      className={!scrollTo && pathname === to ? 'active' : undefined}
+      aria-current={!scrollTo && pathname === to ? 'page' : undefined}
       onClick={() => setOpen(false)}>{label}</Link>
   ));
   return (
@@ -23,7 +27,8 @@ export function Header() {
         </nav>
         <div className="header-actions"><Link
           className="button button-secondary header-contact"
-          to="/#contact"
+          to="/"
+          state={{ scrollTo: 'contact' }}
         >
           Написать
         </Link>

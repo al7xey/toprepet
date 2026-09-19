@@ -15,7 +15,7 @@ export function LearningStory() {
         <ul className="learning-points">
           {['Один на один с репетитором', 'График, удобный вашей семье', 'Индивидуальный план занятий'].map((text) => <li key={text}><Check size={19} aria-hidden="true" />{text}</li>)}
         </ul>
-        <Link className="inline-link" to="/#contact">Обсудить занятия</Link>
+        <Link className="inline-link" to="/" state={{ scrollTo: 'contact' }}>Обсудить занятия</Link>
       </div>
     </section>
   );

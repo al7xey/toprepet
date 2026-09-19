@@ -128,7 +128,7 @@ export function LessonPicker({
           <span>/ 60 минут</span>
         </div>
         <p className="summary-free">Бесплатное знакомство: 20 минут и индивидуальный план</p>
-        <Link className="button button-primary" to="/lessons#contact">Выбрать мессенджер</Link>
+        <Link className="button button-primary" to="/lessons" state={{ scrollTo: 'contact' }}>Выбрать мессенджер</Link>
       </aside>
     </div>
   );

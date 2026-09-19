@@ -12,7 +12,7 @@ export default function TeacherPage() {
       <section className="not-found container">
         <p>404</p>
         <h1>Анкета не найдена</h1>
-        <Link to="/#teachers" className="button button-primary">
+        <Link to="/" state={{ scrollTo: 'teachers' }} className="button button-primary">
           К преподавателям
         </Link>
       </section>
@@ -21,7 +21,7 @@ export default function TeacherPage() {
 
   return (
     <section className="teacher-profile container" aria-labelledby="teacher-name">
-      <Link className="teacher-back" to="/#teachers">
+      <Link className="teacher-back" to="/" state={{ scrollTo: 'teachers' }}>
         <ArrowLeft size={19} aria-hidden="true" />
         Все преподаватели
       </Link>

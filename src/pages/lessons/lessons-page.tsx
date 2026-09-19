@@ -3,7 +3,9 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { LessonPicker } from '../../features/select-lesson';
 import { isGoal } from '../../entities/lesson';
 import { Contact } from '../../widgets/contact/contact';
+import { useScrollToSection } from '../../shared/lib/use-scroll-to-section';
 export default function LessonsPage() {
+  useScrollToSection();
   const [params] = useSearchParams();
   const value = params.get('goal');
   const goal = isGoal(value) ? value : undefined;
