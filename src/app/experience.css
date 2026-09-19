@@ -560,7 +560,7 @@
   border: 1px solid var(--line);
   border-radius: 22px;
   background: #fff;
-  color: var(--ink);
+  color: #111;
   font-size: 1rem;
   font-weight: 750;
   transition: border-color .18s, background .18s;
@@ -1195,6 +1195,11 @@
 
 .teacher-profile-messengers .messenger-button {
   border-radius: 18px;
+  color: #000;
+}
+
+.teacher-profile-messengers .messenger-button > span:last-child {
+  color: #000 !important;
 }
 
 .messenger-button {

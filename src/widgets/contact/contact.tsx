@@ -26,7 +26,7 @@ export function Contact({ onLessonsPage = false, standalone = false }: { onLesso
       <div className={'contact-heading' + (standalone ? ' page-heading' : '')}>
         {standalone ? <h1 id="contact-title">Напишите менеджеру</h1> : <h2 id="contact-title">Начните занятия</h2>}
         <p>{standalone ? 'Задайте вопрос о занятиях, выберите преподавателя или согласуйте время бесплатного знакомства. Свяжитесь с нами в удобном мессенджере.' : 'Выберите удобный мессенджер и напишите нам. Менеджер поможет с выбором занятия и преподавателя.'}</p>
-        <p><strong>Среднее время ответа — 7 минут.</strong></p>
+        <p>Среднее время ответа — 7 минут.</p>
       </div>
       <div className="contact-actions">
         <MessengerLinks topic={topic} />
