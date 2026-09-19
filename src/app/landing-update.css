@@ -11,9 +11,9 @@
 .hero-intro > svg { flex-shrink: 0; color: #ed682d; }
 .hero-intro > span { flex: none; }
 .hero .hero-intro:hover { background: #ffe9dc; }
-.hero-benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 0 0 20px; list-style: none; }
+.hero-benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 0 0 28px; list-style: none; }
 .hero-benefits li { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; font-size: .8rem; line-height: 1.5; }
-.hero-benefits svg { width: 56px; height: 56px; padding: 12px; color: #ed682d; background: #fff5ef; border-radius: 17px; }
+.hero-benefits svg { width: 50px; height: 50px; padding: 11px; color: #ed682d; background: #fff5ef; border-radius: 16px; }
 .footer-links { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
 .manager-page { min-height: 65vh; }
 .manager-page .contact-section { margin-top: 0; }
@@ -73,10 +73,10 @@
   .hero { grid-template-areas: 'copy' 'art' 'offer'; gap: 20px; padding-top: 20px; }
   .hero-art { height: 210px; aspect-ratio: auto; border-radius: 28px; }
   .hero-art img { object-position: center 45%; }
-  .hero h1 { margin-bottom: 24px; }
-  .hero-benefits { gap: 10px; margin-bottom: 14px; }
+  .hero h1 { margin-bottom: 0; }
+  .hero-benefits { gap: 10px; margin-bottom: 26px; }
   .hero-benefits li { gap: 8px; font-size: .78rem; line-height: 1.35; }
-  .hero-benefits svg { width: 52px; height: 52px; padding: 11px; }
+  .hero-benefits svg { width: 46px; height: 46px; padding: 10px; }
   .hero-price { margin-bottom: 18px; }
   .hero-price-label { margin-bottom: 2px; }
   .hero-price strong { font-size: clamp(2.4rem, 13vw, 3.2rem); }
