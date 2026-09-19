@@ -7,11 +7,11 @@ import {
 } from '../../../components/ui/carousel';
 
 const slides = [
-  { src: '/images/hero-slide-1.webp', alt: 'Скидка 300 рублей по промокоду ОСЕНЬ' },
-  { src: '/images/hero-slide-2.webp', alt: 'Ученик читает книгу' },
-  { src: '/images/hero-slide-3.webp', alt: 'Ученица занимается за ноутбуком' },
-  { src: '/images/hero-slide-4.webp', alt: 'Ученик занимается с книгой' },
-  { src: '/images/hero-slide-5.webp', alt: 'Выпускник в академической шапочке' },
+  { src: '/images/hero-slide-1.webp', darkSrc: '/images/hero-slide-dark-1.webp', alt: 'Скидка 300 рублей по промокоду ОСЕНЬ' },
+  { src: '/images/hero-slide-2.webp', darkSrc: '/images/hero-slide-dark-2.webp', alt: 'Ученик читает книгу' },
+  { src: '/images/hero-slide-3.webp', darkSrc: '/images/hero-slide-dark-3.webp', alt: 'Ученица занимается за ноутбуком' },
+  { src: '/images/hero-slide-4.webp', darkSrc: '/images/hero-slide-dark-4.webp', alt: 'Ученик занимается с книгой' },
+  { src: '/images/hero-slide-5.webp', darkSrc: '/images/hero-slide-dark-5.webp', alt: 'Выпускник в академической шапочке' },
 ];
 
 export function HeroCarousel() {
@@ -50,16 +50,19 @@ export function HeroCarousel() {
             key={slide.src}
             aria-label={`${index + 1} из ${slides.length}`}
           >
-            <img
-              src={slide.src}
-              alt={slide.alt}
-              width="1200"
-              height="900"
-              loading={index === 0 ? 'eager' : 'lazy'}
-              fetchPriority={index === 0 ? 'high' : 'auto'}
-              decoding="async"
-              draggable={false}
-            />
+            <picture>
+              <source media="(prefers-color-scheme: dark)" srcSet={slide.darkSrc} />
+              <img
+                src={slide.src}
+                alt={slide.alt}
+                width="1200"
+                height="900"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                fetchPriority={index === 0 ? 'high' : 'auto'}
+                decoding="async"
+                draggable={false}
+              />
+            </picture>
           </CarouselItem>
         ))}
       </CarouselContent>
