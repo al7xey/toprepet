@@ -6,6 +6,7 @@ import { lazy, Suspense } from 'react';
 import { ScrollReveal } from '../../shared/ui/scroll-reveal';
 import { Contact } from '../../widgets/contact/contact';
 import { HowItWorks } from '../../widgets/how-it-works/how-it-works';
+import { FreeIntro } from '../../widgets/free-intro/free-intro';
 const Faq = lazy(() => import('../../widgets/faq/faq'));
 export default function HomePage() {
   return (
@@ -14,6 +15,7 @@ export default function HomePage() {
       <ScrollReveal><Directions /></ScrollReveal>
       <ScrollReveal><HowItWorks /></ScrollReveal>
       <ScrollReveal><Teachers /></ScrollReveal>
+      <ScrollReveal><FreeIntro /></ScrollReveal>
       <ScrollReveal><Pricing /></ScrollReveal>
       <ScrollReveal><Contact /></ScrollReveal>
       <Suspense

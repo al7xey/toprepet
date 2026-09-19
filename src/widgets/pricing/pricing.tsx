@@ -12,7 +12,6 @@ export function Pricing() {
         <p>При оплате более 10 занятий одним платежом — скидка 10%.</p>
       </div>
       <div className="price-offer">
-        <p className="price-free"><strong>20 минут бесплатно</strong><br />Знакомство и составление индивидуального плана</p>
         <Link className="button button-primary" to="/lessons">
           Выбрать занятие
         </Link>

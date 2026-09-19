@@ -16,9 +16,6 @@ export function Hero() {
           <li><CalendarDays aria-hidden="true" /><span>Удобный график</span></li>
           <li><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Быстрый результат</span></li>
         </ul>
-        <p className="hero-description">
-          Индивидуальные занятия под вашу цель, темп и учебные задачи.
-        </p>
       </div>
       <div className="hero-offer">
         <div className="hero-price">
