@@ -31,7 +31,7 @@
 .free-intro-heading p { color: var(--body-muted); line-height: 1.65; }
 .free-intro-steps { display: grid; gap: 14px; padding: 0; margin: 0; list-style: none; }
 .free-intro-steps li { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: start; padding: 4px 0; }
-.free-intro-steps svg { width: 44px; height: 44px; padding: 10px; border-radius: 14px; color: var(--accent); background: #fff5ef; }
+.free-intro-steps svg { width: 38px; height: 38px; padding: 0; color: var(--accent); background: transparent; }
 .free-intro-steps div { display: grid; gap: 4px; }
 .free-intro-steps strong { font-size: 1rem; }
 .free-intro-steps span { color: var(--body-muted); font-size: .92rem; line-height: 1.5; }
