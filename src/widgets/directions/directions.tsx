@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, NotebookPen, Shapes, ListChecks } from 'lucide-react';
+import { BookOpen, NotebookPen, Shapes, ListChecks, School } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
@@ -11,6 +11,7 @@ import {
 const formats = [
   {
     id: 'subject',
+    goal: 'subject',
     icon: BookOpen,
     title: 'Школьные предметы',
     description: 'Разберём тему и закрепим её на практике.',
@@ -18,6 +19,7 @@ const formats = [
   },
   {
     id: 'homework',
+    goal: 'homework',
     icon: NotebookPen,
     title: 'Домашние задания',
     description: 'Разберём каждое задание и объясним решение по шагам.',
@@ -25,17 +27,29 @@ const formats = [
   },
   {
     id: 'exam',
+    goal: 'exam',
     icon: ListChecks,
-    title: 'ОГЭ и ЕГЭ по информатике',
-    description: 'Разберём алгоритмы и задания экзаменационного формата.',
+    title: 'ОГЭ и ЕГЭ',
+    description: 'Разберём задания и требования экзаменационного формата.',
     label: '8–11 классы',
   },
   {
-    id: 'foundation',
+    id: 'preschool',
+    goal: 'foundation',
+    subject: 'Подготовка к школе',
     icon: Shapes,
-    title: 'Подготовка к школе и начальные классы',
-    description: 'Подготовим ребёнка к школе или поможем освоить программу начальных классов.',
-    label: 'До школы · 1–4 классы',
+    title: 'Подготовка к школе',
+    description: 'Поможем ребёнку освоить навыки, необходимые перед первым классом.',
+    label: 'До школы',
+  },
+  {
+    id: 'primary',
+    goal: 'foundation',
+    subject: 'Начальные классы',
+    icon: School,
+    title: 'Начальные классы',
+    description: 'Разберём школьную программу и укрепим знания по основным предметам.',
+    label: '1–4 классы',
   },
 ];
 export function Directions() {
@@ -71,7 +85,7 @@ export function Directions() {
           </div>
         </div>
         <CarouselContent className="format-track" id="format-slides">
-          {formats.map(({ id, icon: Icon, title, description, label }, i) => (
+          {formats.map(({ id, goal, subject, icon: Icon, title, description, label }, i) => (
             <CarouselItem
               className="format-slide"
               key={id}
@@ -79,7 +93,7 @@ export function Directions() {
             >
               <Link
                 className="format-card"
-                to={'/lessons?goal=' + id}
+                to={`/lessons?goal=${goal}${subject ? `&subject=${encodeURIComponent(subject)}` : ''}`}
                 draggable={false}
               >
                 <div className="format-meta">
@@ -96,7 +110,6 @@ export function Directions() {
           ))}
         </CarouselContent>
       </Carousel>
-      <p className="availability-note">Для ОГЭ и ЕГЭ сейчас доступна только информатика. По другим экзаменационным предметам ищем преподавателей.</p>
     </section>
   );
 }
