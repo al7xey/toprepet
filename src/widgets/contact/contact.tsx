@@ -6,7 +6,7 @@ import { type LessonSelection, selectionDescription } from '../../entities/lesso
 import { enquiryMessage } from '../../shared/config/site';
 import { MessengerLinks } from '../../shared/ui/messenger-links';
 
-export function Contact({ onLessonsPage = false }: { onLessonsPage?: boolean }) {
+export function Contact({ onLessonsPage = false, standalone = false }: { onLessonsPage?: boolean; standalone?: boolean }) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const selection = useSelector((state: { lesson: LessonSelection }) => state.lesson);
   const hasSelection = Boolean(selection.subject || selection.grade || selection.promoCode || selection.goal !== 'subject');
@@ -23,14 +23,14 @@ export function Contact({ onLessonsPage = false }: { onLessonsPage?: boolean }) 
   return (
     <section id="contact" className="contact-section container" aria-labelledby="contact-title">
       <div className="contact-heading">
-        <h2 id="contact-title">Начните занятия</h2>
-        <p>Выберите удобный мессенджер и напишите нам. Менеджер поможет с выбором занятия и преподавателя.</p>
+        {standalone ? <h1 id="contact-title">Напишите менеджеру</h1> : <h2 id="contact-title">Начните занятия</h2>}
+        <p>{standalone ? 'Задайте вопрос о занятиях, выберите преподавателя или согласуйте время бесплатного знакомства. Свяжитесь с нами в удобном мессенджере.' : 'Выберите удобный мессенджер и напишите нам. Менеджер поможет с выбором занятия и преподавателя.'}</p>
         <p><strong>Среднее время ответа — 7 минут.</strong></p>
       </div>
       <div className="contact-actions">
         <MessengerLinks topic={topic} />
         {hasSelection && <div className="contact-selection">
-          <p>Для Telegram и WhatsApp выбранные параметры{selection.promoCode.trim() ? ' и промокод' : ''} уже добавлены в сообщение. Для VK и MAX скопируйте текст.</p>
+          <p>В Telegram и WhatsApp сообщение уже заполнено. При нажатии на VK или MAX текст копируется — останется вставить его в диалог.</p>
           <button type="button" className="copy-choice" onClick={copySelection}>{copyState === 'copied' ? <Check size={18} aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}Скопировать выбор</button>
           {!onLessonsPage && <Link className="inline-link" to="/lessons">Изменить</Link>}
           <output className="copy-status">{copyState === 'copied' ? 'Текст скопирован — вставьте его в диалог' : copyState === 'failed' ? 'Скопируйте текст из поля ниже' : ''}</output>

@@ -15,9 +15,11 @@ import { Header } from '../widgets/header/header';
 import HomePage from '../pages/home/home-page';
 import { Footer } from '../widgets/footer/footer';
 import { MessengerLinks } from '../shared/ui/messenger-links';
+import { Contact } from '../widgets/contact/contact';
 import './styles.css';
 import './refinements.css';
 import './experience.css';
+import './landing-update.css';
 const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
 const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
 const TeacherPage = lazy(() => import('../pages/teacher/teacher-page'));
@@ -119,6 +121,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/lessons" element={<LessonsPage />} />
+                <Route path="/contact" element={<div className="manager-page"><Contact standalone /></div>} />
                 <Route path="/teacher/:id" element={<TeacherPage />} />
                 <Route path="/direction/:id" element={<DirectionPage />} />
                 <Route path="*" element={<DirectionPage />} />
