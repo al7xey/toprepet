@@ -28,7 +28,7 @@ export function Hero() {
         </Link>
         <Link className="button button-light hero-intro" to="/contact">
           <Gift size={24} aria-hidden="true" />
-          <span>Бесплатное знакомство — 20 минут</span>
+          <span>Бесплатное знакомство</span>
           <ArrowRight size={20} aria-hidden="true" />
         </Link>
         <ul className="hero-benefits">
