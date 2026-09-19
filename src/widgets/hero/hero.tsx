@@ -11,6 +11,11 @@ export function Hero() {
           <br />
           <span>топ результат</span>
         </h1>
+        <ul className="hero-benefits">
+          <li><Target aria-hidden="true" /><span>Индивидуальные занятия</span></li>
+          <li><CalendarDays aria-hidden="true" /><span>Удобный график</span></li>
+          <li><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Быстрый результат</span></li>
+        </ul>
         <p className="hero-description">
           Индивидуальные занятия под вашу цель, темп и учебные задачи.
         </p>
@@ -31,11 +36,6 @@ export function Hero() {
           <span>Бесплатное знакомство</span>
           <ArrowRight size={20} aria-hidden="true" />
         </Link>
-        <ul className="hero-benefits">
-          <li><Target aria-hidden="true" /><span>Индивидуальные занятия</span></li>
-          <li><CalendarDays aria-hidden="true" /><span>Удобный график</span></li>
-          <li><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Быстрый результат</span></li>
-        </ul>
       </div>
       <div className="hero-art" aria-label="Индивидуальное занятие с репетитором">
         <picture>

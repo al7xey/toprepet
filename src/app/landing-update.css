@@ -11,7 +11,7 @@
 .hero-intro > svg { flex-shrink: 0; color: #ed682d; }
 .hero-intro > span { flex: 1; }
 .hero .hero-intro:hover { background: #ffe9dc; }
-.hero-benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 28px 0 0; list-style: none; }
+.hero-benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 0 0 20px; list-style: none; }
 .hero-benefits li { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; font-size: .8rem; line-height: 1.5; }
 .hero-benefits svg { width: 46px; height: 46px; padding: 11px; color: #ed682d; background: #fff5ef; border-radius: 15px; }
 .footer-links { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
