@@ -14,7 +14,7 @@ export function FreeIntro() {
         <li><ListChecks aria-hidden="true" /><div><strong>Составим план</strong><span>Определим, с чего начать занятия.</span></div></li>
       </ol>
       <div className="free-intro-actions">
-        <Link className="button button-light free-intro-button" to="/free-intro"><Gift size={24} aria-hidden="true" /><span>Бесплатное знакомство</span><ArrowRight size={20} aria-hidden="true" /></Link>
+        <Link className="button button-primary free-intro-button" to="/free-intro"><Gift size={24} aria-hidden="true" /><span>Бесплатное знакомство</span><ArrowRight size={20} aria-hidden="true" /></Link>
       </div>
     </section>
   );

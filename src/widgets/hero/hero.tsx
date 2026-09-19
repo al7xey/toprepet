@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
-import { PRICE_LABEL } from '../../shared/config/site';
-import { ArrowRight, Gift, Target, CalendarDays, ChartNoAxesColumnIncreasing } from 'lucide-react';
+import { ArrowRight, Gift, UserRound, CalendarDays, ChartNoAxesColumnIncreasing } from 'lucide-react';
 
 export function Hero() {
   return (
@@ -12,19 +11,12 @@ export function Hero() {
           <span>топ результат</span>
         </h1>
         <ul className="hero-benefits">
-          <li><Target aria-hidden="true" /><span>Индивидуальные<br />занятия</span></li>
+          <li><UserRound aria-hidden="true" /><span>Индивидуальные<br />занятия</span></li>
           <li><CalendarDays aria-hidden="true" /><span>Удобный<br />график</span></li>
           <li><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Быстрый<br />результат</span></li>
         </ul>
       </div>
       <div className="hero-offer">
-        <div className="hero-price">
-          <span className="hero-price-label">Любое занятие</span>
-          <div>
-            <strong>{PRICE_LABEL}</strong>
-            <span>/ 60 минут</span>
-          </div>
-        </div>
         <Link className="button button-primary" to="/lessons">
           Выбрать занятие <ArrowRight size={20} aria-hidden="true" />
         </Link>
