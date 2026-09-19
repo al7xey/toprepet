@@ -10,13 +10,13 @@ export function Hero() {
           <br />
           <span>топ результат</span>
         </h1>
+      </div>
+      <div className="hero-offer">
         <ul className="hero-benefits">
           <li><UserRound aria-hidden="true" /><span>Индивидуальные<br />занятия</span></li>
           <li><CalendarDays aria-hidden="true" /><span>Удобный<br />график</span></li>
           <li><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Быстрый<br />результат</span></li>
         </ul>
-      </div>
-      <div className="hero-offer">
         <Link className="button button-primary" to="/lessons">
           Выбрать занятие <ArrowRight size={20} aria-hidden="true" />
         </Link>
