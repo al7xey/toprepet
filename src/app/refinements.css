@@ -52,7 +52,11 @@
 .promo-field label { font-size: 1.125rem; font-weight: 700; }
 .promo-field input { min-width: 0; width: 100%; font: inherit; font-size: 1.0625rem; border: 1px solid var(--line); border-radius: 18px; padding: 15px; background: #fff7f1; color: var(--ink); }
 .promo-field input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.promo-field.is-applied input { border-color: var(--accent); background: var(--accent-soft); }
+.promo-applied { margin: 0; color: var(--accent-hover); font-size: .9375rem; font-weight: 700; }
 .summary-price { flex-wrap: wrap; }
+.summary-price del { color: var(--muted); font-size: 1rem; font-weight: 650; text-decoration-thickness: 2px; }
+.summary-price.is-discounted > strong { color: var(--accent-hover); }
 .summary-free { margin: 18px 0 26px; }
 .menu-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 16px; background: #fff0df; color: var(--ink); }
 .mobile-menu { position: fixed; z-index: 1201; right: 12px; top: 12px; bottom: 12px; width: min(320px, calc(100vw - 24px)); padding: 26px; background: rgb(255 255 255 / 97%); border-radius: 30px; box-shadow: 0 18px 80px #42230d24; overflow-y: auto; transition: transform .22s ease, opacity .22s ease; }

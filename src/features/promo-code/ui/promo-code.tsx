@@ -1,6 +1,6 @@
-export function PromoCode({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+export function PromoCode({ value, onChange, applied = false }: { value: string; onChange: (value: string) => void; applied?: boolean }) {
   return (
-    <div className="promo-field">
+    <div className={'promo-field' + (applied ? ' is-applied' : '')}>
         <label htmlFor="promo-code">Промокод</label>
           <input
             id="promo-code"
@@ -10,6 +10,7 @@ export function PromoCode({ value, onChange }: { value: string; onChange: (value
             maxLength={64}
             autoComplete="off"
           />
+        {applied && <p className="promo-applied" role="status">Промокод применён — скидка 300 ₽</p>}
     </div>
   );
 }

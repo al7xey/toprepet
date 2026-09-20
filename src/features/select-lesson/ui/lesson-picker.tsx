@@ -20,7 +20,7 @@ import {
   setPromoCode,
 } from '../model/slice';
 import { ChoiceGroup } from '../../../shared/ui/choice-group';
-import { PRICE_LABEL } from '../../../shared/config/site';
+import { isDiscountPromoCode, PRICE_LABEL, PROMO_PRICE_LABEL } from '../../../shared/config/site';
 import { PromoCode } from '../../promo-code';
 export function LessonPicker({
   initialGoal,
@@ -59,6 +59,7 @@ export function LessonPicker({
     selection.subject,
     selection.exam,
   );
+  const promoApplied = isDiscountPromoCode(selection.promoCode);
   return (
     <div className="lesson-layout">
       <div className="lesson-options">
@@ -84,7 +85,6 @@ export function LessonPicker({
               className="exam-options"
               allowDeselect
           />
-          <p className="availability-note">Сейчас готовим к экзаменам только по информатике. По другим предметам ищем преподавателей.</p>
           </section>
         ) : null}
         <section className="option-section">
@@ -122,9 +122,10 @@ export function LessonPicker({
             <dd>{selection.goal === 'exam' ? selection.exam : selection.grade || 'Не выбран'}</dd></div>
           {selection.goal === 'exam' && <div><dt>Класс</dt><dd>{selection.grade || 'Не выбран'}</dd></div>}
         </dl>
-        <PromoCode value={selection.promoCode} onChange={(value) => dispatch(setPromoCode(value))} />
-        <div className="summary-price">
-          <strong>{PRICE_LABEL}</strong>
+        <PromoCode value={selection.promoCode} applied={promoApplied} onChange={(value) => dispatch(setPromoCode(value))} />
+        <div className={'summary-price' + (promoApplied ? ' is-discounted' : '')} aria-live="polite">
+          {promoApplied && <del>{PRICE_LABEL}</del>}
+          <strong>{promoApplied ? PROMO_PRICE_LABEL : PRICE_LABEL}</strong>
           <span>/ 60 минут</span>
         </div>
         <p className="summary-free">Бесплатное знакомство: 20 минут и индивидуальный план</p>
