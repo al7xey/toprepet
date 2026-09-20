@@ -52,7 +52,6 @@
 .promo-field label { font-size: 1.125rem; font-weight: 700; }
 .promo-field input { min-width: 0; width: 100%; font: inherit; font-size: 1.0625rem; border: 1px solid var(--line); border-radius: 18px; padding: 15px; background: #fff7f1; color: var(--ink); }
 .promo-field input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.promo-field.is-applied input { border-color: var(--accent); background: var(--accent-soft); }
 .promo-applied { margin: 0; color: var(--accent-hover); font-size: .9375rem; font-weight: 700; }
 .summary-price { flex-wrap: wrap; }
 .summary-price del { color: var(--muted); font-size: 1rem; font-weight: 650; text-decoration-thickness: 2px; }
