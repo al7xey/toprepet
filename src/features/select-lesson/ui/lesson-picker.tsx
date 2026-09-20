@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   goals,
@@ -20,7 +20,7 @@ import {
   setPromoCode,
 } from '../model/slice';
 import { ChoiceGroup } from '../../../shared/ui/choice-group';
-import { isDiscountPromoCode, PRICE_LABEL, PROMO_PRICE_LABEL } from '../../../shared/config/site';
+import { isDiscountPromoCode, normalizePromoCode, PRICE_LABEL, PROMO_PRICE_LABEL } from '../../../shared/config/site';
 import { PromoCode } from '../../promo-code';
 export function LessonPicker({
   initialGoal,
@@ -36,6 +36,10 @@ export function LessonPicker({
   const selection = useSelector(
     (state: { lesson: LessonSelection }) => state.lesson,
   );
+  const [promoCheck, setPromoCheck] = useState<{
+    code: string;
+    status: 'applied' | 'not-found';
+  } | null>(null);
   useEffect(() => {
     if (!initialGoal && !initialSubject && !initialExam) return;
     if (initialGoal) dispatch(setGoal(initialGoal));
@@ -59,7 +63,16 @@ export function LessonPicker({
     selection.subject,
     selection.exam,
   );
-  const promoApplied = isDiscountPromoCode(selection.promoCode);
+  const normalizedPromoCode = normalizePromoCode(selection.promoCode);
+  const promoStatus = promoCheck?.code === normalizedPromoCode ? promoCheck.status : 'idle';
+  const promoApplied = promoStatus === 'applied';
+
+  function applyPromoCode() {
+    setPromoCheck({
+      code: normalizedPromoCode,
+      status: isDiscountPromoCode(selection.promoCode) ? 'applied' : 'not-found',
+    });
+  }
   return (
     <div className="lesson-layout">
       <div className="lesson-options">
@@ -122,10 +135,19 @@ export function LessonPicker({
             <dd>{selection.goal === 'exam' ? selection.exam : selection.grade || 'Не выбран'}</dd></div>
           {selection.goal === 'exam' && <div><dt>Класс</dt><dd>{selection.grade || 'Не выбран'}</dd></div>}
         </dl>
-        <PromoCode value={selection.promoCode} applied={promoApplied} onChange={(value) => dispatch(setPromoCode(value))} />
+        <PromoCode
+          value={selection.promoCode}
+          status={promoStatus}
+          onChange={(value) => dispatch(setPromoCode(value))}
+          onApply={applyPromoCode}
+        />
         <div className={'summary-price' + (promoApplied ? ' is-discounted' : '')} aria-live="polite">
-          {promoApplied && <del>{PRICE_LABEL}</del>}
-          <strong>{promoApplied ? PROMO_PRICE_LABEL : PRICE_LABEL}</strong>
+          {promoApplied ? (
+            <span className="discount-price">
+              <del>{PRICE_LABEL}</del>
+              <strong>{PROMO_PRICE_LABEL}</strong>
+            </span>
+          ) : <strong>{PRICE_LABEL}</strong>}
           <span>/ 60 минут</span>
         </div>
         <p className="summary-free">Бесплатное знакомство: 20 минут и индивидуальный план</p>

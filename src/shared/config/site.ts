@@ -4,8 +4,12 @@ export const PROMO_PRICE = 900;
 export const PROMO_PRICE_LABEL = new Intl.NumberFormat('ru-RU').format(PROMO_PRICE) + ' ₽';
 const DISCOUNT_PROMO_CODES = new Set(['ОСЕНЬ', 'ЮТАНОВО']);
 
+export function normalizePromoCode(value: string) {
+  return value.trim().toLocaleUpperCase('ru-RU');
+}
+
 export function isDiscountPromoCode(value: string) {
-  return DISCOUNT_PROMO_CODES.has(value.trim().toLocaleUpperCase('ru-RU'));
+  return DISCOUNT_PROMO_CODES.has(normalizePromoCode(value));
 }
 
 export const TELEGRAM_URL = 'https://t.me/toprepet_manager';
