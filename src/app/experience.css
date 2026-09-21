@@ -1318,14 +1318,10 @@
 }
 
 @media (min-width: 1000px) {
-  .formats-carousel {
-    width: 100%;
-    max-width: none;
-  }
-
+  .formats-carousel,
   .teachers-carousel {
     width: 100%;
-    max-width: 1088px;
+    max-width: none;
   }
 
   .formats-carousel .section-heading,
@@ -1340,6 +1336,14 @@
   .format-slide {
     flex: 0 0 23%;
     padding-left: 12px;
+  }
+
+  .teacher-slide {
+    flex: 0 0 25%;
+  }
+
+  .teacher-card {
+    width: 100%;
   }
 
   .format-card {
