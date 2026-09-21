@@ -1048,14 +1048,6 @@
   object-fit: cover;
 }
 
-.teacher-profile-photo-natural {
-  aspect-ratio: 900 / 1101;
-}
-
-.teacher-profile-photo-natural img {
-  object-fit: contain;
-}
-
 /* Restore the original section spacing. */
 .section,
 .teachers-section {

@@ -26,7 +26,7 @@ export default function TeacherPage() {
         Все преподаватели
       </Link>
       <div className="teacher-profile-grid">
-        <div className={`teacher-profile-photo${teacher.id === 'chemistry-biology' ? ' teacher-profile-photo-natural' : ''}`}>
+        <div className="teacher-profile-photo">
           <img src={teacher.photo} alt={`Фото: ${teacher.name}`} />
         </div>
         <div className="teacher-profile-copy">
