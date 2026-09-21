@@ -33,3 +33,15 @@ jobs:
 
       - name: Build with prerender
         run: pnpm run build
+
+      - name: Verify prerendered HTML
+        run: |
+          grep -Fq "<h1" dist/index.html
+          grep -Fq "1 200 ₽" dist/index.html
+
+          if grep -Fq '<div id="root"></div>' dist/index.html; then
+            echo "Ошибка: root остался пустым"
+            exit 1
+          fi
+
+          echo "Пререндеринг подтверждён: HTML содержит контент TopRepet."
