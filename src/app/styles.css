@@ -292,6 +292,10 @@ h2 {
 .teachers-carousel {
   min-width: 0;
 }
+.teachers-carousel [data-slot='carousel-content'] {
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+}
 .teacher-track {
   display: flex;
   margin-left: -16px;
