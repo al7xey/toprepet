@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
-import { HashRouter } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 import '@fontsource-variable/manrope';
 
@@ -19,9 +19,9 @@ if (!rootElement) {
 
 const app = (
   <React.StrictMode>
-    <HashRouter>
+    <BrowserRouter>
       <AppContent />
-    </HashRouter>
+    </BrowserRouter>
   </React.StrictMode>
 );
 
