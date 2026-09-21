@@ -12,7 +12,7 @@ export default function LessonsPage() {
   useEffect(() => {
     document.title = 'Выбрать занятия — TopRepet';
     return () => {
-      document.title = 'TopRepet — любое занятие за 1 200 ₽';
+      document.title = 'TopRepet — топ репеты под вашу цель';
     };
   }, []);
   return (
