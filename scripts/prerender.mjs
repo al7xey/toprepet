@@ -41,12 +41,60 @@ const routes = [
   '/teacher/mathematics',
 ];
 
+const titles = {
+  '/': 'TopRepet — топ репеты под вашу цель',
+  '/lessons': 'Занятия с репетитором — TopRepet',
+  '/contact': 'Связаться с TopRepet',
+  '/free-intro': 'Бесплатное знакомство с репетитором — TopRepet',
+
+  '/teacher/informatics':
+    'Алексей — репетитор по информатике | TopRepet',
+
+  '/teacher/english':
+    'Анастасия — репетитор по английскому и истории | TopRepet',
+
+  '/teacher/russian':
+    'Артём — репетитор по русскому языку | TopRepet',
+
+  '/teacher/chemistry-biology':
+    'Александра — репетитор по химии и биологии | TopRepet',
+
+  '/teacher/mathematics':
+    'Ерлан — репетитор по математике | TopRepet',
+};
+
+function addPageMeta(html, route) {
+  const title = titles[route];
+
+  const canonical =
+    route === '/'
+      ? 'https://toprepet.ru/'
+      : `https://toprepet.ru${route}/`;
+
+  let result = html.replace(
+    /<title>.*?<\/title>/s,
+    `<title>${title}</title>`,
+  );
+
+  result = result.replace(
+    '</head>',
+    `    <link rel="canonical" href="${canonical}" />\n  </head>`,
+  );
+
+  return result;
+}
+
 for (const route of routes) {
   const appHtml = await render(route);
 
-  const finalHtml = template.replace(
+  let finalHtml = template.replace(
     rootPlaceholder,
     `<div id="root">${appHtml}</div>`,
+  );
+
+  finalHtml = addPageMeta(
+    finalHtml,
+    route,
   );
 
   const outputPath =
