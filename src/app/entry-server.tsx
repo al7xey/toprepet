@@ -12,10 +12,10 @@ export async function render(url = '/') {
       </MemoryRouter>
     </React.StrictMode>,
     {
-      onBrowserBailout(error, errorInfo) {
+      onError(error, errorInfo) {
         console.error('');
-        console.error('=== BROWSER BAILOUT ===');
-        console.error(error.message);
+        console.error('=== PRERENDER ERROR ===');
+        console.error(error);
         console.error(errorInfo.componentStack);
         console.error('=======================');
         console.error('');
