@@ -1354,16 +1354,3 @@
     min-height: 392px;
   }
 }
-
-@media (max-width: 599px) {
-  .format-slide,
-  .teacher-slide {
-    flex-basis: 100%;
-    justify-content: center;
-  }
-
-  .format-card {
-    width: 256px;
-    max-width: 100%;
-  }
-}
