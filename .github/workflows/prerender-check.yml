@@ -1,0 +1,69 @@
+name: Check prerender build
+
+on:
+  push:
+    branches:
+      - geo-prerender
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build with prerender
+        run: pnpm run build
+
+      - name: Verify prerendered HTML
+        run: |
+          grep -Fq "<h1" dist/index.html
+          grep -Fq "1 200 ₽" dist/index.html
+
+          test -f dist/lessons/index.html
+          test -f dist/contact/index.html
+          test -f dist/free-intro/index.html
+
+          test -f dist/teacher/informatics/index.html
+          test -f dist/teacher/english/index.html
+          test -f dist/teacher/russian/index.html
+          test -f dist/teacher/chemistry-biology/index.html
+          test -f dist/teacher/mathematics/index.html
+
+          grep -Fq "Какие занятия нужны?" dist/lessons/index.html
+          grep -Fq "Начните со знакомства" dist/free-intro/index.html
+          grep -Fq "Напишите менеджеру" dist/contact/index.html
+
+          grep -Fq "Алексей" dist/teacher/informatics/index.html
+          grep -Fq "Анастасия" dist/teacher/english/index.html
+
+          if grep -Fq '<div id="root"></div>' dist/index.html; then
+            echo "Ошибка: root остался пустым"
+            exit 1
+          fi
+
+          echo "Все пререндеренные страницы TopRepet проверены."
+      - name: Upload preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: toprepet-prerender-preview
+          path: dist
