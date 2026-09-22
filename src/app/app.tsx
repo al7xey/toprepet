@@ -1,7 +1,5 @@
 import {
   useEffect,
-  lazy,
-  Suspense,
   Component,
   type ReactNode,
   type ErrorInfo,
@@ -12,25 +10,13 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import { Header } from '../widgets/header/header';
 import HomePage from '../pages/home/home-page';
+import DirectionPage from '../pages/direction/direction-page';
+import LessonsPage from '../pages/lessons/lessons-page';
+import TeacherPage from '../pages/teacher/teacher-page';
+import FreeIntroPage from '../pages/free-intro/free-intro-page';
 import { Footer } from '../widgets/footer/footer';
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
-
-const DirectionPage = lazy(
-  () => import('../pages/direction/direction-page'),
-);
-
-const LessonsPage = lazy(
-  () => import('../pages/lessons/lessons-page'),
-);
-
-const TeacherPage = lazy(
-  () => import('../pages/teacher/teacher-page'),
-);
-
-const FreeIntroPage = lazy(
-  () => import('../pages/free-intro/free-intro-page'),
-);
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -168,54 +154,46 @@ export function AppContent() {
           id="main"
           tabIndex={-1}
         >
-          <Suspense
-            fallback={
-              <output className="container loading-block">
-                Загружаем занятия…
-              </output>
-            }
-          >
-            <Routes>
-              <Route
-                path="/"
-                element={<HomePage />}
-              />
+          <Routes>
+            <Route
+              path="/"
+              element={<HomePage />}
+            />
 
-              <Route
-                path="/lessons"
-                element={<LessonsPage />}
-              />
+            <Route
+              path="/lessons"
+              element={<LessonsPage />}
+            />
 
-              <Route
-                path="/contact"
-                element={
-                  <div className="manager-page">
-                    <Contact standalone />
-                  </div>
-                }
-              />
+            <Route
+              path="/contact"
+              element={
+                <div className="manager-page">
+                  <Contact standalone />
+                </div>
+              }
+            />
 
-              <Route
-                path="/free-intro"
-                element={<FreeIntroPage />}
-              />
+            <Route
+              path="/free-intro"
+              element={<FreeIntroPage />}
+            />
 
-              <Route
-                path="/teacher/:id"
-                element={<TeacherPage />}
-              />
+            <Route
+              path="/teacher/:id"
+              element={<TeacherPage />}
+            />
 
-              <Route
-                path="/direction/:id"
-                element={<DirectionPage />}
-              />
+            <Route
+              path="/direction/:id"
+              element={<DirectionPage />}
+            />
 
-              <Route
-                path="*"
-                element={<DirectionPage />}
-              />
-            </Routes>
-          </Suspense>
+            <Route
+              path="*"
+              element={<DirectionPage />}
+            />
+          </Routes>
         </main>
 
         <Footer />
