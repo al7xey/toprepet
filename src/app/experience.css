@@ -1354,3 +1354,17 @@
     min-height: 392px;
   }
 }
+
+@media (max-width: 599px) {
+  .formats-carousel [data-slot='carousel-content'],
+  .teachers-carousel [data-slot='carousel-content'] {
+    margin-right: -20px;
+  }
+}
+
+@media (max-width: 359px) {
+  .formats-carousel [data-slot='carousel-content'],
+  .teachers-carousel [data-slot='carousel-content'] {
+    margin-right: -14px;
+  }
+}
