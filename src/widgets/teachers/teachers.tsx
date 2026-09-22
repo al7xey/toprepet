@@ -50,7 +50,7 @@ function TeacherCard({
       draggable={false}
     >
       <span className={`teacher-photo teacher-photo-${index + 1}`}>
-        <img src={photo} alt="" loading="lazy" draggable={false} />
+        <img src={photo} alt="" loading="eager" draggable={false} />
       </span>
       <span className="teacher-glass">
         <span className="teacher-card-ticker" aria-label={cardTicker.join(', ')}>
