@@ -43,9 +43,15 @@ const routes = [
 
 const titles = {
   '/': 'TopRepet — топ репеты под вашу цель',
-  '/lessons': 'Занятия с репетитором — TopRepet',
-  '/contact': 'Связаться с TopRepet',
-  '/free-intro': 'Бесплатное знакомство с репетитором — TopRepet',
+
+  '/lessons':
+    'Занятия с репетитором — TopRepet',
+
+  '/contact':
+    'Связаться с TopRepet',
+
+  '/free-intro':
+    'Бесплатное знакомство с репетитором — TopRepet',
 
   '/teacher/informatics':
     'Алексей — репетитор по информатике | TopRepet',
@@ -63,8 +69,38 @@ const titles = {
     'Ерлан — репетитор по математике | TopRepet',
 };
 
+const descriptions = {
+  '/':
+    'Подберём репетитора под вашу цель: школьные предметы, домашние задания, ОГЭ и ЕГЭ. Бесплатное знакомство — 20 минут.',
+
+  '/lessons':
+    'Выберите направление занятий в TopRepet: школьные предметы, домашние задания, подготовка к ОГЭ и ЕГЭ и начало учёбы.',
+
+  '/contact':
+    'Свяжитесь с менеджером TopRepet, чтобы выбрать занятие, преподавателя или согласовать время бесплатного знакомства.',
+
+  '/free-intro':
+    'Бесплатное знакомство с репетитором длится 20 минут. Обсудим цель, удобный график и составим план занятий.',
+
+  '/teacher/informatics':
+    'Алексей — репетитор TopRepet по информатике, школьной программе, ОГЭ и ЕГЭ.',
+
+  '/teacher/english':
+    'Анастасия — репетитор TopRepet по английскому языку, истории и школьным предметам.',
+
+  '/teacher/russian':
+    'Артём — репетитор TopRepet по русскому языку, школьной программе и подготовке к ОГЭ.',
+
+  '/teacher/chemistry-biology':
+    'Александра — репетитор TopRepet по химии и биологии для учеников 5–11 классов и подготовки к ОГЭ.',
+
+  '/teacher/mathematics':
+    'Ерлан — репетитор TopRepet по математике, школьной программе и подготовке к ОГЭ.',
+};
+
 function addPageMeta(html, route) {
   const title = titles[route];
+  const description = descriptions[route];
 
   const canonical =
     route === '/'
@@ -74,6 +110,11 @@ function addPageMeta(html, route) {
   let result = html.replace(
     /<title>.*?<\/title>/s,
     `<title>${title}</title>`,
+  );
+
+  result = result.replace(
+    /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i,
+    `<meta name="description" content="${description}" />`,
   );
 
   result = result.replace(
