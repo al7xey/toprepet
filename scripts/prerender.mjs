@@ -214,6 +214,22 @@ function canonicalForRoute(route) {
     : `https://toprepet.ru${route}/`;
 }
 
+function updateMetaContent(html, attribute, key, value) {
+  const tag = new RegExp(
+    `<meta\\s+${attribute}="${key}"\\s+content="[^"]*"\\s*\\/?>`,
+    'i',
+  );
+
+  if (!tag.test(html)) {
+    throw new Error(`Не найден метатег ${key}`);
+  }
+
+  return html.replace(
+    tag,
+    `<meta ${attribute}="${key}" content="${value}" />`,
+  );
+}
+
 function addPageMeta(html, route) {
   const title = titles[route];
   const description = descriptions[route];
@@ -228,6 +244,16 @@ function addPageMeta(html, route) {
     /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i,
     `<meta name="description" content="${description}" />`,
   );
+
+  for (const [attribute, key, value] of [
+    ['property', 'og:title', title],
+    ['property', 'og:description', description],
+    ['property', 'og:url', canonical],
+    ['name', 'twitter:title', title],
+    ['name', 'twitter:description', description],
+  ]) {
+    result = updateMetaContent(result, attribute, key, value);
+  }
 
   result = result.replace(
     '</head>',
