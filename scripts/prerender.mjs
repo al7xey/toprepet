@@ -99,6 +99,32 @@ const descriptions = {
     'Ерлан — репетитор TopRepet по математике, школьной программе и подготовке к ОГЭ.',
 };
 
+const breadcrumbNames = {
+  '/lessons':
+    'Занятия',
+
+  '/contact':
+    'Контакты',
+
+  '/free-intro':
+    'Бесплатное знакомство',
+
+  '/teacher/informatics':
+    'Алексей',
+
+  '/teacher/english':
+    'Анастасия',
+
+  '/teacher/russian':
+    'Артём',
+
+  '/teacher/chemistry-biology':
+    'Александра',
+
+  '/teacher/mathematics':
+    'Ерлан',
+};
+
 const teacherSchemas = {
   '/teacher/informatics': {
     '@context': 'https://schema.org',
@@ -182,14 +208,16 @@ const teacherSchemas = {
   },
 };
 
+function canonicalForRoute(route) {
+  return route === '/'
+    ? 'https://toprepet.ru/'
+    : `https://toprepet.ru${route}/`;
+}
+
 function addPageMeta(html, route) {
   const title = titles[route];
   const description = descriptions[route];
-
-  const canonical =
-    route === '/'
-      ? 'https://toprepet.ru/'
-      : `https://toprepet.ru${route}/`;
+  const canonical = canonicalForRoute(route);
 
   let result = html.replace(
     /<title>.*?<\/title>/s,
@@ -228,6 +256,48 @@ function addTeacherSchema(html, route) {
   );
 }
 
+function addBreadcrumbSchema(html, route) {
+  if (route === '/') {
+    return html;
+  }
+
+  const pageName = breadcrumbNames[route];
+
+  if (!pageName) {
+    return html;
+  }
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'TopRepet',
+        item: 'https://toprepet.ru/',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: pageName,
+        item: canonicalForRoute(route),
+      },
+    ],
+  };
+
+  const jsonLd = JSON.stringify(
+    schema,
+    null,
+    2,
+  );
+
+  return html.replace(
+    '</head>',
+    `    <script type="application/ld+json">\n${jsonLd}\n    </script>\n  </head>`,
+  );
+}
+
 for (const route of routes) {
   const appHtml = await render(route);
 
@@ -242,6 +312,11 @@ for (const route of routes) {
   );
 
   finalHtml = addTeacherSchema(
+    finalHtml,
+    route,
+  );
+
+  finalHtml = addBreadcrumbSchema(
     finalHtml,
     route,
   );
