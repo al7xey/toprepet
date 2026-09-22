@@ -42,7 +42,8 @@ const routes = [
 ];
 
 const titles = {
-  '/': 'TopRepet — топ репеты под вашу цель',
+  '/':
+    'TopRepet — топ репеты под вашу цель',
 
   '/lessons':
     'Занятия с репетитором — TopRepet',
@@ -98,6 +99,89 @@ const descriptions = {
     'Ерлан — репетитор TopRepet по математике, школьной программе и подготовке к ОГЭ.',
 };
 
+const teacherSchemas = {
+  '/teacher/informatics': {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Алексей',
+    jobTitle: 'Репетитор по информатике',
+    url: 'https://toprepet.ru/teacher/informatics/',
+    image:
+      'https://toprepet.ru/images/tutor-informatics.webp',
+    worksFor: {
+      '@type': 'Organization',
+      name: 'TopRepet',
+      url: 'https://toprepet.ru/',
+    },
+  },
+
+  '/teacher/english': {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Анастасия',
+    jobTitle:
+      'Репетитор по английскому языку и истории',
+    url: 'https://toprepet.ru/teacher/english/',
+    image:
+      'https://toprepet.ru/images/tutor-english.webp',
+    worksFor: {
+      '@type': 'Organization',
+      name: 'TopRepet',
+      url: 'https://toprepet.ru/',
+    },
+  },
+
+  '/teacher/russian': {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Артём',
+    jobTitle:
+      'Репетитор по русскому языку',
+    url: 'https://toprepet.ru/teacher/russian/',
+    image:
+      'https://toprepet.ru/images/tutor-artem.webp',
+    worksFor: {
+      '@type': 'Organization',
+      name: 'TopRepet',
+      url: 'https://toprepet.ru/',
+    },
+  },
+
+  '/teacher/chemistry-biology': {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Александра',
+    jobTitle:
+      'Репетитор по химии и биологии',
+    url:
+      'https://toprepet.ru/teacher/chemistry-biology/',
+    image:
+      'https://toprepet.ru/images/tutor-alexandra-portrait-v2.webp',
+    worksFor: {
+      '@type': 'Organization',
+      name: 'TopRepet',
+      url: 'https://toprepet.ru/',
+    },
+  },
+
+  '/teacher/mathematics': {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Ерлан',
+    jobTitle:
+      'Репетитор по математике',
+    url:
+      'https://toprepet.ru/teacher/mathematics/',
+    image:
+      'https://toprepet.ru/images/tutor-erlan.webp',
+    worksFor: {
+      '@type': 'Organization',
+      name: 'TopRepet',
+      url: 'https://toprepet.ru/',
+    },
+  },
+};
+
 function addPageMeta(html, route) {
   const title = titles[route];
   const description = descriptions[route];
@@ -125,6 +209,25 @@ function addPageMeta(html, route) {
   return result;
 }
 
+function addTeacherSchema(html, route) {
+  const schema = teacherSchemas[route];
+
+  if (!schema) {
+    return html;
+  }
+
+  const jsonLd = JSON.stringify(
+    schema,
+    null,
+    2,
+  );
+
+  return html.replace(
+    '</head>',
+    `    <script type="application/ld+json">\n${jsonLd}\n    </script>\n  </head>`,
+  );
+}
+
 for (const route of routes) {
   const appHtml = await render(route);
 
@@ -134,6 +237,11 @@ for (const route of routes) {
   );
 
   finalHtml = addPageMeta(
+    finalHtml,
+    route,
+  );
+
+  finalHtml = addTeacherSchema(
     finalHtml,
     route,
   );
@@ -163,4 +271,6 @@ for (const route of routes) {
   console.log(`Пререндер создан: ${route}`);
 }
 
-console.log('Все страницы TopRepet успешно пререндерены.');
+console.log(
+  'Все страницы TopRepet успешно пререндерены.',
+);
