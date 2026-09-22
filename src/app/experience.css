@@ -1355,19 +1355,14 @@
   }
 }
 
-@media (max-width: 759px) {
-  .format-track,
-  .teacher-track {
-    margin-left: 0;
-  }
-
+@media (max-width: 599px) {
   .format-slide,
   .teacher-slide {
-    flex: 0 0 100%;
-    padding-left: 0;
+    flex-basis: 100%;
   }
 
-  .teacher-card {
-    width: 100%;
+  .format-card {
+    width: 256px;
+    max-width: 100%;
   }
 }
