@@ -1360,11 +1360,21 @@
   .teachers-carousel [data-slot='carousel-content'] {
     margin-right: -20px;
   }
+
+  .format-slide:last-child,
+  .teacher-slide:last-child {
+    margin-right: 20px;
+  }
 }
 
 @media (max-width: 359px) {
   .formats-carousel [data-slot='carousel-content'],
   .teachers-carousel [data-slot='carousel-content'] {
     margin-right: -14px;
+  }
+
+  .format-slide:last-child,
+  .teacher-slide:last-child {
+    margin-right: 14px;
   }
 }
