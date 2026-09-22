@@ -29,7 +29,7 @@
 .teacher-open.button { width: 100%; min-height: 44px; padding: 10px; border-radius: 18px; font-weight: 750; }
 .teacher-profile-photo { width: 256px; max-width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius: 32px; }
 .teacher-profile-grid { grid-template-columns: minmax(0, 1fr); }
-.format-slide { flex: 0 0 288px; }
+.format-slide { flex: 0 0 272px; }
 .format-card { border-radius: 32px; padding: 24px; min-height: 330px; }
 .format-card h3 { font-size: 1.4rem; }
 .format-meta { margin-bottom: 24px; gap: 8px; }

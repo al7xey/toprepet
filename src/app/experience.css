@@ -1330,12 +1330,12 @@
   }
 
   .format-track {
-    margin-left: -12px;
+    margin-left: -16px;
   }
 
   .format-slide {
-    flex: 0 0 23%;
-    padding-left: 12px;
+    flex: 0 0 23.5%;
+    padding-left: 16px;
   }
 
   .teacher-slide {
