@@ -1360,6 +1360,7 @@
   .teachers-carousel [data-slot='carousel-content'] {
     margin-left: -20px;
     margin-right: -20px;
+    padding-left: 20px;
   }
 
   .format-slide:last-child,
@@ -1367,10 +1368,6 @@
     margin-right: 20px;
   }
 
-  .format-slide:first-child,
-  .teacher-slide:first-child {
-    margin-left: 20px;
-  }
 }
 
 @media (max-width: 359px) {
@@ -1378,6 +1375,7 @@
   .teachers-carousel [data-slot='carousel-content'] {
     margin-left: -14px;
     margin-right: -14px;
+    padding-left: 14px;
   }
 
   .format-slide:last-child,
@@ -1385,8 +1383,4 @@
     margin-right: 14px;
   }
 
-  .format-slide:first-child,
-  .teacher-slide:first-child {
-    margin-left: 14px;
-  }
 }
