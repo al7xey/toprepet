@@ -1366,6 +1366,11 @@
   .teacher-slide:last-child {
     margin-right: 20px;
   }
+
+  .format-slide:first-child,
+  .teacher-slide:first-child {
+    margin-left: 20px;
+  }
 }
 
 @media (max-width: 359px) {
@@ -1378,5 +1383,10 @@
   .format-slide:last-child,
   .teacher-slide:last-child {
     margin-right: 14px;
+  }
+
+  .format-slide:first-child,
+  .teacher-slide:first-child {
+    margin-left: 14px;
   }
 }
