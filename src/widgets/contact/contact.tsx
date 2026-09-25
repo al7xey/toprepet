@@ -33,7 +33,7 @@ export function Contact({ onLessonsPage = false, standalone = false }: { onLesso
         {hasSelection && <div className="contact-selection">
           <p>В Telegram и WhatsApp сообщение уже заполнено. При нажатии на VK или MAX текст копируется — останется вставить его в диалог.</p>
           <button type="button" className="copy-choice" onClick={copySelection}>{copyState === 'copied' ? <Check size={18} aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}Скопировать выбор</button>
-          {!onLessonsPage && <Link className="inline-link" to="/lessons">Изменить</Link>}
+          {!onLessonsPage && <Link className="inline-link" to="/lessons/">Изменить</Link>}
           <output className="copy-status">{copyState === 'copied' ? 'Текст скопирован — вставьте его в диалог' : copyState === 'failed' ? 'Скопируйте текст из поля ниже' : ''}</output>
           {copyState === 'failed' && <textarea aria-label="Текст сообщения для ручного копирования" value={enquiryMessage(topic)} readOnly rows={7} />}
         </div>}

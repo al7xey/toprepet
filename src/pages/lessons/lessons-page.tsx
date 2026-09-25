@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { LessonPicker } from '../../features/select-lesson';
 import { isGoal } from '../../entities/lesson';
@@ -9,12 +8,6 @@ export default function LessonsPage() {
   const [params] = useSearchParams();
   const value = params.get('goal');
   const goal = isGoal(value) ? value : undefined;
-  useEffect(() => {
-    document.title = 'Выбрать занятия — TopRepet';
-    return () => {
-      document.title = 'TopRepet — топ репеты под вашу цель';
-    };
-  }, []);
   return (
     <>
     <section className="lessons-page container">

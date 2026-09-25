@@ -18,10 +18,10 @@ export function Hero() {
           <li><CalendarDays aria-hidden="true" /><span>Удобный<br />график</span></li>
           <li><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Быстрый<br />результат</span></li>
         </ul>
-        <Link className="button button-primary" to="/lessons">
+        <Link className="button button-primary" to="/lessons/">
           Выбрать занятие <ArrowRight size={20} aria-hidden="true" />
         </Link>
-        <Link className="button button-light hero-intro" to="/free-intro">
+        <Link className="button button-light hero-intro" to="/free-intro/">
           <Gift size={24} aria-hidden="true" />
           <span>Бесплатное знакомство</span>
           <ArrowRight size={20} aria-hidden="true" />

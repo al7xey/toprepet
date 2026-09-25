@@ -9,7 +9,7 @@ export default function DirectionPage() {
     if (id === 'oge') params.set('exam', 'ОГЭ');
     if (id === 'school-start') params.set('subject', 'Подготовка к школе');
     if (id === 'primary') params.set('subject', 'Начальные классы');
-    return <Navigate to={'/lessons?' + params} replace />;
+    return <Navigate to={'/lessons/?' + params} replace />;
   }
   return (
     <section className="not-found container">

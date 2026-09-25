@@ -11,7 +11,7 @@ export function Footer() {
       <nav className="footer-links" aria-label="Ссылки в подвале">
         <a className="footer-contact" href="https://blog.toprepet.ru">Блог</a>
         <Link
-          to="/contact"
+          to="/contact/"
           className="footer-contact"
         >
           Написать в поддержку

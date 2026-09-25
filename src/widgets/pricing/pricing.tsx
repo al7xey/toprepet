@@ -12,7 +12,7 @@ export function Pricing() {
         <p>При оплате более 10 занятий одним платежом — скидка 10%.</p>
       </div>
       <div className="price-offer">
-        <Link className="button button-primary" to="/lessons">
+        <Link className="button button-primary" to="/lessons/">
           Выбрать занятие
         </Link>
       </div>

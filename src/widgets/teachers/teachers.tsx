@@ -46,7 +46,7 @@ function TeacherCard({
     <Link
       ref={cardRef}
       className={`teacher-card${tickerActive ? ' teacher-card-ticker-active' : ''}`}
-      to={`/teacher/${id}`}
+      to={`/teacher/${id}/`}
       draggable={false}
     >
       <span className={`teacher-photo teacher-photo-${index + 1}`}>
