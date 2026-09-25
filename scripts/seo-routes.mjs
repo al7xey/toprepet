@@ -9,6 +9,7 @@ export const routes = [
   '/teacher/russian',
   '/teacher/chemistry-biology',
   '/teacher/mathematics',
+  '/teacher/anna-russian-literature',
 ];
 
 export const titles = {
@@ -38,6 +39,9 @@ export const titles = {
 
   '/teacher/mathematics':
     'Ерлан — репетитор по математике | TopRepet',
+
+  '/teacher/anna-russian-literature':
+    'Анна — репетитор по русскому языку и литературе | TopRepet',
 };
 
 export const descriptions = {
@@ -67,6 +71,9 @@ export const descriptions = {
 
   '/teacher/mathematics':
     'Ерлан — репетитор TopRepet по математике, школьной программе и подготовке к ОГЭ.',
+
+  '/teacher/anna-russian-literature':
+    'Анна — учитель русского языка и литературы. Занятия для 5–11 классов, подготовка к ОГЭ и ЕГЭ. Результат ЕГЭ по русскому — 98 баллов.',
 };
 
 
