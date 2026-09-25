@@ -93,7 +93,7 @@ export function Directions() {
             >
               <Link
                 className="format-card"
-                to={`/lessons/?goal=${goal}${subject ? `&subject=${encodeURIComponent(subject)}` : ''}`}
+                to={`/lessons?goal=${goal}${subject ? `&subject=${encodeURIComponent(subject)}` : ''}`}
                 draggable={false}
               >
                 <div className="format-meta">

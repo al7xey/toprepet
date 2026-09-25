@@ -19,7 +19,6 @@ import DirectionPage from '../pages/direction/direction-page';
 import LessonsPage from '../pages/lessons/lessons-page';
 import TeacherPage from '../pages/teacher/teacher-page';
 import FreeIntroPage from '../pages/free-intro/free-intro-page';
-import { TeachersPage, DirectionsPage, HowItWorksPage, PricePage, FaqPage } from '../pages/sections/section-pages';
 import { Footer } from '../widgets/footer/footer';
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
@@ -237,12 +236,6 @@ export function AppContent() {
               path="/free-intro"
               element={<FreeIntroPage />}
             />
-
-            <Route path="/teachers" element={<TeachersPage />} />
-            <Route path="/directions" element={<DirectionsPage />} />
-            <Route path="/how-it-works" element={<HowItWorksPage />} />
-            <Route path="/price" element={<PricePage />} />
-            <Route path="/faq" element={<FaqPage />} />
 
             <Route
               path="/teacher/:id"

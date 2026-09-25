@@ -40,12 +40,6 @@ const breadcrumbNames = {
   '/free-intro':
     'Бесплатное знакомство',
 
-  '/teachers': 'Репетиторы',
-  '/directions': 'Направления занятий',
-  '/how-it-works': 'Как работает TopRepet',
-  '/price': 'Стоимость занятий',
-  '/faq': 'Частые вопросы',
-
   '/teacher/informatics':
     'Алексей',
 

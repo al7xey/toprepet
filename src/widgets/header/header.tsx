@@ -18,20 +18,20 @@ export function Header() {
 
   const navigation = () => [
     {
-      to: '/lessons/',
+      to: '/lessons',
       label: 'Занятия',
       pagePath: '/lessons',
     },
     {
-      to: '/price/',
+      to: '/#price',
       label: 'Стоимость',
     },
     {
-      to: '/teachers/',
+      to: '/#teachers',
       label: 'Преподаватели',
     },
     {
-      to: '/faq/',
+      to: '/#faq',
       label: 'Вопросы',
     },
     {
