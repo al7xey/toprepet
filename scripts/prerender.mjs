@@ -55,7 +55,7 @@ const breadcrumbNames = {
   '/teacher/mathematics':
     'Ерлан',
 
-  '/teacher/anna-russian-literature':
+  '/teacher/russian-literature':
     'Анна',
 };
 
@@ -140,12 +140,12 @@ const teacherSchemas = {
       url: 'https://toprepet.ru/',
     },
   },
-  '/teacher/anna-russian-literature': {
+  '/teacher/russian-literature': {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Анна',
     jobTitle: 'Репетитор по русскому языку и литературе',
-    url: 'https://toprepet.ru/teacher/anna-russian-literature/',
+    url: 'https://toprepet.ru/teacher/russian-literature/',
     image: 'https://toprepet.ru/images/tutor-anna.webp',
     worksFor: {
       '@type': 'Organization',
