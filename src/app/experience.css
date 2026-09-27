@@ -264,9 +264,9 @@
 
 .teacher-open.button {
   width: 100%;
-  min-height: 44px;
-  padding: 10px;
-  border-radius: 18px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border-radius: 14px;
   font-weight: 750;
 }
 
@@ -1090,7 +1090,7 @@
   backdrop-filter: blur(10px);
   grid-template-rows: auto auto;
   align-content: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .teacher-card-ticker {
@@ -1122,9 +1122,9 @@
 
 .teacher-open.button {
   align-self: center;
-  min-height: 40px;
-  padding: 8px 12px;
-  border-radius: 16px;
+  min-height: 38px;
+  padding: 7px 10px;
+  border-radius: 14px;
   font-size: 1rem;
   font-weight: 800;
 }
@@ -1374,12 +1374,12 @@
 .teacher-card-subjects {
   display: block;
   min-width: 0;
-  overflow: hidden;
+  height: 24px;
   white-space: nowrap;
   text-align: center;
   font-size: 1rem;
   font-weight: 680;
-  line-height: 1.2;
+  line-height: 24px;
 }
 
 
@@ -1396,4 +1396,9 @@
     margin-right: 14px;
   }
 
+}
+
+@media (min-width: 1000px) and (max-width: 1199px) {
+  .teacher-slide { flex: 0 0 272px; }
+  .teacher-card { width: 256px; }
 }
