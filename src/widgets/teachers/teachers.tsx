@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Carousel,
@@ -11,41 +10,18 @@ import { teachers } from '../../entities/teacher';
 
 function TeacherCard({
   id,
-  cardTicker,
+  cardSubjects,
   photo,
   index,
 }: {
   id: string;
-  cardTicker: readonly string[];
+  cardSubjects: string;
   photo: string;
   index: number;
 }) {
-  const cardRef = useRef<HTMLAnchorElement>(null);
-  const [tickerActive, setTickerActive] = useState(false);
-
-  useEffect(() => {
-    const card = cardRef.current;
-    if (!card || tickerActive) return;
-    if (!('IntersectionObserver' in window)) {
-      setTickerActive(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && entry.intersectionRatio >= 0.72) {
-        setTickerActive(true);
-        observer.disconnect();
-      }
-    }, { threshold: [0.72] });
-
-    observer.observe(card);
-    return () => observer.disconnect();
-  }, [tickerActive]);
-
   return (
     <Link
-      ref={cardRef}
-      className={`teacher-card${tickerActive ? ' teacher-card-ticker-active' : ''}`}
+      className="teacher-card"
       to={`/teacher/${id}/`}
       draggable={false}
     >
@@ -53,13 +29,7 @@ function TeacherCard({
         <img src={photo} alt="" loading="eager" draggable={false} />
       </span>
       <span className="teacher-glass">
-        <span className="teacher-card-ticker" aria-label={cardTicker.join(', ')}>
-          <span className="teacher-card-ticker-track" aria-hidden="true">
-            {[...cardTicker, ...cardTicker].map((item, tickerIndex) => (
-              <strong key={`${item}-${tickerIndex}`}>{item}</strong>
-            ))}
-          </span>
-        </span>
+        <strong className="teacher-card-subjects">{cardSubjects}</strong>
         <span className="teacher-open button button-primary">Открыть анкету</span>
       </span>
     </Link>
@@ -98,7 +68,7 @@ export function Teachers() {
           </div>
         </div>
         <CarouselContent className="teacher-track">
-          {teachers.map(({ id, role, cardTicker, photo }, index) => (
+          {teachers.map(({ id, role, cardSubjects, photo }, index) => (
             <CarouselItem
               className="teacher-slide"
               key={role}
@@ -106,7 +76,7 @@ export function Teachers() {
             >
               <TeacherCard
                 id={id}
-                cardTicker={cardTicker}
+                cardSubjects={cardSubjects}
                 photo={photo}
                 index={index}
               />

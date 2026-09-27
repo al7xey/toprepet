@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export function FreeIntro() {
   return (
-    <section className="free-intro container" aria-labelledby="free-intro-title">
+    <section id="free-intro" className="free-intro container" aria-labelledby="free-intro-title">
       <div className="free-intro-heading">
         <h2 id="free-intro-title">Познакомьтесь до первого занятия</h2>
         <p>20 минут бесплатно, чтобы обсудить цель, познакомиться с репетитором и понять, как лучше выстроить занятия.</p>

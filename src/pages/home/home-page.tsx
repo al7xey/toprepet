@@ -6,12 +6,9 @@ import { ScrollReveal } from '../../shared/ui/scroll-reveal';
 import { Contact } from '../../widgets/contact/contact';
 import { HowItWorks } from '../../widgets/how-it-works/how-it-works';
 import { FreeIntro } from '../../widgets/free-intro/free-intro';
-import { useScrollToSection } from '../../shared/lib/use-scroll-to-section';
 import Faq from '../../widgets/faq/faq';
 
 export default function HomePage() {
-  useScrollToSection();
-
   return (
     <>
       <Hero />

@@ -2,7 +2,8 @@ export interface Teacher {
   id: string;
   name: string;
   role: string;
-  cardTicker: readonly string[];
+  cardSubjects: string;
+  helpTopics: readonly string[];
   photo: string;
   intro: string;
   achievements: readonly {
@@ -17,13 +18,13 @@ export const teachers: readonly Teacher[] = [
     id: 'informatics',
     name: 'Алексей',
     role: 'Репетитор по информатике',
-    cardTicker: [
+    cardSubjects: 'Информатика',
+    helpTopics: [
       'Информатика',
-      'ЕГЭ по информатике',
-      'ОГЭ по информатике',
-      'Школьные предметы',
-      'Начальные классы',
+      'Школьная программа',
       'Домашние задания',
+      'Подготовка к ОГЭ',
+      'Подготовка к ЕГЭ',
     ],
     photo: '/images/tutor-informatics.webp',
     intro:
@@ -53,12 +54,11 @@ export const teachers: readonly Teacher[] = [
     id: 'english',
     name: 'Анастасия',
     role: 'Репетитор по английскому языку, истории и школьным предметам',
-    cardTicker: [
+    cardSubjects: 'Английский / История',
+    helpTopics: [
       'Английский язык',
-      'История России',
-      'Школьные предметы',
-      'Начальные классы',
-      'Подготовка к школе',
+      'История',
+      'Школьная программа',
       'Домашние задания',
     ],
     photo: '/images/tutor-english.webp',
@@ -85,13 +85,14 @@ export const teachers: readonly Teacher[] = [
     id: 'russian-literature',
     name: 'Анна',
     role: 'Репетитор по русскому языку и литературе',
-    cardTicker: [
+    cardSubjects: 'Русский / Литература',
+    helpTopics: [
       'Русский язык',
       'Литература',
-      'ОГЭ по русскому',
-      'ЕГЭ по русскому',
-      '5–11 классы',
       'Школьная программа',
+      'Домашние задания',
+      'Подготовка к ОГЭ',
+      'Подготовка к ЕГЭ',
     ],
     photo: '/images/tutor-anna.webp',
     intro:
@@ -117,12 +118,12 @@ export const teachers: readonly Teacher[] = [
     id: 'russian',
     name: 'Артём',
     role: 'Репетитор по русскому языку и школьным предметам',
-    cardTicker: [
+    cardSubjects: 'Русский язык',
+    helpTopics: [
       'Русский язык',
-      'ОГЭ по русскому',
-      'Школьные предметы',
-      'Начальные классы',
+      'Школьная программа',
       'Домашние задания',
+      'Подготовка к ОГЭ',
     ],
     photo: '/images/tutor-artem.webp',
     intro:
@@ -144,13 +145,13 @@ export const teachers: readonly Teacher[] = [
     id: 'chemistry-biology',
     name: 'Александра',
     role: 'Репетитор по химии и биологии',
-    cardTicker: [
+    cardSubjects: 'Химия / Биология',
+    helpTopics: [
       'Химия',
       'Биология',
-      'ОГЭ по химии',
-      'ОГЭ по биологии',
-      '5–11 классы',
+      'Школьная программа',
       'Домашние задания',
+      'Подготовка к ОГЭ',
     ],
     photo: '/images/tutor-alexandra-portrait-v2.webp',
     intro:
@@ -176,12 +177,12 @@ export const teachers: readonly Teacher[] = [
     id: 'mathematics',
     name: 'Ерлан',
     role: 'Репетитор по математике и школьным предметам',
-    cardTicker: [
+    cardSubjects: 'Математика',
+    helpTopics: [
       'Математика',
-      'ОГЭ по математике',
-      'Школьные предметы',
-      'Начальные классы',
+      'Школьная программа',
       'Домашние задания',
+      'Подготовка к ОГЭ',
     ],
     photo: '/images/tutor-erlan.webp',
     intro:

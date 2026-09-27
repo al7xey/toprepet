@@ -96,7 +96,7 @@ export default function TeacherPage() {
             </h2>
 
             <div className="teacher-topic-grid">
-              {teacher.cardTicker.map(
+              {teacher.helpTopics.map(
                 (topic) => (
                   <span key={topic}>
                     {topic}

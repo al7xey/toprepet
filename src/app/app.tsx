@@ -13,6 +13,7 @@ import {
 import { Provider } from 'react-redux';
 
 import { store } from './store';
+import { useScrollToSection } from '../shared/lib/use-scroll-to-section';
 import { Header } from '../widgets/header/header';
 import HomePage from '../pages/home/home-page';
 import DirectionPage from '../pages/direction/direction-page';
@@ -76,66 +77,7 @@ class ErrorBoundary extends Component<
 }
 
 function ScrollManager() {
-  const { pathname, hash, key } = useLocation();
-
-  useEffect(() => {
-    if (!hash) {
-      window.scrollTo(0, 0);
-      return;
-    }
-
-    const scrollToAnchor = () => {
-      const target = document.getElementById(
-        hash.slice(1),
-      );
-
-      if (!target) {
-        return false;
-      }
-
-      target.scrollIntoView({
-        behavior: window.matchMedia(
-          '(prefers-reduced-motion: reduce)',
-        ).matches
-          ? 'instant'
-          : 'smooth',
-      });
-
-      return true;
-    };
-
-    const observer = new MutationObserver(() => {
-      if (scrollToAnchor()) {
-        observer.disconnect();
-      }
-    });
-
-    const frame = requestAnimationFrame(() => {
-      if (!scrollToAnchor()) {
-        const main =
-          document.getElementById('main');
-
-        if (main) {
-          observer.observe(main, {
-            childList: true,
-            subtree: true,
-          });
-        }
-      }
-    });
-
-    const timeout = window.setTimeout(
-      () => observer.disconnect(),
-      10000,
-    );
-
-    return () => {
-      cancelAnimationFrame(frame);
-      observer.disconnect();
-      clearTimeout(timeout);
-    };
-  }, [pathname, hash, key]);
-
+  useScrollToSection();
   return null;
 }
 

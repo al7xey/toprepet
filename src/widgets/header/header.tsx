@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 import {
@@ -14,41 +14,46 @@ import { Brand } from '../../shared/ui/brand';
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  const { pathname } = useLocation();
-
-  const navigation = () => [
+  const navigation = (mobile = false) => (mobile ? [
     {
-      to: '/lessons',
+      to: '/#directions',
       label: 'Занятия',
-      pagePath: '/lessons',
+    },
+    {
+      to: '/#how',
+      label: 'Как всё устроено',
+    },
+    {
+      to: '/#teachers',
+      label: 'Топ репеты',
+    },
+    {
+      to: '/#free-intro',
+      label: 'Знакомство',
     },
     {
       to: '/#price',
       label: 'Стоимость',
     },
     {
-      to: '/#teachers',
-      label: 'Преподаватели',
-    },
-    {
-      to: '/#faq',
-      label: 'Вопросы',
-    },
-    {
       to: '/#contact',
       label: 'Контакты',
     },
-  ].map(({ to, label, pagePath }) => {
-    const isActive =
-      pagePath !== undefined &&
-      pathname === pagePath;
-
+    {
+      to: '/#faq',
+      label: 'Вопросы и ответы',
+    },
+  ] : [
+    { to: '/lessons/', label: 'Занятия' },
+    { to: '/#teachers', label: 'Преподаватели' },
+    { to: '/#price', label: 'Стоимость' },
+    { to: '/#contact', label: 'Контакты' },
+    { to: '/#faq', label: 'Вопросы' },
+  ]).map(({ to, label }) => {
     return (
       <Link
         key={label}
         to={to}
-        className={isActive ? 'active' : undefined}
-        aria-current={isActive ? 'page' : undefined}
         onClick={() => setOpen(false)}
       >
         {label}
@@ -105,7 +110,7 @@ export function Header() {
               </div>
 
               <nav aria-label="Мобильная навигация">
-                {navigation()}
+                {navigation(true)}
               </nav>
             </SheetContent>
           </Sheet>

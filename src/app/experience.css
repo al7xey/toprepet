@@ -18,6 +18,7 @@
 .header { gap: 12px; }
 .header-actions { display: flex; align-items: center; gap: 10px; }
 .header-nav { gap: 20px; }
+.header-nav a { white-space: nowrap; }
 
 .button,
 .format-action {
@@ -1369,6 +1370,18 @@
   }
 
 }
+
+.teacher-card-subjects {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 680;
+  line-height: 1.2;
+}
+
 
 @media (max-width: 359px) {
   .formats-carousel [data-slot='carousel-content'],
