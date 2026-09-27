@@ -1,7 +1,6 @@
 import { LessonPicker } from '../../features/select-lesson';
 import { Contact } from '../../widgets/contact/contact';
 import { CalendarDays, MessageCircle, Route } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 const meetingPoints = [
   [MessageCircle, 'Познакомимся с репетитором'],
@@ -13,7 +12,6 @@ export default function FreeIntroPage() {
   return (
     <>
     <article className="free-intro-page container">
-      <Link className="back-link free-intro-back" to="/">На главную</Link>
       <header className="free-intro-hero">
         <h1>Начните со знакомства</h1>
         <p>20 минут бесплатно с репетитором — познакомимся, обсудим вашу цель и определим дальнейший план занятий.</p>

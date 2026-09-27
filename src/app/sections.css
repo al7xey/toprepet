@@ -51,6 +51,7 @@
 .lessons-page {
   padding-top: 26px;
 }
+.lessons-page .page-heading { margin-top: 0; }
 .back-link {
   font-size: 1rem;
   color: var(--muted);

@@ -1,4 +1,4 @@
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { LessonPicker } from '../../features/select-lesson';
 import { isGoal } from '../../entities/lesson';
 import { Contact } from '../../widgets/contact/contact';
@@ -11,9 +11,6 @@ export default function LessonsPage() {
   return (
     <>
     <section className="lessons-page container">
-      <Link to="/" className="back-link">
-        На главную
-      </Link>
       <header className="page-heading">
         <h1>Какие занятия нужны?</h1>
         <p>Выберите цель, предмет и класс. Мы добавим выбранные параметры и промокод в сообщение менеджеру.</p>

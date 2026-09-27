@@ -50,7 +50,6 @@
 .free-intro-button > span { flex: none; }
 .free-intro .free-intro-button:hover { color: #fff; background: var(--accent-hover); border-color: var(--accent-hover); }
 .free-intro-page { padding-top: 38px; padding-bottom: 24px; }
-.free-intro-back { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 40px; }
 .free-intro-hero { max-width: 780px; }
 .free-intro-hero h1 { max-width: 700px; margin: 0 0 20px; font-size: clamp(2.5rem, 7vw, 5rem); line-height: .98; letter-spacing: -.055em; }
 .free-intro-hero > p { max-width: 680px; margin: 0; color: var(--body-muted); font-size: 1.08rem; line-height: 1.7; }

@@ -1,4 +1,4 @@
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { legacyGoal } from '../../entities/lesson';
 export default function DirectionPage() {
   const { id } = useParams();
@@ -15,9 +15,6 @@ export default function DirectionPage() {
     <section className="not-found container">
       <p>404</p>
       <h1>Страница не найдена</h1>
-      <Link to="/" className="button button-primary">
-        На главную
-      </Link>
     </section>
   );
 }
