@@ -1,0 +1,48 @@
+/* The original blog stylesheet is scoped to .blog-root in blog.css.
+   These aliases cover the GitHub Pages admin markup. */
+.blog-root *, .blog-root *::before, .blog-root *::after { box-sizing:border-box; }
+.blog-root a { color:inherit; text-decoration:none; }
+.blog-root .blog-container { width:min(1184px,calc(100% - 64px)); margin-inline:auto; }
+.blog-root .blog-button { min-height:52px; border:1px solid transparent; border-radius:16px; padding:14px 22px; display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--orange); color:#fff; font-size:.94rem; line-height:1.4; font-weight:700; text-align:center; cursor:pointer; }
+.blog-root .blog-button:hover { background:var(--orange-dark); color:#fff; }
+.blog-root .blog-button:disabled { opacity:.55; cursor:not-allowed; }
+.blog-root .blog-admin-header { position:sticky; top:0; z-index:1000; background:rgb(255 255 255 / 94%); backdrop-filter:blur(16px); }
+.blog-root .blog-admin-header > div { min-height:62px; display:flex; align-items:center; gap:18px; }
+.blog-root .blog-admin-header > div > a { margin-right:auto; font-size:1.03rem; font-weight:800; }
+.blog-root .blog-admin-header nav { display:flex; align-items:center; gap:4px; }
+.blog-root .blog-admin-header nav a,.blog-root .blog-admin-header nav button { padding:9px 11px; border:0; border-radius:11px; background:none; font-size:.84rem; font-weight:750; }
+.blog-root .blog-admin-header nav a:hover,.blog-root .blog-admin-header nav button:hover { color:var(--orange-dark); background:var(--surface); }
+.blog-root .blog-admin-main { max-width:1184px; min-height:70vh; padding-block:30px 90px; }
+.blog-root .blog-admin-main h1 { margin:8px 0 22px; font-size:clamp(2rem,3vw,2.8rem); font-weight:800; letter-spacing:-.055em; line-height:1.12; }
+.blog-root .blog-admin-title { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:20px; padding-bottom:27px; border-bottom:1px solid var(--line); }
+.blog-root .blog-admin-list { margin-top:26px; border-block:1px solid var(--line); }
+.blog-root .blog-admin-list > * { display:block; padding:14px 2px; border-bottom:1px solid var(--line); }
+.blog-root .blog-admin-list > *:last-child { border-bottom:0; }
+.blog-root .blog-admin-list small { display:block; margin-top:5px; color:var(--muted); font-size:.75rem; }
+.blog-root .blog-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-block:26px 36px; }
+.blog-root .blog-stats > div { padding:18px; border:1px solid var(--line); border-radius:20px; background:#fff; color:var(--muted); font-size:.78rem; }
+.blog-root .blog-stats strong { display:block; margin-top:6px; color:var(--ink); font-size:1.55rem; }
+.blog-root .blog-login { width:min(440px,calc(100% - 32px)); margin:8vh auto; padding:28px; border:1px solid var(--line); border-radius:20px; }
+.blog-root .blog-login h1 { margin:20px 0; font-size:2rem; }
+.blog-root .blog-login form,.blog-root .blog-admin-form { display:grid; gap:20px; }
+.blog-root .blog-admin-form section { display:grid; gap:16px; padding:24px; border:1px solid var(--line); border-radius:20px; background:#fff; }
+.blog-root .blog-admin-form h2 { margin:0; font-size:1.3rem; }
+.blog-root .blog-admin-form label,.blog-root .blog-login label { display:grid; gap:7px; font-size:.82rem; font-weight:800; }
+.blog-root .blog-admin-form input,.blog-root .blog-admin-form textarea,.blog-root .blog-admin-form select,.blog-root .blog-login input { width:100%; min-width:0; min-height:46px; padding:12px 14px; border:1px solid #dcd6d0; border-radius:11px; background:#fff; color:var(--ink); font:inherit; }
+.blog-root .blog-admin-form textarea { min-height:85px; }
+.blog-root .blog-actions,.blog-root .blog-preview-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+.blog-root .blog-actions button:not(.blog-button),.blog-root .blog-preview-actions button { min-height:44px; padding:10px 16px; border:1px solid var(--line); border-radius:13px; background:#fff; color:var(--ink); }
+.blog-root .blog-error { color:#9c2f18; }
+.blog-root .blog-notice { display:block; padding:14px 16px; border:1px solid #efc9b6; border-radius:14px; background:var(--surface); }
+.blog-root .blog-cover-preview { max-width:320px; max-height:200px; object-fit:contain; }
+.blog-root.blog-admin .article-body { max-width:760px; }
+@media(max-width:700px){
+  .blog-root .blog-container { width:calc(100% - 32px); }
+  .blog-root .blog-admin-header { padding-top:env(safe-area-inset-top); }
+  .blog-root .blog-admin-header > div { display:block; padding-block:10px; }
+  .blog-root .blog-admin-header nav { gap:8px; overflow-x:auto; white-space:nowrap; margin-top:6px; }
+  .blog-root .blog-admin-header nav a,.blog-root .blog-admin-header nav button { flex:none; min-height:40px; }
+  .blog-root .blog-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .blog-root .blog-admin-title { align-items:flex-start; flex-direction:column; }
+  .blog-root .blog-admin-form section { padding:16px; }
+}

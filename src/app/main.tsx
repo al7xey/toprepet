@@ -12,6 +12,7 @@ import './experience.css';
 import './landing-update.css';
 import './tutor-landing.css';
 import '../blog/blog.css';
+import '../blog/blog-adapter.css';
 
 const rootElement = document.getElementById('root');
 
