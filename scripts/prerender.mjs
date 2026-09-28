@@ -333,6 +333,40 @@ console.log(
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${routes.map(route => `  <url><loc>${canonicalForRoute(route)}</loc></url>`).join('\n')}\n</urlset>\n`;
 await writeFile(resolve('dist/sitemap.xml'), sitemap, 'utf8');
 
+const blog = JSON.parse(await readFile('src/blog/snapshot.json', 'utf8'));
+const escapeMeta = value => String(value || '').replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
+const blogCategoryPath = category => {
+  const parts = [category.slug];
+  let parent = blog.categories.find(item => item.id === category.parent_id);
+  while (parent && parts.length < 8) { parts.unshift(parent.slug); parent = blog.categories.find(item => item.id === parent.parent_id); }
+  return `/blog/rubrics/${parts.join('/')}`;
+};
+const blogPages = [
+  { route: '/blog', title: 'Блог TopRepet — статьи об учёбе', description: 'Статьи об учёбе, школьных предметах и подготовке к экзаменам от редакции TopRepet.' },
+  ...blog.categories.filter(category => blog.articles.some(article => {
+    let current = blog.categories.find(item => item.id === article.category_id);
+    while (current) { if (current.id === category.id) return true; current = blog.categories.find(item => item.id === current.parent_id); }
+    return false;
+  })).map(category => ({ route: blogCategoryPath(category), title: `${category.name} — Блог TopRepet`, description: category.description || `Статьи по теме «${category.name}» в блоге TopRepet.` })),
+  ...blog.articles.map(article => ({ route: `/blog/articles/${article.slug}`, title: article.seo_title || `${article.title} — Блог TopRepet`, description: article.seo_description || article.excerpt, article })),
+];
+const adminRoutes = ['/blog/admin', '/blog/admin/login', '/blog/admin/articles', '/blog/admin/articles/new', '/blog/admin/articles/edit', '/blog/admin/categories'];
+for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: 'Админка блога — TopRepet', description: '', admin: true }))]) {
+  const url = `https://toprepet.ru${page.route}/`;
+  let html = template.replace(rootPlaceholder, `<div id="root">${await render(page.route)}</div>`);
+  html = html.replace(/<title>.*?<\/title>/s, `<title>${escapeMeta(page.title)}</title>`)
+    .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escapeMeta(page.description)}" />`);
+  for (const [key, value] of [['og:title', page.title], ['og:description', page.description], ['og:url', url], ['twitter:title', page.title], ['twitter:description', page.description]]) {
+    html = updateMetaContent(html, key.startsWith('og:') ? 'property' : 'name', key, escapeMeta(value));
+  }
+  html = html.replace('</head>', page.admin ? '<meta name="robots" content="noindex,follow" /></head>' : `<link rel="canonical" href="${url}" /></head>`);
+  const path = resolve('dist', page.route.slice(1), 'index.html');
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, html, 'utf8');
+}
+const blogSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${blogPages.map(page => `  <url><loc>https://toprepet.ru${page.route}/</loc></url>`).join('\n')}\n</urlset>\n`;
+await writeFile(resolve('dist/blog/sitemap.xml'), blogSitemap, 'utf8');
+
 // GitHub Pages cannot issue a server-side 301 for an old static path.
 // Keep the legacy URL out of the sitemap and redirect it immediately.
 const legacyTutorPath = resolve('dist/for-tutors/index.html');

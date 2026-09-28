@@ -5,7 +5,7 @@ export default defineConfig({
   base: '/',
   plugins: [react()],
   resolve: { alias: { '@': fileURLToPath(new URL('./', import.meta.url)) } },
-  server: { host: '127.0.0.1', proxy: { '/blog': { target: 'http://127.0.0.1:3001', changeOrigin: true, ws: true } } },
+  server: { host: '127.0.0.1' },
   build: {
     target: 'es2022',
     cssCodeSplit: true,

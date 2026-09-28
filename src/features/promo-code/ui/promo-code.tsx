@@ -19,8 +19,8 @@ export function PromoCode({ value, onChange, onApply, status = 'idle' }: { value
             <ArrowRight size={20} aria-hidden="true" />
           </button>
         </div>
-        {status === 'applied' && <p className="promo-status is-applied" role="status">Промокод применён</p>}
-        {status === 'not-found' && <p className="promo-status is-not-found" role="status">Промокод не найден</p>}
+        {status === 'applied' && <output className="promo-status is-applied">Промокод применён</output>}
+        {status === 'not-found' && <output className="promo-status is-not-found">Промокод не найден</output>}
     </form>
   );
 }

@@ -31,18 +31,18 @@ export function ChoiceGroup({
       {options.map((option) => (
         <label
           key={option.value}
-          onClick={(event) => {
-            if (allowDeselect && value === option.value) {
-              event.preventDefault();
-              onChange('');
-            }
-          }}
           className={
             'choice-option' + (value === option.value ? ' is-selected' : '')
           }
         >
           <RadioGroupItem
             value={option.value}
+            onClick={(event) => {
+              if (allowDeselect && value === option.value) {
+                event.preventDefault();
+                onChange('');
+              }
+            }}
             inputRef={(input) => {
               input?.setAttribute('aria-hidden', 'true');
             }}

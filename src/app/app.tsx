@@ -4,6 +4,8 @@ import {
   Component,
   type ReactNode,
   type ErrorInfo,
+  lazy,
+  Suspense,
 } from 'react';
 import {
   Route,
@@ -25,6 +27,8 @@ import ForTutorsPage from '../pages/for-tutors/for-tutors-page';
 import { Footer } from '../widgets/footer/footer';
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
+import { PublicBlog } from '../blog/public';
+const AdminBlog = lazy(() => import('../blog/admin').then(module => ({ default: module.AdminBlog })));
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -131,6 +135,25 @@ function MetrikaTracker() {
 }
 
 export function AppContent() {
+  return <AppRoutes />;
+}
+
+function AppRoutes() {
+  const { pathname } = useLocation();
+  if (pathname === '/blog' || pathname.startsWith('/blog/')) {
+    return <ErrorBoundary><Suspense fallback={<p className="blog-container">Загрузка админки…</p>}><Routes>
+      <Route path="/blog" element={<PublicBlog page="home" />} />
+      <Route path="/blog/rubrics/*" element={<PublicBlog page="rubric" />} />
+      <Route path="/blog/articles/:slug" element={<PublicBlog page="article" />} />
+      <Route path="/blog/admin/login" element={<AdminBlog page="login" />} />
+      <Route path="/blog/admin" element={<AdminBlog page="dashboard" />} />
+      <Route path="/blog/admin/articles" element={<AdminBlog page="articles" />} />
+      <Route path="/blog/admin/articles/new" element={<AdminBlog page="new" />} />
+      <Route path="/blog/admin/articles/edit" element={<AdminBlog page="edit" />} />
+      <Route path="/blog/admin/categories" element={<AdminBlog page="categories" />} />
+      <Route path="*" element={<PublicBlog page="home" />} />
+    </Routes></Suspense></ErrorBoundary>;
+  }
   return (
     <ErrorBoundary>
       <Provider store={store}>
