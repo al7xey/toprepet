@@ -1,7 +1,11 @@
 /* The original blog stylesheet is scoped to .blog-root in blog.css.
    These aliases cover the GitHub Pages admin markup. */
 .blog-root *, .blog-root *::before, .blog-root *::after { box-sizing:border-box; }
-.blog-root a { color:inherit; text-decoration:none; }
+.blog-root .site-header { --muted:#667085; --line:#f0e3dc; --surface:#fff8f4; background:rgb(255 255 255 / 76%); }
+.blog-root .blog-header-nav { display:flex; align-items:center; margin-left:auto; }
+.blog-root .blog-home-link { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:10px 18px; border:1px solid #f0e3dc; border-radius:18px; font-size:.94rem; font-weight:750; white-space:nowrap; }
+.blog-root .blog-home-link:hover { background:var(--surface); }
+.blog-root .footer { --muted:#667085; --line:#f0e3dc; }
 .blog-root .blog-container { width:min(1184px,calc(100% - 64px)); margin-inline:auto; }
 .blog-root .blog-button { min-height:52px; border:1px solid transparent; border-radius:16px; padding:14px 22px; display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--orange); color:#fff; font-size:.94rem; line-height:1.4; font-weight:700; text-align:center; cursor:pointer; }
 .blog-root .blog-button:hover { background:var(--orange-dark); color:#fff; }
@@ -45,4 +49,8 @@
   .blog-root .blog-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .blog-root .blog-admin-title { align-items:flex-start; flex-direction:column; }
   .blog-root .blog-admin-form section { padding:16px; }
+}
+@media(max-width:759px){
+  .blog-root .header-contact { display:none; }
+  .blog-root .blog-home-link { padding-inline:14px; }
 }

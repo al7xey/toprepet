@@ -12,7 +12,7 @@ import {
 
 import { Brand } from '../../shared/ui/brand';
 
-export function Header() {
+export function Header({ blog = false }: { blog?: boolean }) {
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
@@ -81,12 +81,15 @@ export function Header() {
       <div className="header container">
         <Brand />
 
-        <nav
-          className="header-nav"
-          aria-label="Основная навигация"
-        >
-          {navigation()}
-        </nav>
+        {blog ? (
+          <nav className="blog-header-nav" aria-label="Навигация блога">
+            <Link className="blog-home-link" to="/">На главную</Link>
+          </nav>
+        ) : (
+          <nav className="header-nav" aria-label="Основная навигация">
+            {navigation()}
+          </nav>
+        )}
 
         <div className="header-actions">
           <Link
@@ -96,7 +99,7 @@ export function Header() {
             Записаться
           </Link>
 
-          <Sheet
+          {!blog && <Sheet
             open={open}
             onOpenChange={setOpen}
           >
@@ -128,7 +131,7 @@ export function Header() {
                 {navigation(true)}
               </nav>
             </SheetContent>
-          </Sheet>
+          </Sheet>}
         </div>
       </div>
     </header>
