@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 
 import {
@@ -14,6 +14,16 @@ import { Brand } from '../../shared/ui/brand';
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(location.hash.slice(1))?.scrollIntoView();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [location.pathname, location.hash]);
+
   const navigation = (mobile = false) => (mobile ? [
     {
       to: '/#directions',
@@ -25,7 +35,7 @@ export function Header() {
     },
     {
       to: '/#teachers',
-      label: 'Топ репеты',
+      label: 'Найти репетитора',
     },
     {
       to: '/#free-intro',
@@ -44,8 +54,8 @@ export function Header() {
       label: 'Вопросы и ответы',
     },
   ] : [
-    { to: '/lessons/', label: 'Занятия' },
-    { to: '/#teachers', label: 'Преподаватели' },
+    { to: '/#directions', label: 'Занятия' },
+    { to: '/#teachers', label: 'Найти репетитора' },
     { to: '/#price', label: 'Стоимость' },
     { to: '/#contact', label: 'Контакты' },
     { to: '/#faq', label: 'Вопросы' },
@@ -54,7 +64,12 @@ export function Header() {
       <Link
         key={label}
         to={to}
-        onClick={() => setOpen(false)}
+        onClick={() => {
+          setOpen(false);
+          if (to.startsWith('/#') && location.pathname === '/' && location.hash === to.slice(1)) {
+            document.getElementById(to.slice(2))?.scrollIntoView();
+          }
+        }}
       >
         {label}
       </Link>
@@ -76,9 +91,9 @@ export function Header() {
         <div className="header-actions">
           <Link
             className="button button-secondary header-contact"
-            to="/#contact"
+            to="/lessons/"
           >
-            Написать
+            Записаться
           </Link>
 
           <Sheet

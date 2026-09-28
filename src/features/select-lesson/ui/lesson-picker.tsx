@@ -357,7 +357,7 @@ export function LessonPicker({
           className="button button-primary"
           to="/lessons/#contact"
         >
-          Выбрать мессенджер
+          Записаться
         </Link>
       </aside>
     </div>

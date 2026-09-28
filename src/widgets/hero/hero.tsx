@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Gift, UserRound, CalendarDays, ChartNoAxesColumnIncreasing } from 'lucide-react';
+import { ArrowRight, UserRound, CalendarDays, ChartNoAxesColumnIncreasing } from 'lucide-react';
 import { HeroCarousel } from './hero-carousel';
 
 export function Hero() {
@@ -19,11 +19,10 @@ export function Hero() {
           <li><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Быстрый<br />результат</span></li>
         </ul>
         <Link className="button button-primary" to="/lessons/">
-          Выбрать занятие <ArrowRight size={20} aria-hidden="true" />
+          Найти репетитора <ArrowRight size={20} aria-hidden="true" />
         </Link>
-        <Link className="button button-light hero-intro" to="/free-intro/">
-          <Gift size={24} aria-hidden="true" />
-          <span>Бесплатное знакомство</span>
+        <Link className="button button-light hero-intro" to="/#how">
+          <span>Как всё устроено</span>
           <ArrowRight size={20} aria-hidden="true" />
         </Link>
       </div>

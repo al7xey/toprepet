@@ -1,5 +1,5 @@
 /* Photo-first mobile hero, with both actions and compact benefits together. */
-.hero { grid-template-areas: 'art' 'copy' 'offer'; padding-top: 24px; gap: 24px; }
+.hero { grid-template-areas: 'copy' 'art' 'offer'; padding-top: 24px; gap: 24px; }
 .hero-art { height: auto; aspect-ratio: 4 / 3; box-shadow: none; }
 .hero-carousel,
 .hero-carousel [data-slot='carousel-content'],
@@ -15,8 +15,8 @@
 .hero-price { margin-bottom: 22px; }
 .hero .button { display: flex; justify-content: center; gap: 12px; width: 100%; max-width: none; }
 .hero-offer > .button { height: 56px; min-height: 56px; padding: 12px 16px; font-size: 1rem; }
-.hero .hero-intro { margin-top: 14px; background: #fff5ef; color: #202838; border: 1px solid #f8e6da; line-height: 1.45; }
-.hero-intro > svg { flex-shrink: 0; color: #ed682d; }
+.hero .hero-intro { margin-top: 14px; background: #fff5ef; color: #111; border: 1px solid #f8e6da; line-height: 1.45; }
+.hero-intro > svg { flex-shrink: 0; color: currentColor; }
 .hero-intro > span { flex: none; }
 .hero .hero-intro:hover { background: #ffe9dc; }
 .hero-benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding: 0; margin: 0 0 28px; list-style: none; }
@@ -94,4 +94,121 @@
 }
 @media (max-width: 359px) {
   .free-intro-heading h2 { font-size: 1.55rem; }
+}
+
+.price-benefits {
+  display: grid;
+  gap: 14px;
+  max-width: 760px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.price-title-amount { white-space: nowrap; }
+
+.price-layout { margin-top: 96px; }
+
+.price-layout .price-section {
+  max-width: 760px;
+  margin-top: 0;
+}
+
+.price-benefits li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  line-height: 1.5;
+}
+
+.price-benefits li svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin-top: 3px;
+  color: var(--accent);
+  stroke-width: 3;
+}
+
+.price-promo {
+  max-width: 760px;
+  margin-top: 16px;
+  padding: 32px 28px;
+  border-radius: 34px;
+  background: linear-gradient(135deg, #fff1e8 0%, #fff9f5 74%);
+  color: var(--ink);
+}
+
+.price-promo h2 {
+  margin: 0 0 8px;
+  color: var(--accent);
+  font-size: clamp(3.5rem, 8vw, 4.5rem);
+  line-height: 1;
+}
+
+.price-promo p {
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(1.1rem, 2.2vw, 1.5rem);
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.lessons-page:not(.free-intro-picker),
+.free-intro-page {
+  padding-top: 72px;
+}
+
+@media (min-width: 760px) {
+  .lessons-page:not(.free-intro-picker),
+  .free-intro-page {
+    padding-top: 88px;
+  }
+
+  .section,
+  .contact-section {
+    padding-top: 96px;
+  }
+
+  .price-layout {
+    margin-top: 96px;
+  }
+
+  .price-layout .price-section {
+    padding: 32px;
+  }
+
+  .price-section h2 { font-size: clamp(1.75rem, 2.4vw, 2.25rem); }
+  .price-promo h2 { font-size: 3.5rem; }
+  .price-promo p { font-size: 1.125rem; }
+
+  .teachers-section { padding-top: 72px; }
+  .free-intro { margin-top: 72px; }
+
+  .price-section,
+  .contact-section {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .price-copy,
+  .price-offer,
+  .contact-heading,
+  .contact-actions,
+  .free-intro-heading,
+  .free-intro-steps,
+  .free-intro-actions,
+  .faq-list {
+    width: 100%;
+    max-width: 760px;
+  }
+
+  .price-copy p { max-width: 760px; }
+
+  .price-promo { padding: 32px; }
+
+  .faq-section {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+  }
 }
