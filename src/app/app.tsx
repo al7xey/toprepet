@@ -9,6 +9,7 @@ import {
   Route,
   Routes,
   useLocation,
+  Navigate,
 } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
@@ -20,6 +21,7 @@ import DirectionPage from '../pages/direction/direction-page';
 import LessonsPage from '../pages/lessons/lessons-page';
 import TeacherPage from '../pages/teacher/teacher-page';
 import FreeIntroPage from '../pages/free-intro/free-intro-page';
+import ForTutorsPage from '../pages/for-tutors/for-tutors-page';
 import { Footer } from '../widgets/footer/footer';
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
@@ -178,6 +180,12 @@ export function AppContent() {
               path="/free-intro"
               element={<FreeIntroPage />}
             />
+
+            <Route
+              path="/for-repetitor"
+              element={<ForTutorsPage />}
+            />
+            <Route path="/for-tutors" element={<Navigate to="/for-repetitor/" replace />} />
 
             <Route
               path="/teacher/:id"

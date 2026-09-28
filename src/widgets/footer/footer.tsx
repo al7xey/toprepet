@@ -9,13 +9,14 @@ export function Footer() {
         <p>© {new Date().getFullYear()} TopRepet</p>
       </div>
       <nav className="footer-links" aria-label="Ссылки в подвале">
-        <a className="footer-contact" href="https://blog.toprepet.ru">Блог</a>
+        <Link to="/for-repetitor/" className="footer-contact">Для репетиторов</Link>
         <Link
           to="/contact/"
           className="footer-contact"
         >
           Написать в поддержку
         </Link>
+        <a className="footer-contact" href="/blog">Блог</a>
       </nav>
     </footer>
   );

@@ -156,13 +156,19 @@
 
 .lessons-page:not(.free-intro-picker),
 .free-intro-page {
-  padding-top: 72px;
+  padding-top: 44px;
 }
 
 @media (min-width: 760px) {
   .lessons-page:not(.free-intro-picker),
   .free-intro-page {
     padding-top: 88px;
+  }
+
+  .lessons-page:not(.free-intro-picker) .page-heading h1,
+  .free-intro-hero h1 {
+    font-size: clamp(2.6rem, 3.4vw, 3.2rem);
+    line-height: 1.1;
   }
 
   .section,

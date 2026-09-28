@@ -21,15 +21,17 @@ function MessengerIcon({ id }: { id: MessengerId }) {
 
 export function MessengerLinks({
   topic,
+  preparedMessage,
   className = '',
   linkClassName = '',
 }: {
   topic?: string;
+  preparedMessage?: string;
   className?: string;
   linkClassName?: string;
 }) {
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
-  const message = enquiryMessage(topic);
+  const message = preparedMessage ?? enquiryMessage(topic);
   async function prepareMessage(event: MouseEvent<HTMLAnchorElement>, id: MessengerId) {
     if (id !== 'vk' && id !== 'max') return;
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
@@ -56,7 +58,9 @@ export function MessengerLinks({
           className={
             'messenger-button' + (linkClassName ? ' ' + linkClassName : '')
           }
-          href={messengerLink(messenger, topic)}
+          href={preparedMessage && (messenger.id === 'telegram' || messenger.id === 'whatsapp')
+            ? `${messenger.url}?text=${encodeURIComponent(message)}`
+            : messengerLink(messenger, topic)}
           onClick={(event) => void prepareMessage(event, messenger.id)}
           target="_blank"
           rel="noopener noreferrer"

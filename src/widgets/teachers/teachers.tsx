@@ -36,7 +36,7 @@ function TeacherCard({
   );
 }
 
-export function Teachers() {
+export function Teachers({ title = 'Топ репеты', caption = 'Найдите преподавателя, с которым будет комфортно учиться и двигаться к цели.' }: { title?: string; caption?: string } = {}) {
   return (
     <section
       className="section container teachers-section"
@@ -51,10 +51,8 @@ export function Teachers() {
       >
         <div className="section-heading teachers-heading">
           <div>
-            <h2 id="teachers-title">Топ репеты</h2>
-            <p className="section-caption">
-              Найдите преподавателя, с которым будет комфортно учиться и двигаться к цели.
-            </p>
+            <h2 id="teachers-title">{title}</h2>
+            <p className="section-caption">{caption}</p>
           </div>
           <div className="carousel-controls">
             <CarouselPrevious

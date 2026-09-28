@@ -10,6 +10,7 @@ import './styles.css';
 import './refinements.css';
 import './experience.css';
 import './landing-update.css';
+import './tutor-landing.css';
 
 const rootElement = document.getElementById('root');
 

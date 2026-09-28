@@ -40,6 +40,9 @@ const breadcrumbNames = {
   '/free-intro':
     'Бесплатное знакомство',
 
+  '/for-repetitor':
+    'Работа репетитором',
+
   '/teacher/informatics':
     'Алексей',
 
@@ -196,6 +199,16 @@ function addPageMeta(html, route) {
     result = updateMetaContent(result, attribute, key, value);
   }
 
+  if (route === '/for-repetitor') {
+    const image = 'https://toprepet.ru/images/for-repetitor-hero.png';
+    result = updateMetaContent(result, 'property', 'og:image', image);
+    result = updateMetaContent(result, 'name', 'twitter:image', image);
+    result = updateMetaContent(result, 'property', 'og:image:alt', 'Преподаватели TopRepet');
+    result = updateMetaContent(result, 'name', 'twitter:image:alt', 'Преподаватели TopRepet');
+    result = updateMetaContent(result, 'property', 'og:image:width', '1448');
+    result = updateMetaContent(result, 'property', 'og:image:height', '1086');
+  }
+
   result = result.replace(
     '</head>',
     `    <link rel="canonical" href="${canonical}" />\n  </head>`,
@@ -319,6 +332,12 @@ console.log(
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${routes.map(route => `  <url><loc>${canonicalForRoute(route)}</loc></url>`).join('\n')}\n</urlset>\n`;
 await writeFile(resolve('dist/sitemap.xml'), sitemap, 'utf8');
+
+// GitHub Pages cannot issue a server-side 301 for an old static path.
+// Keep the legacy URL out of the sitemap and redirect it immediately.
+const legacyTutorPath = resolve('dist/for-tutors/index.html');
+await mkdir(dirname(legacyTutorPath), { recursive: true });
+await writeFile(legacyTutorPath, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=https://toprepet.ru/for-repetitor/"><link rel="canonical" href="https://toprepet.ru/for-repetitor/"><title>Переход на страницу для репетиторов</title></head><body><p>Страница переехала: <a href="https://toprepet.ru/for-repetitor/">работа репетитором с TopRepet</a>.</p></body></html>`, 'utf8');
 
 const notFoundHtml = template
   .replace(rootPlaceholder, `<div id="root">${await render('/this-page-does-not-exist')}</div>`)
