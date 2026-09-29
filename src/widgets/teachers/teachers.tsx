@@ -51,7 +51,7 @@ export function Teachers({ title = 'Топ репеты', caption = 'Найди�
         <div className="section-heading teachers-heading">
           <h2 id="teachers-title">{title}</h2>
           <Link className="teachers-directory-link" to="/teachers/" aria-label="Смотреть всех преподавателей">
-            <ArrowRight size={20} aria-hidden="true" />
+            <ArrowRight size={22} aria-hidden="true" />
           </Link>
           <p className="section-caption">{caption}</p>
         </div>

@@ -95,6 +95,9 @@
 @media (max-width: 359px) {
   .free-intro-heading h2 { font-size: 1.55rem; }
 }
+@media (max-width: 600px) {
+  .formats-carousel .carousel-controls { top: 50%; transform: translateY(-50%); }
+}
 
 .price-benefits {
   display: grid;

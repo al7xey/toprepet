@@ -43,6 +43,9 @@ const breadcrumbNames = {
   '/for-repetitor':
     'Работа репетитором',
 
+  '/teachers':
+    'Преподаватели',
+
   '/teacher/informatics':
     'Алексей',
 
@@ -217,8 +220,27 @@ function addPageMeta(html, route) {
   return result;
 }
 
-function addTeacherSchema(html, route) {
-  const schema = teacherSchemas[route];
+function addPageSchema(html, route) {
+  const schema = route === '/teachers' ? {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: titles[route],
+    url: canonicalForRoute(route),
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: routes.filter(path => teacherSchemas[path]).map((path, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        item: {
+          '@type': 'Person',
+          name: teacherSchemas[path].name,
+          jobTitle: teacherSchemas[path].jobTitle,
+          url: teacherSchemas[path].url,
+          image: teacherSchemas[path].image,
+        },
+      })),
+    },
+  } : teacherSchemas[route];
 
   if (!schema) {
     return html;
@@ -257,9 +279,15 @@ function addBreadcrumbSchema(html, route) {
         name: 'TopRepet',
         item: 'https://toprepet.ru/',
       },
-      {
+      ...(route.startsWith('/teacher/') ? [{
         '@type': 'ListItem',
         position: 2,
+        name: 'Преподаватели',
+        item: canonicalForRoute('/teachers'),
+      }] : []),
+      {
+        '@type': 'ListItem',
+        position: route.startsWith('/teacher/') ? 3 : 2,
         name: pageName,
         item: canonicalForRoute(route),
       },
@@ -291,7 +319,7 @@ for (const route of routes) {
     route,
   );
 
-  finalHtml = addTeacherSchema(
+  finalHtml = addPageSchema(
     finalHtml,
     route,
   );
