@@ -11,6 +11,7 @@ import {
   Route,
   Routes,
   useLocation,
+  useParams,
   Navigate,
 } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -26,10 +27,16 @@ import TeachersPage from '../pages/teachers/teachers-page';
 import FreeIntroPage from '../pages/free-intro/free-intro-page';
 import ForTutorsPage from '../pages/for-tutors/for-tutors-page';
 import { Footer } from '../widgets/footer/footer';
+
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
 import { PublicBlog } from '../blog/public';
 const AdminBlog = lazy(() => import('../blog/admin').then(module => ({ default: module.AdminBlog })));
+
+function LegacyTeacherRedirect() {
+  const { id } = useParams();
+  return <Navigate to={`/teachers/${id}/`} replace />;
+}
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -212,9 +219,11 @@ function AppRoutes() {
             <Route path="/for-tutors" element={<Navigate to="/for-repetitor/" replace />} />
 
             <Route
-              path="/teacher/:id"
+              path="/teachers/:id"
               element={<TeacherPage />}
             />
+
+            <Route path="/teacher/:id" element={<LegacyTeacherRedirect />} />
 
             <Route path="/teachers" element={<TeachersPage />} />
 

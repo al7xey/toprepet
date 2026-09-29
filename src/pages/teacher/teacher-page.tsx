@@ -16,7 +16,7 @@ export default function TeacherPage() {
         <h1>Анкета не найдена</h1>
 
         <Link
-          to="/#teachers"
+          to="/teachers/"
           className="button button-primary"
         >
           К преподавателям
@@ -32,7 +32,7 @@ export default function TeacherPage() {
     >
       <Link
         className="teacher-back"
-        to="/#teachers"
+        to="/teachers/"
       >
         <ArrowLeft
           size={19}

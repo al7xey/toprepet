@@ -21,7 +21,7 @@ export function TeacherCard({
   return (
     <Link
       className="teacher-card"
-      to={`/teacher/${id}/`}
+      to={`/teachers/${id}/`}
       aria-label={`Открыть анкету: ${cardSubjects}`}
       draggable={false}
     >

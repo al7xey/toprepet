@@ -34,6 +34,13 @@ const blogUrls = [...blogSitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => 
 const expected = [...routes.map(canonicalForRoute), ...blogUrls];
 if (urls.length !== expected.length || urls.some((url, index) => url !== expected[index])) fail('sitemap');
 if (new Set(urls).size !== urls.length || !blogUrls.includes('https://toprepet.ru/blog/')) fail('sitemap duplicate/blog');
+if (urls.some(url => url.includes('/teacher/'))) fail('sitemap legacy teacher URL');
+for (const route of routes.filter(path => path.startsWith('/teachers/'))) {
+  const oldRoute = route.replace('/teachers/', '/teacher/');
+  const legacy = await readFile(resolve(`dist${oldRoute}/index.html`), 'utf8');
+  const canonical = canonicalForRoute(route);
+  if (!legacy.includes('noindex,follow') || !legacy.includes(`content="0;url=${canonical}"`) || !legacy.includes(`rel="canonical" href="${canonical}"`)) fail(`${oldRoute}: legacy redirect`);
+}
 const robots = await readFile(resolve('dist/robots.txt'), 'utf8');
 if (!robots.includes('User-agent: OAI-SearchBot') || !robots.includes('Sitemap: https://toprepet.ru/sitemap.xml')) fail('robots');
 const notFound = await readFile(resolve('dist/404.html'), 'utf8');

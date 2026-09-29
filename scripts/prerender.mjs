@@ -46,32 +46,32 @@ const breadcrumbNames = {
   '/teachers':
     'Преподаватели',
 
-  '/teacher/informatics':
+  '/teachers/informatics':
     'Алексей',
 
-  '/teacher/english':
+  '/teachers/english':
     'Анастасия',
 
-  '/teacher/russian':
+  '/teachers/russian':
     'Артём',
 
-  '/teacher/chemistry-biology':
+  '/teachers/chemistry-biology':
     'Александра',
 
-  '/teacher/mathematics':
+  '/teachers/mathematics':
     'Ерлан',
 
-  '/teacher/russian-literature':
+  '/teachers/russian-literature':
     'Анна',
 };
 
 const teacherSchemas = {
-  '/teacher/informatics': {
+  '/teachers/informatics': {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Алексей',
     jobTitle: 'Репетитор по информатике',
-    url: 'https://toprepet.ru/teacher/informatics/',
+    url: 'https://toprepet.ru/teachers/informatics/',
     image:
       'https://toprepet.ru/images/tutor-informatics.webp',
     worksFor: {
@@ -81,13 +81,13 @@ const teacherSchemas = {
     },
   },
 
-  '/teacher/english': {
+  '/teachers/english': {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Анастасия',
     jobTitle:
       'Репетитор по английскому языку и истории',
-    url: 'https://toprepet.ru/teacher/english/',
+    url: 'https://toprepet.ru/teachers/english/',
     image:
       'https://toprepet.ru/images/tutor-english.webp',
     worksFor: {
@@ -97,13 +97,13 @@ const teacherSchemas = {
     },
   },
 
-  '/teacher/russian': {
+  '/teachers/russian': {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Артём',
     jobTitle:
       'Репетитор по русскому языку',
-    url: 'https://toprepet.ru/teacher/russian/',
+    url: 'https://toprepet.ru/teachers/russian/',
     image:
       'https://toprepet.ru/images/tutor-artem.webp',
     worksFor: {
@@ -113,14 +113,14 @@ const teacherSchemas = {
     },
   },
 
-  '/teacher/chemistry-biology': {
+  '/teachers/chemistry-biology': {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Александра',
     jobTitle:
       'Репетитор по химии и биологии',
     url:
-      'https://toprepet.ru/teacher/chemistry-biology/',
+      'https://toprepet.ru/teachers/chemistry-biology/',
     image:
       'https://toprepet.ru/images/tutor-alexandra-portrait-v2.webp',
     worksFor: {
@@ -130,14 +130,14 @@ const teacherSchemas = {
     },
   },
 
-  '/teacher/mathematics': {
+  '/teachers/mathematics': {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Ерлан',
     jobTitle:
       'Репетитор по математике',
     url:
-      'https://toprepet.ru/teacher/mathematics/',
+      'https://toprepet.ru/teachers/mathematics/',
     image:
       'https://toprepet.ru/images/tutor-erlan.webp',
     worksFor: {
@@ -146,12 +146,12 @@ const teacherSchemas = {
       url: 'https://toprepet.ru/',
     },
   },
-  '/teacher/russian-literature': {
+  '/teachers/russian-literature': {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Анна',
     jobTitle: 'Репетитор по русскому языку и литературе',
-    url: 'https://toprepet.ru/teacher/russian-literature/',
+    url: 'https://toprepet.ru/teachers/russian-literature/',
     image: 'https://toprepet.ru/images/tutor-anna.webp',
     worksFor: {
       '@type': 'Organization',
@@ -279,7 +279,7 @@ function addBreadcrumbSchema(html, route) {
         name: 'TopRepet',
         item: 'https://toprepet.ru/',
       },
-      ...(route.startsWith('/teacher/') ? [{
+      ...(route.startsWith('/teachers/') ? [{
         '@type': 'ListItem',
         position: 2,
         name: 'Преподаватели',
@@ -287,7 +287,7 @@ function addBreadcrumbSchema(html, route) {
       }] : []),
       {
         '@type': 'ListItem',
-        position: route.startsWith('/teacher/') ? 3 : 2,
+        position: route.startsWith('/teachers/') ? 3 : 2,
         name: pageName,
         item: canonicalForRoute(route),
       },
@@ -399,6 +399,14 @@ await writeFile(resolve('dist/sitemap.xml'), sitemap, 'utf8');
 const legacyTutorPath = resolve('dist/for-tutors/index.html');
 await mkdir(dirname(legacyTutorPath), { recursive: true });
 await writeFile(legacyTutorPath, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=https://toprepet.ru/for-repetitor/"><link rel="canonical" href="https://toprepet.ru/for-repetitor/"><title>Переход на страницу для репетиторов</title></head><body><p>Страница переехала: <a href="https://toprepet.ru/for-repetitor/">работа репетитором с TopRepet</a>.</p></body></html>`, 'utf8');
+
+for (const route of routes.filter(path => path.startsWith('/teachers/'))) {
+  const oldRoute = route.replace('/teachers/', '/teacher/');
+  const destination = canonicalForRoute(route);
+  const oldPath = resolve('dist', oldRoute.slice(1), 'index.html');
+  await mkdir(dirname(oldPath), { recursive: true });
+  await writeFile(oldPath, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${destination}"><link rel="canonical" href="${destination}"><title>Анкета преподавателя переехала — TopRepet</title></head><body><p>Анкета переехала: <a href="${destination}">открыть новый адрес</a>.</p></body></html>`, 'utf8');
+}
 
 const notFoundHtml = template
   .replace(rootPlaceholder, `<div id="root">${await render('/this-page-does-not-exist')}</div>`)
