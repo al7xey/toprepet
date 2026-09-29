@@ -90,13 +90,6 @@ export function Header() {
               <nav aria-label="Мобильная навигация">
                 {navigation()}
               </nav>
-              <Link
-                className="button button-secondary mobile-menu-cta"
-                to="/lessons/"
-                onClick={() => setOpen(false)}
-              >
-                Записаться
-              </Link>
             </SheetContent>
           </Sheet>
         </div>
