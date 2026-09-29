@@ -11,7 +11,7 @@ const slides = [
   { src: '/images/hero-slide-2.webp?v=20260929d', alt: 'Ученик читает книгу' },
   { src: '/images/hero-slide-3.webp?v=20260929d', alt: 'Ученица занимается за ноутбуком' },
   { src: '/images/hero-slide-4.webp?v=20260929d', alt: 'Ученик занимается с книгой' },
-  { src: '/images/hero-slide-5.webp?v=20260929d', alt: 'Выпускник в академической шапочке' },
+  { src: '/images/hero-slide-5.webp?v=20260929g', alt: 'Выпускник в академической шапочке' },
 ];
 
 export function HeroCarousel() {
