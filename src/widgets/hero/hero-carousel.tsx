@@ -7,11 +7,11 @@ import {
 } from '../../../components/ui/carousel';
 
 const slides = [
-  { src: '/images/hero-slide-1.webp', alt: 'Скидка 300 рублей по промокоду ОСЕНЬ' },
-  { src: '/images/hero-slide-2.webp', alt: 'Ученик читает книгу' },
-  { src: '/images/hero-slide-3.webp', alt: 'Ученица занимается за ноутбуком' },
-  { src: '/images/hero-slide-4.webp', alt: 'Ученик занимается с книгой' },
-  { src: '/images/hero-slide-5.webp', alt: 'Выпускник в академической шапочке' },
+  { src: '/images/hero-slide-1.webp?v=20260929b', alt: 'Скидка 300 рублей по промокоду ОСЕНЬ' },
+  { src: '/images/hero-slide-2.webp?v=20260929b', alt: 'Ученик читает книгу' },
+  { src: '/images/hero-slide-3.webp?v=20260929b', alt: 'Ученица занимается за ноутбуком' },
+  { src: '/images/hero-slide-4.webp?v=20260929b', alt: 'Ученик занимается с книгой' },
+  { src: '/images/hero-slide-5.webp?v=20260929b', alt: 'Выпускник в академической шапочке' },
 ];
 
 export function HeroCarousel() {
