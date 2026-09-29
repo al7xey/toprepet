@@ -1,14 +1,13 @@
 import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from '../../../components/ui/carousel';
 import { teachers } from '../../entities/teacher';
 
-function TeacherCard({
+export function TeacherCard({
   id,
   cardSubjects,
   photo,
@@ -23,6 +22,7 @@ function TeacherCard({
     <Link
       className="teacher-card"
       to={`/teacher/${id}/`}
+      aria-label={`Открыть анкету: ${cardSubjects}`}
       draggable={false}
     >
       <span className={`teacher-photo teacher-photo-${index + 1}`}>
@@ -30,7 +30,6 @@ function TeacherCard({
       </span>
       <span className="teacher-glass">
         <strong className="teacher-card-subjects">{cardSubjects}</strong>
-        <span className="teacher-open button button-primary">Открыть анкету</span>
       </span>
     </Link>
   );
@@ -50,20 +49,11 @@ export function Teachers({ title = 'Топ репеты', caption = 'Найди�
         opts={{ align: 'start', containScroll: 'trimSnaps' }}
       >
         <div className="section-heading teachers-heading">
-          <div>
-            <h2 id="teachers-title">{title}</h2>
-            <p className="section-caption">{caption}</p>
-          </div>
-          <div className="carousel-controls">
-            <CarouselPrevious
-              className="carousel-arrow"
-              aria-label="Предыдущие преподаватели"
-            />
-            <CarouselNext
-              className="carousel-arrow"
-              aria-label="Следующие преподаватели"
-            />
-          </div>
+          <h2 id="teachers-title">{title}</h2>
+          <Link className="teachers-directory-link" to="/teachers/" aria-label="Смотреть всех преподавателей">
+            <ArrowRight size={20} aria-hidden="true" />
+          </Link>
+          <p className="section-caption">{caption}</p>
         </div>
         <CarouselContent className="teacher-track">
           {teachers.map(({ id, role, cardSubjects, photo }, index) => (

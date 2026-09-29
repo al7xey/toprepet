@@ -1,7 +1,7 @@
 .tutor-teaser{display:grid;gap:22px;align-items:center;margin-top:96px;padding:32px;border-radius:30px;background:var(--surface)}
 .tutor-teaser h2{max-width:720px;margin:0;font-size:clamp(1.8rem,6.5vw,2.6rem);line-height:1.18}
 .tutor-teaser .button{max-width:100%}
-@media(min-width:760px){.tutor-teaser{grid-template-columns:minmax(0,1fr) auto}}
+@media(min-width:760px){.tutor-teaser{grid-template-columns:minmax(0,1fr);justify-items:start}}
 
 .for-tutors-page{padding:20px 0 0}
 .tutor-page-heading{display:grid;grid-template-areas:'title' 'image' 'button'}

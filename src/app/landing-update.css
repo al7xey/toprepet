@@ -203,8 +203,7 @@
   .contact-actions,
   .free-intro-heading,
   .free-intro-steps,
-  .free-intro-actions,
-  .faq-list {
+  .free-intro-actions {
     width: 100%;
     max-width: 760px;
   }

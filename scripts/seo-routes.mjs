@@ -4,6 +4,7 @@ export const routes = [
   '/contact',
   '/free-intro',
   '/for-repetitor',
+  '/teachers',
 
   '/teacher/informatics',
   '/teacher/english',
@@ -28,6 +29,9 @@ export const titles = {
 
   '/for-repetitor':
     'Работа репетитором онлайн — комиссия 200 ₽ | TopRepet',
+
+  '/teachers':
+    'Преподаватели TopRepet — выбрать репетитора по предмету',
 
   '/teacher/informatics':
     'Алексей — репетитор по информатике | TopRepet',
@@ -63,6 +67,9 @@ export const descriptions = {
 
   '/for-repetitor':
     'Работа репетитором онлайн с TopRepet. Получайте новых учеников через сервис. Комиссия — 200 ₽ с занятия, преподаватель получает 1 000 ₽. Начните сотрудничество с TopRepet.',
+
+  '/teachers':
+    'Каталог преподавателей TopRepet. Найдите репетитора по предмету и задаче, посмотрите анкету и выберите подходящего преподавателя.',
 
   '/teacher/informatics':
     'Алексей — репетитор TopRepet по информатике, школьной программе, ОГЭ и ЕГЭ.',

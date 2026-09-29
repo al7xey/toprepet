@@ -22,6 +22,7 @@ import HomePage from '../pages/home/home-page';
 import DirectionPage from '../pages/direction/direction-page';
 import LessonsPage from '../pages/lessons/lessons-page';
 import TeacherPage from '../pages/teacher/teacher-page';
+import TeachersPage from '../pages/teachers/teachers-page';
 import FreeIntroPage from '../pages/free-intro/free-intro-page';
 import ForTutorsPage from '../pages/for-tutors/for-tutors-page';
 import { Footer } from '../widgets/footer/footer';
@@ -214,6 +215,8 @@ function AppRoutes() {
               path="/teacher/:id"
               element={<TeacherPage />}
             />
+
+            <Route path="/teachers" element={<TeachersPage />} />
 
             <Route
               path="/direction/:id"
