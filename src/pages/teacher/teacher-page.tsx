@@ -1,12 +1,14 @@
 import { ArrowLeft } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 import { findTeacher } from '../../entities/teacher';
 import { MessengerLinks } from '../../shared/ui/messenger-links';
 
 export default function TeacherPage() {
   const { id } = useParams();
+  const { state } = useLocation();
   const teacher = findTeacher(id);
+  const teacherListPath = state?.teacherSource === 'home' ? '/#teachers' : '/teachers/';
 
   if (!teacher) {
     return (
@@ -32,7 +34,7 @@ export default function TeacherPage() {
     >
       <Link
         className="teacher-back"
-        to="/teachers/"
+        to={teacherListPath}
       >
         <ArrowLeft
           size={19}

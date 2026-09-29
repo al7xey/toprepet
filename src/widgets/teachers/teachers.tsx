@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import {
   Carousel,
@@ -18,10 +18,13 @@ export function TeacherCard({
   photo: string;
   index: number;
 }) {
+  const { pathname } = useLocation();
+
   return (
     <Link
       className="teacher-card"
       to={`/teachers/${id}/`}
+      state={{ teacherSource: pathname === '/' ? 'home' : 'directory' }}
       aria-label={`Открыть анкету: ${cardSubjects}`}
       draggable={false}
     >
