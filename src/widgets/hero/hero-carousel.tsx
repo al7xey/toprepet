@@ -7,11 +7,11 @@ import {
 } from '../../../components/ui/carousel';
 
 const slides = [
-  { src: '/images/hero-slide-1.webp?v=20260929b', alt: 'Скидка 300 рублей по промокоду ОСЕНЬ' },
-  { src: '/images/hero-slide-2.webp?v=20260929b', alt: 'Ученик читает книгу' },
-  { src: '/images/hero-slide-3.webp?v=20260929b', alt: 'Ученица занимается за ноутбуком' },
-  { src: '/images/hero-slide-4.webp?v=20260929b', alt: 'Ученик занимается с книгой' },
-  { src: '/images/hero-slide-5.webp?v=20260929b', alt: 'Выпускник в академической шапочке' },
+  { src: '/images/hero-slide-1.webp?v=20260929d', alt: 'Скидка 300 рублей по промокоду ОСЕНЬ' },
+  { src: '/images/hero-slide-2.webp?v=20260929d', alt: 'Ученик читает книгу' },
+  { src: '/images/hero-slide-3.webp?v=20260929d', alt: 'Ученица занимается за ноутбуком' },
+  { src: '/images/hero-slide-4.webp?v=20260929d', alt: 'Ученик занимается с книгой' },
+  { src: '/images/hero-slide-5.webp?v=20260929d', alt: 'Выпускник в академической шапочке' },
 ];
 
 export function HeroCarousel() {
@@ -53,8 +53,8 @@ export function HeroCarousel() {
             <img
               src={slide.src}
               alt={slide.alt}
-              width="1200"
-              height="900"
+              width="2400"
+              height="1800"
               loading={index === 0 ? 'eager' : 'lazy'}
               fetchPriority={index === 0 ? 'high' : 'auto'}
               decoding="async"
