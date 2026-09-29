@@ -152,7 +152,7 @@ const teacherSchemas = {
     name: 'Анна',
     jobTitle: 'Репетитор по русскому языку и литературе',
     url: 'https://toprepet.ru/teachers/russian-literature/',
-    image: 'https://toprepet.ru/images/tutor-anna.webp?v=20260929f',
+    image: 'https://toprepet.ru/images/tutor-anna-retouched.webp?v=20260929',
     worksFor: {
       '@type': 'Organization',
       name: 'TopRepet',
