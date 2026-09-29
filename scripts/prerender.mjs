@@ -73,7 +73,7 @@ const teacherSchemas = {
     jobTitle: 'Репетитор по информатике',
     url: 'https://toprepet.ru/teachers/informatics/',
     image:
-      'https://toprepet.ru/images/tutor-informatics.webp?v=20260929e',
+      'https://toprepet.ru/images/tutor-informatics.png?v=20260929f',
     worksFor: {
       '@type': 'Organization',
       name: 'TopRepet',
@@ -105,7 +105,7 @@ const teacherSchemas = {
       'Репетитор по русскому языку',
     url: 'https://toprepet.ru/teachers/russian/',
     image:
-      'https://toprepet.ru/images/tutor-artem.webp?v=20260929e',
+      'https://toprepet.ru/images/tutor-artem.webp?v=20260929f',
     worksFor: {
       '@type': 'Organization',
       name: 'TopRepet',
@@ -122,7 +122,7 @@ const teacherSchemas = {
     url:
       'https://toprepet.ru/teachers/chemistry-biology/',
     image:
-      'https://toprepet.ru/images/tutor-alexandra-portrait-v2.webp?v=20260929e',
+      'https://toprepet.ru/images/tutor-alexandra-portrait-v2.jpg?v=20260929f',
     worksFor: {
       '@type': 'Organization',
       name: 'TopRepet',
@@ -139,7 +139,7 @@ const teacherSchemas = {
     url:
       'https://toprepet.ru/teachers/mathematics/',
     image:
-      'https://toprepet.ru/images/tutor-erlan.webp?v=20260929e',
+      'https://toprepet.ru/images/tutor-erlan.webp?v=20260929f',
     worksFor: {
       '@type': 'Organization',
       name: 'TopRepet',
@@ -152,7 +152,7 @@ const teacherSchemas = {
     name: 'Анна',
     jobTitle: 'Репетитор по русскому языку и литературе',
     url: 'https://toprepet.ru/teachers/russian-literature/',
-    image: 'https://toprepet.ru/images/tutor-anna.webp?v=20260929e',
+    image: 'https://toprepet.ru/images/tutor-anna.webp?v=20260929f',
     worksFor: {
       '@type': 'Organization',
       name: 'TopRepet',
