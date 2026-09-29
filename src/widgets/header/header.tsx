@@ -24,41 +24,10 @@ export function Header() {
     return () => cancelAnimationFrame(frame);
   }, [location.pathname, location.hash]);
 
-  const navigation = (mobile = false) => (mobile ? [
-    {
-      to: '/#directions',
-      label: 'Занятия',
-    },
-    {
-      to: '/#how',
-      label: 'Как всё устроено',
-    },
-    {
-      to: '/#teachers',
-      label: 'Найти репетитора',
-    },
-    {
-      to: '/#free-intro',
-      label: 'Знакомство',
-    },
-    {
-      to: '/#price',
-      label: 'Стоимость',
-    },
-    {
-      to: '/#contact',
-      label: 'Контакты',
-    },
-    {
-      to: '/#faq',
-      label: 'Вопросы и ответы',
-    },
-  ] : [
-    { to: '/#directions', label: 'Занятия' },
-    { to: '/#teachers', label: 'Найти репетитора' },
-    { to: '/#price', label: 'Стоимость' },
-    { to: '/#contact', label: 'Контакты' },
-    { to: '/#faq', label: 'Вопросы' },
+  const navigation = () => ([
+    { to: '/lessons/', label: 'Найти репетитора' },
+    { to: '/for-repetitor/', label: 'Для репетиторов' },
+    { to: '/blog/', label: 'Блог' },
   ]).map(({ to, label }) => {
     return (
       <Link
@@ -66,9 +35,6 @@ export function Header() {
         to={to}
         onClick={() => {
           setOpen(false);
-          if (to.startsWith('/#') && location.pathname === '/' && location.hash === to.slice(1)) {
-            document.getElementById(to.slice(2))?.scrollIntoView();
-          }
         }}
       >
         {label}
@@ -122,7 +88,7 @@ export function Header() {
               </div>
 
               <nav aria-label="Мобильная навигация">
-                {navigation(true)}
+                {navigation()}
               </nav>
             </SheetContent>
           </Sheet>

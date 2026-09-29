@@ -5,4 +5,3 @@ User-agent: OAI-SearchBot
 Allow: /
 
 Sitemap: https://toprepet.ru/sitemap.xml
-Sitemap: https://toprepet.ru/blog/sitemap.xml

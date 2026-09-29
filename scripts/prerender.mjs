@@ -330,9 +330,6 @@ console.log(
   'Все страницы TopRepet успешно пререндерены.',
 );
 
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${routes.map(route => `  <url><loc>${canonicalForRoute(route)}</loc></url>`).join('\n')}\n</urlset>\n`;
-await writeFile(resolve('dist/sitemap.xml'), sitemap, 'utf8');
-
 const blog = JSON.parse(await readFile('src/blog/snapshot.json', 'utf8'));
 const escapeMeta = value => String(value || '').replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
 const blogCategoryPath = category => {
@@ -366,6 +363,8 @@ for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: '
 }
 const blogSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${blogPages.map(page => `  <url><loc>https://toprepet.ru${page.route}/</loc></url>`).join('\n')}\n</urlset>\n`;
 await writeFile(resolve('dist/blog/sitemap.xml'), blogSitemap, 'utf8');
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...routes.map(canonicalForRoute), ...blogPages.map(page => `https://toprepet.ru${page.route}/`)].map(url => `  <url><loc>${url}</loc></url>`).join('\n')}\n</urlset>\n`;
+await writeFile(resolve('dist/sitemap.xml'), sitemap, 'utf8');
 
 // GitHub Pages cannot issue a server-side 301 for an old static path.
 // Keep the legacy URL out of the sitemap and redirect it immediately.

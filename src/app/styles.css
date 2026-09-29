@@ -1,5 +1,6 @@
 @import url('./sections.css');
 :root {
+  color-scheme: light;
   font-family: 'Manrope Variable', Arial, sans-serif;
   color: #202838;
   background: #fff;
