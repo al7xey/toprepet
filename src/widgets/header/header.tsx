@@ -25,7 +25,8 @@ export function Header() {
   }, [location.pathname, location.hash]);
 
   const navigation = () => ([
-    { to: '/lessons/', label: 'Найти репетитора' },
+    { to: '/lessons/', label: 'Подобрать репетитора' },
+    { to: '/teachers/', label: 'Репетиторы' },
     { to: '/for-repetitor/', label: 'Для репетиторов' },
     { to: '/blog/', label: 'Блог' },
   ]).map(({ to, label }) => {
