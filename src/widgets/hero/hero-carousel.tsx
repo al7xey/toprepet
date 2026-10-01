@@ -32,8 +32,30 @@ export function HeroCarousel() {
 
   useEffect(() => {
     if (!api || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const timer = window.setTimeout(() => api.scrollNext(), 4500);
-    return () => window.clearTimeout(timer);
+    let timer: number | undefined;
+    const clearTimer = () => window.clearTimeout(timer);
+    const scheduleNext = () => {
+      clearTimer();
+      if (document.visibilityState !== 'visible') return;
+      timer = window.setTimeout(() => {
+        if (document.visibilityState === 'visible') api.scrollNext();
+      }, 4500);
+    };
+    const handleVisibility = () => {
+      if (document.visibilityState === 'hidden') {
+        clearTimer();
+        // Finish any active transition before background animation is suspended.
+        api.scrollTo(api.selectedScrollSnap(), true);
+      } else {
+        scheduleNext();
+      }
+    };
+    scheduleNext();
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      clearTimer();
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [api, current]);
 
   return (

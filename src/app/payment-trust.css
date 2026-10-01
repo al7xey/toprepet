@@ -1,0 +1,9 @@
+.payment-trust-panel { display: grid; align-items: center; gap: 28px; }
+.payment-trust-art { display: block; width: 100%; height: auto; margin-inline: auto; }
+.payment-trust-copy h2 { margin: 0 0 20px; }
+.payment-trust-copy p { margin: 0 0 14px; color: var(--body-muted); }
+.payment-trust-copy p:last-child { margin-bottom: 0; }
+@media (min-width: 900px) {
+  .payment-trust-panel { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; }
+  .payment-trust-art { width: 85%; }
+}

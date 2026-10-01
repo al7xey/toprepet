@@ -8,6 +8,7 @@ import { HowItWorks } from '../../widgets/how-it-works/how-it-works';
 import { FreeIntro } from '../../widgets/free-intro/free-intro';
 import Faq from '../../widgets/faq/faq';
 import { TutorTeaser } from '../../widgets/tutor-teaser/tutor-teaser';
+import { PaymentTrust } from '../../widgets/payment-trust/payment-trust';
 
 export default function HomePage() {
   return (
@@ -28,6 +29,10 @@ export default function HomePage() {
 
       <ScrollReveal>
         <FreeIntro />
+      </ScrollReveal>
+
+      <ScrollReveal>
+        <PaymentTrust />
       </ScrollReveal>
 
       <ScrollReveal>

@@ -11,6 +11,7 @@ import './refinements.css';
 import './experience.css';
 import './landing-update.css';
 import './tutor-landing.css';
+import './payment-trust.css';
 import '../pages/teachers/teachers-page.css';
 import '../blog/blog.css';
 import '../blog/blog-adapter.css';
