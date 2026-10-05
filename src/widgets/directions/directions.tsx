@@ -63,6 +63,7 @@ export function Directions() {
         className="formats-carousel"
         tabIndex={0}
         aria-label="Направления занятий"
+        wheelGestures
         opts={{
           align: 'start',
           containScroll: 'trimSnaps',

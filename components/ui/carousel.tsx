@@ -4,6 +4,7 @@ import * as React from 'react';
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from 'embla-carousel-react';
+import { WheelGesturesPlugin as createWheelGesturesPlugin } from 'embla-carousel-wheel-gestures';
 
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ type CarouselPlugin = UseCarouselParameters[1];
 type CarouselProps = {
   opts?: CarouselOptions;
   plugins?: CarouselPlugin;
+  wheelGestures?: boolean;
   orientation?: 'horizontal' | 'vertical';
   setApi?: (api: CarouselApi) => void;
 };
@@ -47,16 +49,21 @@ function Carousel({
   opts,
   setApi,
   plugins,
+  wheelGestures = false,
   className,
   children,
   ...props
 }: React.ComponentProps<'section'> & CarouselProps) {
+  const carouselPlugins = React.useMemo(
+    () => wheelGestures ? [...(plugins ?? []), createWheelGesturesPlugin()] : plugins,
+    [plugins, wheelGestures],
+  );
   const [carouselRef, api] = useEmblaCarousel(
     {
       ...opts,
       axis: orientation === 'horizontal' ? 'x' : 'y',
     },
-    plugins,
+    carouselPlugins,
   );
   const [canScrollPrev, setCanScrollPrev] = React.useState(false);
   const [canScrollNext, setCanScrollNext] = React.useState(false);

@@ -14,7 +14,6 @@ export function Pricing() {
         </div>
         <div className="price-offer">
           <Link className="button button-primary" to="/lessons/">Подобрать репетитора</Link>
-          <p>Выберите предмет и цель занятий — менеджер поможет подобрать преподавателя.</p>
         </div>
       </section>
       <section className="price-promo" aria-labelledby="price-promo-title">

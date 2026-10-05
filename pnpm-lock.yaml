@@ -56,6 +56,9 @@ importers:
       embla-carousel-react:
         specifier: 8.5.2
         version: 8.5.2(react@19.2.6)
+      embla-carousel-wheel-gestures:
+        specifier: 8.1.0
+        version: 8.1.0(embla-carousel@8.5.2)
       input-otp:
         specifier: 1.4.2
         version: 1.4.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -2764,6 +2767,12 @@ packages:
     peerDependencies:
       embla-carousel: 8.5.2
 
+  embla-carousel-wheel-gestures@8.1.0:
+    resolution: {integrity: sha512-J68jkYrxbWDmXOm2n2YHl+uMEXzkGSKjWmjaEgL9xVvPb3HqVmg6rJSKfI3sqIDVvm7mkeTy87wtG/5263XqHQ==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      embla-carousel: ^8.0.0 || ~8.0.0-rc03
+
   embla-carousel@8.5.2:
     resolution: {integrity: sha512-xQ9oVLrun/eCG/7ru3R+I5bJ7shsD8fFwLEY7yPe27/+fDHCNj0OT5EoG5ZbFyOxOcG6yTwW8oTz/dWyFnyGpg==}
 
@@ -4350,6 +4359,10 @@ packages:
     peerDependenciesMeta:
       webpack-cli:
         optional: true
+
+  wheel-gestures@2.3.0:
+    resolution: {integrity: sha512-6b+PIXuKIy0ibVnF04GoijGKGIDwjlYSK7bCgicuQwPLivfjoLeCCK0bwbjyOdrStDTNPlyGFixIj0d0kZzwiQ==}
+    engines: {node: '>=18'}
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -6391,6 +6404,11 @@ snapshots:
     dependencies:
       embla-carousel: 8.5.2
 
+  embla-carousel-wheel-gestures@8.1.0(embla-carousel@8.5.2):
+    dependencies:
+      embla-carousel: 8.5.2
+      wheel-gestures: 2.3.0
+
   embla-carousel@8.5.2: {}
 
   emoji-regex-xs@2.0.1: {}
@@ -8030,6 +8048,8 @@ snapshots:
       - sharp
       - svgo
       - uglify-js
+
+  wheel-gestures@2.3.0: {}
 
   which@2.0.2:
     dependencies:
