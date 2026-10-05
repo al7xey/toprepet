@@ -1,3 +1,4 @@
+import { safeChoice, trackGoal } from '../lib/analytics';
 import { RadioGroup, RadioGroupItem } from '../../../components/ui/radio-group';
 interface Choice {
   value: string;
@@ -23,8 +24,10 @@ export function ChoiceGroup({
       aria-label={label}
       value={value}
       onValueChange={(next) => {
-        if (typeof next === 'string' && options.some((o) => o.value === next))
+        if (typeof next === 'string' && options.some((o) => o.value === next)) {
           onChange(next);
+          trackGoal('lesson_selection', { field: label, choice: safeChoice(next) });
+        }
       }}
       className={'choice-group ' + className}
     >

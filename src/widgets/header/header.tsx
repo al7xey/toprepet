@@ -57,7 +57,7 @@ export function Header() {
             className="button button-secondary header-contact"
             to="/lessons/"
           >
-            Записаться
+            Подобрать репетитора
           </Link>
 
           <Sheet

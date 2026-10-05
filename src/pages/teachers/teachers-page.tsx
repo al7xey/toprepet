@@ -4,6 +4,7 @@ import { BookOpen, Check, ChevronDown, Search } from 'lucide-react';
 import { teachers } from '../../entities/teacher';
 import { subjects } from '../../entities/lesson';
 import { TeacherCard } from '../../widgets/teachers/teachers';
+import { safeChoice, trackGoal } from '../../shared/lib/analytics';
 
 const availableSubjects = subjects.filter((subject) =>
   teachers.some((teacher) => teacher.helpTopics.includes(subject)),
@@ -37,6 +38,7 @@ export default function TeachersPage() {
   }, []);
   const selectSubject = (value: string | null) => {
     setSelectedSubject(value);
+    trackGoal('teacher_filter', { subject: value ? safeChoice(value) : 'all' });
     filterRef.current?.removeAttribute('open');
     filterRef.current?.querySelector<HTMLElement>('summary')?.focus();
   };
@@ -67,9 +69,16 @@ export default function TeachersPage() {
         <p>Найдите преподавателя, с которым будет комфортно учиться и двигаться к цели.</p>
       </header>
 
-      <form className="teachers-search" onSubmit={(event) => { event.preventDefault(); setQuery(input.trim()); }}>
+      <form className="teachers-search" onSubmit={(event) => {
+        event.preventDefault();
+        setQuery(input.trim());
+        const term = searchText(input);
+        const count = teachers.filter(teacher => (!selectedSubject || teacher.helpTopics.includes(selectedSubject)) &&
+          (!term || searchText([teacher.name, teacher.role, teacher.cardSubjects, ...teacher.helpTopics, teacher.intro].join(' ')).includes(term))).length;
+        trackGoal('teacher_search', { has_query: Boolean(term), results: count });
+      }}>
         <Search size={20} aria-hidden="true" />
-        <input
+        <input className="ym-disable-keys"
           type="search"
           aria-label="Поиск по предмету, теме или имени преподавателя"
           value={input}

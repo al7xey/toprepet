@@ -32,6 +32,7 @@ import {
 } from '../../../shared/config/site';
 
 import { PromoCode } from '../../promo-code';
+import { trackGoal } from '../../../shared/lib/analytics';
 
 export function LessonPicker({
   initialGoal,
@@ -122,6 +123,7 @@ export function LessonPicker({
     promoStatus === 'applied';
 
   function applyPromoCode() {
+    trackGoal('promo_check', { applied: isDiscountPromoCode(selection.promoCode) });
     setPromoCheck({
       code: normalizedPromoCode,
       status: isDiscountPromoCode(
@@ -356,6 +358,7 @@ export function LessonPicker({
         <Link
           className="button button-primary"
           to="/lessons/#contact"
+          onClick={() => trackGoal('lesson_contact_step', { subject_selected: Boolean(selection.subject), grade_selected: Boolean(selection.grade) })}
         >
           Записаться
         </Link>

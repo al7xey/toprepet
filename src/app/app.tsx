@@ -1,6 +1,4 @@
 import {
-  useEffect,
-  useRef,
   Component,
   type ReactNode,
   type ErrorInfo,
@@ -17,6 +15,7 @@ import {
 import { Provider } from 'react-redux';
 
 import { store } from './store';
+import { MetrikaTracker } from './metrika-tracker';
 import { useScrollToSection } from '../shared/lib/use-scroll-to-section';
 import { Header } from '../widgets/header/header';
 import HomePage from '../pages/home/home-page';
@@ -95,55 +94,8 @@ function ScrollManager() {
   return null;
 }
 
-function MetrikaTracker() {
-  const { pathname, search } = useLocation();
-
-  const previousUrl = useRef<string | null>(
-    null,
-  );
-
-  useEffect(() => {
-    const metrika = (
-      window as typeof window & {
-        ym?: (
-          counterId: number,
-          method: string,
-          url: string,
-          options?: {
-            referer?: string;
-          },
-        ) => void;
-      }
-    ).ym;
-
-    if (!metrika) {
-      return;
-    }
-
-    const currentUrl =
-      window.location.origin +
-      pathname +
-      search;
-
-    metrika(
-      112922088,
-      'hit',
-      currentUrl,
-      {
-        referer:
-          previousUrl.current ??
-          document.referrer,
-      },
-    );
-
-    previousUrl.current = currentUrl;
-  }, [pathname, search]);
-
-  return null;
-}
-
 export function AppContent() {
-  return <AppRoutes />;
+  return <><MetrikaTracker /><AppRoutes /></>;
 }
 
 function AppRoutes() {
@@ -166,7 +118,6 @@ function AppRoutes() {
     <ErrorBoundary>
       <Provider store={store}>
         <ScrollManager />
-        <MetrikaTracker />
 
         <a
           className="skip-link"

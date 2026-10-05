@@ -7,7 +7,7 @@ export function PromoCode({ value, onChange, onApply, status = 'idle' }: { value
     <form className="promo-field" onSubmit={(event) => { event.preventDefault(); onApply(); }}>
         <label htmlFor="promo-code">Промокод</label>
         <div className="promo-input-row">
-          <input
+          <input className="ym-disable-keys"
             id="promo-code"
             value={value}
             onChange={(event) => onChange(event.target.value)}

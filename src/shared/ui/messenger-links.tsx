@@ -1,5 +1,6 @@
 import { MessageCircle, Phone, Send } from 'lucide-react';
 import { useState, type MouseEvent } from 'react';
+import { trackMessenger } from '../lib/analytics';
 import { enquiryMessage } from '../config/site';
 import {
   messengers,
@@ -33,6 +34,7 @@ export function MessengerLinks({
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'failed'>('idle');
   const message = preparedMessage ?? enquiryMessage(topic);
   async function prepareMessage(event: MouseEvent<HTMLAnchorElement>, id: MessengerId) {
+    trackMessenger(id);
     if (id !== 'vk' && id !== 'max') return;
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
@@ -75,9 +77,9 @@ export function MessengerLinks({
       {copyState === 'copied' && 'Сообщение скопировано. Вставьте его в диалог с менеджером.'}
       {copyState === 'failed' && <>
         <p>Браузер не разрешил копирование. Выделите и скопируйте сообщение, затем откройте мессенджер.</p>
-        <textarea aria-label="Сообщение менеджеру" value={message} readOnly rows={6} onFocus={(event) => event.currentTarget.select()} />
+        <textarea className="ym-disable-keys ym-hide-content" aria-label="Сообщение менеджеру" value={message} readOnly rows={6} onFocus={(event) => event.currentTarget.select()} />
         <div className="messenger-fallback-links">
-          {messengers.filter((item) => item.id === 'vk' || item.id === 'max').map((item) => <a key={item.id} className="inline-link" href={item.url} target="_blank" rel="noopener noreferrer">Открыть {item.label}</a>)}
+          {messengers.filter((item) => item.id === 'vk' || item.id === 'max').map((item) => <a key={item.id} className="inline-link" onClick={() => trackMessenger(item.id)} href={item.url} target="_blank" rel="noopener noreferrer">Открыть {item.label}</a>)}
         </div>
       </>}
     </output>

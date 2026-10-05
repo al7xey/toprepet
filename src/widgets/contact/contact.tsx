@@ -39,7 +39,7 @@ export function Contact({ onLessonsPage = false, standalone = false }: { onLesso
           <button type="button" className="copy-choice" onClick={copySelection}>{copyState === 'copied' ? <Check size={18} aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}Скопировать выбор</button>
           {!onLessonsPage && <Link className="inline-link" to="/lessons/">Изменить</Link>}
           <output className="copy-status">{copyState === 'copied' ? 'Текст скопирован — вставьте его в диалог' : copyState === 'failed' ? 'Скопируйте текст из поля ниже' : ''}</output>
-          {copyState === 'failed' && <textarea aria-label="Текст сообщения для ручного копирования" value={enquiryMessage(topic)} readOnly rows={7} />}
+          {copyState === 'failed' && <textarea className="ym-disable-keys ym-hide-content" aria-label="Текст сообщения для ручного копирования" value={enquiryMessage(topic)} readOnly rows={7} />}
         </div>}
       </div>
     </section>

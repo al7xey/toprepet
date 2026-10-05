@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
 } from '../../../components/ui/carousel';
 import { teachers } from '../../entities/teacher';
 
@@ -53,8 +54,8 @@ export function Teachers({ title = 'Топ репеты', caption = 'Найди�
       >
         <div className="section-heading teachers-heading">
           <h2 id="teachers-title">{title}</h2>
-          <Link className="teachers-directory-link" to="/teachers/" aria-label="Смотреть всех преподавателей">
-            <ArrowRight size={22} aria-hidden="true" />
+          <Link className="teachers-directory-link" to="/teachers/">
+            Все репетиторы <span aria-hidden="true">→</span>
           </Link>
           <p className="section-caption">{caption}</p>
         </div>
@@ -74,6 +75,10 @@ export function Teachers({ title = 'Топ репеты', caption = 'Найди�
             </CarouselItem>
           ))}
         </CarouselContent>
+        <div className="carousel-controls teachers-carousel-controls">
+          <CarouselPrevious className="carousel-arrow" aria-label="Предыдущие преподаватели" />
+          <CarouselNext className="carousel-arrow" aria-label="Следующие преподаватели" />
+        </div>
       </Carousel>
     </section>
   );

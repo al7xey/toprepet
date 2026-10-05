@@ -97,7 +97,7 @@ function MessageBuilder() {
           ))}
           <button type="button" className={'choice-option tutor-chip' + (selectedSubjects.includes('Другое') ? ' is-selected' : '')} aria-pressed={selectedSubjects.includes('Другое')} onClick={() => setSelectedSubjects(toggle(selectedSubjects, 'Другое'))}>Другое</button>
         </div>
-        {selectedSubjects.includes('Другое') && <label className="tutor-other-field">Укажите предмет<input type="text" value={otherSubject} onChange={event => setOtherSubject(event.target.value)} placeholder="Ваш предмет" maxLength={80} /></label>}
+        {selectedSubjects.includes('Другое') && <label className="tutor-other-field">Укажите предмет<input className="ym-disable-keys" type="text" value={otherSubject} onChange={event => setOtherSubject(event.target.value)} placeholder="Ваш предмет" maxLength={80} /></label>}
       </div>
       <div className="tutor-choice-group">
         <h3>С какими задачами работаете?</h3>
@@ -107,7 +107,7 @@ function MessageBuilder() {
           ))}
           <button type="button" className={'choice-option tutor-chip' + (selectedDirections.includes('Другое') ? ' is-selected' : '')} aria-pressed={selectedDirections.includes('Другое')} onClick={() => setSelectedDirections(toggle(selectedDirections, 'Другое'))}>Другое</button>
         </div>
-        {selectedDirections.includes('Другое') && <label className="tutor-other-field">Укажите задачу<input type="text" value={otherDirection} onChange={event => setOtherDirection(event.target.value)} placeholder="С какими задачами работаете" maxLength={120} /></label>}
+        {selectedDirections.includes('Другое') && <label className="tutor-other-field">Укажите задачу<input className="ym-disable-keys" type="text" value={otherDirection} onChange={event => setOtherDirection(event.target.value)} placeholder="С какими задачами работаете" maxLength={120} /></label>}
       </div>
       <div className="tutor-choice-group">
         <h3>Опыт преподавания</h3>

@@ -2,9 +2,14 @@
 .teachers-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 0 10px; padding-right: 0; }
 .teachers-heading h2 { grid-column: 1; margin: 0; }
 .teachers-heading .section-caption { grid-column: 1 / -1; grid-row: 2; }
-.teachers-directory-link { display: inline-flex; grid-column: 2; grid-row: 1; align-items: center; justify-content: center; width: 48px; height: 48px; padding: 0; border: 1px solid var(--accent); border-radius: 50%; background: #fff; color: var(--accent); }
-.teachers-directory-link:is(:hover, :active) { background: #fff; border-color: var(--accent); color: var(--accent); }
+.teachers-directory-link { display: inline-flex; grid-column: 2; grid-row: 1; align-items: center; gap: 8px; min-height: 44px; padding: 0; color: var(--accent); font-size: .95rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.teachers-directory-link:is(:hover, :active) { color: var(--accent-hover); text-decoration: underline; text-underline-offset: 4px; }
 .teachers-directory-link:focus-visible, .teacher-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.teachers-carousel-controls { position: static; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.teachers-carousel-controls .carousel-arrow { position: static; inset: auto; transform: none; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-width: 44px; margin: 0; padding: 0; border: 1px solid var(--accent); border-radius: 50%; background: transparent; color: var(--accent); }
+.teachers-carousel-controls .carousel-arrow:hover:not(:disabled) { background: var(--accent-soft); }
+.teachers-carousel-controls .carousel-arrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.teachers-carousel-controls .carousel-arrow:disabled { opacity: .35; }
 .teacher-card .teacher-glass { display: flex; align-items: center; justify-content: center; height: auto; min-height: 58px; padding: 12px; }
 .teachers-page-heading { max-width: 760px; margin-bottom: 28px; }
 .teachers-page-heading h1 { margin: 0 0 12px; font-size: clamp(2.3rem, 3.5vw, 3.2rem); line-height: 1.14; letter-spacing: -.05em; }
@@ -43,6 +48,7 @@
 .teachers-empty p { margin: 0 0 22px; color: var(--muted); }
 @media (max-width: 600px) {
   .teachers-heading { align-items: center; }
+  .teachers-directory-link { font-size: .85rem; }
   .teachers-page { padding-block: 32px 64px; }
   .teachers-page-heading { margin-bottom: 26px; }
   .teachers-page-heading h1 { font-size: 2.3rem; }
@@ -57,4 +63,9 @@
   .teachers-directory-grid .teacher-glass { inset: auto 8px 8px; min-height: 52px; padding: 9px; border-radius: 23px; background: rgb(255 249 244 / 86%); }
   .teachers-directory-grid .teacher-card-subjects { height: auto; white-space: normal; overflow-wrap: anywhere; font-size: clamp(.86rem, 3.9vw, 1rem); line-height: 1.15; }
   .teachers-empty { padding: 24px; }
+}
+@media (max-width: 420px) {
+  .teachers-heading { grid-template-columns: minmax(0, 1fr); }
+  .teachers-directory-link { grid-column: 1; grid-row: 2; justify-self: start; }
+  .teachers-heading .section-caption { grid-row: 3; }
 }
