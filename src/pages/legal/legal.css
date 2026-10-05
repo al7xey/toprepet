@@ -1,0 +1,75 @@
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 400 700; font-display: swap; src: url('/fonts/montserrat-cyrillic.woff2') format('woff2'); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 400 700; font-display: swap; src: url('/fonts/montserrat-latin.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+.legal-page { padding-block: 48px 72px; }
+.legal-reading { max-width: 860px; margin-inline: auto; font-family: 'Montserrat', 'Manrope Variable', Arial, sans-serif; }
+.legal-page h1 { font-size: clamp(28px, 3.4vw, 42px); line-height: 1.2; letter-spacing: -.035em; overflow-wrap: anywhere; margin-bottom: 20px; }
+.legal-page h2 { font-size: clamp(21px, 2vw, 26px); line-height: 1.35; margin-bottom: 18px; letter-spacing: -.02em; }
+.legal-page p, .legal-page li, .legal-page dd { font-size: 16px; line-height: 1.8; overflow-wrap: anywhere; }
+.legal-page p { margin-bottom: 16px; }
+.legal-page a, .personal-data-checkbox a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.legal-breadcrumb { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+.legal-lead { color: var(--muted); }
+.legal-version { color: var(--muted); font-size: 14px !important; }
+.legal-draft-note { background: var(--surface); border-left: 3px solid var(--accent); padding: 16px 20px; line-height: 1.7; margin-block: 28px; font-size: 14px; }
+.legal-toc { margin-block: 32px 44px; }
+.legal-toc ol { padding-left: 24px; }
+.legal-toc li { margin-bottom: 8px; }
+.legal-section { margin-top: 40px; scroll-margin-top: calc(var(--header-height) + 20px); }
+.legal-section ul { padding-left: 24px; }
+.legal-section li { margin-bottom: 12px; }
+.legal-todo, .legal-todo-value { color: #86401d; }
+.legal-todo { border-left: 2px solid var(--line); padding-left: 14px; font-size: 14px !important; }
+.legal-requisites { margin: 24px 0; }
+.legal-requisites > div { padding-block: 12px; border-bottom: 1px solid var(--line); }
+.legal-requisites dt { font-weight: 650; font-size: 14px; margin-bottom: 4px; }
+.legal-requisites dd { margin: 0; }
+.legal-back { margin-top: 48px; }
+.legal-document-list { display: grid; gap: 0; }
+.legal-document-list a { padding-block: 20px; border-bottom: 1px solid var(--line); text-decoration: none; }
+.legal-document-list strong, .legal-document-list span { display: block; }
+.legal-document-list span { color: var(--muted); font-size: 14px; margin-top: 8px; line-height: 1.6; }
+.legal-template { display: grid; gap: 20px; }
+.legal-template label { display: grid; gap: 8px; font-size: 14px; line-height: 1.6; }
+.legal-template input:not([type=checkbox]), .legal-template textarea { font: inherit; color: var(--ink); background: white; border: 1px solid var(--line); border-radius: 12px; padding: 12px; width: 100%; min-width: 0; }
+.legal-template textarea { resize: vertical; }
+.legal-template fieldset { border: 1px solid var(--line); border-radius: 16px; padding: 16px; min-width: 0; }
+.legal-template legend { font-weight: 650; padding-inline: 4px; }
+.legal-public-category { padding-block: 12px; border-bottom: 1px solid var(--line); }
+.legal-public-category:last-child { border: 0; }
+.legal-template .legal-category-check, .legal-template .personal-data-checkbox, .personal-data-checkbox { display: flex; gap: 10px; align-items: flex-start; line-height: 1.6; font-size: 14px; }
+.legal-public-category > label + label { margin-top: 12px; }
+.personal-data-checkbox input, .legal-category-check input { width: 18px; height: 18px; margin: 3px 0 0; flex: 0 0 18px; accent-color: var(--accent); }
+.personal-data-checkbox { margin-block: 16px; }
+.personal-data-checkbox a { display: inline !important; }
+.legal-template button:disabled, .blog-login button:disabled { opacity: .55; cursor: not-allowed; }
+.legal-template output, .legal-cookie-settings output { display: block; font-size: 14px; line-height: 1.6; margin-top: 12px; }
+.legal-template button { justify-self: start; }
+.cookie-banner { position: fixed; z-index: 1100; inset-inline: 20px; bottom: 20px; max-width: 1184px; margin-inline: auto; background: white; border: 1px solid var(--line); box-shadow: 0 8px 32px #20283818; border-radius: 20px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.cookie-banner p { margin: 0 0 6px; font-size: 14px; }
+.cookie-banner a { color: var(--accent); font-size: 13px; text-decoration: underline; }
+.cookie-banner-actions { display: flex; gap: 12px; flex-shrink: 0; flex-wrap: wrap; }
+.cookie-banner-actions .button { min-height: 44px; padding: 10px 18px; font-size: 14px; }
+.footer-legal-layout { display: grid; grid-template-columns: 1.2fr .8fr 1fr; gap: 32px; align-items: start; }
+.footer-legal-layout .footer-links { align-items: flex-start; }
+.footer-documents h2 { font-size: 16px; font-weight: 650; margin: 0 0 18px; }
+.footer-documents nav { display: grid; gap: 12px; }
+.footer-documents a { font-size: 14px; line-height: 1.5; }
+.footer-legal-bottom { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 20px; color: var(--muted); font-size: 13px; display: flex; gap: 16px 28px; flex-wrap: wrap; }
+.footer-legal-bottom p { margin: 0; }
+.teacher-service-note { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.teacher-service-note a { color: var(--accent); }
+.tutor-legal-links { font-size: 14px; margin-top: 24px; }
+.tutor-legal-links a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 759px) {
+  .legal-page { padding-block: 28px 48px; }
+  .legal-reading { width: 100%; }
+  .legal-page p, .legal-page li, .legal-page dd { font-size: 15px; line-height: 1.75; }
+  .legal-toc { margin-block: 24px 32px; }
+  .legal-section { margin-top: 32px; }
+  .footer-legal-layout { grid-template-columns: 1fr; gap: 28px; }
+  .footer-legal-layout .footer-links { width: 100%; }
+  .footer-legal-bottom { flex-direction: column; gap: 8px; }
+  .cookie-banner { inset-inline: 12px; bottom: max(12px, env(safe-area-inset-bottom)); padding: 16px; gap: 12px; flex-direction: column; align-items: stretch; }
+  .cookie-banner-actions { gap: 8px; }
+  .cookie-banner-actions .button { flex: 1; padding-inline: 12px; }
+}

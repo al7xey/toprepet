@@ -1,13 +1,21 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { syncAnalytics, trackPage, trackGoal } from '../shared/lib/analytics';
+import { COOKIE_CONSENT_EVENT } from '../shared/lib/cookie-consent';
 
 export function MetrikaTracker() {
   const { pathname } = useLocation();
+  const [consentRevision, setConsentRevision] = useState(0);
+  useEffect(() => {
+    const update = () => { syncAnalytics(); setConsentRevision(value => value + 1); };
+    window.addEventListener(COOKIE_CONSENT_EVENT, update);
+    window.addEventListener('storage', update);
+    return () => { window.removeEventListener(COOKIE_CONSENT_EVENT, update); window.removeEventListener('storage', update); };
+  }, []);
   // Stop recording before an admin screen is painted, including client-side navigation.
   useLayoutEffect(() => {
     syncAnalytics();
-  }, [pathname]);
+  }, [pathname, consentRevision]);
   useEffect(() => {
     const frame = requestAnimationFrame(trackPage);
     if (!syncAnalytics()) return () => cancelAnimationFrame(frame);
@@ -89,6 +97,6 @@ export function MetrikaTracker() {
       document.removeEventListener('click', click, true);
       window.removeEventListener('scroll', scroll);
     };
-  }, [pathname]);
+  }, [pathname, consentRevision]);
   return null;
 }

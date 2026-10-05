@@ -27,6 +27,8 @@ import TeachersPage from '../pages/teachers/teachers-page';
 import FreeIntroPage from '../pages/free-intro/free-intro-page';
 import ForTutorsPage from '../pages/for-tutors/for-tutors-page';
 import { Footer } from '../widgets/footer/footer';
+import LegalPage from '../pages/legal/legal-page';
+import { CookieBanner } from '../widgets/cookie-banner/cookie-banner';
 
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
@@ -97,7 +99,7 @@ function ScrollManager() {
 }
 
 export function AppContent() {
-  return <><SeoMetadata /><MetrikaTracker /><AppRoutes /></>;
+  return <><SeoMetadata /><MetrikaTracker /><AppRoutes /><CookieBanner /></>;
 }
 
 function AppRoutes() {
@@ -141,6 +143,8 @@ function AppRoutes() {
           tabIndex={-1}
         >
           <Routes>
+            <Route path="/legal" element={<LegalPage />} />
+            <Route path="/legal/:document" element={<LegalPage />} />
             <Route
               path="/"
               element={<HomePage />}

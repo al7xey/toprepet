@@ -5,6 +5,7 @@ import {
   exams,
 } from '../../entities/lesson';
 import { teachers } from '../../entities/teacher';
+import { cookieChoice, clearAnalyticsCookies } from './cookie-consent';
 
 export const METRIKA_ID = 112922088;
 export type AnalyticsGoal =
@@ -98,10 +99,18 @@ export function analyticsUrl(href: string) {
 
 export function syncAnalytics() {
   const target = window as MetrikaWindow;
-  if (!isPublicAnalyticsPage(location.hostname, location.pathname)) {
+  if (cookieChoice() !== 'all' || !isPublicAnalyticsPage(location.hostname, location.pathname)) {
     if (active) target.ym?.(METRIKA_ID, 'destruct');
+    // If consent was withdrawn while the vendor script was downloading,
+    // discard its queued init/events so they cannot run after withdrawal.
+    if (target.ym?.a) {
+      target.ym.a.length = 0;
+      document.querySelector('script[data-toprepet-analytics]')?.remove();
+      delete target.ym;
+    }
     active = false;
     previousUrl = undefined;
+    if (cookieChoice() !== 'all') clearAnalyticsCookies();
     return false;
   }
   if (!target.ym) {
@@ -114,6 +123,7 @@ export function syncAnalytics() {
     target.ym = queue;
     const script = document.createElement('script');
     script.async = true;
+    script.dataset.toprepetAnalytics = '';
     script.src = `https://mc.yandex.ru/metrika/tag.js?id=${METRIKA_ID}`;
     document.head.append(script);
   }
@@ -136,7 +146,7 @@ export function syncAnalytics() {
 }
 
 export function trackGoal(goal: AnalyticsGoal, params: Params = {}) {
-  if (!active || !isPublicAnalyticsPage(location.hostname, location.pathname))
+  if (!active || cookieChoice() !== 'all' || !isPublicAnalyticsPage(location.hostname, location.pathname))
     return;
   (window as MetrikaWindow).ym?.(METRIKA_ID, 'reachGoal', goal, {
     page: pageKind(location.pathname),

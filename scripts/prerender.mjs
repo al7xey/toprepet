@@ -74,11 +74,6 @@ const teacherSchemas = {
     url: 'https://toprepet.ru/teachers/informatics/',
     image:
       'https://toprepet.ru/images/tutor-informatics.png?v=20260929f',
-    worksFor: {
-      '@type': 'Organization',
-      name: 'TopRepet',
-      url: 'https://toprepet.ru/',
-    },
   },
 
   '/teachers/english': {
@@ -90,11 +85,6 @@ const teacherSchemas = {
     url: 'https://toprepet.ru/teachers/english/',
     image:
       'https://toprepet.ru/images/tutor-english.webp?v=20260929e',
-    worksFor: {
-      '@type': 'Organization',
-      name: 'TopRepet',
-      url: 'https://toprepet.ru/',
-    },
   },
 
   '/teachers/russian': {
@@ -106,11 +96,6 @@ const teacherSchemas = {
     url: 'https://toprepet.ru/teachers/russian/',
     image:
       'https://toprepet.ru/images/tutor-artem.webp?v=20260929f',
-    worksFor: {
-      '@type': 'Organization',
-      name: 'TopRepet',
-      url: 'https://toprepet.ru/',
-    },
   },
 
   '/teachers/chemistry-biology': {
@@ -123,11 +108,6 @@ const teacherSchemas = {
       'https://toprepet.ru/teachers/chemistry-biology/',
     image:
       'https://toprepet.ru/images/tutor-alexandra-portrait-v2.jpg?v=20260929f',
-    worksFor: {
-      '@type': 'Organization',
-      name: 'TopRepet',
-      url: 'https://toprepet.ru/',
-    },
   },
 
   '/teachers/mathematics': {
@@ -140,11 +120,6 @@ const teacherSchemas = {
       'https://toprepet.ru/teachers/mathematics/',
     image:
       'https://toprepet.ru/images/tutor-erlan.webp?v=20260929f',
-    worksFor: {
-      '@type': 'Organization',
-      name: 'TopRepet',
-      url: 'https://toprepet.ru/',
-    },
   },
   '/teachers/russian-literature': {
     '@context': 'https://schema.org',
@@ -153,11 +128,6 @@ const teacherSchemas = {
     jobTitle: 'Репетитор по русскому языку и литературе',
     url: 'https://toprepet.ru/teachers/russian-literature/',
     image: 'https://toprepet.ru/images/tutor-anna-retouched.webp?v=20260929',
-    worksFor: {
-      '@type': 'Organization',
-      name: 'TopRepet',
-      url: 'https://toprepet.ru/',
-    },
   },
 };
 
@@ -240,7 +210,7 @@ function addPageSchema(html, route) {
         },
       })),
     },
-  } : teacherSchemas[route] || (['/', '/lessons', '/contact', '/free-intro', '/for-repetitor'].includes(route) ? {
+  } : teacherSchemas[route] || (['/', '/lessons', '/contact', '/free-intro', '/for-repetitor'].includes(route) || route.startsWith('/legal') ? {
     '@context': 'https://schema.org',
     '@type': route === '/contact' ? 'ContactPage' : 'WebPage',
     '@id': `${canonicalForRoute(route)}#webpage`,
@@ -281,7 +251,7 @@ function addBreadcrumbSchema(html, route) {
     return html;
   }
 
-  const pageName = breadcrumbNames[route];
+  const pageName = breadcrumbNames[route] || (route.startsWith('/legal') ? titles[route].replace(/ — TopRepet$/, '') : undefined);
 
   if (!pageName) {
     return html;
