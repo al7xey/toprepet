@@ -16,7 +16,7 @@ const serverEntryPath = resolve('dist-server/entry-server.js');
 
 const template = await readFile(distIndexPath, 'utf8');
 
-const { render } = await import(
+const { render, teachers: teacherCatalog } = await import(
   pathToFileURL(serverEntryPath).href
 );
 
@@ -228,19 +228,37 @@ function addPageSchema(html, route) {
     url: canonicalForRoute(route),
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: routes.filter(path => teacherSchemas[path]).map((path, index) => ({
+      itemListElement: teacherCatalog.map((teacher, index) => ({
         '@type': 'ListItem',
         position: index + 1,
         item: {
           '@type': 'Person',
-          name: teacherSchemas[path].name,
-          jobTitle: teacherSchemas[path].jobTitle,
-          url: teacherSchemas[path].url,
-          image: teacherSchemas[path].image,
+          name: teacher.name,
+          jobTitle: teacher.role,
+          url: canonicalForRoute(`/teachers/${teacher.id}`),
+          image: new URL(teacher.photo, 'https://toprepet.ru').href,
         },
       })),
     },
-  } : teacherSchemas[route];
+  } : teacherSchemas[route] || (['/', '/lessons', '/contact', '/free-intro', '/for-repetitor'].includes(route) ? {
+    '@context': 'https://schema.org',
+    '@type': route === '/contact' ? 'ContactPage' : 'WebPage',
+    '@id': `${canonicalForRoute(route)}#webpage`,
+    url: canonicalForRoute(route),
+    name: titles[route],
+    description: descriptions[route],
+    inLanguage: 'ru-RU',
+    isPartOf: { '@id': 'https://toprepet.ru/#website' },
+    ...(['/', '/lessons'].includes(route) ? { mainEntity: {
+      '@type': 'Service',
+      name: 'Индивидуальные онлайн-занятия с частным репетитором',
+      serviceType: 'Индивидуальные занятия по школьным предметам',
+      broker: { '@id': 'https://toprepet.ru/#organization' },
+      areaServed: { '@type': 'Country', name: 'Россия' },
+      availableChannel: { '@type': 'ServiceChannel', serviceUrl: 'https://toprepet.ru/lessons/' },
+      offers: { '@type': 'Offer', price: '1200', priceCurrency: 'RUB', url: 'https://toprepet.ru/lessons/', description: '60 минут индивидуально с преподавателем' },
+    } } : {}),
+  } : undefined);
 
   if (!schema) {
     return html;
@@ -254,7 +272,7 @@ function addPageSchema(html, route) {
 
   return html.replace(
     '</head>',
-    `    <script type="application/ld+json">\n${jsonLd}\n    </script>\n  </head>`,
+    `    <script type="application/ld+json" data-prerender-schema>\n${jsonLd}\n    </script>\n  </head>`,
   );
 }
 
@@ -302,7 +320,7 @@ function addBreadcrumbSchema(html, route) {
 
   return html.replace(
     '</head>',
-    `    <script type="application/ld+json">\n${jsonLd}\n    </script>\n  </head>`,
+    `    <script type="application/ld+json" data-prerender-schema>\n${jsonLd}\n    </script>\n  </head>`,
   );
 }
 

@@ -1,4 +1,11 @@
 /* Photo-first mobile hero, with both actions and compact benefits together. */
+.service-details h2 { margin: 0 0 28px; }
+.service-details-grid { display: grid; gap: 24px; }
+.service-details-grid h3 { margin: 0 0 10px; font-size: 1.125rem; line-height: 1.45; }
+.service-details-grid p, .service-details-links { margin: 0; line-height: 1.65; color: var(--body-muted); }
+.service-details-links { margin-top: 28px; }
+.service-details-links a { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+@media(min-width:900px) { .service-details-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 32px; } }
 .hero { grid-template-areas: 'copy' 'art' 'offer'; padding-top: 24px; gap: 24px; }
 .hero-art { height: auto; aspect-ratio: 4 / 3; box-shadow: none; }
 .hero-carousel,

@@ -3,6 +3,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { prerenderToNodeStream } from 'react-dom/static';
 
 import { AppContent } from './app';
+export { teachers } from '../entities/teacher';
 
 export async function render(url = '/') {
   const { prelude, postponed } = await prerenderToNodeStream(

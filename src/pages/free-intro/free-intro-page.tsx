@@ -1,6 +1,7 @@
 import { LessonPicker } from '../../features/select-lesson';
 import { Contact } from '../../widgets/contact/contact';
 import { CalendarDays, MessageCircle, Route } from 'lucide-react';
+import { ServiceDetails } from '../../shared/ui/service-details';
 
 const meetingPoints = [
   [MessageCircle, 'Познакомимся с репетитором'],
@@ -25,6 +26,7 @@ export default function FreeIntroPage() {
       </section>
     </article>
     <section className="lessons-page free-intro-picker container"><LessonPicker /></section>
+    <ServiceDetails page="free-intro" />
     <Contact onLessonsPage />
     </>
   );

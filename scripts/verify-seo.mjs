@@ -46,3 +46,19 @@ if (!robots.includes('User-agent: OAI-SearchBot') || !robots.includes('Sitemap: 
 const notFound = await readFile(resolve('dist/404.html'), 'utf8');
 if (!notFound.includes('noindex,follow') || !notFound.includes('Страница не найдена') || notFound.includes('rel="canonical"')) fail('404');
 console.log(`SEO проверка пройдена: ${routes.length} страниц и 404.html`);
+
+for (const url of blogUrls) {
+  const path = new URL(url).pathname;
+  const html = await readFile(resolve(`dist${path}index.html`), 'utf8');
+  if (!html.includes(`rel="canonical" href="${url}"`) || /name="robots" content="[^"]*noindex/.test(html)) fail(`${path}: blog canonical/robots`);
+  if ((html.match(/<h1(?:\s|>)/g) || []).length !== 1) fail(`${path}: blog heading`);
+}
+for (const route of ['/blog/admin', '/blog/admin/login', '/blog/admin/articles', '/blog/admin/categories']) {
+  const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');
+  if (!html.includes('noindex,follow') || urls.some(url=>url.includes('/blog/admin'))) fail(`${route}: admin indexed`);
+}
+if (!robots.includes('Clean-param:') || /Disallow:\s*\/(?:\s|$)/m.test(robots)) fail('robots clean-param/public access');
+for (const route of ['/lessons', '/contact', '/free-intro']) {
+  const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');
+  if (!html.includes('service-details') || !html.includes('/teachers/')) fail(`${route}: helpful content/links`);
+}

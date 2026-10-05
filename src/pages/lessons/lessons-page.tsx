@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { LessonPicker } from '../../features/select-lesson';
 import { isGoal } from '../../entities/lesson';
 import { Contact } from '../../widgets/contact/contact';
+import { ServiceDetails } from '../../shared/ui/service-details';
 import { useScrollToSection } from '../../shared/lib/use-scroll-to-section';
 export default function LessonsPage() {
   useScrollToSection();
@@ -21,6 +22,7 @@ export default function LessonsPage() {
         initialExam={params.get('exam') || ''}
       />
     </section>
+    <ServiceDetails page="lessons" />
     <Contact onLessonsPage />
     </>
   );

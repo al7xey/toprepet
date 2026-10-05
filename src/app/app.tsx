@@ -16,6 +16,7 @@ import { Provider } from 'react-redux';
 
 import { store } from './store';
 import { MetrikaTracker } from './metrika-tracker';
+import { SeoMetadata } from './seo-metadata';
 import { useScrollToSection } from '../shared/lib/use-scroll-to-section';
 import { Header } from '../widgets/header/header';
 import HomePage from '../pages/home/home-page';
@@ -29,6 +30,7 @@ import { Footer } from '../widgets/footer/footer';
 
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
+import { ServiceDetails } from '../shared/ui/service-details';
 import { PublicBlog } from '../blog/public';
 const AdminBlog = lazy(() => import('../blog/admin').then(module => ({ default: module.AdminBlog })));
 
@@ -95,7 +97,7 @@ function ScrollManager() {
 }
 
 export function AppContent() {
-  return <><MetrikaTracker /><AppRoutes /></>;
+  return <><SeoMetadata /><MetrikaTracker /><AppRoutes /></>;
 }
 
 function AppRoutes() {
@@ -111,7 +113,7 @@ function AppRoutes() {
       <Route path="/blog/admin/articles/new" element={<AdminBlog page="new" />} />
       <Route path="/blog/admin/articles/edit" element={<AdminBlog page="edit" />} />
       <Route path="/blog/admin/categories" element={<AdminBlog page="categories" />} />
-      <Route path="*" element={<PublicBlog page="home" />} />
+      <Route path="*" element={<PublicBlog page="not-found" />} />
     </Routes></Suspense></ErrorBoundary>;
   }
   return (
@@ -154,6 +156,7 @@ function AppRoutes() {
               element={
                 <div className="manager-page">
                   <Contact standalone />
+                  <ServiceDetails page="contact" />
                 </div>
               }
             />
