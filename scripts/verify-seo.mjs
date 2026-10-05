@@ -60,7 +60,10 @@ for (const route of ['/blog/admin', '/blog/admin/login', '/blog/admin/articles',
   if (!html.includes('noindex,follow') || urls.some(url=>url.includes('/blog/admin'))) fail(`${route}: admin indexed`);
 }
 if (!robots.includes('Clean-param:') || /Disallow:\s*\/(?:\s|$)/m.test(robots)) fail('robots clean-param/public access');
-for (const route of ['/lessons', '/contact', '/free-intro']) {
+for (const route of ['/contact', '/free-intro']) {
   const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');
   if (!html.includes('service-details') || !html.includes('/teachers/')) fail(`${route}: helpful content/links`);
 }
+const lessons = await readFile(resolve('dist/lessons/index.html'), 'utf8');
+if (!lessons.includes('lesson-layout') || !lessons.includes('/teachers/')) fail('/lessons: picker/catalog navigation');
+if (lessons.includes('Как подобрать репетитора под вашу задачу')) fail('/lessons: removed explanation returned');
