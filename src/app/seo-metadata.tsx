@@ -24,7 +24,7 @@ export function SeoMetadata() {
       tag.content = value;
     };
     meta('name', 'description', page?.description || '');
-    meta('name', 'robots', page ? 'index,follow' : 'noindex,follow');
+    meta('name', 'robots', page ? 'index,follow,max-image-preview:large' : 'noindex,follow');
     for (const [key, value] of [['og:title', title], ['og:description', page?.description || ''], ['og:url', url], ['twitter:title', title], ['twitter:description', page?.description || '']]) meta(key.startsWith('og:') ? 'property' : 'name', key, value);
     if (page) {
       const canonical = oldCanonical || document.createElement('link');

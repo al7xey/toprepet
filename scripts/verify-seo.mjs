@@ -18,6 +18,7 @@ for (const route of routes) {
   if (canonicals.length !== 1 || canonicals[0][1] !== canonical) fail(`${route}: canonical`);
   if (!/<h1(?:\s|>)/i.test(html) || !/<div id="root">[\s\S]{300,}<\/div>/.test(html)) fail(`${route}: prerender`);
   if (/<meta name="robots" content="[^"]*noindex/i.test(html)) fail(`${route}: noindex`);
+  if ((html.match(/<meta name="robots"/g) || []).length !== 1 || !html.includes('max-image-preview:large')) fail(`${route}: robots/image preview`);
   if (route === '/teachers' && (!html.includes('"@type": "CollectionPage"') || !html.includes('"@type": "ItemList"'))) fail(`${route}: directory schema`);
   if (['/teachers', '/for-repetitor'].includes(route) && !html.includes('"@type": "BreadcrumbList"')) fail(`${route}: breadcrumb schema`);
   for (const [key, value] of [['og:title', title], ['og:description', description], ['og:url', canonical]]) {
@@ -52,6 +53,7 @@ for (const url of blogUrls) {
   const html = await readFile(resolve(`dist${path}index.html`), 'utf8');
   if (!html.includes(`rel="canonical" href="${url}"`) || /name="robots" content="[^"]*noindex/.test(html)) fail(`${path}: blog canonical/robots`);
   if ((html.match(/<h1(?:\s|>)/g) || []).length !== 1) fail(`${path}: blog heading`);
+  if ((html.match(/<meta name="robots"/g) || []).length !== 1 || !html.includes('max-image-preview:large')) fail(`${path}: blog robots/image preview`);
 }
 for (const route of ['/blog/admin', '/blog/admin/login', '/blog/admin/articles', '/blog/admin/categories']) {
   const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');

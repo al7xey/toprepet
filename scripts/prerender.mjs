@@ -402,7 +402,8 @@ for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: '
   for (const [key, value] of [['og:title', page.title], ['og:description', page.description], ['og:url', url], ['twitter:title', page.title], ['twitter:description', page.description]]) {
     html = updateMetaContent(html, key.startsWith('og:') ? 'property' : 'name', key, escapeMeta(value));
   }
-  html = html.replace('</head>', page.admin ? '<meta name="robots" content="noindex,follow" /></head>' : `<link rel="canonical" href="${url}" /></head>`);
+  if (page.admin) html = html.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i, '<meta name="robots" content="noindex,follow" />');
+  else html = html.replace('</head>', `<link rel="canonical" href="${url}" /></head>`);
   const path = resolve('dist', page.route.slice(1), 'index.html');
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, html, 'utf8');
@@ -429,5 +430,5 @@ for (const route of routes.filter(path => path.startsWith('/teachers/'))) {
 const notFoundHtml = template
   .replace(rootPlaceholder, `<div id="root">${await render('/this-page-does-not-exist')}</div>`)
   .replace(/<title>.*?<\/title>/s, '<title>Страница не найдена — TopRepet</title>')
-  .replace('</head>', '    <meta name="robots" content="noindex,follow" />\n  </head>');
+  .replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i, '<meta name="robots" content="noindex,follow" />');
 await writeFile(resolve('dist/404.html'), notFoundHtml, 'utf8');
