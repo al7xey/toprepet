@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
 import { subjects } from '../../entities/lesson';
 import { MessengerLinks } from '../../shared/ui/messenger-links';
@@ -19,7 +18,7 @@ const tutorQuestions = [
   },
   {
     question: 'Как оформляется сотрудничество?',
-    answer: 'Репетитор самостоятельно проводит занятия. До начала сотрудничества согласуются договор, расчёты и обмен документами. Подходящий налоговый статус зависит от обстоятельств преподавателя; статус самозанятого не является универсальным требованием. Реквизиты владельца и условия размещаются в разделе документов.',
+    answer: 'Репетитор самостоятельно проводит занятия. До начала сотрудничества согласуются договор, расчёты и обмен документами. Подходящий налоговый статус зависит от обстоятельств преподавателя; статус самозанятого не является универсальным требованием.',
   },
   {
     question: 'Как учитывается доход самозанятого?',
@@ -90,7 +89,6 @@ function MessageBuilder() {
     <section className="container for-tutors-section tutor-application" id="application" aria-labelledby="tutor-application-title">
       <h2 id="tutor-application-title">Хотите получать учеников через TopRepet?</h2>
       <p>Ответьте на несколько вопросов — мы подготовим сообщение менеджеру.</p>
-      <p className="tutor-legal-links"><Link to="/legal/tutor-terms/">Условия сотрудничества</Link> · <Link to="/legal/tutor-public-data-consent/">Отдельное согласие на публикацию анкеты</Link> · <Link to="/legal/privacy/">Обработка данных</Link></p>
       <div className="tutor-choice-group">
         <h3>Что вы преподаёте?</h3>
         <div className="tutor-chips choice-group">

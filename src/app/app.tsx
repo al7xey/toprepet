@@ -15,7 +15,6 @@ import {
 import { Provider } from 'react-redux';
 
 import { store } from './store';
-import { MetrikaTracker } from './metrika-tracker';
 import { SeoMetadata } from './seo-metadata';
 import { useScrollToSection } from '../shared/lib/use-scroll-to-section';
 import { Header } from '../widgets/header/header';
@@ -27,8 +26,7 @@ import TeachersPage from '../pages/teachers/teachers-page';
 import FreeIntroPage from '../pages/free-intro/free-intro-page';
 import ForTutorsPage from '../pages/for-tutors/for-tutors-page';
 import { Footer } from '../widgets/footer/footer';
-import LegalPage from '../pages/legal/legal-page';
-import { CookieBanner } from '../widgets/cookie-banner/cookie-banner';
+import PaymentRefundPage from '../pages/legal/payment-refund-page';
 
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
@@ -99,7 +97,7 @@ function ScrollManager() {
 }
 
 export function AppContent() {
-  return <><SeoMetadata /><MetrikaTracker /><AppRoutes /><CookieBanner /></>;
+  return <><SeoMetadata /><AppRoutes /></>;
 }
 
 function AppRoutes() {
@@ -143,8 +141,8 @@ function AppRoutes() {
           tabIndex={-1}
         >
           <Routes>
-            <Route path="/legal" element={<LegalPage />} />
-            <Route path="/legal/:document" element={<LegalPage />} />
+            <Route path="/legal" element={<Navigate to="/legal/payment-refund/" replace />} />
+            <Route path="/legal/payment-refund" element={<PaymentRefundPage />} />
             <Route
               path="/"
               element={<HomePage />}
