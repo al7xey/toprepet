@@ -146,7 +146,7 @@ export default function TeacherPage() {
             </div>
 
             <MessengerLinks
-              topic={`Хочу выбрать преподавателя: ${teacher.name}`}
+              topic={`Хочу выбрать преподавателя: ${teacher.name} — ${teacher.cardSubjects}`}
               className="teacher-profile-messengers"
               linkClassName="teacher-profile-contact"
             />

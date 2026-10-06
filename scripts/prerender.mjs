@@ -69,9 +69,20 @@ const breadcrumbNames = {
 
   '/teachers/english-elizaveta':
     'Елизавета',
+
+  '/teachers/history':
+    'Александра',
 };
 
 const teacherSchemas = {
+  '/teachers/history': {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Александра',
+    jobTitle: 'Репетитор по истории',
+    url: 'https://toprepet.ru/teachers/history/',
+    image: 'https://toprepet.ru/images/tutor-history-alexandra.webp',
+  },
   '/teachers/english-elizaveta': {
     '@context': 'https://schema.org',
     '@type': 'Person',
