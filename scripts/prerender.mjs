@@ -66,9 +66,20 @@ const breadcrumbNames = {
 
   '/teachers/physics-mathematics':
     'Дарья',
+
+  '/teachers/english-elizaveta':
+    'Елизавета',
 };
 
 const teacherSchemas = {
+  '/teachers/english-elizaveta': {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Елизавета',
+    jobTitle: 'Репетитор по английскому языку',
+    url: 'https://toprepet.ru/teachers/english-elizaveta/',
+    image: 'https://toprepet.ru/images/tutor-elizaveta.webp',
+  },
   '/teachers/physics-mathematics': {
     '@context': 'https://schema.org',
     '@type': 'Person',
