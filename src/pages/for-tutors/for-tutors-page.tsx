@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
 import { subjects } from '../../entities/lesson';
+import { tutorExperienceOptions } from '../../shared/config/tutor-experience';
 import { MessengerLinks } from '../../shared/ui/messenger-links';
 import { Teachers } from '../../widgets/teachers';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../../../components/ui/accordion';
 
 const directions = ['Школьная программа', 'Домашние задания', 'ОГЭ', 'ЕГЭ', 'Начальные классы', 'Подготовка к школе'];
-const experienceOptions = ['До 1 года', '1–3 года', '3–5 лет', 'Более 5 лет'];
 const tutorQuestions = [
   {
     question: 'Что делает TopRepet, а что — репетитор?',
@@ -114,7 +114,7 @@ function MessageBuilder() {
       <div className="tutor-choice-group">
         <h3>Опыт преподавания</h3>
         <div className="tutor-chips choice-group">
-          {experienceOptions.map(option => (
+          {tutorExperienceOptions.map(option => (
             <button key={option} type="button" className={'choice-option tutor-chip' + (experience === option ? ' is-selected' : '')} aria-pressed={experience === option} onClick={() => setExperience(experience === option ? '' : option)}>{option}</button>
           ))}
         </div>

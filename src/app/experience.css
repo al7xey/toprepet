@@ -724,7 +724,7 @@
   .price-offer .button { width: 100%; }
 }
 
-@media (max-width: 419px) {
+@media (max-width: 999px) {
   .header-contact { display: none; }
 }
 

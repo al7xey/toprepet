@@ -60,7 +60,6 @@ export default function TeacherPage() {
           <p className="teacher-profile-intro">
             {teacher.intro}
           </p>
-          <p className="teacher-service-note">Занятия проводит {teacher.name} как независимый репетитор. TopRepet помогает с подбором и организацией взаимодействия. <Link to="/legal/payment-refund/">Оплата и возвраты</Link></p>
 
           <section
             className="teacher-profile-section teacher-achievements-section"
@@ -87,6 +86,19 @@ export default function TeacherPage() {
                   </article>
                 ),
               )}
+            </div>
+          </section>
+
+          <section
+            className="teacher-profile-section teacher-profile-experience"
+            aria-labelledby="teacher-experience"
+          >
+            <h2 id="teacher-experience">
+              Опыт преподавания
+            </h2>
+
+            <div className="teacher-topic-grid">
+              <span>{teacher.experience}</span>
             </div>
           </section>
 

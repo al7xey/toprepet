@@ -22,8 +22,6 @@
   text-align: right;
 }
 .footer-navigation a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-.teacher-service-note { font-size: 14px; color: var(--muted); line-height: 1.6; }
-.teacher-service-note a { color: var(--accent); }
 @media (max-width: 759px) {
   .footer.footer-compact { gap: 12px; padding-block: 28px; }
   .footer-compact .brand { font-size: 18px; gap: 7px; }

@@ -63,9 +63,20 @@ const breadcrumbNames = {
 
   '/teachers/russian-literature':
     'Анна',
+
+  '/teachers/physics-mathematics':
+    'Дарья',
 };
 
 const teacherSchemas = {
+  '/teachers/physics-mathematics': {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Дарья',
+    jobTitle: 'Репетитор по физике и математике',
+    url: 'https://toprepet.ru/teachers/physics-mathematics/',
+    image: 'https://toprepet.ru/images/tutor-daria.webp',
+  },
   '/teachers/informatics': {
     '@context': 'https://schema.org',
     '@type': 'Person',

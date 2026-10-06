@@ -3,6 +3,9 @@
 .payment-trust-copy h2 { margin: 0 0 20px; }
 .payment-trust-copy p { margin: 0 0 14px; color: var(--body-muted); }
 .payment-trust-copy p:last-child { margin-bottom: 0; }
+@media (min-width: 600px) and (max-width: 899px) {
+  .payment-trust-art { width: 85%; max-width: 680px; }
+}
 @media (min-width: 900px) {
   .payment-trust-panel { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; }
   .payment-trust-art { width: 85%; }
