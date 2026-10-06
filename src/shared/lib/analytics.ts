@@ -39,6 +39,11 @@ type MetrikaWindow = Window & {
 let active = false;
 let previousUrl: string | undefined;
 
+export function analyticsEnabled() {
+  // Start automatically on public pages; keep an explicit visitor opt-out.
+  return cookieChoice() !== 'necessary';
+}
+
 export function isPublicAnalyticsPage(hostname: string, pathname: string) {
   return (
     ['toprepet.ru', 'www.toprepet.ru'].includes(hostname) &&
@@ -99,7 +104,7 @@ export function analyticsUrl(href: string) {
 
 export function syncAnalytics() {
   const target = window as MetrikaWindow;
-  if (cookieChoice() !== 'all' || !isPublicAnalyticsPage(location.hostname, location.pathname)) {
+  if (!analyticsEnabled() || !isPublicAnalyticsPage(location.hostname, location.pathname)) {
     if (active) target.ym?.(METRIKA_ID, 'destruct');
     // If consent was withdrawn while the vendor script was downloading,
     // discard its queued init/events so they cannot run after withdrawal.
@@ -110,7 +115,7 @@ export function syncAnalytics() {
     }
     active = false;
     previousUrl = undefined;
-    if (cookieChoice() !== 'all') clearAnalyticsCookies();
+    if (!analyticsEnabled()) clearAnalyticsCookies();
     return false;
   }
   if (!target.ym) {
@@ -146,7 +151,7 @@ export function syncAnalytics() {
 }
 
 export function trackGoal(goal: AnalyticsGoal, params: Params = {}) {
-  if (!active || cookieChoice() !== 'all' || !isPublicAnalyticsPage(location.hostname, location.pathname))
+  if (!active || !analyticsEnabled() || !isPublicAnalyticsPage(location.hostname, location.pathname))
     return;
   (window as MetrikaWindow).ym?.(METRIKA_ID, 'reachGoal', goal, {
     page: pageKind(location.pathname),

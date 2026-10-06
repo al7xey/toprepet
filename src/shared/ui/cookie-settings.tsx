@@ -15,12 +15,12 @@ export function CookieSettings() {
   }, []);
   return (
     <div className="cookie-settings">
-      <p>Мы используем cookies для работы сайта и, с вашего согласия, для аналитики.</p>
+      <p>Метрика запускается автоматически на публичных страницах. Здесь можно изменить настройку аналитики.</p>
       <div className="cookie-settings-actions">
-        <button type="button" className="button button-primary" onClick={() => saveCookieChoice('all')} aria-pressed={choice === 'all'}>Принять</button>
-        <button type="button" className="button button-light" onClick={() => saveCookieChoice('necessary')} aria-pressed={choice === 'necessary'}>Только необходимые</button>
+        <button type="button" className="button button-primary" onClick={() => saveCookieChoice('all')} aria-pressed={choice !== 'necessary'}>Включить аналитику</button>
+        <button type="button" className="button button-light" onClick={() => saveCookieChoice('necessary')} aria-pressed={choice === 'necessary'}>Отключить аналитику</button>
       </div>
-      <output aria-live="polite">{choice === 'all' ? 'Аналитика разрешена. Вы можете изменить выбор в любой момент.' : choice === 'necessary' ? 'Используются только необходимые механизмы. Аналитика отключена.' : 'Аналитика не запускается, пока вы её не разрешите.'}</output>
+      <output aria-live="polite">{choice === 'necessary' ? 'Аналитика отключена.' : 'Аналитика включена. Вы можете изменить настройку в любой момент.'}</output>
     </div>
   );
 }

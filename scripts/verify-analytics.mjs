@@ -22,19 +22,24 @@ try {
     get cookie() { return '_ym_uid=123; necessary=yes'; },
     set cookie(value) { removedCookies.push(value); },
   };
-  assert.equal(analytics.syncAnalytics(), false);
+  assert.equal(analytics.syncAnalytics(), true, 'New visitor starts analytics automatically');
   analytics.trackPage();
-  analytics.trackMessenger('telegram');
-  assert.equal(scripts.length, 0, 'No script before consent');
+  analytics.trackPage();
+  assert.equal(scripts.length, 1, 'Automatic start without a banner or saved choice');
+  assert.equal(window.ym.a.filter(call => call[1] === 'init').length, 1);
+  assert.equal(window.ym.a.filter(call => call[1] === 'hit').length, 1);
   consent.saveCookieChoice('necessary');
   assert.equal(analytics.syncAnalytics(), false);
-  assert.equal(scripts.length, 0, 'No script with necessary-only choice');
+  assert.equal(window.ym, undefined, 'Explicit opt-out stops automatic analytics');
+  assert.equal(scripts[0].removed, true);
+  analytics.trackMessenger('telegram');
+  assert.equal(scripts.length, 1, 'No new script after opt-out');
   assert.ok(removedCookies.every(cookie => cookie.startsWith('_ym_')));
   consent.saveCookieChoice('all');
   analytics.trackPage();
   analytics.trackPage();
-  assert.equal(scripts.length, 1);
-  assert.equal(scripts[0].src, 'https://mc.yandex.ru/metrika/tag.js?id=112922088');
+  assert.equal(scripts.length, 2);
+  assert.equal(scripts[1].src, 'https://mc.yandex.ru/metrika/tag.js?id=112922088');
   const pending = window.ym.a;
   assert.equal(pending.filter(call => call[1] === 'init').length, 1);
   assert.equal(pending.filter(call => call[1] === 'hit').length, 1, 'One hit per route');
@@ -44,11 +49,11 @@ try {
   consent.saveCookieChoice('necessary');
   assert.equal(analytics.syncAnalytics(), false);
   assert.equal(pending.length, 0, 'Withdrawal cancels pending vendor events');
-  assert.equal(scripts[0].removed, true);
+  assert.equal(scripts[1].removed, true);
   assert.equal(window.ym, undefined);
   consent.saveCookieChoice('all');
   analytics.trackPage();
-  assert.equal(scripts.length, 2);
+  assert.equal(scripts.length, 3);
   window.ym = (...args) => calls.push(args); // Mock the loaded API; no network telemetry.
   globalThis.location = new URL('https://toprepet.ru/teachers/informatics/');
   analytics.trackPage();
@@ -91,7 +96,8 @@ try {
   assert.equal(consent.cookieChoice(), null, 'Volatile permission expires');
   const app = await readFile('src/app/app.tsx', 'utf8');
   assert.ok(app.includes('<MetrikaTracker />'));
-  console.log('Metrika verified: consent, SPA hits, goals, privacy, withdrawal, exclusions and expiry.');
+  assert.ok(!app.includes('CookieBanner'), 'No cookie banner');
+  console.log('Metrika verified: automatic start, SPA hits, goals, privacy, opt-out, exclusions and expiry.');
 } finally {
   Date.now = originalNow;
   for (const key of ['window', 'location', 'document', 'localStorage']) delete globalThis[key];

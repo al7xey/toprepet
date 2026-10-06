@@ -10,7 +10,7 @@ export function cookieChoice(): CookieChoice | null {
     const stored = JSON.parse(localStorage.getItem(COOKIE_CONSENT_KEY) || 'null');
     if (stored?.version === 1 && ['all', 'necessary'].includes(stored.choice) &&
       typeof stored.at === 'number' && stored.at <= Date.now() && Date.now() - stored.at < maxAge) return stored.choice;
-  } catch { /* Storage may be unavailable; do not infer permission. */ }
+  } catch { /* Storage may be unavailable; use the current page preference. */ }
   return sessionChoice && sessionChoice.at <= Date.now() && Date.now() - sessionChoice.at < maxAge
     ? sessionChoice.choice
     : null;
