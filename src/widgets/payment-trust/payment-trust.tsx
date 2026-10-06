@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom';
-
 export function PaymentTrust() {
   return (
     <section className="section container payment-trust" aria-labelledby="payment-trust-title">
@@ -9,7 +7,6 @@ export function PaymentTrust() {
           <h2 id="payment-trust-title">100% гарантия возврата средств</h2>
           <p>100% возврат оплаты, если оплаченное занятие не было проведено.</p>
           <p>TopRepet выступает посредником между вами и репетитором: деньги не перечисляются преподавателю сразу, а выплачиваются только после проведённого занятия. В других спорных ситуациях поддержка поможет разобраться и при наличии оснований оформить возврат.</p>
-          <Link className="inline-link" to="/legal/payment-refund/">Оплата, переносы и возвраты</Link>
         </div>
       </div>
     </section>

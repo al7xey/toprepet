@@ -10,7 +10,7 @@ export default function LegalPage() {
   return (
     <article className="payment-info-page container">
       <div className="payment-info-reading">
-        <Link className="payment-info-back" to={document ? '/legal/' : '/'}>{document ? '← Все документы' : '← На главную'}</Link>
+        {document && <Link className="payment-info-back" to="/legal/">← Все документы</Link>}
         <h1>{document?.title ?? 'Документы TopRepet'}</h1>
         <p className="payment-info-lead">{document?.description ?? 'Правила работы сервиса, сотрудничество с преподавателями и информация об оплате.'}</p>
         {document ? <>

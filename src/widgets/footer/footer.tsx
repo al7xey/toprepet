@@ -13,7 +13,6 @@ export function Footer() {
         <Link className="footer-contact" to="/for-repetitor/">Для репетиторов</Link>
         <Link className="footer-contact" to="/contact/">Написать в поддержку</Link>
         <Link className="footer-contact" to="/blog/">Блог</Link>
-        <Link className="footer-contact" to="/legal/payment-refund/">Оплата и возвраты</Link>
         <Link className="footer-contact" to="/legal/">Документы</Link>
       </nav>
     </footer>

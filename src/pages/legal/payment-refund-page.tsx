@@ -4,7 +4,6 @@ export default function PaymentRefundPage() {
   return (
     <article className="payment-info-page container">
       <div className="payment-info-reading">
-        <Link className="payment-info-back" to="/">← На главную</Link>
         <h1>Оплата, переносы и возвраты</h1>
         <p className="payment-info-lead">Как оплачивать занятия через TopRepet и обращаться в поддержку.</p>
         <section>
