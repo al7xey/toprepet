@@ -1,0 +1,4 @@
+.cookie-settings { margin-block: 24px; }
+.cookie-settings-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.cookie-settings-actions .button { min-height: 44px; padding: 10px 18px; font-size: 14px; }
+.cookie-settings output { display: block; margin-top: 16px; font-size: 14px; line-height: 1.6; }

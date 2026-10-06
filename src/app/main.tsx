@@ -13,6 +13,7 @@ import './landing-update.css';
 import './tutor-landing.css';
 import './payment-trust.css';
 import './footer.css';
+import './cookies.css';
 import '../pages/legal/payment-refund.css';
 import '../pages/teachers/teachers-page.css';
 import '../blog/blog.css';

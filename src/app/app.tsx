@@ -16,6 +16,7 @@ import { Provider } from 'react-redux';
 
 import { store } from './store';
 import { SeoMetadata } from './seo-metadata';
+import { MetrikaTracker } from './metrika-tracker';
 import { useScrollToSection } from '../shared/lib/use-scroll-to-section';
 import { Header } from '../widgets/header/header';
 import HomePage from '../pages/home/home-page';
@@ -98,7 +99,7 @@ function ScrollManager() {
 }
 
 export function AppContent() {
-  return <><SeoMetadata /><AppRoutes /></>;
+  return <><SeoMetadata /><MetrikaTracker /><AppRoutes /></>;
 }
 
 function AppRoutes() {
