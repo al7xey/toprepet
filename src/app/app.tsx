@@ -27,6 +27,7 @@ import FreeIntroPage from '../pages/free-intro/free-intro-page';
 import ForTutorsPage from '../pages/for-tutors/for-tutors-page';
 import { Footer } from '../widgets/footer/footer';
 import PaymentRefundPage from '../pages/legal/payment-refund-page';
+import LegalPage from '../pages/legal/legal-page';
 
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
@@ -141,8 +142,9 @@ function AppRoutes() {
           tabIndex={-1}
         >
           <Routes>
-            <Route path="/legal" element={<Navigate to="/legal/payment-refund/" replace />} />
+            <Route path="/legal" element={<LegalPage />} />
             <Route path="/legal/payment-refund" element={<PaymentRefundPage />} />
+            <Route path="/legal/:document" element={<LegalPage />} />
             <Route
               path="/"
               element={<HomePage />}

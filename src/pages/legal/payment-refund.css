@@ -9,6 +9,16 @@
 .payment-info-lead { color: var(--muted); }
 .payment-info-page section { margin-top: 36px; }
 .payment-info-page .button { display: inline-flex; margin-top: 12px; }
+.information-toc { margin-block: 28px 36px; }
+.information-toc ol { padding-left: 24px; }
+.information-toc li { margin-block: 10px; line-height: 1.6; }
+.information-toc a, .information-section a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.information-section { scroll-margin-top: calc(var(--header-height) + 20px); }
+.information-document-list { display: grid; margin-top: 32px; }
+.information-document-list a { display: block; padding-block: 20px; border-bottom: 1px solid var(--line); }
+.information-document-list strong, .information-document-list span { display: block; }
+.information-document-list strong { font-size: 17px; line-height: 1.5; }
+.information-document-list span { color: var(--muted); font-size: 14px; line-height: 1.65; margin-top: 8px; }
 @media (max-width: 759px) {
   .payment-info-page { padding-block: 28px 48px; }
   .payment-info-page p { font-size: 15px; line-height: 1.75; }

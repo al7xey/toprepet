@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
 import { subjects } from '../../entities/lesson';
 import { MessengerLinks } from '../../shared/ui/messenger-links';
@@ -89,6 +90,7 @@ function MessageBuilder() {
     <section className="container for-tutors-section tutor-application" id="application" aria-labelledby="tutor-application-title">
       <h2 id="tutor-application-title">Хотите получать учеников через TopRepet?</h2>
       <p>Ответьте на несколько вопросов — мы подготовим сообщение менеджеру.</p>
+      <p><Link className="inline-link" to="/legal/tutor-terms/">Условия сотрудничества с репетиторами</Link></p>
       <div className="tutor-choice-group">
         <h3>Что вы преподаёте?</h3>
         <div className="tutor-chips choice-group">
