@@ -70,11 +70,22 @@ const breadcrumbNames = {
   '/teachers/english-elizaveta':
     'Елизавета',
 
+  '/teachers/chemistry':
+    'Дмитрий',
+
   '/teachers/history':
     'Александра',
 };
 
 const teacherSchemas = {
+  '/teachers/chemistry': {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Дмитрий',
+    jobTitle: 'Репетитор по химии',
+    url: 'https://toprepet.ru/teachers/chemistry/',
+    image: 'https://toprepet.ru/images/tutor-dmitry.webp',
+  },
   '/teachers/history': {
     '@context': 'https://schema.org',
     '@type': 'Person',
