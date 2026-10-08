@@ -56,7 +56,7 @@ export function PaymentCard({ l, tz, lessonState }: { l: Lesson; tz: string; les
   );
 }
 
-function Receipt({ open, onClose, p, l, tz }: { open: boolean; onClose: () => void; p: Payment; l: Lesson; tz: string }) {
+export function Receipt({ open, onClose, p, l, tz }: { open: boolean; onClose: () => void; p: Payment; l: Lesson; tz: string }) {
   const d = useDb();
   const tutor = d.tutors.find(t => t.userId === l.tutorId);
   return (

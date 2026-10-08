@@ -473,6 +473,13 @@ export function seed(): Db {
     { id: 'n-4', userId: anna.userId, at: dispute.createdAt, icon: 'help', title: 'Ольга сообщила о проблеме', text: 'Урок сократили. Ответьте в течение 24 часов.', to: '/tutor/disputes/dp-1', read: false, tone: 'action' },
     { id: 'n-5', userId: anna.userId, at: ago(4 * DAY), icon: 'warn', title: 'Документ отклонён', text: 'IELTS.jpg: не видно имени и даты.', to: '/tutor/profile/documents', read: true, tone: 'bad' },
   );
+  /* a few letters in the demo mailbox */
+  db.emails.push(
+    { id: 'em-1', to: olga.id, email: olga.email, at: ago(20 * HOUR), subject: 'Анна Ковалёва подтвердила урок', title: 'Урок подтверждён', body: 'Анна подтвердила урок по английскому, 60 мин. Ссылку на звонок репетитор пришлёт перед началом. 2 200 ₽ списали с карты •• 4417.', action: { label: 'Открыть урок', to: '/my/lessons/l-next' } },
+    { id: 'em-2', to: olga.id, email: olga.email, at: ago(3 * HOUR), subject: 'Новое сообщение от Анны Ковалёвой', title: 'Анна Ковалёва написала вам', body: 'Ответьте в чате TopRepet — там же записи на уроки и оплаты.', quote: { author: 'Анна Ковалёва', text: 'Да, посмотрю до урока.', time: '17:40' }, action: { label: 'Ответить в TopRepet', to: '/messages' }, reason: 'Письмо пришло, потому что сообщение не прочитано 15 минут. Не хотите такие письма — отключите их в настройках.' },
+    { id: 'em-3', to: annaU.id, email: annaU.email, at: ago(1 * HOUR), subject: 'Новая запись: Дмитрий', title: 'Дмитрий записался на урок', body: 'Английский, 60 мин. Подтвердите или отклоните запись в течение 24 часов, иначе она отменится сама.', action: { label: 'Ответить', to: '/tutor/lessons/l-dmitry-pending' } },
+  );
+
   return db;
 }
 

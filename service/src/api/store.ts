@@ -5,7 +5,7 @@ import type { Db } from './types';
    Every mutation produces a new root object, so React re-renders through useSyncExternalStore. */
 
 const KEY = 'toprepet.service.db.v1';
-export const DB_VERSION = 2;
+export const DB_VERSION = 3;
 
 let db: Db | null = null;
 const listeners = new Set<() => void>();
