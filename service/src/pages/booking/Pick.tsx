@@ -43,7 +43,7 @@ export default function Pick() {
   const go = () => picker.slot && navigate(checkoutUrl(t.slug, picker.slot, minutes, subject, who));
   const whoName = who === 'self' ? me.name.split(' ')[0] : me.children.find(c => c.id === who)?.name ?? '';
 
-  const head = <Person name={t.name} sub={`${subject.replace(/ язык$/, '')}${r.count ? ` · ${rv.fmtRating(r.avg)} · ${r.count} отзывов` : ' · новый преподаватель'}`} tone={t.tone} src={t.photo} />;
+  const head = <Person name={t.name} sub={`${subject.replace(/ язык$/, '')}${r.count ? ` · ${rv.fmtRating(r.avg)} · ${r.count} отзывов` : ''}`} tone={t.tone} src={t.photo} />;
   const badges = <div className="row" style={{ gap: 6 }}>{tApi.docsVerified(t) && <St tone="ok" icon="shield">Документы проверены</St>}<St icon="globe">{`${zoneCity(t.tz)}, ${utcLabel(t.tz)}`}</St></div>;
   const subjOpts = subjects.length > 1 && <Options legend="Предмет" options={subjects} value={subject} onChange={v => { setSubject(v); setMinutes(t.prices.find(p => p.subject === v)?.minutes ?? 60); }} />;
   const durOpts = <Options legend="Длительность" options={durations.map(p => ({ value: String(p.minutes), label: `${p.minutes} мин`, small: fmtMoney(studentPrice(p.price)) }))} value={String(minutes)} onChange={v => setMinutes(Number(v))} />;

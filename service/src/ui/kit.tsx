@@ -273,7 +273,7 @@ export function Ava({ tone, src, size, className, alt = '' }: { tone: Tone; src?
 }
 
 /* ---------- modal / sheet ---------- */
-export function Sheet({ open, onClose, title, children, wide, labelledBy }: { open: boolean; onClose: () => void; title?: ReactNode; children: ReactNode; wide?: boolean; labelledBy?: string }) {
+export function Sheet({ open, onClose, title, children, wide, labelledBy, className }: { open: boolean; onClose: () => void; title?: ReactNode; children: ReactNode; wide?: boolean; labelledBy?: string; className?: string }) {
   const phone = useMedia('(max-width: 699px)');
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -312,7 +312,7 @@ export function Sheet({ open, onClose, title, children, wide, labelledBy }: { op
   return createPortal(
     <>
       <div className="dim dim-fixed" onClick={onClose} />
-      <div ref={ref} className={cx(phone ? 'sheet-abs sheet-fixed' : 'modal-abs modal-fixed', wide && 'modal-wide')} role="dialog" aria-modal="true" aria-labelledby={labelledBy ?? (title ? titleId : undefined)} tabIndex={-1}>
+      <div ref={ref} className={cx(phone ? 'sheet-abs sheet-fixed' : 'modal-abs modal-fixed', wide && 'modal-wide', className)} role="dialog" aria-modal="true" aria-labelledby={labelledBy ?? (title ? titleId : undefined)} tabIndex={-1}>
         {phone && <span className="grabber" aria-hidden="true" />}
         {title && (
           <div className="sheet-head">

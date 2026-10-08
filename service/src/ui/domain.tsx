@@ -211,11 +211,11 @@ export function TzLine({ viewerTz, otherTz, otherName, sample }: { viewerTz: str
   const same = viewerTz === otherTz || new Date().toLocaleString('en', { timeZone: viewerTz }) === new Date().toLocaleString('en', { timeZone: otherTz });
   const city = viewerTz === 'Europe/Moscow' ? 'Время московское' : `Время ваше, ${zoneCityLower(viewerTz)}`;
   return (
-    <span className="tz"><Icon name="globe" />{nb(same ? `${city}, как у ${otherName}` : sample ? `${city}. У ${otherName} будет ${fmtTime(sample, otherTz)}` : `${city}. У ${otherName} ${zoneCityLower(otherTz)}`)}</span>
+    <span className="tz"><Icon name="globe" />{nb(same ? `${city}, как у ${otherName}` : sample ? `${city}. У ${otherName} будет ${fmtTime(sample, otherTz)}` : `${city}. У ${otherName} ${mskDiffLabel(otherTz)}`)}</span>
   );
 }
 
-import { zoneCity } from '../lib/time';
+import { mskDiffLabel, zoneCity } from '../lib/time';
 const zoneCityLower = (tz: string) => zoneCity(tz);
 
 /* ---------- payment method picker ---------- */
