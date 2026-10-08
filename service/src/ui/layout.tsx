@@ -204,6 +204,7 @@ interface PageProps {
   side?: string; // current item of the cabinet menu
   tab?: string; // current tab on phones
   back?: string | true; // phone back button target
+  onBack?: () => void; // custom back action, e.g. the previous wizard step
   mTitle?: ReactNode;
   right?: ReactNode;
   phoneTop?: boolean;
@@ -214,7 +215,7 @@ interface PageProps {
   className?: string;
 }
 
-export function Page({ title, kind = 'site', side, tab, back, mTitle, right, bottom, hideTabs, children, wide, className }: PageProps) {
+export function Page({ title, kind = 'site', side, tab, back, onBack, mTitle, right, bottom, hideTabs, children, wide, className }: PageProps) {
   useTitle(title);
   const phone = usePhone();
   const wideScreen = useWide();
@@ -223,7 +224,7 @@ export function Page({ title, kind = 'site', side, tab, back, mTitle, right, bot
   return (
     <div className={cx('page', phone && 'is-phone', showTabs && 'has-tabs', !!bottom && phone && 'has-bottom', className)}>
       {kind !== 'bare' && (!phone || !back) && <SiteHeader />}
-      {phone && back && <AppBar title={mTitle ?? title} back={back} right={right} />}
+      {phone && back && <AppBar title={mTitle ?? title} back={back} onBack={onBack} right={right} />}
       {kind === 'cabinet' && !phone ? (
         <div className={cx('cab-d', !wideScreen && 'cab-narrow')}>
           {wideScreen && <SideNav current={side} />}
