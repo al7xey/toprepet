@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 
 import { findTeacher } from '../../entities/teacher';
 import { MessengerLinks } from '../../shared/ui/messenger-links';
+import { teacherPhotoAttributes } from '../../shared/lib/teacher-photo';
 
 export default function TeacherPage() {
   const { id } = useParams();
@@ -48,7 +49,10 @@ export default function TeacherPage() {
         <div className="teacher-profile-photo">
           <img
             src={teacher.photo}
+            {...teacherPhotoAttributes(teacher.id, 'profile')}
             alt={`Фото: ${teacher.name}`}
+            fetchPriority="high"
+            decoding="async"
           />
         </div>
 

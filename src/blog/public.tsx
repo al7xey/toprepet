@@ -1,4 +1,6 @@
 import { BarChart3, BookOpen, Clock3, Layers3 } from 'lucide-react'
+import './blog.css'
+import './blog-adapter.css'
 import { Link, useParams } from 'react-router-dom'
 import { Header as MainHeader } from '../widgets/header/header'
 import { Footer as MainFooter } from '../widgets/footer/footer'

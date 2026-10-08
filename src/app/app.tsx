@@ -19,21 +19,21 @@ import { SeoMetadata } from './seo-metadata';
 import { MetrikaTracker } from './metrika-tracker';
 import { useScrollToSection } from '../shared/lib/use-scroll-to-section';
 import { Header } from '../widgets/header/header';
-import HomePage from '../pages/home/home-page';
-import DirectionPage from '../pages/direction/direction-page';
-import LessonsPage from '../pages/lessons/lessons-page';
-import TeacherPage from '../pages/teacher/teacher-page';
-import TeachersPage from '../pages/teachers/teachers-page';
-import FreeIntroPage from '../pages/free-intro/free-intro-page';
-import ForTutorsPage from '../pages/for-tutors/for-tutors-page';
+const HomePage = lazy(() => import('../pages/home/home-page'));
+const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
+const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
+const TeacherPage = lazy(() => import('../pages/teacher/teacher-page'));
+const TeachersPage = lazy(() => import('../pages/teachers/teachers-page'));
+const FreeIntroPage = lazy(() => import('../pages/free-intro/free-intro-page'));
+const ForTutorsPage = lazy(() => import('../pages/for-tutors/for-tutors-page'));
 import { Footer } from '../widgets/footer/footer';
-import PaymentRefundPage from '../pages/legal/payment-refund-page';
-import LegalPage from '../pages/legal/legal-page';
+const PaymentRefundPage = lazy(() => import('../pages/legal/payment-refund-page'));
+const LegalPage = lazy(() => import('../pages/legal/legal-page'));
 
 import { MessengerLinks } from '../shared/ui/messenger-links';
 import { Contact } from '../widgets/contact/contact';
 import { ServiceDetails } from '../shared/ui/service-details';
-import { PublicBlog } from '../blog/public';
+const PublicBlog = lazy(() => import('../blog/public').then(module => ({ default: module.PublicBlog })));
 const AdminBlog = lazy(() => import('../blog/admin').then(module => ({ default: module.AdminBlog })));
 
 function LegacyTeacherRedirect() {
@@ -105,7 +105,7 @@ export function AppContent() {
 function AppRoutes() {
   const { pathname } = useLocation();
   if (pathname === '/blog' || pathname.startsWith('/blog/')) {
-    return <ErrorBoundary><Suspense fallback={<p className="blog-container">Загрузка админки…</p>}><Routes>
+    return <ErrorBoundary><Suspense fallback={<div className="container"><output>Загрузка страницы…</output></div>}><Routes>
       <Route path="/blog" element={<PublicBlog page="home" />} />
       <Route path="/blog/rubrics/*" element={<PublicBlog page="rubric" />} />
       <Route path="/blog/articles/:slug" element={<PublicBlog page="article" />} />
@@ -142,6 +142,7 @@ function AppRoutes() {
           id="main"
           tabIndex={-1}
         >
+          <Suspense fallback={<div className="container"><output>Загрузка страницы…</output></div>}>
           <Routes>
             <Route path="/legal" element={<LegalPage />} />
             <Route path="/legal/payment-refund" element={<PaymentRefundPage />} />
@@ -196,6 +197,7 @@ function AppRoutes() {
               element={<DirectionPage />}
             />
           </Routes>
+          </Suspense>
         </main>
 
         <Footer />

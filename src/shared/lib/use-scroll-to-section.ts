@@ -15,6 +15,12 @@ export function useScrollToSection() {
     let frame = 0;
     let attempts = 0;
     let cancelled = false;
+    let fontsReady = false;
+    const mutations = sectionId ? new MutationObserver(() => {
+      if (!fontsReady || cancelled) return;
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(scroll);
+    }) : undefined;
     const scroll = () => {
       if (cancelled) return;
       // The dialog locks scrolling and restores focus while it closes.
@@ -28,6 +34,7 @@ export function useScrollToSection() {
       }
       const section = document.getElementById(sectionId);
       if (section) {
+        mutations?.disconnect();
         const headingId = section.getAttribute('aria-labelledby');
         const target = (headingId && document.getElementById(headingId)) || section;
         // offsetTop excludes reveal-animation transforms and section padding.
@@ -44,15 +51,21 @@ export function useScrollToSection() {
         });
         return;
       }
-      if (attempts++ < 120) frame = window.requestAnimationFrame(scroll);
+      // Wait for a lazy route to insert its target instead of polling every
+      // frame and giving up after two seconds on a slow connection.
     };
 
+    const root = document.getElementById('root');
+    if (root && mutations) mutations.observe(root, { childList: true, subtree: true });
+
     // Font loading can change line wrapping and the position of later sections.
-    void document.fonts.ready.then(() => {
+    void (sectionId ? document.fonts.ready : Promise.resolve()).then(() => {
+      fontsReady = true;
       if (!cancelled) frame = window.requestAnimationFrame(scroll);
     });
     return () => {
       cancelled = true;
+      mutations?.disconnect();
       window.cancelAnimationFrame(frame);
     };
   }, [location.key, location.pathname, location.hash, location.state]);

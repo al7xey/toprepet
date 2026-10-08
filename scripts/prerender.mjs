@@ -2,6 +2,7 @@ import {
   readFile,
   writeFile,
   mkdir,
+  readdir,
 } from 'node:fs/promises';
 
 import {
@@ -15,6 +16,47 @@ const distIndexPath = resolve('dist/index.html');
 const serverEntryPath = resolve('dist-server/entry-server.js');
 
 const template = await readFile(distIndexPath, 'utf8');
+const manifest = JSON.parse(await readFile(resolve('dist/.vite/manifest.json'), 'utf8'));
+const fontFiles = (await readdir(resolve('dist/assets')))
+  .filter(file => /^manrope-(?:cyrillic|latin)-wght-normal-.*\.woff2$/.test(file));
+
+// Preload only the page being opened. Keep its CSS in the initial HTML so
+// the prerender stays styled before React and dynamic imports finish loading.
+function addRouteAssets(html, route) {
+  const entry = route.startsWith('/blog/admin') ? 'src/blog/admin.tsx'
+    : route.startsWith('/blog') ? 'src/blog/public.tsx'
+    : route === '/' ? 'src/pages/home/home-page.tsx'
+    : route.startsWith('/teachers/') ? 'src/pages/teacher/teacher-page.tsx'
+    : route === '/teachers' ? 'src/pages/teachers/teachers-page.tsx'
+    : route === '/lessons' ? 'src/pages/lessons/lessons-page.tsx'
+    : route === '/free-intro' ? 'src/pages/free-intro/free-intro-page.tsx'
+    : route === '/for-repetitor' ? 'src/pages/for-tutors/for-tutors-page.tsx'
+    : route === '/legal/payment-refund' ? 'src/pages/legal/payment-refund-page.tsx'
+    : route.startsWith('/legal') ? 'src/pages/legal/legal-page.tsx'
+    : route === '/contact' ? null
+    : 'src/pages/direction/direction-page.tsx';
+  const visited = new Set();
+  const links = [];
+  const add = (file, rel) => {
+    if (!html.includes(`href="/${file}"`)) {
+      links.push(`<link rel="${rel}" href="/${file}"${rel === 'modulepreload' ? ' crossorigin' : ''}>`);
+    }
+  };
+  const visit = key => {
+    if (visited.has(key)) return;
+    visited.add(key);
+    const chunk = manifest[key];
+    if (!chunk) throw new Error(`Page asset missing from Vite manifest: ${key}`);
+    for (const dependency of chunk.imports || []) visit(dependency);
+    for (const css of chunk.css || []) add(css, 'stylesheet');
+    add(chunk.file, 'modulepreload');
+  };
+  if (entry) visit(entry);
+  for (const file of fontFiles) {
+    links.push(`<link rel="preload" as="font" type="font/woff2" href="/assets/${file}" crossorigin>`);
+  }
+  return html.replace('</head>', `${[...new Set(links)].join('\n')}\n</head>`);
+}
 
 const { render, teachers: teacherCatalog } = await import(
   pathToFileURL(serverEntryPath).href
@@ -361,6 +403,8 @@ for (const route of routes) {
     route,
   );
 
+  finalHtml = addRouteAssets(finalHtml, route);
+
   const outputPath =
     route === '/'
       ? distIndexPath
@@ -418,6 +462,7 @@ for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: '
   }
   if (page.admin) html = html.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i, '<meta name="robots" content="noindex,follow" />');
   else html = html.replace('</head>', `<link rel="canonical" href="${url}" /></head>`);
+  html = addRouteAssets(html, page.route);
   const path = resolve('dist', page.route.slice(1), 'index.html');
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, html, 'utf8');
@@ -441,7 +486,7 @@ for (const route of routes.filter(path => path.startsWith('/teachers/'))) {
   await writeFile(oldPath, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${destination}"><link rel="canonical" href="${destination}"><title>Анкета преподавателя переехала — TopRepet</title></head><body><p>Анкета переехала: <a href="${destination}">открыть новый адрес</a>.</p></body></html>`, 'utf8');
 }
 
-const notFoundHtml = template
+const notFoundHtml = addRouteAssets(template, '/this-page-does-not-exist')
   .replace(rootPlaceholder, `<div id="root">${await render('/this-page-does-not-exist')}</div>`)
   .replace(/<title>.*?<\/title>/s, '<title>Страница не найдена — TopRepet</title>')
   .replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i, '<meta name="robots" content="noindex,follow" />');

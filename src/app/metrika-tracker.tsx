@@ -41,11 +41,28 @@ export function MetrikaTracker() {
       },
       { threshold: 0.25 },
     );
-    document
-      .querySelectorAll(
-        'main section[id], main section[aria-labelledby], #contact, #application',
-      )
-      .forEach((section) => observer.observe(section));
+    const sectionSelector =
+      'main section[id], main section[aria-labelledby], #contact, #application';
+    const observed = new WeakSet<Element>();
+    const observeSection = (section: Element) => {
+      if (observed.has(section)) return;
+      observed.add(section);
+      observer.observe(section);
+    };
+    document.querySelectorAll(sectionSelector).forEach(observeSection);
+    // A lazy route can finish rendering after this effect. Register its
+    // sections too so SPA navigation keeps the same Metrika view goals.
+    const mutations = new MutationObserver((records) => {
+      for (const record of records) {
+        for (const node of record.addedNodes) {
+          if (!(node instanceof Element)) continue;
+          if (node.matches(sectionSelector)) observeSection(node);
+          node.querySelectorAll(sectionSelector).forEach(observeSection);
+        }
+      }
+    });
+    const root = document.getElementById('root');
+    if (root) mutations.observe(root, { childList: true, subtree: true });
     let elapsed = 0;
     let last = performance.now();
     let engaged = false;
@@ -93,6 +110,7 @@ export function MetrikaTracker() {
     return () => {
       cancelAnimationFrame(frame);
       observer.disconnect();
+      mutations.disconnect();
       clearInterval(timer);
       document.removeEventListener('click', click, true);
       window.removeEventListener('scroll', scroll);

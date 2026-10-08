@@ -6,6 +6,7 @@ import {
   CarouselItem,
 } from '../../../components/ui/carousel';
 import { teachers } from '../../entities/teacher';
+import { teacherPhotoAttributes } from '../../shared/lib/teacher-photo';
 
 export function TeacherCard({
   id,
@@ -29,7 +30,14 @@ export function TeacherCard({
       draggable={false}
     >
       <span className={`teacher-photo teacher-photo-${index + 1}`}>
-        <img src={photo} alt="" loading="eager" draggable={false} />
+        <img
+          src={photo}
+          {...teacherPhotoAttributes(id, 'card')}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+        />
       </span>
       <span className="teacher-glass">
         <strong className="teacher-card-subjects">{cardSubjects}</strong>

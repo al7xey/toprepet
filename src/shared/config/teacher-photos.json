@@ -1,0 +1,62 @@
+{
+  "english": {
+    "src": "/images/teachers/english-960.webp",
+    "srcSet": "/images/teachers/english-480.webp 480w, /images/teachers/english-960.webp 960w",
+    "width": 960,
+    "height": 1152
+  },
+  "russian-literature": {
+    "src": "/images/teachers/russian-literature-960.webp",
+    "srcSet": "/images/teachers/russian-literature-480.webp 480w, /images/teachers/russian-literature-960.webp 960w",
+    "width": 960,
+    "height": 1200
+  },
+  "chemistry-biology": {
+    "src": "/images/teachers/chemistry-biology-960.webp",
+    "srcSet": "/images/teachers/chemistry-biology-480.webp 480w, /images/teachers/chemistry-biology-960.webp 960w",
+    "width": 960,
+    "height": 1200
+  },
+  "informatics": {
+    "src": "/images/teachers/informatics-960.webp",
+    "srcSet": "/images/teachers/informatics-480.webp 480w, /images/teachers/informatics-960.webp 960w",
+    "width": 960,
+    "height": 1200
+  },
+  "russian": {
+    "src": "/images/teachers/russian-960.webp",
+    "srcSet": "/images/teachers/russian-480.webp 480w, /images/teachers/russian-960.webp 900w",
+    "width": 900,
+    "height": 1125
+  },
+  "mathematics": {
+    "src": "/images/teachers/mathematics-960.webp",
+    "srcSet": "/images/teachers/mathematics-480.webp 480w, /images/teachers/mathematics-960.webp 900w",
+    "width": 900,
+    "height": 1125
+  },
+  "physics-mathematics": {
+    "src": "/images/teachers/physics-mathematics-960.webp",
+    "srcSet": "/images/teachers/physics-mathematics-480.webp 480w, /images/teachers/physics-mathematics-960.webp 960w",
+    "width": 960,
+    "height": 1280
+  },
+  "english-elizaveta": {
+    "src": "/images/teachers/english-elizaveta-960.webp",
+    "srcSet": "/images/teachers/english-elizaveta-480.webp 480w, /images/teachers/english-elizaveta-960.webp 960w",
+    "width": 960,
+    "height": 1280
+  },
+  "history": {
+    "src": "/images/teachers/history-960.webp",
+    "srcSet": "/images/teachers/history-480.webp 480w, /images/teachers/history-960.webp 960w",
+    "width": 960,
+    "height": 1200
+  },
+  "chemistry": {
+    "src": "/images/teachers/chemistry-960.webp",
+    "srcSet": "/images/teachers/chemistry-480.webp 480w, /images/teachers/chemistry-960.webp 960w",
+    "width": 960,
+    "height": 1200
+  }
+}

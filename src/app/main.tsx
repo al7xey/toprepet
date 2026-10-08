@@ -16,8 +16,6 @@ import './footer.css';
 import './cookies.css';
 import '../pages/legal/payment-refund.css';
 import '../pages/teachers/teachers-page.css';
-import '../blog/blog.css';
-import '../blog/blog-adapter.css';
 
 const rootElement = document.getElementById('root');
 
