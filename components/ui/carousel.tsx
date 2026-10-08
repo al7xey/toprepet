@@ -19,6 +19,7 @@ type CarouselProps = {
   opts?: CarouselOptions;
   plugins?: CarouselPlugin;
   wheelGestures?: boolean;
+  preloadAhead?: number;
   orientation?: 'horizontal' | 'vertical';
   setApi?: (api: CarouselApi) => void;
 };
@@ -50,6 +51,7 @@ function Carousel({
   setApi,
   plugins,
   wheelGestures = false,
+  preloadAhead = 0,
   className,
   children,
   ...props
@@ -112,6 +114,40 @@ function Carousel({
       api?.off('select', onSelect);
     };
   }, [api, onSelect]);
+
+  React.useEffect(() => {
+    if (!api || preloadAhead <= 0) return;
+    const preloadImages = () => {
+      const slides = api.slideNodes();
+      const visible = api.slidesInView();
+      const indices = visible.length ? visible : [api.selectedScrollSnap()];
+      const pending = new Set(indices);
+      for (const index of indices) {
+        for (let offset = 1; offset <= Math.min(preloadAhead, slides.length); offset++) {
+          const next = index + offset;
+          if (next < slides.length) pending.add(next);
+          else if (opts?.loop) pending.add(next % slides.length);
+        }
+      }
+      for (const index of pending) {
+        // Change the real image's loading mode: the browser selects its srcset
+        // variant and reuses the same request, without duplicate Image objects.
+        slides[index]?.querySelectorAll('img').forEach(image => {
+          image.loading = 'eager';
+        });
+      }
+    };
+    const frame = requestAnimationFrame(preloadImages);
+    api.on('slidesInView', preloadImages);
+    api.on('select', preloadImages);
+    api.on('reInit', preloadImages);
+    return () => {
+      cancelAnimationFrame(frame);
+      api.off('slidesInView', preloadImages);
+      api.off('select', preloadImages);
+      api.off('reInit', preloadImages);
+    };
+  }, [api, preloadAhead, opts?.loop]);
 
   return (
     <CarouselContext.Provider

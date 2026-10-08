@@ -13,11 +13,13 @@ export function TeacherCard({
   cardSubjects,
   photo,
   index,
+  eager = false,
 }: {
   id: string;
   cardSubjects: string;
   photo: string;
   index: number;
+  eager?: boolean;
 }) {
   const { pathname } = useLocation();
 
@@ -34,7 +36,7 @@ export function TeacherCard({
           src={photo}
           {...teacherPhotoAttributes(id, 'card')}
           alt=""
-          loading="lazy"
+          loading={eager ? 'eager' : 'lazy'}
           decoding="async"
           draggable={false}
         />
@@ -58,6 +60,7 @@ export function Teachers({ title = 'Топ репеты', caption = 'Найди�
         tabIndex={0}
         aria-label="Преподаватели"
         wheelGestures
+        preloadAhead={5}
         opts={{ align: 'start', containScroll: 'trimSnaps' }}
       >
         <div className="section-heading teachers-heading">
@@ -79,6 +82,7 @@ export function Teachers({ title = 'Топ репеты', caption = 'Найди�
                 cardSubjects={cardSubjects}
                 photo={photo}
                 index={index}
+                eager={index <= 5}
               />
             </CarouselItem>
           ))}
