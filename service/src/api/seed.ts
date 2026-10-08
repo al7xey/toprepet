@@ -100,6 +100,19 @@ function tutor(o: Partial<TutorProfile> & Pick<TutorProfile, 'userId' | 'slug' |
   };
 }
 
+
+/* Demo tutors have no real photos: a studio-light portrait placeholder in the mockup's style keeps them listed. */
+const PORTRAIT: Record<string, [string, string, string, string]> = {
+  orange: ['#ffc58f', '#ff9a52', '#f26a2e', 'rgb(255 230 210 / 40%)'],
+  indigo: ['#8fa2ff', '#4a5bb8', '#1c2350', 'rgb(220 228 255 / 34%)'],
+  teal: ['#9fe6e0', '#3f9a96', '#133f42', 'rgb(220 250 248 / 34%)'],
+};
+function portrait(tone: keyof typeof PORTRAIT) {
+  const [hi, a, b, person] = PORTRAIT[tone];
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500"><defs><linearGradient id="g" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient><radialGradient id="h" cx=".7" cy=".15" r=".8"><stop offset="0" stop-color="${hi}"/><stop offset=".55" stop-color="${hi}" stop-opacity="0"/></radialGradient></defs><rect width="400" height="500" fill="url(#g)"/><rect width="400" height="500" fill="url(#h)"/><g fill="${person}" transform="translate(44 156) scale(1.56)"><circle cx="100" cy="78" r="44"/><path d="M14 220c4-58 40-92 86-92s82 34 86 92z"/></g></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
 let priceSeq = 0;
 const price = (subject: string, minutes: number, value: number): PriceItem => ({ id: `pr${++priceSeq}`, subject, minutes, price: value });
 
@@ -144,9 +157,9 @@ export function seed(): Db {
     user({ id: 'u-petr', role: 'student', name: 'Пётр', email: 'petr@demo.toprepet.ru', tone: 'sand' }),
     user({ id: 'u-darya', role: 'student', name: 'Дарья', email: 'darya@demo.toprepet.ru', tone: 'orange' }),
   ];
-  const annaU = user({ id: 'u-anna', role: 'tutor', name: 'Анна Ковалёва', email: 'anna@demo.toprepet.ru', tone: 'orange', tz: 'Asia/Yekaterinburg' });
-  const igorU = user({ id: 'u-igor', role: 'tutor', name: 'Игорь Павлов', email: 'igor@demo.toprepet.ru', tone: 'indigo' });
-  const mariaU = user({ id: 'u-maria', role: 'tutor', name: 'Мария Белова', email: 'maria@demo.toprepet.ru', tone: 'teal' });
+  const annaU = user({ id: 'u-anna', role: 'tutor', name: 'Анна Ковалёва', email: 'anna@demo.toprepet.ru', tone: 'orange', tz: 'Asia/Yekaterinburg', photo: portrait('orange') });
+  const igorU = user({ id: 'u-igor', role: 'tutor', name: 'Игорь Павлов', email: 'igor@demo.toprepet.ru', tone: 'indigo', photo: portrait('indigo') });
+  const mariaU = user({ id: 'u-maria', role: 'tutor', name: 'Мария Белова', email: 'maria@demo.toprepet.ru', tone: 'teal', photo: portrait('teal') });
   db.users.push(olga, admin, ...students, annaU, igorU, mariaU);
 
   const anna = tutor({
@@ -154,6 +167,7 @@ export function seed(): Db {
     slug: 'anna-kovaleva',
     name: 'Анна Ковалёва',
     tone: 'orange',
+    photo: portrait('orange'),
     tz: 'Asia/Yekaterinburg',
     city: 'Екатеринбург',
     gender: 'f',
@@ -186,6 +200,7 @@ export function seed(): Db {
     slug: 'igor-pavlov',
     name: 'Игорь Павлов',
     tone: 'indigo',
+    photo: portrait('indigo'),
     city: 'Москва',
     gender: 'm',
     about: 'Разговорный английский для работы и переезда. Начинаем с пробного разговора, чтобы понять уровень, дальше — план на 8 занятий.',
@@ -205,6 +220,7 @@ export function seed(): Db {
     slug: 'maria-belova',
     name: 'Мария Белова',
     tone: 'teal',
+    photo: portrait('teal'),
     city: 'Санкт-Петербург',
     gender: 'f',
     about: 'Работала рекрутером в международной компании — покажу, что на самом деле спрашивают на интервью. Готовлю к IELTS и собеседованиям.',
