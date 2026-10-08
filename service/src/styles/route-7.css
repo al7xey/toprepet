@@ -1,0 +1,59 @@
+.lesson.r7-w { max-width: none; padding: 16px; gap: 12px; border-radius: 22px; }
+.lesson.r7-w .lesson-actions > .btn, .r7-btns > .btn { flex: 1 1 0; }
+.card.r7-pick { grid-template-columns: minmax(0, 1fr); }
+.r7-toast-d { position: absolute; z-index: 20; left: 16px; bottom: 20px; }
+.r7-toast-m { position: absolute; z-index: 20; left: 12px; right: 12px; top: 50px; display: grid; }
+.r7-toast-m .toast { width: 100%; max-width: none; background: rgb(255 255 255 / 90%); }
+.r7-sec { font-size: 17px; font-weight: 750; letter-spacing: -0.01em; margin: 4px 0 -4px; }
+.r7-list { background: #fff; border-radius: 24px; box-shadow: 0 0 0 .5px var(--sep); overflow: hidden; min-width: 0; }
+.r7-li { display: flex; align-items: center; gap: 12px; padding: 14px 16px; text-decoration: none; color: inherit; position: relative; min-width: 0; }
+.r7-li:hover { background: rgb(0 0 0 / 2.5%); }
+.r7-li + .r7-li::before { content: ''; position: absolute; top: 0; left: 72px; right: 0; height: 1px; background: var(--sep); }
+.r7-li .t { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.r7-li .t b { font-weight: 750; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.r7-li .t small { font-size: 13px; color: var(--muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r7-li .t .st { justify-self: start; margin-top: 6px; }
+.r7-li > svg { width: 18px; height: 18px; color: var(--muted); flex-shrink: 0; }
+.r7-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.r7-btns > .btn { flex: 1 1 auto; }
+.r7-col { display: grid; gap: 10px; }
+.r7-col > .btn { width: 100%; }
+.r7-linkrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.r7-linkrow .input { flex: 1 1 220px; }
+.r7-linkrow .btn { flex: 0 0 auto; } @container (max-width: 699px) { .r7-linkrow .btn { flex: 1 0 auto; } }
+.field.r7-field { max-width: none; }
+.r7-was { display: grid; gap: 8px; }
+.r7-was > div { background: var(--bg); border-radius: 16px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-width: 0; }
+.r7-was > div.new { background: #fff; box-shadow: 0 0 0 2px var(--accent); }
+.r7-was small { font-size: 13px; color: var(--muted); font-weight: 700; white-space: nowrap; }
+.r7-was b { font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.r7-was > div:not(.new) b { color: var(--muted); text-decoration: line-through; }
+.r7-was > svg { display: none; }
+.r7-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.r7-rules li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; font-size: 14px; font-weight: 600; color: #48484d; }
+.r7-rules li svg { width: 18px; height: 18px; margin-top: 1px; color: var(--muted); }
+.r7-rules li.on { color: var(--ink); }
+.r7-rules li.on svg { color: var(--accent); }
+.r7-rules li b { color: var(--ink); }
+.r7-head { display: flex; align-items: center; gap: 12px; }
+.r7-head .h1 { flex: 1; min-width: 0; }
+a.ev { display: block; text-decoration: none; }
+.week > div { min-height: 52px; }
+.r7-tz { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 14px; font-weight: 600; }
+.r7-tz svg { width: 16px; height: 16px; }
+.r7-free { border-radius: 999px; padding: 14px 20px; display: flex; justify-content: space-between; color: var(--green); font-weight: 750; font-size: 15px; box-shadow: inset 0 0 0 1.5px #b9dcc8; }
+.r7-tbl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.r7-tbl th { text-align: left; font-size: 13px; color: var(--muted); font-weight: 700; padding: 14px 16px 10px; white-space: nowrap; }
+.r7-tbl td { padding: 12px 16px; border-top: 1px solid var(--sep); white-space: nowrap; font-weight: 600; }
+.r7-tbl .n { text-align: right; }
+.r7-tbl tr.flag td { background: #fff8f6; }
+.r7-who { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.r7-who .ava { width: 32px; height: 32px; }
+.r7-amb { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.r7-amb span { display: grid; gap: 2px; }
+.r7-amb b { font-size: 17px; }
+.r7-who span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r7-who { min-width: 0; }
+.r7-amb b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.r7-sheet-h { display: flex; align-items: center; gap: 12px; }
+.r7-sheet-h .h2 { flex: 1; min-width: 0; }

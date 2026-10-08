@@ -1,0 +1,172 @@
+/* ===== Shared mockup building blocks (use these, plus every UI kit class) ===== */
+.appbar { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 54px 16px 8px; }
+.appbar .ttl { flex: 1; min-width: 0; font-size: 17px; font-weight: 750; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.appbar .sp { width: 40px; flex-shrink: 0; }
+.ibtn { width: 40px; height: 40px; border-radius: 50%; border: 0; background: #fff; display: grid; place-items: center; color: var(--ink); cursor: pointer; flex-shrink: 0; box-shadow: 0 0 0 .5px var(--sep); }
+.ibtn svg { width: 18px; height: 18px; }
+.ibtn.glass { box-shadow: var(--glass-edge), 0 4px 14px rgb(0 0 0 / 8%); }
+.pg { padding: 0 16px 120px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.pg > * { min-width: 0; }
+.h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+.h3 { font-size: 17px; font-weight: 750; letter-spacing: -0.01em; }
+.sub { color: var(--muted); font-size: 15px; }
+.small { font-size: 13px; color: var(--muted); }
+.card { background: #fff; border-radius: 24px; padding: 18px; display: grid; gap: 12px; min-width: 0; box-shadow: 0 0 0 .5px var(--sep); }
+.card.tint { background: var(--accent-soft); box-shadow: none; }
+.card.flat { box-shadow: none; }
+.between { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-width: 0; }
+.cols { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; min-width: 0; }
+.ava { width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; overflow: hidden; }
+.ava.l { width: 64px; height: 64px; }
+.ava .ph-person, .ava svg { width: 80%; }
+.money { font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 800; }
+.divider { height: 1px; background: var(--sep); }
+.dim { position: absolute; inset: 0; z-index: 40; background: rgb(29 29 31 / 32%); }
+.sheet-abs { position: absolute; z-index: 41; left: 0; right: 0; bottom: 0; max-height: 88%; overflow-y: auto; background: #fff; border-radius: 28px 28px 0 0; padding: 8px 18px 28px; display: grid; gap: 14px; }
+.modal-abs { position: absolute; z-index: 41; left: 50%; top: 80px; transform: translateX(-50%); width: min(460px, calc(100% - 32px)); background: #fff; border-radius: 28px; padding: 22px; display: grid; gap: 14px; box-shadow: 0 30px 60px rgb(0 0 0 / 20%); }
+.stars { display: inline-flex; gap: 2px; color: var(--accent); }
+.stars svg { width: 16px; height: 16px; }
+.stars .off { color: #d9d9de; }
+.steps-bar { display: grid; grid-template-columns: repeat(var(--n, 4), 1fr); gap: 4px; }
+.steps-bar i { height: 4px; border-radius: 2px; background: var(--fill-strong); }
+.steps-bar i.on { background: var(--accent); }
+.mobile-only { display: block; }
+.desk-only { display: none; }
+@container (min-width: 700px) {
+  .mobile-only { display: none; }
+  .desk-only { display: block; }
+  .cols.c2 { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
+  .cols.c2l { grid-template-columns: 260px minmax(0, 1fr); align-items: start; }
+  .cols.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cols.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .cols.half { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.cab-d { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 20px; padding: 16px 24px 40px; align-items: start; max-width: 1248px; margin: 0 auto; }
+.cab-d > .nv-side { position: sticky; top: 16px; width: auto; }
+.cab-d > main { display: grid; gap: 18px; min-width: 0; align-content: start; }
+.app .seg button[aria-selected="true"] { background: #fff; box-shadow: 0 3px 10px rgb(0 0 0 / 10%), 0 0 0 .5px rgb(0 0 0 / 4%); }
+.app .seg .thumb { display: none; }
+.app .tgrid, .app .tgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@container (min-width: 700px) { .app .tgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+.row > .search { flex: 1 1 280px; max-width: 440px; }
+[hidden] { display: none !important; }
+.fav[aria-pressed="true"], .ibtn[aria-pressed="true"], .heart-on { --heart-fill: currentColor; }
+
+/* ===== v2: compact type scale (user: fonts and buttons too big, esp. on phone) ===== */
+.mk-top .nv-header nav.mk-routes { display: flex; }
+@media (max-width: 760px) { .mk-top { position: static; } .mk-top .nv-header { padding-left: 14px; gap: 8px; } }
+:where(.app) .screen-scroll, :where(.app) .desk-scroll { font-size: 15px; line-height: 1.42; }
+:where(.app) .h1 { font-size: 24px; letter-spacing: -0.025em; line-height: 1.15; }
+:where(.app) .h2 { font-size: 19px; letter-spacing: -0.015em; line-height: 1.25; }
+:where(.app) .h3 { font-size: 16px; }
+:where(.app) .sub { font-size: 14px; }
+:where(.app) .small { font-size: 12.5px; }
+:where(.app) .card { padding: 16px; gap: 10px; border-radius: 22px; }
+:where(.app) .pg { gap: 14px; }
+:where(.app) .appbar { min-height: 40px; padding-top: 52px; }
+:where(.app) .appbar .ttl { font-size: 16px; }
+:where(.app) .ibtn { width: 36px; height: 36px; }
+:where(.app) .ibtn svg { width: 17px; height: 17px; }
+:where(.app) .btn { min-height: 46px; padding: 0 20px; font-size: 15px; gap: 7px; }
+:where(.app) .btn--primary { font-size: 16px; }
+:where(.app) .btn--m, :where(.app) .btn--primary.btn--m { min-height: 40px; padding: 0 16px; font-size: 14.5px; }
+:where(.app) .btn--s { min-height: 34px; padding: 0 13px; font-size: 13.5px; }
+:where(.app) .btn--circle { width: 44px; min-height: 44px; padding: 0; }
+:where(.app) .btn--circle.btn--m { width: 38px; min-height: 38px; }
+:where(.app) .btn svg { width: 17px; height: 17px; }
+:where(.app) .input { min-height: 46px; padding: 0 18px; font-size: 15px; }
+:where(.app) .field > label, :where(.app) .label { font-size: 13.5px; padding-left: 16px; }
+:where(.app) .help, :where(.app) .err { font-size: 12.5px; padding-left: 16px; }
+:where(.app) .search { min-height: 44px; padding-left: 16px; }
+:where(.app) .search input { min-height: 38px; font-size: 15px; }
+:where(.app) .chip { min-height: 36px; padding: 0 14px; font-size: 13.5px; }
+:where(.app) .seg button { min-height: 34px; padding: 0 13px; font-size: 13.5px; }
+:where(.app) .option { min-height: 44px; padding: 6px 16px 6px 13px; font-size: 15px; gap: 9px; }
+:where(.app) .option .dot, :where(.app) .option .box { width: 18px; height: 18px; }
+:where(.app) .option:has(input:checked) .dot { box-shadow: inset 0 0 0 5px var(--accent); }
+:where(.app) .option small { font-size: 12.5px; }
+:where(.app) .st { min-height: 24px; padding: 0 10px 0 8px; font-size: 12px; }
+:where(.app) .li { min-height: 50px; padding: 8px 16px; gap: 12px; }
+:where(.app) .li .t span { font-size: 12.5px; }
+:where(.app) .list-title { font-size: 16px; }
+:where(.app) .tcard-info b { font-size: 15px; }
+:where(.app) .tcard-info span { font-size: 12.5px; }
+:where(.app) .tcard-info .price { font-size: 14.5px; margin-top: 4px; }
+:where(.app) .fav { width: 36px; height: 36px; top: 10px; right: 10px; }
+:where(.app) .ccard b { font-size: 13.5px; }
+:where(.app) .dcard b { font-size: 16px; }
+:where(.app) .stats b { font-size: 17px; }
+:where(.app) .stats span { font-size: 12px; }
+:where(.app) .tile { font-size: 13px; }
+:where(.app) .actionbar .meta { min-height: 46px; padding: 0 14px; font-size: 14px; }
+:where(.app) .actionbar .meta small { font-size: 11.5px; }
+:where(.app) .summary h4 { font-size: 17px; }
+:where(.app) .summary dl div { padding: 10px 0; font-size: 14px; }
+:where(.app) .summary .total b { font-size: 26px; }
+:where(.app) .summary .hint { font-size: 12.5px; }
+:where(.app) .date b { font-size: 17px; }
+:where(.app) .date small { font-size: 11.5px; }
+:where(.app) .slot { min-height: 42px; font-size: 14.5px; }
+:where(.app) .tz, :where(.app) .facts, :where(.app) .legend { font-size: 13px; }
+:where(.app) .lesson-when b { font-size: 19px; }
+:where(.app) .lesson-when span { font-size: 13px; }
+:where(.app) .person .ph { width: 42px; height: 42px; }
+:where(.app) .person span { font-size: 13px; }
+:where(.app) .ava { width: 40px; height: 40px; }
+:where(.app) .ava.l { width: 56px; height: 56px; }
+:where(.app) .note { font-size: 13.5px; padding: 10px 12px; }
+:where(.app) .alert { font-size: 14px; padding: 12px 12px 12px 16px; }
+:where(.app) .req h4 { font-size: 17px; }
+:where(.app) .kv dt { font-size: 13.5px; }
+:where(.app) .kv dd, :where(.app) .kv > div { font-size: 14.5px; }
+:where(.app) .req-foot { font-size: 12.5px; }
+:where(.app) .msg { font-size: 15px; padding: 8px 14px; border-radius: 20px; }
+:where(.app) .msg time { font-size: 11px; }
+:where(.app) .msg--sys { font-size: 12.5px; }
+:where(.app) .composer input { font-size: 15px; min-height: 40px; }
+:where(.app) .toast { min-height: 46px; font-size: 14px; padding-left: 16px; }
+:where(.app) .modal h4, :where(.app) .modal-abs h4 { font-size: 19px; }
+:where(.app) .sheet-head h4 { font-size: 18px; }
+:where(.app) .empty h4 { font-size: 17px; }
+:where(.app) .kpi span { font-size: 12.5px; }
+:where(.app) .kpi b { font-size: 22px; }
+:where(.app) .timeline span, :where(.app) .progress .capt { font-size: 12.5px; }
+:where(.app) .errsum h5 { font-size: 14.5px; }
+:where(.app) .app-title { font-size: 26px; }
+:where(.app) .app-h { font-size: 19px; margin: 20px 0 10px; }
+:where(.app) .money[style*="font-size:2"], :where(.app) [style*="font-size:22px"], :where(.app) [style*="font-size: 22px"] { font-size: 19px !important; }
+@container (min-width: 700px) {
+  :where(.app) .h1 { font-size: 28px; }
+  :where(.app) .h2 { font-size: 20px; }
+  :where(.app) .btn { min-height: 44px; }
+  :where(.app) .btn--m, :where(.app) .btn--primary.btn--m { min-height: 40px; }
+}
+:where(.app) .r1-auth .h2 { font-size: 22px; }
+:where(.app) .r3-hero h1 { font-size: 32px; }
+:where(.app) .r3-step i { font-size: 18px; }
+:where(.app) .r3-drawer > header h4, :where(.app) .r6-mhead h2 { font-size: 18px; }
+:where(.app) .r3-name { font-size: 23px; }
+:where(.app) .r3-score > b { font-size: 32px; }
+:where(.app) .r4-when { font-size: 18px; }
+:where(.app) .r5-pr b, :where(.app) .r2-hero .tplate b { font-size: 17px; }
+:where(.app) .r9-big > b { font-size: 40px; }
+@container (min-width: 700px) { :where(.app) .r3-hero h1 { font-size: 46px; } :where(.app) .r3-name { font-size: 26px; } }
+/* v3 global polish */
+:where(.app) .lesson { padding: 16px; gap: 12px; border-radius: 22px; }
+:where(.app) .legend i { box-shadow: inset 0 0 0 1px rgb(0 0 0 / 14%); }
+:where(.app) .toast.glass { background: rgb(255 255 255 / 86%); }
+:where(.app) .kv { padding: 2px 16px; }
+:where(.app) .kv div { padding: 10px 0; }
+:where(.app) .field > label, :where(.app) .label, :where(.app) .help, :where(.app) .err { padding-left: 4px; }
+.is-phone .alert > .btn { margin-left: 34px; }
+:where(.app) .summary .total, :where(.app) .summary .hint { padding-left: 0; padding-right: 0; }
+:where(.app) .summary { padding: 18px; gap: 14px; } :where(.app) .summary dl { padding: 2px 16px; }
+:where(.app) .btn--circle.btn--m { width: 40px; min-height: 40px; }
+:where(.app) .nv-header .nv-btn { background: #fff; color: var(--ink); box-shadow: 0 0 0 .5px var(--sep), 0 2px 8px rgb(0 0 0 / 6%); }
+:where(.app) .field > label, :where(.app) .label, :where(.app) .help, :where(.app) .err { padding-left: 16px; }
+:where(.app) .input, :where(.app) textarea.input { padding-left: 16px; padding-right: 16px; }
+@container (min-width: 700px) { :where(.app) .btn--s { min-height: 34px; } }
+/* floating bars: denser glass so text scrolling underneath does not read through */
+:where(.app) .actionbar.glass, :where(.app) .tabbar.glass, :where(.app) .nv-tabs.glass, :where(.app) .float-bottom .glass { background: rgb(250 250 249 / 84%); -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%); }
+.is-phone .float-bottom::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; top: 24px; bottom: -16px; background: linear-gradient(to bottom, rgb(242 241 239 / 0%), var(--bg) 55%); pointer-events: none; }

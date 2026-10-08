@@ -1,0 +1,79 @@
+.r8-ops { display: grid; }
+.r8-op { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 2px; align-items: baseline; padding: 14px 0; }
+.r8-op + .r8-op { border-top: 1px solid var(--sep); }
+.r8-op > .r8-ic { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
+.r8-op > .r8-tt { grid-column: 2; grid-row: 1; font-weight: 700; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r8-op > .r8-amt { grid-column: 3; grid-row: 1; text-align: right; }
+.r8-op > .r8-sub { grid-column: 2 / -1; grid-row: 2; font-size: 0.88rem; color: var(--muted); font-weight: 550; min-width: 0; }
+.r8-op > .r8-x { grid-column: 2 / -1; grid-row: 3; display: grid; gap: 8px; justify-items: start; min-width: 0; margin-top: 8px; }
+.r8-ic { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.r8-ic svg { width: 20px; height: 20px; }
+.r8-ic--ok { background: var(--green-soft); color: var(--green); }
+.r8-ic--bad { background: var(--red-soft); color: var(--red); }
+.r8-ic--mute { background: var(--fill); color: var(--muted); }
+.r8-amt { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; font-size: 1.05rem; }
+.r8-amt.plus { color: var(--green); }
+.r8-amt.off { color: var(--muted); text-decoration: line-through; }
+.r8-x .row { gap: 8px; }
+.r8-month { font-size: 0.86rem; font-weight: 750; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding-top: 4px; }
+.kpis.r8-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.r8-kpis .kpi { display: grid; gap: 2px; padding: 14px 16px; }
+.r8-kpis .kpi b { margin-top: 2px; }
+.r8-kpis .kpi small { font-size: 12px; color: var(--muted); font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r8-kpis .kpi.is-bad b { color: var(--red); }
+@container (min-width: 700px) { .kpis.r8-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.alert.r8-stack > div { flex: 1 1 calc(100% - 34px); }
+.alert.r8-stack > .btn { margin-left: 34px; }
+.r8-partner { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: start; }
+.r8-partner > div { display: grid; gap: 2px; justify-items: start; min-width: 0; }
+.r8-partner > div > span { font-size: 0.88rem; color: var(--muted); font-weight: 550; }
+.r8-partner > div > .btn { margin-top: 10px; }
+.r8-partner .r8-ic { background: #fff; }
+.r8-col { flex-direction: column; align-items: stretch; }
+.r8-col .option { white-space: normal; }
+.r8-shots { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.r8-shot { width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(160deg, #eceae6, #dedbd5); display: grid; place-items: center; color: var(--muted); flex-shrink: 0; }
+.r8-shot svg { width: 22px; height: 22px; }
+.r8-party { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: start; }
+.r8-party > div { display: grid; gap: 4px; min-width: 0; }
+.r8-party .q { background: var(--bg); border-radius: 18px; padding: 10px 14px; font-weight: 550; }
+.r8-party .q.wait { color: var(--muted); background: none; box-shadow: inset 0 0 0 1.5px var(--fill-strong); }
+.r8-out { display: grid; gap: 0; }
+.r8-out > div { font-variant-numeric: tabular-nums; display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; font-weight: 600; }
+.r8-out > div + div { border-top: 1px solid var(--sep); }
+.r8-out span { color: var(--muted); font-weight: 550; }
+.r8-q { display: grid; gap: 8px; padding: 16px; }
+.r8-q .between b { text-wrap: balance; }
+.r8-q p { text-wrap: pretty; max-width: 62ch; }
+.r8-q + .r8-q { border-top: 1px solid var(--sep); }
+.r8-q .between b { font-weight: 700; }
+.r8-q .between svg { width: 18px; height: 18px; color: var(--muted); flex-shrink: 0; }
+.r8-q p { color: #48484d; font-size: 0.95rem; }
+.r8-qbox { background: #fff; border-radius: 24px; box-shadow: 0 0 0 .5px var(--sep); overflow: hidden; }
+.r8-ctx { display: flex; gap: 12px; align-items: center; background: #fff; border-radius: 20px; padding: 10px 10px 10px 14px; box-shadow: 0 0 0 .5px var(--sep); }
+.r8-ctx > svg { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; }
+.r8-ctx > div { flex: 1; min-width: 0; display: grid; }
+.r8-ctx b { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r8-ctx span { font-size: 0.84rem; color: var(--muted); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r8-qi { text-decoration: none; color: var(--ink); display: grid; gap: 6px; padding: 12px 14px; border-radius: 18px; cursor: pointer; }
+.r8-qi b { font-weight: 700; }
+.r8-qi span { font-size: 0.86rem; color: var(--muted); font-weight: 600; }
+.r8-qi.on { background: #fff; box-shadow: 0 0 0 2px var(--accent), 0 4px 12px rgb(0 0 0 / 6%); }
+.r8-qi:not(.on) { background: #fff; box-shadow: 0 0 0 .5px var(--sep); }
+.r8-adm { display: flex; align-items: center; gap: 14px; }
+.r8-evid { display: grid; gap: 0; font-size: 0.93rem; }
+.r8-evid div { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 10px; padding: 8px 0; }
+.r8-evid div + div { border-top: 1px solid var(--sep); }
+.r8-evid time { font-weight: 750; font-variant-numeric: tabular-nums; }
+.r8-evid .hl { color: var(--ink); font-weight: 700; }
+.r8-sup { width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+.r8-sup svg { width: 24px; height: 24px; }
+.r8-chathead { display: flex; gap: 12px; align-items: center; }
+.r8-chathead > div { display: grid; min-width: 0; }
+.r8-chathead > div > span { font-size: 0.86rem; color: var(--green); font-weight: 650; }
+.r8-thread { max-width: none; gap: 8px; }
+.r8-thread .msg small { display: block; font-size: 0.74rem; margin-top: 2px; text-align: right; opacity: .65; font-variant-numeric: tabular-nums; }
+.r8-logo { width: 44px; height: 44px; color: var(--accent); flex-shrink: 0; }
+.r8-logo svg { width: 44px; height: 44px; }
+.r8-phthread { display: grid; gap: 8px; }
+.r8-phthread .msg { max-width: 84%; }
