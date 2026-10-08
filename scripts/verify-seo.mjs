@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { routes, titles, descriptions, canonicalForRoute } from './seo-routes.mjs';
 
 const fail = message => { throw new Error(`SEO: ${message}`); };
+const photos = JSON.parse(await readFile('src/shared/config/teacher-photos.json', 'utf8'));
 const seenTitles = new Set();
 const seenDescriptions = new Set();
 
@@ -23,6 +24,19 @@ for (const route of routes) {
   if (['/teachers', '/for-repetitor'].includes(route) && !html.includes('"@type": "BreadcrumbList"')) fail(`${route}: breadcrumb schema`);
   for (const [key, value] of [['og:title', title], ['og:description', description], ['og:url', canonical]]) {
     if (!html.includes(`property="${key}" content="${value}"`)) fail(`${route}: ${key}`);
+  }
+  if ((html.match(/<h1(?:\s|>)/gi) || []).length !== 1) fail(`${route}: exactly one h1`);
+  if (html.includes('<!--$?-->') || html.includes('id="S:0"')) fail(`${route}: hidden lazy content`);
+  const main = html.match(/<main(?:\s[^>]*)?>([\s\S]*?)<\/main>/)?.[1] || '';
+  if (!/<h1(?:\s|>)/i.test(main)) fail(`${route}: heading must be inside main, visible without JS`);
+  for (const match of html.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)) {
+    try { JSON.parse(match[1]); } catch { fail(`${route}: invalid JSON-LD`); }
+  }
+  if (route.startsWith('/teachers/')) {
+    const photo = photos[route.split('/').at(-1)];
+    const image = new URL(photo.src, 'https://toprepet.ru').href;
+    if (!html.includes(`property="og:image" content="${image}"`) || !html.includes(`name="twitter:image" content="${image}"`)) fail(`${route}: profile social image`);
+    if (!html.includes('"@type": "ProfilePage"') || !html.includes(`"image": "${image}"`)) fail(`${route}: profile schema/image`);
   }
   seenTitles.add(title);
   seenDescriptions.add(description);
@@ -53,9 +67,10 @@ for (const url of blogUrls) {
   const html = await readFile(resolve(`dist${path}index.html`), 'utf8');
   if (!html.includes(`rel="canonical" href="${url}"`) || /name="robots" content="[^"]*noindex/.test(html)) fail(`${path}: blog canonical/robots`);
   if ((html.match(/<h1(?:\s|>)/g) || []).length !== 1) fail(`${path}: blog heading`);
+  if (html.includes('<!--$?-->') || html.includes('id="S:0"')) fail(`${path}: hidden blog content`);
   if ((html.match(/<meta name="robots"/g) || []).length !== 1 || !html.includes('max-image-preview:large')) fail(`${path}: blog robots/image preview`);
 }
-for (const route of ['/blog/admin', '/blog/admin/login', '/blog/admin/articles', '/blog/admin/categories']) {
+for (const route of ['/blog/admin', '/blog/admin/login', '/blog/admin/articles', '/blog/admin/articles/new', '/blog/admin/articles/edit', '/blog/admin/categories']) {
   const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');
   if (!html.includes('noindex,follow') || urls.some(url=>url.includes('/blog/admin'))) fail(`${route}: admin indexed`);
 }

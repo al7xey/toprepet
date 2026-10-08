@@ -1,11 +1,12 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { prerenderToNodeStream } from 'react-dom/static';
+import { renderToString } from 'react-dom/server';
 
 import { AppContent } from './app';
 export { teachers } from '../entities/teacher';
 
-export async function render(url = '/') {
+async function renderPrelude(url: string) {
   const { prelude, postponed } = await prerenderToNodeStream(
     <React.StrictMode>
       <MemoryRouter initialEntries={[url]}>
@@ -37,5 +38,17 @@ export async function render(url = '/') {
         : Buffer.from(chunk).toString('utf8');
   }
 
+  return html;
+}
+
+export async function render(url = '/') {
+  let html = await renderPrelude(url);
+  // React can serialize a resolved lazy route as a hidden streaming boundary.
+  // Render again after resolution so crawlers receive the actual page in main,
+  // without requiring React's inline reveal script or a JavaScript execution.
+  if (html.includes('<!--$?-->')) html = renderToString(
+    <React.StrictMode><MemoryRouter initialEntries={[url]}><AppContent /></MemoryRouter></React.StrictMode>,
+  );
+  if (html.includes('<!--$?-->') || html.includes('<!--$!-->')) throw new Error(`Unresolved prerender: ${url}`);
   return html;
 }

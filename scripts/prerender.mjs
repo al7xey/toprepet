@@ -119,103 +119,17 @@ const breadcrumbNames = {
     'Александра',
 };
 
-const teacherSchemas = {
-  '/teachers/chemistry': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Дмитрий',
-    jobTitle: 'Репетитор по химии',
-    url: 'https://toprepet.ru/teachers/chemistry/',
-    image: 'https://toprepet.ru/images/tutor-dmitry.webp',
-  },
-  '/teachers/history': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Александра',
-    jobTitle: 'Репетитор по истории',
-    url: 'https://toprepet.ru/teachers/history/',
-    image: 'https://toprepet.ru/images/tutor-history-alexandra.webp',
-  },
-  '/teachers/english-elizaveta': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Елизавета',
-    jobTitle: 'Репетитор по английскому языку',
-    url: 'https://toprepet.ru/teachers/english-elizaveta/',
-    image: 'https://toprepet.ru/images/tutor-elizaveta.webp',
-  },
-  '/teachers/physics-mathematics': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Дарья',
-    jobTitle: 'Репетитор по физике и математике',
-    url: 'https://toprepet.ru/teachers/physics-mathematics/',
-    image: 'https://toprepet.ru/images/tutor-daria.webp',
-  },
-  '/teachers/informatics': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Алексей',
-    jobTitle: 'Репетитор по информатике',
-    url: 'https://toprepet.ru/teachers/informatics/',
-    image:
-      'https://toprepet.ru/images/tutor-informatics.png?v=20260929f',
-  },
-
-  '/teachers/english': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Анастасия',
-    jobTitle:
-      'Репетитор по английскому языку и истории',
-    url: 'https://toprepet.ru/teachers/english/',
-    image:
-      'https://toprepet.ru/images/tutor-english.webp?v=20260929e',
-  },
-
-  '/teachers/russian': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Артём',
-    jobTitle:
-      'Репетитор по русскому языку',
-    url: 'https://toprepet.ru/teachers/russian/',
-    image:
-      'https://toprepet.ru/images/tutor-artem.webp?v=20260929f',
-  },
-
-  '/teachers/chemistry-biology': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Александра',
-    jobTitle:
-      'Репетитор по химии и биологии',
-    url:
-      'https://toprepet.ru/teachers/chemistry-biology/',
-    image:
-      'https://toprepet.ru/images/tutor-alexandra-portrait-v2.jpg?v=20260929f',
-  },
-
-  '/teachers/mathematics': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Ерлан',
-    jobTitle:
-      'Репетитор по математике',
-    url:
-      'https://toprepet.ru/teachers/mathematics/',
-    image:
-      'https://toprepet.ru/images/tutor-erlan.webp?v=20260929f',
-  },
-  '/teachers/russian-literature': {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: 'Анна',
-    jobTitle: 'Репетитор по русскому языку и литературе',
-    url: 'https://toprepet.ru/teachers/russian-literature/',
-    image: 'https://toprepet.ru/images/tutor-anna-retouched.webp?v=20260929',
-  },
-};
+const teacherSchemas = Object.fromEntries(teacherCatalog.map(teacher => {
+  const route = `/teachers/${teacher.id}`;
+  const url = canonicalForRoute(route);
+  return [route, {
+    '@context': 'https://schema.org', '@type': 'ProfilePage',
+    '@id': `${url}#webpage`, url, name: titles[route],
+    description: descriptions[route], inLanguage: 'ru-RU',
+    mainEntity: { '@type': 'Person', name: teacher.name, jobTitle: teacher.role,
+      url, image: new URL(teacher.photo, 'https://toprepet.ru').href },
+  }];
+}));
 
 function updateMetaContent(html, attribute, key, value) {
   const tag = new RegExp(
@@ -256,6 +170,17 @@ function addPageMeta(html, route) {
     ['name', 'twitter:description', description],
   ]) {
     result = updateMetaContent(result, attribute, key, value);
+  }
+
+  const teacher = teacherCatalog.find(item => route === `/teachers/${item.id}`);
+  if (teacher) {
+    const image = new URL(teacher.photo, 'https://toprepet.ru').href;
+    const alt = `${teacher.name} — ${teacher.role}`;
+    result = updateMetaContent(result, 'property', 'og:image', image);
+    result = updateMetaContent(result, 'name', 'twitter:image', image);
+    result = updateMetaContent(result, 'property', 'og:image:alt', alt);
+    result = updateMetaContent(result, 'name', 'twitter:image:alt', alt);
+    result = result.replace(/<meta property="og:image:(?:width|height)"[^>]*>/g, '');
   }
 
   if (route === '/for-repetitor') {
@@ -459,6 +384,18 @@ for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: '
     .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escapeMeta(page.description)}" />`);
   for (const [key, value] of [['og:title', page.title], ['og:description', page.description], ['og:url', url], ['twitter:title', page.title], ['twitter:description', page.description]]) {
     html = updateMetaContent(html, key.startsWith('og:') ? 'property' : 'name', key, escapeMeta(value));
+  }
+  if (page.article) {
+    html = updateMetaContent(html, 'property', 'og:type', 'article');
+    if (page.article.cover_image_url) {
+      const image = escapeMeta(new URL(page.article.cover_image_url, 'https://toprepet.ru').href);
+      const alt = escapeMeta(page.article.cover_image_alt || page.article.title);
+      html = updateMetaContent(html, 'property', 'og:image', image);
+      html = updateMetaContent(html, 'name', 'twitter:image', image);
+      html = updateMetaContent(html, 'property', 'og:image:alt', alt);
+      html = updateMetaContent(html, 'name', 'twitter:image:alt', alt);
+      html = html.replace(/<meta property="og:image:(?:width|height)"[^>]*>/g, '');
+    }
   }
   if (page.admin) html = html.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i, '<meta name="robots" content="noindex,follow" />');
   else html = html.replace('</head>', `<link rel="canonical" href="${url}" /></head>`);

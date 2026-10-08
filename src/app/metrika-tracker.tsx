@@ -4,7 +4,7 @@ import { syncAnalytics, trackPage, trackGoal } from '../shared/lib/analytics';
 import { COOKIE_CONSENT_EVENT } from '../shared/lib/cookie-consent';
 
 export function MetrikaTracker() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const [consentRevision, setConsentRevision] = useState(0);
   useEffect(() => {
     const update = () => { syncAnalytics(); setConsentRevision(value => value + 1); };
@@ -115,6 +115,6 @@ export function MetrikaTracker() {
       document.removeEventListener('click', click, true);
       window.removeEventListener('scroll', scroll);
     };
-  }, [pathname, consentRevision]);
+  }, [pathname, search, consentRevision]);
   return null;
 }

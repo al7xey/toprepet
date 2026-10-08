@@ -60,6 +60,8 @@ export function pageKind(pathname: string) {
   if (pathname.startsWith('/blog/articles/')) return 'blog_article';
   if (/^\/blog(?:\/|$)/.test(pathname)) return 'blog';
   if (/^\/free-intro\/?$/.test(pathname)) return 'free_intro';
+  if (/^\/contact\/?$/.test(pathname)) return 'contact';
+  if (/^\/legal(?:\/|$)/.test(pathname)) return 'legal';
   return 'other';
 }
 
@@ -163,11 +165,10 @@ export function trackPage() {
   if (!syncAnalytics()) return;
   const url = analyticsUrl(location.href);
   if (url === previousUrl) return;
-  const heading = document.querySelector('h1')?.textContent?.trim();
   (window as MetrikaWindow).ym?.(METRIKA_ID, 'hit', url, {
     referer:
       previousUrl ?? (document.referrer ? analyticsUrl(document.referrer) : ''),
-    title: heading ? `${heading} — TopRepet` : document.title,
+    title: document.title,
     params: { page: pageKind(location.pathname) },
   });
   previousUrl = url;

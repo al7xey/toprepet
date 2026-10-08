@@ -23,3 +23,16 @@ export function relatedArticles(article: Article) {
   articles.forEach(add)
   return result.slice(0, 3)
 }
+
+export function hasPublished(category: Category) {
+  return articles.some(article => {
+    let current = categoryById(article.category_id);
+    const visited = new Set<string>();
+    while (current && !visited.has(current.id)) {
+      if (current.id === category.id) return true;
+      visited.add(current.id);
+      current = categoryById(current.parent_id || '');
+    }
+    return false;
+  });
+}

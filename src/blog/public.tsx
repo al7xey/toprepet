@@ -4,9 +4,8 @@ import './blog-adapter.css'
 import { Link, useParams } from 'react-router-dom'
 import { Header as MainHeader } from '../widgets/header/header'
 import { Footer as MainFooter } from '../widgets/footer/footer'
-import { articles, categories, categoryById, categoryPath, articlePath, formatDate, relatedArticles, type Article, type Category } from './data'
+import { articles, categories, hasPublished, categoryById, categoryPath, articlePath, formatDate, relatedArticles, type Article, type Category } from './data'
 
-function hasPublished(category: Category) { return articles.some(article => { let current = categoryById(article.category_id); while (current) { if (current.id === category.id) return true; current = categoryById(current.parent_id || '') } return false }) }
 function readTime(article: Article) { return `${Math.max(1, Math.ceil(article.content_html.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).length / 180))} мин чтения` }
 
 function Card({ article }: { article: Article }) { const category = categoryById(article.category_id); return <article className="article-card"><Link to={articlePath(article)} aria-label={`Читать: ${article.title}`} className={`article-card-media ${article.cover_image_url ? '' : 'article-card-placeholder'}`}>{article.cover_image_url ? <img src={article.cover_image_url} alt={article.cover_image_alt || article.title} loading="lazy"/> : <BookOpen size={40} strokeWidth={1.4}/>}</Link><div className="article-card-body"><div className="article-card-byline">{category && <Link to={categoryPath(category)} className="article-card-category">{category.name}</Link>}<span>{article.author_name}</span></div><h3><Link to={articlePath(article)}>{article.title}</Link></h3><p className="line-clamp-2">{article.excerpt}</p><div className="article-card-meta"><time dateTime={article.published_at || undefined}>{formatDate(article.published_at)}</time><span aria-hidden="true">·</span><span>{article.view_count} просмотров</span><span aria-hidden="true">·</span><span>{readTime(article)}</span></div></div></article> }

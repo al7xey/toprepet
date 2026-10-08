@@ -61,6 +61,27 @@ try {
   assert.ok(calls.some(call => call[2] === 'teacher_profile_view' && call[3].teacher === 'informatics'));
   assert.ok(calls.some(call => call[2] === 'contact_student_click'));
   assert.ok(calls.some(call => call[2] === 'contact_telegram'));
+  assert.equal(calls.findLast(call => call[1] === 'hit')[3].title, document.title, 'Use current SEO title even while a lazy route still shows an old heading');
+  const pages = JSON.parse(await readFile('src/shared/config/seo-pages.json', 'utf8'));
+  for (const [path, page] of Object.entries({ ...pages, '/blog': { title: 'Блог TopRepet' } })) {
+    globalThis.location = new URL(`https://toprepet.ru${path === '/' ? '/' : `${path}/`}`);
+    document.title = page.title;
+    const before = calls.filter(call => call[1] === 'hit').length;
+    analytics.trackPage();
+    analytics.trackPage();
+    const pageHits = calls.filter(call => call[1] === 'hit');
+    assert.equal(pageHits.length, before + 1, `${path}: one public page view`);
+    assert.equal(pageHits.at(-1)[2], location.href);
+    assert.equal(pageHits.at(-1)[3].title, page.title);
+    if (path.startsWith('/teachers/')) {
+      assert.ok(calls.some(call => call[2] === 'teacher_profile_view' && call[3].teacher === path.split('/').at(-1)));
+    }
+  }
+  globalThis.location = new URL('https://toprepet.ru/?utm_source=yandex&email=private@example.com');
+  analytics.trackPage();
+  assert.equal(calls.findLast(call => call[1] === 'hit')[2], 'https://toprepet.ru/?utm_source=yandex', 'Retain campaign attribution without personal query values');
+  assert.equal(analytics.pageKind('/legal/payment-refund/'), 'legal');
+  assert.equal(analytics.pageKind('/contact/'), 'contact');
   const hits = calls.filter(call => call[1] === 'hit').length;
   analytics.trackPage();
   assert.equal(calls.filter(call => call[1] === 'hit').length, hits);
