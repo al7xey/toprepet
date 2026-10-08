@@ -71,7 +71,7 @@ export function navFor(d: Db, me: User | null): { header: NavItem[]; side: NavIt
       { icon: 'flag', label: 'Жалобы', to: '/admin/complaints', badge: d0.complaints.filter(x => x.status === 'open').length },
       { icon: 'chat', label: 'Поддержка', to: '/admin/support', badge: c.chats },
     ];
-    return { header: side, side, tabs: side.slice(0, 5) };
+    return { header: side, side, tabs: [side[0], side[1], side[2], side[4], side[5]] };
   }
   const side: NavItem[] = [
     { icon: 'search', label: 'Найти репетитора', short: 'Найти', to: '/teachers' },
