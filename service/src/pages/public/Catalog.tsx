@@ -40,7 +40,7 @@ export default function Catalog() {
   };
   const toggle = (k: typeof menu) => setMenu(m => (m === k ? '' : k));
   const title = f.subject ? `Репетиторы: ${f.subject.toLowerCase()}` : dir ? dir.title : 'Топ репеты';
-  const right = me?.role === 'student' ? <IBtn icon="heart" label="Избранное" to="/me/favorites" /> : !me ? <Btn size="s" v="white" onClick={() => askLogin()}>Войти</Btn> : null;
+  const right = me?.role === 'student' ? <IBtn icon="heart" label="Избранное" to="/me/favorites" /> : null;
 
   const chips = (
     <div className="r3-chips">
