@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { BookOpen, Check, ChevronDown, Search } from 'lucide-react';
 
 import { teachers } from '../../entities/teacher';
@@ -15,8 +16,10 @@ function searchText(value: string) {
 }
 
 export default function TeachersPage() {
-  const [input, setInput] = useState('');
-  const [query, setQuery] = useState('');
+  const [params] = useSearchParams();
+  const initialQuery = (params.get('q') ?? '').slice(0, 80).trim();
+  const [input, setInput] = useState(initialQuery);
+  const [query, setQuery] = useState(initialQuery);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const filterRef = useRef<HTMLDetailsElement>(null);
   useEffect(() => {

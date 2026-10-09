@@ -1,12 +1,5 @@
 import { Link } from 'react-router-dom';
-import { BookOpen, NotebookPen, Shapes, ListChecks, School } from 'lucide-react';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from '../../../components/ui/carousel';
+import { BookOpen, ChevronRight, NotebookPen, Shapes, ListChecks, School } from 'lucide-react';
 
 const formats = [
   {
@@ -59,58 +52,30 @@ export function Directions() {
       id="directions"
       aria-labelledby="formats-title"
     >
-      <Carousel
-        className="formats-carousel"
-        tabIndex={0}
-        aria-label="Направления занятий"
-        wheelGestures
-        opts={{
-          align: 'start',
-          containScroll: 'trimSnaps',
-          breakpoints: { '(prefers-reduced-motion: reduce)': { duration: 0 } },
-        }}
-      >
-        <div className="section-heading">
-          <div>
-            <h2 id="formats-title">Выберите занятия</h2>
-          </div>
-          <div className="carousel-controls">
-            <CarouselPrevious
-              className="carousel-arrow"
-              aria-label="Предыдущие занятия"
-            />
-            <CarouselNext
-              className="carousel-arrow"
-              aria-label="Следующие занятия"
-            />
-          </div>
-        </div>
-        <CarouselContent className="format-track" id="format-slides">
-          {formats.map(({ id, goal, subject, icon: Icon, title, description, label }, i) => (
-            <CarouselItem
-              className="format-slide"
-              key={id}
-              aria-label={`${i + 1} из ${formats.length}: ${title}`}
+      <div className="section-heading">
+        <h2 id="formats-title">Выберите занятия</h2>
+      </div>
+      <ul className="dir-grid" aria-label="Направления занятий">
+        {formats.map(({ id, goal, subject, icon: Icon, title, description, label }) => (
+          <li key={id}>
+            <Link
+              className="dir-card"
+              to={`/lessons/?goal=${goal}${subject ? `&subject=${encodeURIComponent(subject)}` : ''}`}
+              draggable={false}
             >
-              <Link
-                className="format-card"
-                to={`/lessons/?goal=${goal}${subject ? `&subject=${encodeURIComponent(subject)}` : ''}`}
-                draggable={false}
-              >
-                <div className="format-meta">
-                  <span className="format-icon">
-                    <Icon size={26} strokeWidth={1.6} aria-hidden="true" />
-                  </span>
-                  <span>{label}</span>
-                </div>
-                <h3>{title}</h3>
-                <p>{description}</p>
-                <span className="format-action">Выбрать</span>
-              </Link>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+              <span className="dir-icon">
+                <Icon size={26} strokeWidth={1.7} aria-hidden="true" />
+              </span>
+              <span className="dir-copy">
+                <small>{label}</small>
+                <strong>{title}</strong>
+                <span>{description}</span>
+              </span>
+              <ChevronRight className="dir-chevron" size={20} aria-hidden="true" />
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

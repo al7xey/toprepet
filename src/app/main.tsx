@@ -16,6 +16,7 @@ import './footer.css';
 import './cookies.css';
 import '../pages/legal/payment-refund.css';
 import '../pages/teachers/teachers-page.css';
+import './ui-kit.css';
 
 const rootElement = document.getElementById('root');
 

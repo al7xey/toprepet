@@ -20,19 +20,18 @@ export default function HomePage() {
       </ScrollReveal>
 
       <ScrollReveal>
-        <HowItWorks />
-      </ScrollReveal>
-
-      <ScrollReveal>
         <Teachers />
       </ScrollReveal>
 
       <ScrollReveal>
-        <FreeIntro />
+        <HowItWorks />
       </ScrollReveal>
 
       <ScrollReveal>
-        <PaymentTrust />
+        <div className="info-pair container">
+          <FreeIntro />
+          <PaymentTrust />
+        </div>
       </ScrollReveal>
 
       <ScrollReveal>
