@@ -16,6 +16,7 @@ import './styles/route-8.css';
 import './styles/route-9.css';
 import './styles/app.css';
 import './styles/pages.css';
+import './styles/main-look.css';
 
 import { App } from './app/App';
 

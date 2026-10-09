@@ -44,10 +44,9 @@ export function TeacherCard({ item, to, hideFav, subject }: { item: sel.CatalogI
     <div className="tcard-wrap">
       <Link className={`tcard ph ph-${t.tone}`} to={to ?? `/teachers/${t.slug}`} aria-label={`${t.name}, ${subj}, от ${fmtMoney(item.price)}`}>
         {t.photo ? <img className="ph-img" src={t.photo} alt="" loading="lazy" decoding="async" /> : <svg className="ph-person" viewBox="0 0 200 220" aria-hidden="true"><use href="#i-person" /></svg>}
-        <span className="tplate glass" aria-hidden="true">
+        <span className="tplate" aria-hidden="true">
           <span className="subj">{subj}</span>
-          <span className="meta">{t.name.split(' ')[0]}{!isNew && <> <Icon name="star" />{rv.fmtRating(item.rating)}</>}</span>
-          <span className="price">от {fmtMoney(item.price)}</span>
+          <span className="meta">{t.name.split(' ')[0]}{!isNew && <><i aria-hidden="true">·</i><Icon name="star" />{rv.fmtRating(item.rating)}</>}<i aria-hidden="true">·</i>от {fmtMoney(item.price)}</span>
         </span>
       </Link>
       {!hideFav && <FavButton tutor={t} />}
