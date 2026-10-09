@@ -136,7 +136,8 @@ function AppRoutes() {
           К содержимому
         </a>
 
-        <Header />
+        {/* The home page renders the new UI kit header itself. */}
+        {pathname !== '/' && <Header />}
 
         <main
           id="main"
