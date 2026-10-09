@@ -11,6 +11,8 @@ import {
 } from '../../../components/ui/sheet';
 
 import { Brand } from '../../shared/ui/brand';
+import { LOGIN_PATH } from '../../shared/config/site';
+import './header.css';
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -44,8 +46,8 @@ export function Header() {
   });
 
   return (
-    <header className="site-header">
-      <div className="header container">
+    <header className="site-header glass-header">
+      <div className="header glass-header-bar">
         <Brand />
 
         <nav className="header-nav" aria-label="Основная навигация">
@@ -53,11 +55,8 @@ export function Header() {
         </nav>
 
         <div className="header-actions">
-          <Link
-            className="button button-secondary header-contact"
-            to="/lessons/"
-          >
-            Подобрать репетитора
+          <Link className="glass-header-login" to={LOGIN_PATH}>
+            Войти
           </Link>
 
           <Sheet

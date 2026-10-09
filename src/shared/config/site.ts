@@ -26,3 +26,6 @@ export function enquiryMessage(topic?: string) {
 export function telegramLink(topic?: string) {
   return `${TELEGRAM_URL}?text=${encodeURIComponent(enquiryMessage(topic))}`;
 }
+
+/* The login page is not built yet: «Войти» temporarily leads to the lesson picker. */
+export const LOGIN_PATH = '/lessons/';
