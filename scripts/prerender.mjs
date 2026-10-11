@@ -368,7 +368,7 @@ const blogCategoryPath = category => {
   return `/blog/rubrics/${parts.join('/')}`;
 };
 const blogPages = [
-  { route: '/blog', title: 'Блог TopRepet — статьи об учёбе', description: 'Статьи об учёбе, школьных предметах и подготовке к экзаменам от редакции TopRepet.' },
+  { route: '/blog', title: 'Блог TopRepet — статьи об учёбе, ОГЭ и ЕГЭ', description: 'Статьи об учёбе, школьных предметах и подготовке к ОГЭ и ЕГЭ от редакции TopRepet: советы ученикам и родителям.' },
   ...blog.categories.filter(category => blog.articles.some(article => {
     let current = blog.categories.find(item => item.id === article.category_id);
     while (current) { if (current.id === category.id) return true; current = blog.categories.find(item => item.id === current.parent_id); }

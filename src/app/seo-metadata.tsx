@@ -12,7 +12,7 @@ export function SeoMetadata() {
     const article = articles.find(item => path === articlePath(item).replace(/\/$/, ''));
     const category = categories.find(item => path === categoryPath(item).replace(/\/$/, ''));
     const known = pages[path as keyof typeof pages];
-    const page = known || (path === '/blog' ? { title: 'Блог TopRepet — статьи об учёбе', description: 'Статьи об учёбе, школьных предметах и подготовке к экзаменам от редакции TopRepet.' } : article ? { title: article.seo_title || `${article.title} — Блог TopRepet`, description: article.seo_description || article.excerpt } : category && hasPublished(category) ? { title: `${category.name} — Блог TopRepet`, description: category.description || `Статьи по теме «${category.name}» в блоге TopRepet.` } : undefined);
+    const page = known || (path === '/blog' ? { title: 'Блог TopRepet — статьи об учёбе, ОГЭ и ЕГЭ', description: 'Статьи об учёбе, школьных предметах и подготовке к ОГЭ и ЕГЭ от редакции TopRepet: советы ученикам и родителям.' } : article ? { title: article.seo_title || `${article.title} — Блог TopRepet`, description: article.seo_description || article.excerpt } : category && hasPublished(category) ? { title: `${category.name} — Блог TopRepet`, description: category.description || `Статьи по теме «${category.name}» в блоге TopRepet.` } : undefined);
     const url = path === '/' ? 'https://toprepet.ru/' : `https://toprepet.ru${path}/`;
     const oldCanonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     const changed = oldCanonical?.href !== url;
