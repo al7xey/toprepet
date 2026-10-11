@@ -50,6 +50,11 @@ const expected = [...routes.map(canonicalForRoute), ...blogUrls];
 if (urls.length !== expected.length || urls.some((url, index) => url !== expected[index])) fail('sitemap');
 if (new Set(urls).size !== urls.length || !blogUrls.includes('https://toprepet.ru/blog/')) fail('sitemap duplicate/blog');
 if (urls.some(url => url.includes('/teacher/'))) fail('sitemap legacy teacher URL');
+const lastmod = await readFile(resolve('dist/sitemap-lastmod.json'), 'utf8').then(JSON.parse, () => undefined);
+if (lastmod) {
+  const dates = [...sitemap.matchAll(/<loc>([^<]+)<\/loc><lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/g)];
+  if (dates.length !== urls.length || dates.some(([, url, date]) => lastmod[url]?.date !== date)) fail('sitemap lastmod');
+}
 for (const route of routes.filter(path => path.startsWith('/teachers/'))) {
   const oldRoute = route.replace('/teachers/', '/teacher/');
   const legacy = await readFile(resolve(`dist${oldRoute}/index.html`), 'utf8');

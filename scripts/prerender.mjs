@@ -11,6 +11,7 @@ import {
 } from 'node:path';
 
 import { pathToFileURL } from 'node:url';
+import { createHash } from 'node:crypto';
 
 const distIndexPath = resolve('dist/index.html');
 const serverEntryPath = resolve('dist-server/entry-server.js');
@@ -305,8 +306,31 @@ function addBreadcrumbSchema(html, route) {
   );
 }
 
+// Sitemap lastmod moves only when a page's content or SEO text changes. CI rebuilds every
+// 15 minutes, so dates of unchanged pages are carried over from the live manifest.
+const lastmodManifestName = 'sitemap-lastmod.json';
+let previousLastmod;
+try {
+  const response = await fetch(`https://toprepet.ru/${lastmodManifestName}`, { signal: AbortSignal.timeout(10000) });
+  if (response.ok) previousLastmod = await response.json();
+  else if (response.status === 404) previousLastmod = {};
+} catch {}
+if (!previousLastmod) console.warn('Не удалось загрузить даты sitemap с сайта: lastmod не будет указан.');
+const today = new Date().toISOString().slice(0, 10);
+const lastmod = {};
+const trackLastmod = (url, html, ...seoText) => {
+  const main = html.match(/<main(?:\s[^>]*)?>[\s\S]*?<\/main>/)?.[0] ?? html;
+  const hash = createHash('sha256').update([...seoText, main].join('\n')).digest('hex').slice(0, 16);
+  const previous = previousLastmod?.[url];
+  lastmod[url] = { hash, date: previous?.hash === hash ? previous.date : today };
+};
+const sitemapEntry = url => previousLastmod
+  ? `  <url><loc>${url}</loc><lastmod>${lastmod[url].date}</lastmod></url>`
+  : `  <url><loc>${url}</loc></url>`;
+
 for (const route of routes) {
   const appHtml = await render(route);
+  trackLastmod(canonicalForRoute(route), appHtml, titles[route], descriptions[route]);
 
   let finalHtml = template.replace(
     rootPlaceholder,
@@ -379,7 +403,9 @@ const blogPages = [
 const adminRoutes = ['/blog/admin', '/blog/admin/login', '/blog/admin/articles', '/blog/admin/articles/new', '/blog/admin/articles/edit', '/blog/admin/categories'];
 for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: 'Админка блога — TopRepet', description: '', admin: true }))]) {
   const url = `https://toprepet.ru${page.route}/`;
-  let html = template.replace(rootPlaceholder, `<div id="root">${await render(page.route)}</div>`);
+  const appHtml = await render(page.route);
+  if (!page.admin) trackLastmod(url, appHtml, page.title, page.description);
+  let html = template.replace(rootPlaceholder, `<div id="root">${appHtml}</div>`);
   html = html.replace(/<title>.*?<\/title>/s, `<title>${escapeMeta(page.title)}</title>`)
     .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escapeMeta(page.description)}" />`);
   for (const [key, value] of [['og:title', page.title], ['og:description', page.description], ['og:url', url], ['twitter:title', page.title], ['twitter:description', page.description]]) {
@@ -404,10 +430,11 @@ for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: '
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, html, 'utf8');
 }
-const blogSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${blogPages.map(page => `  <url><loc>https://toprepet.ru${page.route}/</loc></url>`).join('\n')}\n</urlset>\n`;
+const blogSitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${blogPages.map(page => sitemapEntry(`https://toprepet.ru${page.route}/`)).join('\n')}\n</urlset>\n`;
 await writeFile(resolve('dist/blog/sitemap.xml'), blogSitemap, 'utf8');
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...routes.map(canonicalForRoute), ...blogPages.map(page => `https://toprepet.ru${page.route}/`)].map(url => `  <url><loc>${url}</loc></url>`).join('\n')}\n</urlset>\n`;
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...routes.map(canonicalForRoute), ...blogPages.map(page => `https://toprepet.ru${page.route}/`)].map(sitemapEntry).join('\n')}\n</urlset>\n`;
 await writeFile(resolve('dist/sitemap.xml'), sitemap, 'utf8');
+if (previousLastmod) await writeFile(resolve('dist', lastmodManifestName), `${JSON.stringify(lastmod, null, 2)}\n`, 'utf8');
 
 // GitHub Pages cannot issue a server-side 301 for an old static path.
 // Keep the legacy URL out of the sitemap and redirect it immediately.
