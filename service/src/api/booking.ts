@@ -22,6 +22,26 @@ export interface Booking {
   confirmDeadline: number;
   declineReason: string | null;
   cancelledBy: 'student' | 'tutor' | 'system' | null;
+  cancelReason: string | null;
+  lateCancel: boolean;
+  meetingUrl: string | null;
+  createdAt: number;
+  studentId: string;
+  studentName: string;
+  /** the student's address; the tutor sees it in the booking card («Записала Ирина, irina@mail.ru») */
+  studentEmail: string;
+  studentTz: string;
+  problem: Problem | null;
+}
+
+export type ProblemKind = 'no_show' | 'technical' | 'other';
+
+export interface Problem {
+  kind: ProblemKind;
+  status: 'open' | 'resolved';
+  resolution: 'happened' | 'not_happened' | null;
+  createdAt: number;
+  dueAt: number;
 }
 
 export type BookingError =
@@ -63,11 +83,20 @@ export async function createBooking(input: {
 }
 
 const COLUMNS =
-  'id, tutor_id, subject_id, duration_min, price_rub, starts_at, ends_at, for_other, participant_name, participant_age, status, confirm_deadline, decline_reason, cancelled_by, subjects(name, slug)';
+  'id, tutor_id, student_id, subject_id, duration_min, price_rub, starts_at, ends_at, for_other, participant_name, participant_age, status, confirm_deadline, decline_reason, cancelled_by, cancel_reason, late_cancel, meeting_url, created_at, subjects(name, slug), problems(kind, status, resolution, created_at, due_at)';
+
+interface ProblemRow {
+  kind: ProblemKind;
+  status: Problem['status'];
+  resolution: Problem['resolution'];
+  created_at: string;
+  due_at: string;
+}
 
 interface Row {
   id: number;
   tutor_id: string;
+  student_id: string;
   subject_id: number;
   duration_min: number;
   price_rub: number;
@@ -80,20 +109,40 @@ interface Row {
   confirm_deadline: string;
   decline_reason: string | null;
   cancelled_by: Booking['cancelledBy'];
+  cancel_reason: string | null;
+  late_cancel: boolean;
+  meeting_url: string | null;
+  created_at: string;
   subjects: { name: string; slug: string } | null;
+  /* one-to-one embed: PostgREST returns an object, older versions an array */
+  problems: ProblemRow | ProblemRow[] | null;
 }
 
-/** Tutor names and zones come from their profiles (readable inside a shared booking); the address only while the profile is public. */
-async function withTutors(rows: Row[]): Promise<Booking[]> {
-  const ids = [...new Set(rows.map(r => r.tutor_id))];
-  if (!ids.length) return [];
+interface Person {
+  id: string;
+  name: string;
+  tz: string;
+  email: string;
+}
+
+const toProblem = (p: Row['problems']): Problem | null => {
+  const row = Array.isArray(p) ? p[0] : p;
+  if (!row) return null;
+  return { kind: row.kind, status: row.status, resolution: row.resolution, createdAt: Date.parse(row.created_at), dueAt: Date.parse(row.due_at) };
+};
+
+/** Names and zones of both sides come from their profiles (readable inside a shared booking); the tutor's address only while the profile is public. */
+async function withPeople(rows: Row[]): Promise<Booking[]> {
+  if (!rows.length) return [];
+  const ids = [...new Set(rows.flatMap(r => [r.tutor_id, r.student_id]))];
+  const tutorIds = [...new Set(rows.map(r => r.tutor_id))];
   const [profiles, tutors] = await Promise.all([
-    supabase.from('profiles').select('id, name, tz').in('id', ids),
-    supabase.from('tutors').select('user_id, slug').in('user_id', ids),
+    supabase.from('profiles').select('id, name, tz, email').in('id', ids),
+    supabase.from('tutors').select('user_id, slug').in('user_id', tutorIds),
   ]);
   if (profiles.error) throw profiles.error;
   if (tutors.error) throw tutors.error;
-  const prof = new Map((profiles.data ?? []).map(p => [p.id as string, p as { name: string; tz: string }]));
+  const prof = new Map((profiles.data ?? []).map(p => [p.id as string, p as Person]));
   const slug = new Map((tutors.data ?? []).map(t => [t.user_id as string, t.slug as string | null]));
   return rows.map(r => ({
     id: r.id,
@@ -115,6 +164,15 @@ async function withTutors(rows: Row[]): Promise<Booking[]> {
     confirmDeadline: Date.parse(r.confirm_deadline),
     declineReason: r.decline_reason,
     cancelledBy: r.cancelled_by,
+    cancelReason: r.cancel_reason,
+    lateCancel: r.late_cancel,
+    meetingUrl: r.meeting_url,
+    createdAt: Date.parse(r.created_at),
+    studentId: r.student_id,
+    studentName: prof.get(r.student_id)?.name ?? 'Ученик',
+    studentEmail: prof.get(r.student_id)?.email ?? '',
+    studentTz: prof.get(r.student_id)?.tz ?? 'Europe/Moscow',
+    problem: toProblem(r.problems),
   }));
 }
 
@@ -122,23 +180,66 @@ async function withTutors(rows: Row[]): Promise<Booking[]> {
 export async function listMyBookings(studentId: string): Promise<Booking[]> {
   const { data, error } = await supabase.from('bookings').select(COLUMNS).eq('student_id', studentId).order('starts_at');
   if (error) throw error;
-  return withTutors((data ?? []) as unknown as Row[]);
+  return withPeople((data ?? []) as unknown as Row[]);
 }
 
-/** null when the booking does not exist or is not the viewer's. */
+/** Р4.1, Р6.1: bookings to this tutor, all statuses. */
+export async function listTutorBookings(tutorId: string): Promise<Booking[]> {
+  const { data, error } = await supabase.from('bookings').select(COLUMNS).eq('tutor_id', tutorId).order('starts_at');
+  if (error) throw error;
+  return withPeople((data ?? []) as unknown as Row[]);
+}
+
+/** One booking of the viewer, as student or tutor; null when it does not exist or is someone else's. */
 export async function getMyBooking(id: number): Promise<Booking | null> {
   if (!Number.isSafeInteger(id)) return null;
   const { data, error } = await supabase.from('bookings').select(COLUMNS).eq('id', id).maybeSingle();
   if (error) throw error;
   if (!data) return null;
-  return (await withTutors([data as unknown as Row]))[0];
+  return (await withPeople([data as unknown as Row]))[0];
 }
 
-export type CancelResult = { ok: true } | { ok: false; reason: 'not_cancellable' | 'error' };
+type Result<E extends string> = { ok: true } | { ok: false; reason: E | 'error' };
 
-/** У4.3: the student withdraws a booking; the slot is free again at once. */
-export async function cancelBooking(id: number): Promise<CancelResult> {
-  const { error } = await supabase.rpc('cancel_booking', { p_id: id });
-  if (!error) return { ok: true };
-  return { ok: false, reason: error.message === 'not_cancellable' ? 'not_cancellable' : 'error' };
+function failure<E extends string>(message: string, known: E[]): { ok: false; reason: E | 'error' } {
+  return { ok: false, reason: known.find(k => k === message) ?? 'error' };
+}
+
+export type CancelResult = { ok: true; late: boolean } | { ok: false; reason: 'not_cancellable' | 'reason_required' | 'error' };
+
+/** У4.3, У7.3 (student; late under 4 hours before a confirmed lesson) and Р6.2 (tutor, reason required). The slot is free again at once. */
+export async function cancelBooking(id: number, reason?: string): Promise<CancelResult> {
+  const { data, error } = await supabase.rpc('cancel_booking', { p_id: id, p_reason: reason?.trim() || null });
+  if (!error) return { ok: true, late: data === true };
+  return failure(error.message, ['not_cancellable', 'reason_required']);
+}
+
+/** Р4.1: the tutor confirms before the deadline. */
+export async function confirmBooking(id: number): Promise<Result<'not_pending'>> {
+  const { error } = await supabase.rpc('confirm_booking', { p_id: id });
+  return error ? failure(error.message, ['not_pending']) : { ok: true };
+}
+
+/** Р4.1: declining needs a reason; the student gets it in a letter. */
+export async function declineBooking(id: number, reason: string): Promise<Result<'not_pending' | 'reason_required'>> {
+  const { error } = await supabase.rpc('decline_booking', { p_id: id, p_reason: reason.trim() });
+  return error ? failure(error.message, ['not_pending', 'reason_required']) : { ok: true };
+}
+
+/** Р6.1: http or https only; the student gets a letter. */
+export async function setMeetingUrl(id: number, url: string): Promise<Result<'bad_url' | 'not_confirmed'>> {
+  const { error } = await supabase.rpc('set_meeting_url', { p_id: id, p_url: url.trim() });
+  return error ? failure(error.message, ['bad_url', 'not_confirmed']) : { ok: true };
+}
+
+/** У7.4: «Всё прошло хорошо» closes a lesson that has ended. */
+export async function markOk(id: number): Promise<Result<'not_finished'>> {
+  const { error } = await supabase.rpc('mark_ok', { p_id: id });
+  return error ? failure(error.message, ['not_finished']) : { ok: true };
+}
+
+/** У7.5: one problem per lesson, after its end. */
+export async function reportProblem(id: number, kind: ProblemKind, text: string): Promise<Result<'not_finished' | 'already_reported'>> {
+  const { error } = await supabase.rpc('report_problem', { p_id: id, p_kind: kind, p_text: text.trim() });
+  return error ? failure(error.message, ['not_finished', 'already_reported']) : { ok: true };
 }

@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { execFileSync } from 'node:child_process';
 import { expect, type APIRequestContext, type Page, type TestInfo } from '@playwright/test';
 
 /* Local `supabase start` defaults; CI uses the same stack. */
@@ -208,12 +209,19 @@ export async function apiFreeSlots(request: APIRequestContext, tutorId: string, 
   return ((await rest(request).rpc('free_slots', { p_tutor: tutorId, p_duration: duration })).body as string[]).map(s => Date.parse(s));
 }
 
-export async function apiBook(request: APIRequestContext, student: Account, tutor: PublishedTutor, startsAt: number, { subject = 'math', duration = 60 } = {}) {
+export async function apiBook(
+  request: APIRequestContext,
+  student: Account,
+  tutor: PublishedTutor,
+  startsAt: number,
+  { subject = 'math', duration = 60, forOther }: { subject?: string; duration?: number; forOther?: { name: string; age: number } } = {},
+) {
   const res = await rest(request, student.token).rpc('create_booking', {
     p_tutor: tutor.id,
     p_subject: tutor.subjectIds[subject],
     p_duration: duration,
     p_starts_at: new Date(startsAt).toISOString(),
+    ...(forOther ? { p_for_other: true, p_name: forOther.name, p_age: forOther.age } : {}),
   });
   expect(res.ok, JSON.stringify(res.body)).toBeTruthy();
   return Number(res.body);
@@ -243,4 +251,97 @@ export async function showAll(page: Page) {
 export async function cleanBooking(request: APIRequestContext, { tutors = [], bookings = [] }: { tutors?: Account[]; bookings?: { student: Account; id: number }[] }) {
   for (const b of bookings) await rest(request, b.student.token).rpc('cancel_booking', { p_id: b.id });
   for (const t of tutors) await rest(request, t.token).rpc('unpublish_tutor');
+}
+
+/* ---------- iteration 4: time, background jobs, letters ---------- */
+
+export const HOUR = 3_600_000;
+export const DB_URL = process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
+
+/** Runs SQL as the database owner (only for what a user cannot do: moving a booking in time, running the cron job). */
+export function sql(query: string) {
+  return execFileSync('psql', [DB_URL, '-X', '-q', '-t', '-A', '-v', 'ON_ERROR_STOP=1', '-c', query], { encoding: 'utf8' }).trim();
+}
+
+/** Moves one booking in time, keeping its length: the database clock stays real (app_now() = now()), so every function and
+    every other test see one consistent time. `deadline` moves the answer deadline (default: unchanged). */
+export function moveBooking(id: number, startsAt: number, { deadline }: { deadline?: number } = {}) {
+  const iso = new Date(startsAt).toISOString();
+  sql(
+    `update bookings set ends_at = '${iso}'::timestamptz + (ends_at - starts_at), starts_at = '${iso}'` +
+      (deadline !== undefined ? `, confirm_deadline = '${new Date(deadline).toISOString()}'` : '') +
+      ` where id = ${Number(id)}`,
+  );
+}
+
+/** One run of the pg_cron job (autocancel, autocomplete, reminders, «no link» reminder) at the real time. */
+export function runJobs() {
+  return JSON.parse(sql('select public.run_jobs()')) as { cancelled: number; completed: number; reminders: number };
+}
+
+/** Database time now, to pin page.clock to the same moment. */
+export function dbNow() {
+  return Date.parse(sql(`select to_char(now() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`));
+}
+
+/** Letters queued for an address (newest first), as the outbox holds them. */
+export function outboxTo(email: string, template?: string) {
+  const rows = sql(
+    `select coalesce(json_agg(json_build_object('template', template, 'payload', payload) order by id desc), '[]') from email_outbox where to_email = '${email.replace(/'/g, "''")}'` +
+      (template ? ` and template = '${template}'` : ''),
+  );
+  return JSON.parse(rows) as { template: string; payload: Record<string, unknown> }[];
+}
+
+/** First free start of a tutor at least `after` ms from now (free_slots order), so a lesson is out of reach of reminders run by parallel tests. */
+export async function slotAfter(request: APIRequestContext, tutorId: string, after: number, duration = 60) {
+  const from = Date.now() + after;
+  const slot = (await apiFreeSlots(request, tutorId, duration)).find(s => s >= from);
+  expect(slot, 'a free slot in the horizon').toBeTruthy();
+  return slot!;
+}
+
+/** Leaves no live booking behind: ended ones become completed, the rest cancelled (SQL tests count what run_jobs() finds). */
+export function finishBookings(ids: number[]) {
+  const list = ids.map(Number).filter(Number.isFinite);
+  if (!list.length) return;
+  sql(
+    `update bookings set status = case when ends_at <= now() then 'completed' else 'cancelled' end::booking_status,
+       cancelled_by = case when ends_at <= now() then cancelled_by else coalesce(cancelled_by, 'system') end
+     where id in (${list.join(',')}) and status in ('pending', 'confirmed')`,
+  );
+}
+
+/** Confirms a booking as its tutor through the API. */
+export async function apiConfirm(request: APIRequestContext, tutor: Account, id: number) {
+  const res = await rest(request, tutor.token).rpc('confirm_booking', { p_id: id });
+  expect(res.ok, JSON.stringify(res.body)).toBeTruthy();
+}
+
+/** The value of a fact row («Когда», «Стоимость») in a lesson or booking card. */
+export const fact = (page: Page, term: string) => page.locator('.dl > div').filter({ has: page.locator('dt').getByText(term, { exact: true }) }).locator('dd');
+
+/** «19:00» of a moment in a zone, as cards show it. */
+export const hm = (ts: number, tz: string) =>
+  new Intl.DateTimeFormat('ru-RU', { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(ts);
+
+/** A published tutor «Анна …» (UTC+5 by default), a student «Ирина» in Moscow and a booking between them, confirmed unless `pending`. */
+export async function lessonFixture(
+  request: APIRequestContext,
+  info: TestInfo,
+  { tz = 'Asia/Yekaterinburg', after = 30 * HOUR, pending = false, forOther }: { tz?: string; after?: number; pending?: boolean; forOther?: { name: string; age: number } } = {},
+) {
+  const tutor = await publishedTutor(request, info, { name: `Анна ${uniqueWord()}`, tz });
+  const student = await createUser(request, { email: uniqueEmail('student', info), name: 'Ирина' });
+  const slot = await slotAfter(request, tutor.id, after);
+  const id = await apiBook(request, student, tutor, slot, { forOther });
+  if (!pending) await apiConfirm(request, tutor, id);
+  return { tutor, student, slot, id };
+}
+
+/** Signs in through the login page and waits for the role's home. */
+export async function signInAs(page: Page, account: Account, role: 'student' | 'tutor' = 'student') {
+  await page.goto('/login/');
+  await logInInForm(page, account.email);
+  await expect(page).toHaveURL(role === 'tutor' ? /\/tutor\/$/ : /\/cabinet\/$/);
 }

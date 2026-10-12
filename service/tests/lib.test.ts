@@ -106,3 +106,60 @@ test('selection: subject, duration and slot round-trip through the query', () =>
   assert.deepEqual(parseSelection(new URLSearchParams(q.slice(1))), { subject: 'math', dur: 90, slot: ts });
 });
 
+
+test('У7.3 late cancel: only a confirmed lesson, less than 4 hours before the start', async () => {
+  const { isLateCancel, freeCancelUntil, awaitsReview, autoCompleteAt, timeLeft, meetingUrlError, shortUrl, reminderTimes } = await import('../src/lib/lessons.ts');
+  const H = 3_600_000;
+  const start = Date.UTC(2026, 9, 16, 16);
+  const lesson = { status: 'confirmed' as const, startsAt: start, endsAt: start + H };
+  assert.equal(isLateCancel(lesson, start - 5 * H), false);
+  assert.equal(isLateCancel(lesson, start - 4 * H), false);
+  assert.equal(isLateCancel(lesson, start - 4 * H + 1), true);
+  assert.equal(isLateCancel({ ...lesson, status: 'pending' }, start - H), false);
+  assert.equal(freeCancelUntil(start), start - 4 * H);
+  // У7.4: «Как прошло?» from the end until 24 hours later
+  assert.equal(awaitsReview(lesson, start + H - 1), false);
+  assert.equal(awaitsReview(lesson, start + H), true);
+  assert.equal(awaitsReview(lesson, autoCompleteAt(lesson.endsAt) - 1), true);
+  assert.equal(awaitsReview(lesson, autoCompleteAt(lesson.endsAt)), false);
+  assert.deepEqual(reminderTimes(start), [start - 24 * H, start - H]);
+  // Р4.1 timer, rounded down
+  assert.equal(timeLeft(start, start - 23.9 * H), '23 ч');
+  assert.equal(timeLeft(start, start - 40 * 60_000), '40 мин');
+  assert.equal(timeLeft(start, start - 1000), '1 мин');
+  assert.equal(timeLeft(start, start), null);
+  // Р6.1 link: http or https only
+  assert.equal(meetingUrlError('https://telemost.yandex.ru/j/4471'), null);
+  assert.equal(meetingUrlError('http://zoom.us/j/1'), null);
+  assert.ok(meetingUrlError(''));
+  assert.ok(meetingUrlError('telemost.yandex.ru/j/4471'));
+  assert.ok(meetingUrlError('ftp://x.ru/a'));
+  assert.ok(meetingUrlError('https://'));
+  assert.ok(meetingUrlError('https://a b.ru'));
+  assert.equal(shortUrl('https://telemost.yandex.ru/j/4471'), 'telemost.yandex.ru/j/4471');
+  assert.equal(shortUrl('https://example.com/' + 'x'.repeat(50)).length, 34);
+});
+
+test('У4.3 + У7.2 notification texts for each side', async () => {
+  const { noteText } = await import('../src/lib/notifications.ts');
+  const base = {
+    tz: 'Europe/Moscow',
+    bookingId: 7,
+    startsAt: Date.UTC(2026, 9, 16, 16),
+    tutorName: 'Анна Ковалёва',
+    studentName: 'Ирина Петрова',
+    participantName: 'Миша',
+    cancelledBy: null,
+  };
+  const s = (kind: string) => noteText({ ...base, kind, role: 'student' });
+  const t = (kind: string) => noteText({ ...base, kind, role: 'tutor' });
+  assert.deepEqual(s('booking_confirmed'), { text: 'Анна подтвердила занятие Пт 16 окт, 19:00', href: '/cabinet/lessons/7' });
+  assert.equal(s('booking_declined').text, 'Анна отклонила запись на Пт 16 окт');
+  assert.equal(s('booking_autocancelled').text, 'Запись на Пт 16 окт отменена: Анна не ответила');
+  assert.equal(s('reminder_1h').text, 'Через час занятие с Анной');
+  assert.equal(t('reminder_1h').text, 'Через час занятие с Мишей');
+  assert.deepEqual(t('booking_created'), { text: 'Новая запись: Миша, Пт 16 окт, 19:00', href: '/tutor/bookings/7' });
+  assert.equal(t('booking_cancelled').text, 'Ирина отменила занятие Пт 16 окт, 19:00');
+  assert.equal(t('link_missing').href, '/tutor/lessons/7');
+  assert.equal(noteText({ ...base, tutorName: 'Дмитрий Орлов', kind: 'booking_declined', role: 'student' }).text, 'Дмитрий отклонил запись на Пт 16 окт');
+});
