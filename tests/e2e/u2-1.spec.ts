@@ -68,7 +68,7 @@ test.describe('У2.1 анкета: предмет, длительность, в�
     expect(earliest).toBe(api[0]);
 
     const next = page.getByRole('button', { name: 'Следующая неделя' });
-    if (await next.isEnabled()) await next.click();
+    if ((await next.count()) && (await next.isEnabled())) await next.click();
     await days(page).getByRole('button', { disabled: false }).last().click();
     await slots(page).getByRole('button').last().click();
     const latest = slotInUrl(page);

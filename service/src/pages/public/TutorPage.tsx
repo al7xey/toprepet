@@ -181,12 +181,18 @@ function BookingBlock({ t, tz }: { t: PublicTutor; tz: string }) {
     }
     return m;
   }, [list, tz]);
+  /* no trailing week with nothing to book: the strip ends at the last free day (one full week at least) */
+  const shown = useMemo(() => {
+    let end = WEEK - 1;
+    days.forEach((d, i) => { if (byDay.has(d)) end = Math.max(end, i); });
+    return days.slice(0, end + 1);
+  }, [days, byDay]);
   const firstFree = days.find(d => byDay.has(d)) ?? days[0];
   const [pickedDay, setPickedDay] = useState<string | null>(null);
   const day = (chosen !== null ? dateKey(chosen, tz) : null) ?? (pickedDay && byDay.has(pickedDay) ? pickedDay : null) ?? firstFree;
   const [page, setPage] = useState<number | null>(null);
-  const dayPage = page ?? Math.max(0, Math.floor(days.indexOf(day) / WEEK));
-  const pages = Math.ceil(days.length / WEEK);
+  const dayPage = page ?? Math.max(0, Math.floor(shown.indexOf(day) / WEEK));
+  const pages = Math.ceil(shown.length / WEEK);
 
   const update = (patch: Partial<Selection>) => {
     const next = { subject: subject?.slug ?? null, dur, slot: chosen, ...patch };
@@ -273,7 +279,7 @@ function BookingBlock({ t, tz }: { t: PublicTutor; tz: string }) {
             <>
               <fieldset className="days">
                 <legend className="sr-only">Дни</legend>
-                {days.slice(dayPage * WEEK, dayPage * WEEK + WEEK).map(k => {
+                {shown.slice(dayPage * WEEK, dayPage * WEEK + WEEK).map(k => {
                   const has = byDay.has(k);
                   const { day: dnum } = parseDateKey(k);
                   return (
