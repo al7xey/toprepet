@@ -74,10 +74,10 @@ begin
 
   -- У1.1, У1.3: catalog
   assert (select count(*) from catalog()) = 1, 'only the published tutor with slots';
-  assert (select price_from from catalog()) = 1866, 'price from is per 60 minutes (2800 for 90 → 1866)';
+  assert (select price_from from catalog()) = 2000, 'price from is the 60-minute price when there is one';
   assert (select count(*) from catalog(p_subject => 'english')) = 1, 'subject filter';
   assert (select count(*) from catalog(p_subject => 'math')) = 0, 'other subject';
-  assert (select price_from from catalog(p_subject => 'english')) = 1866, 'price for the subject';
+  assert (select price_from from catalog(p_subject => 'english')) = 2000, 'price for the subject';
   assert (select count(*) from catalog(p_goal => 'ege')) = 1, 'goal filter';
   assert (select count(*) from catalog(p_goal => 'oge')) = 0, 'goal filter negative';
   assert (select count(*) from catalog(p_max_price => 1500)) = 0, 'price filter';

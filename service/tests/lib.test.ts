@@ -4,6 +4,8 @@ import { dative, genitive, instrumental } from '../src/lib/names.ts';
 import { PRICE_ERROR, parsePrice, parseYears } from '../src/lib/prices.ts';
 import { slugFromName, slugWithSuffix } from '../src/lib/slug.ts';
 import { bookingRanges, diffWins, fmtMin, fmtWin, toggleCell, windowError, windowLocked, type Win } from '../src/lib/schedule.ts';
+import { activeCount, activeFilters, EMPTY, filtersToParams, parseFilters, suggest, timeLabel, without } from '../src/lib/catalog.ts';
+import { parseSelection, selectionQuery } from '../src/lib/selection.ts';
 
 test('names: cases used in interface phrases', () => {
   assert.equal(genitive('Анна'), 'Анны');
@@ -68,3 +70,39 @@ test('Р3.1 bookings lock windows in the tutor zone', () => {
     ],
   );
 });
+
+test('catalog: filters survive the address and unknown values are dropped', () => {
+  const f = parseFilters(new URLSearchParams('subject=math&goal=ege&price=2000&days=weekday&parts=evening,morning,xx&exp=5&q=%20алгебра%20'));
+  assert.deepEqual(f, { subject: 'math', goal: 'ege', price: 2000, days: 'weekday', parts: ['morning', 'evening'], exp: 5, q: 'алгебра' });
+  assert.deepEqual(parseFilters(filtersToParams(f)), f);
+  assert.deepEqual(parseFilters(new URLSearchParams('price=1234&exp=2&goal=zzz&days=all&subject=<x>')), EMPTY);
+  assert.equal(filtersToParams(EMPTY).toString(), '');
+});
+
+test('catalog: count, labels and removing one filter', () => {
+  const f = parseFilters(new URLSearchParams('subject=math&price=1500&days=weekend&parts=day&q=егэ'));
+  assert.equal(activeCount(f), 3);
+  assert.equal(timeLabel(f), 'Выходные, день');
+  assert.deepEqual(
+    activeFilters(f, () => 'Математика').map(a => a.label),
+    ['егэ', 'Математика', 'до\u00a01\u00a0500\u00a0₽', 'Выходные, день'],
+  );
+  const noTime = without(f, 'time');
+  assert.equal(noTime.days, null);
+  assert.deepEqual(noTime.parts, []);
+  assert.equal(without(f, 'q').q, '');
+});
+
+test('catalog: suggestions from 2 letters, prefix matches first', () => {
+  const list = [{ name: 'Английский язык' }, { name: 'Математика' }, { name: 'Немецкий язык' }];
+  assert.deepEqual(suggest(list, 'я'), []);
+  assert.deepEqual(suggest(list, 'яз').map(s => s.name), ['Английский язык', 'Немецкий язык']);
+  assert.deepEqual(suggest(list, 'не').map(s => s.name), ['Немецкий язык']);
+});
+
+test('selection: subject, duration and slot round-trip through the query', () => {
+  const ts = Date.UTC(2026, 9, 14, 9, 0);
+  const q = selectionQuery({ subject: 'math', dur: 90, slot: ts });
+  assert.deepEqual(parseSelection(new URLSearchParams(q.slice(1))), { subject: 'math', dur: 90, slot: ts });
+});
+

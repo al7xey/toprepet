@@ -13,12 +13,17 @@ import { Overlay } from './Overlay';
 interface MenuItem {
   to: string;
   label: string;
+  /** deeper pages that belong to this item, e.g. a lesson card under «Мои занятия» */
+  also?: RegExp;
 }
+
+const itemClass = (item: MenuItem, pathname: string) => ({ isActive }: { isActive: boolean }) =>
+  isActive || item.also?.test(pathname) ? 'on' : undefined;
 
 /* Cabinet sections. Items join the menu in the iteration that builds their pages. */
 const CABINET_MENU: Record<Role, MenuItem[]> = {
   student: [
-    { to: '/cabinet/', label: 'Мои занятия' },
+    { to: '/cabinet/', label: 'Мои занятия', also: /^\/cabinet\/lessons\// },
     { to: '/cabinet/settings/', label: 'Настройки' },
   ],
   tutor: [
@@ -63,6 +68,7 @@ function PublicNav() {
 
 function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { profile } = useSession();
+  const { pathname } = useLocation();
   const logout = useLogout();
   const items = profile ? CABINET_MENU[profile.role] : PUBLIC_NAV;
   return (
@@ -72,7 +78,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <button type="button" className="x" aria-label="Закрыть меню" onClick={onClose} />
       </div>
       {items.map(item => (
-        <NavLink key={item.to} to={item.to} end className={({ isActive }) => (isActive ? 'on' : undefined)} onClick={onClose}>
+        <NavLink key={item.to} to={item.to} end className={itemClass(item, pathname)} onClick={onClose}>
           {item.label}
         </NavLink>
       ))}
@@ -209,7 +215,7 @@ export function CabinetLayout({ area: role }: { area: Role }) {
       <div className="shell">
         <nav className="side" aria-label="Кабинет">
           {CABINET_MENU[role].map(item => (
-            <NavLink key={item.to} to={item.to} end className={({ isActive }) => (isActive ? 'on' : undefined)}>
+            <NavLink key={item.to} to={item.to} end className={itemClass(item, pathname)}>
               {item.label}
             </NavLink>
           ))}
