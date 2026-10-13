@@ -14,6 +14,11 @@ if (!service) {
   run('pnpm build');
 } else {
   run('pnpm build');
+  /* The service shares the Supabase project of the blog. Both values are public (the blog ships them
+     in its bundle), so when the Vercel variables are not set the build takes them from the blog config. */
+  const blog = JSON.parse(readFileSync('src/blog/supabase-config.json', 'utf8'));
+  process.env.VITE_SUPABASE_URL ||= blog.url;
+  process.env.VITE_SUPABASE_ANON_KEY ||= blog.publishableKey;
   run('pnpm service:build');
   const out = '.vercel/output';
   const stat = `${out}/static`;
