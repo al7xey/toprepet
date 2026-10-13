@@ -13,6 +13,7 @@ import { LoadError, Loading } from '../../ui/LoadError';
 import { usePageMeta } from '../../ui/meta';
 import { TakenAlert } from '../../ui/Slots';
 import { NotFound } from '../common/NotFound';
+import { reachGoal } from '../../app/metrika';
 
 /** /book/:teacherId (mockup book): for whom, the chosen time, one sum and «Записаться» (У3.3 + У4.1, У4.1-занят, У4.2). */
 export function Book() {
@@ -109,6 +110,7 @@ function BookForm({ t }: { t: PublicTutor }) {
     });
     setBusy(false);
     if (res.ok) {
+      reachGoal('booking_created');
       void navigate(`/book/${res.id}/done`, { replace: true });
       return;
     }

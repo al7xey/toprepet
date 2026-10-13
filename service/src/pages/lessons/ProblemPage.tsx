@@ -10,6 +10,7 @@ import { TextAreaField } from '../../ui/Field';
 import { LoadError, Loading } from '../../ui/LoadError';
 import { usePageMeta } from '../../ui/meta';
 import { NotFound } from '../common/NotFound';
+import { reachGoal } from '../../app/metrika';
 
 /* У7.5: the three kinds the database knows (problem_kind) with the spec's wording. */
 const KINDS: { id: ProblemKind; label: string }[] = [
@@ -50,6 +51,7 @@ function Form({ b }: { b: Booking }) {
     setBusy(true);
     const res = await reportProblem(b.id, kind, text);
     setBusy(false);
+    if (res.ok) reachGoal('problem_reported');
     if (res.ok || res.reason === 'already_reported') {
       void navigate(`/cabinet/lessons/${b.id}`, { replace: true });
       return;

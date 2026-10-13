@@ -4,6 +4,7 @@ import {
   type ErrorInfo,
   lazy,
   Suspense,
+  useEffect,
 } from 'react';
 import {
   Route,
@@ -21,10 +22,8 @@ import { useScrollToSection } from '../shared/lib/use-scroll-to-section';
 import { Header } from '../widgets/header/header';
 const HomePage = lazy(() => import('../pages/home/home-page'));
 const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
-const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
 const TeacherPage = lazy(() => import('../pages/teacher/teacher-page'));
 const TeachersPage = lazy(() => import('../pages/teachers/teachers-page'));
-const FreeIntroPage = lazy(() => import('../pages/free-intro/free-intro-page'));
 const ForTutorsPage = lazy(() => import('../pages/for-tutors/for-tutors-page'));
 import { Footer } from '../widgets/footer/footer';
 const PaymentRefundPage = lazy(() => import('../pages/legal/payment-refund-page'));
@@ -93,6 +92,17 @@ class ErrorBoundary extends Component<
   }
 }
 
+/* One domain with the service (scripts/vercel-build.mjs marks the HTML with data-service="on"): the service owns
+   / and /teachers/…, so a client-side link there from a landing page reloads the page to reach it. */
+function ServiceHandoff() {
+  const { pathname, search, hash } = useLocation();
+  useEffect(() => {
+    if (document.documentElement.dataset.service !== 'on') return;
+    if (pathname === '/' || /^\/teachers(?:\/|$)/.test(pathname)) window.location.replace(pathname + search + hash);
+  }, [pathname, search, hash]);
+  return null;
+}
+
 function ScrollManager() {
   useScrollToSection();
   return null;
@@ -122,6 +132,7 @@ function AppRoutes() {
     <ErrorBoundary>
       <Provider store={store}>
         <ScrollManager />
+        <ServiceHandoff />
 
         <a
           className="skip-link"
@@ -152,10 +163,9 @@ function AppRoutes() {
               element={<HomePage />}
             />
 
-            <Route
-              path="/lessons"
-              element={<LessonsPage />}
-            />
+            {/* Р-6, О3: the picker and the free intro are gone; the host answers these with a 301 */}
+            <Route path="/lessons" element={<Navigate to="/teachers/" replace />} />
+            <Route path="/free-intro" element={<Navigate to="/teachers/" replace />} />
 
             <Route
               path="/contact"
@@ -165,11 +175,6 @@ function AppRoutes() {
                   <ServiceDetails page="contact" />
                 </div>
               }
-            />
-
-            <Route
-              path="/free-intro"
-              element={<FreeIntroPage />}
             />
 
             <Route

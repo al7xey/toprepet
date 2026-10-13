@@ -16,9 +16,16 @@ interface SessionState {
 const SessionContext = createContext<SessionState | null>(null);
 
 async function fetchProfile(id: string): Promise<Profile | null> {
-  const { data, error } = await supabase.from('profiles').select('id, role, name, email, tz').eq('id', id).maybeSingle();
+  const { data, error } = await supabase.from('profiles').select('id, role, name, email, tz, blocked_at').eq('id', id).maybeSingle();
   if (error) throw error;
-  return data as Profile | null;
+  if (!data) return null;
+  const { blocked_at: blocked, ...profile } = data as Profile & { blocked_at: string | null };
+  // А1: a session that outlived the block ends here (new sign-ins are refused by the Auth hook)
+  if (blocked) {
+    await supabase.auth.signOut();
+    return null;
+  }
+  return profile;
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {

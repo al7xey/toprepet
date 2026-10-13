@@ -7,7 +7,6 @@ import {
 } from '../../../components/ui/carousel';
 
 const slides = [
-  { src: '/images/hero-slide-1-1200.webp', alt: 'Скидка 300 рублей по промокоду ОСЕНЬ' },
   { src: '/images/hero-slide-2-1200.webp', alt: 'Ученик читает книгу' },
   { src: '/images/hero-slide-3-1200.webp', alt: 'Ученица занимается за ноутбуком' },
   { src: '/images/hero-slide-4-1200.webp', alt: 'Ученик занимается с книгой' },

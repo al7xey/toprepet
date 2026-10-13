@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import { devOutbox } from './dev-outbox';
+import { redirects } from './redirects';
 
 // TopRepet marketplace app. Shares photos and fonts with the landing site through ../public.
 export default defineConfig(({ mode }) => {
@@ -12,7 +13,7 @@ export default defineConfig(({ mode }) => {
     base: '/',
     publicDir: fileURLToPath(new URL('../public', import.meta.url)),
     // /__dev/outbox for /dev/mail exists only in the dev and preview servers (never on Vercel)
-    plugins: [react(), devOutbox({ api })],
+    plugins: [react(), devOutbox({ api }), redirects()],
     resolve: { alias: { '@service': fileURLToPath(new URL('./src', import.meta.url)) } },
     server: { host: '127.0.0.1', port: 5180 },
     preview: { host: '127.0.0.1', port: 5181 },

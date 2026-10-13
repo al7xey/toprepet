@@ -20,7 +20,9 @@ export function ResetNew() {
   const [busy, setBusy] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const fromLink = authRedirect.type === 'recovery' && !authRedirect.error;
+  // Р1.1: the invitation to the 10 tutors moved from the old site leads here too (type=invite)
+  const invited = authRedirect.type === 'invite';
+  const fromLink = (authRedirect.type === 'recovery' || invited) && !authRedirect.error;
   const expired = !loading && (!fromLink || !user);
 
   useEffect(() => {
@@ -60,8 +62,11 @@ export function ResetNew() {
 
   return (
     <form className="center stack" onSubmit={submit} noValidate>
-      <h1 className="h1">Новый пароль</h1>
-      <p className="sub">Для {user?.email}</p>
+      <h1 className="h1">{invited ? 'Пароль для TopRepet' : 'Новый пароль'}</h1>
+      <p className="sub">
+        {invited ? 'Ваша анкета уже перенесена с сайта. Придумайте пароль, чтобы войти в кабинет: ' : 'Для '}
+        {user?.email}
+      </p>
       <div className="stack">
         <Field
           label="Новый пароль"

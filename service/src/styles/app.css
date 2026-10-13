@@ -2421,3 +2421,84 @@ body:has(.mbar) .foot1 {
 .warm > .btn {
   justify-self: start;
 }
+
+/* ---------- admin (mockups adminLessons … adminBlock): tables scroll sideways on a phone ---------- */
+.brand-tag {
+  color: var(--mut);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.filt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.filt .inp {
+  height: 44px;
+  border-radius: 16px;
+  width: auto;
+  min-width: 0;
+  flex: 1 1 160px;
+  max-width: 260px;
+}
+
+.filt .opt {
+  min-height: 44px;
+}
+
+.tbl {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tbl th {
+  text-align: left;
+  font-weight: 650;
+  color: var(--mut);
+  padding: 10px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+  border-bottom: 1.5px solid var(--ln);
+}
+
+.tbl td {
+  padding: 12px;
+  border-bottom: 1px solid var(--ln);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.tbl .num {
+  text-align: right;
+}
+
+.tbl td a {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.tbl tr.go {
+  cursor: pointer;
+}
+
+.tbl tr.go:hover td {
+  background: var(--warm);
+}
+
+.tbl tr.hot td {
+  background: var(--bad-soft);
+}
+
+@media (min-width: 1000px) {
+  .shell.adm {
+    grid-template-columns: 220px minmax(0, 1fr);
+    width: auto;
+    margin: 0 40px;
+  }
+}

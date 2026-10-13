@@ -1,7 +1,6 @@
 import { Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import { type LessonSelection, selectionDescription } from '../../entities/lesson';
 import { enquiryMessage } from '../../shared/config/site';
 import { MessengerLinks } from '../../shared/ui/messenger-links';
@@ -12,7 +11,7 @@ export function Contact({ onLessonsPage = false, standalone = false }: { onLesso
   const hasSelection = Boolean(selection.subject || selection.grade || selection.promoCode || selection.goal !== 'subject');
   const topic = hasSelection ? selectionDescription(selection) : undefined;
   const description = standalone
-    ? 'Задайте вопрос о занятиях, выберите преподавателя или согласуйте время бесплатного знакомства. Свяжитесь с нами в удобном мессенджере.'
+    ? 'Поможем с записью, отменой занятия и вопросами по анкете. Свяжитесь с нами в удобном мессенджере.'
     : onLessonsPage
       ? 'Выберите удобный мессенджер и напишите нам. Менеджер поможет с выбором преподавателя.'
       : 'Выберите удобный мессенджер и напишите нам. Менеджер поможет с выбором занятия и преподавателя.';
@@ -37,7 +36,6 @@ export function Contact({ onLessonsPage = false, standalone = false }: { onLesso
         {hasSelection && <div className="contact-selection">
           <p>В Telegram и WhatsApp сообщение уже заполнено. При нажатии на VK или MAX текст копируется — останется вставить его в диалог.</p>
           <button type="button" className="copy-choice" onClick={copySelection}>{copyState === 'copied' ? <Check size={18} aria-hidden="true" /> : <Copy size={18} aria-hidden="true" />}Скопировать выбор</button>
-          {!onLessonsPage && <Link className="inline-link" to="/lessons/">Изменить</Link>}
           <output className="copy-status">{copyState === 'copied' ? 'Текст скопирован — вставьте его в диалог' : copyState === 'failed' ? 'Скопируйте текст из поля ниже' : ''}</output>
           {copyState === 'failed' && <textarea className="ym-disable-keys ym-hide-content" aria-label="Текст сообщения для ручного копирования" value={enquiryMessage(topic)} readOnly rows={7} />}
         </div>}

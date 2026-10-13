@@ -5,6 +5,7 @@ import { safeNext } from '../../app/Guard';
 import { guessZone } from '../../lib/time';
 import { Field } from '../../ui/Field';
 import { usePageMeta } from '../../ui/meta';
+import { reachGoal } from '../../app/metrika';
 
 type Errors = Partial<Record<'name' | 'email' | 'password' | 'form', string>>;
 
@@ -34,7 +35,10 @@ export function Signup() {
     setBusy(true);
     const res = await signUp({ name, email, password, role, tz: guessZone() });
     setBusy(false);
-    if (res.ok) return; // GuestOnly sends the new user on to ?next= or their home
+    if (res.ok) {
+      reachGoal('signup', { role });
+      return;
+    } // GuestOnly sends the new user on to ?next= or their home
     if (res.reason === 'taken') setTaken(true);
     else if (res.reason === 'weak') setErrors({ password: 'Пароль слишком простой. Добавьте цифры или буквы.' });
     else setErrors({ form: 'Не получилось создать аккаунт. Проверьте интернет и попробуйте ещё раз.' });

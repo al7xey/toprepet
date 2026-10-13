@@ -19,7 +19,7 @@ export const messengers: readonly Messenger[] = [
 ];
 
 export function messengerLink(messenger: Messenger, topic?: string) {
-  if (messenger.id === 'telegram') return telegramLink(topic || 'Бесплатное знакомство на 20 минут');
+  if (messenger.id === 'telegram') return telegramLink(topic || 'Вопрос о записи к репетитору');
   if (messenger.id === 'whatsapp') return `${messenger.url}?text=${encodeURIComponent(enquiryMessage(topic))}`;
   return messenger.url;
 }

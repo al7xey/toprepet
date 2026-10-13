@@ -9,11 +9,12 @@ export function Logo() {
   );
 }
 
-export function Brand({ to = '/' }: { to?: string }) {
+export function Brand({ to = '/', admin = false }: { to?: string; admin?: boolean }) {
   return (
-    <Link className="brand" to={to} aria-label="TopRepet, на главную">
+    <Link className="brand" to={to} aria-label={admin ? 'TopRepet, админка' : 'TopRepet, на главную'}>
       <Logo />
       toprepet
+      {admin ? <span className="brand-tag">админка</span> : null}
     </Link>
   );
 }

@@ -4,7 +4,7 @@ import { signIn } from '../../api/auth';
 import { Field } from '../../ui/Field';
 
 /** Shared by /login/ and, from iteration 3, the login dialog on «Записаться». After success the session redirects (GuestOnly). */
-export function LoginForm({ next }: { next?: string | null }) {
+export function LoginForm({ next, emailLabel = 'Email', staff = false }: { next?: string | null; emailLabel?: string; staff?: boolean }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +23,9 @@ export function LoginForm({ next }: { next?: string | null }) {
       setError(
         res.reason === 'network'
           ? 'Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.'
-          : 'Email или пароль не подходят. Проверьте раскладку или восстановите пароль.',
+          : res.reason === 'blocked'
+            ? 'Аккаунт заблокирован. Если это ошибка, напишите в поддержку: Telegram @toprepet_manager.'
+            : 'Email или пароль не подходят. Проверьте раскладку или восстановите пароль.',
       );
     }
   }
@@ -31,7 +33,7 @@ export function LoginForm({ next }: { next?: string | null }) {
   const signupHref = next ? `/signup/?next=${encodeURIComponent(next)}` : '/signup/';
   return (
     <form className="stack" onSubmit={submit} noValidate>
-      <Field label="Email" type="email" name="email" autoComplete="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} />
+      <Field label={emailLabel} type="email" name="email" autoComplete="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} />
       <Field
         label="Пароль"
         type="password"
@@ -48,9 +50,11 @@ export function LoginForm({ next }: { next?: string | null }) {
         <Link className="lnk tap" to="/reset/">
           Забыли пароль?
         </Link>
-        <Link className="lnk tap" to={signupHref}>
-          Зарегистрироваться
-        </Link>
+        {staff ? null : (
+          <Link className="lnk tap" to={signupHref}>
+            Зарегистрироваться
+          </Link>
+        )}
       </div>
     </form>
   );

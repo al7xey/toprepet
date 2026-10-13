@@ -11,7 +11,7 @@ import {
 const formats = [
   {
     id: 'subject',
-    goal: 'subject',
+    to: '/teachers/?goal=school',
     icon: BookOpen,
     title: 'Школьные предметы',
     description: 'Разберём тему и закрепим её на практике.',
@@ -19,7 +19,7 @@ const formats = [
   },
   {
     id: 'homework',
-    goal: 'homework',
+    to: '/teachers/?goal=homework',
     icon: NotebookPen,
     title: 'Домашние задания',
     description: 'Разберём каждое задание и объясним решение по шагам.',
@@ -27,7 +27,7 @@ const formats = [
   },
   {
     id: 'exam',
-    goal: 'exam',
+    to: '/teachers/?goal=ege',
     icon: ListChecks,
     title: 'ОГЭ и ЕГЭ',
     description: 'Разберём задания и требования экзаменационного формата.',
@@ -35,8 +35,7 @@ const formats = [
   },
   {
     id: 'preschool',
-    goal: 'foundation',
-    subject: 'Подготовка к школе',
+    to: '/teachers/?goal=preschool',
     icon: Shapes,
     title: 'Подготовка к школе',
     description: 'Поможем ребёнку освоить навыки, необходимые перед первым классом.',
@@ -44,8 +43,7 @@ const formats = [
   },
   {
     id: 'primary',
-    goal: 'foundation',
-    subject: 'Начальные классы',
+    to: '/teachers/?subject=primary',
     icon: School,
     title: 'Начальные классы',
     description: 'Разберём школьную программу и укрепим знания по основным предметам.',
@@ -86,7 +84,7 @@ export function Directions() {
           </div>
         </div>
         <CarouselContent className="format-track" id="format-slides">
-          {formats.map(({ id, goal, subject, icon: Icon, title, description, label }, i) => (
+          {formats.map(({ id, to, icon: Icon, title, description, label }, i) => (
             <CarouselItem
               className="format-slide"
               key={id}
@@ -94,7 +92,7 @@ export function Directions() {
             >
               <Link
                 className="format-card"
-                to={`/lessons/?goal=${goal}${subject ? `&subject=${encodeURIComponent(subject)}` : ''}`}
+                to={to}
                 draggable={false}
               >
                 <div className="format-meta">

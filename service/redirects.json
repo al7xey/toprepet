@@ -1,0 +1,16 @@
+{
+  "//": "О3 and old landing addresses: answered with 301 by the one-domain Vercel build (scripts/vercel-build.mjs) and by the service dev and preview servers (service/vite.config.ts). from is a regular expression for the path, to may use $1.",
+  "redirects": [
+    { "from": "^/lessons/?$", "to": "/teachers/" },
+    { "from": "^/free-intro/?$", "to": "/teachers/" },
+    { "from": "^/teacher/([^/]+)/?$", "to": "/teachers/$1/" },
+    { "from": "^/for-tutors/?$", "to": "/for-repetitor/" },
+    { "from": "^/direction/school-start/?$", "to": "/teachers/?goal=preschool" },
+    { "from": "^/direction/primary/?$", "to": "/teachers/?subject=primary" },
+    { "from": "^/direction/(?:school-program|subjects)/?$", "to": "/teachers/?goal=school" },
+    { "from": "^/direction/homework/?$", "to": "/teachers/?goal=homework" },
+    { "from": "^/direction/oge/?$", "to": "/teachers/?goal=oge" },
+    { "from": "^/direction/ege/?$", "to": "/teachers/?goal=ege" },
+    { "from": "^/documents/?$", "to": "/legal/" }
+  ]
+}

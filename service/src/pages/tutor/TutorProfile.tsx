@@ -27,6 +27,7 @@ import { ZONES, utcLabel, zoneCity } from '../../lib/time';
 import { Field, SelectField, TextAreaField } from '../../ui/Field';
 import { LoadError, Loading } from '../../ui/LoadError';
 import { usePageMeta } from '../../ui/meta';
+import { reachGoal } from '../../app/metrika';
 
 /* Р2.1 + Р2.1-публикация: /tutor/profile/, mockup screens tutorProfile and tutorProfileReady. */
 export function TutorProfile() {
@@ -132,6 +133,7 @@ function ProfileForm({ id, initial, subjects, initialMissing }: { id: string; in
     if (await persist()) {
       const res = await publishTutor();
       if (res.ok) {
+        reachGoal('tutor_published');
         setSaved(s => ({ ...s, status: 'published' }));
         setNotice({ ok: true, text: 'Анкета опубликована и видна в каталоге «Топ репеты».' });
       } else if (res.reason === 'not_ready') {

@@ -100,9 +100,16 @@ export interface Counters {
   fresh: number[];
   /** tutor: bookings waiting for an answer (the number at «Записи») */
   waiting: number;
+  /** admin: open problems (the number at «Проблемы») */
+  problems: number;
 }
 
 async function loadCounters(profile: Profile): Promise<Counters> {
+  if (profile.role === 'admin') {
+    const open = await supabase.from('problems').select('id', { count: 'exact', head: true }).eq('status', 'open');
+    if (open.error) throw open.error;
+    return { unread: 0, fresh: [], waiting: 0, problems: open.count ?? 0 };
+  }
   const [notes, waiting] = await Promise.all([
     supabase.from('notifications').select('booking_id').eq('user_id', profile.id).is('read_at', null),
     profile.role === 'tutor'
@@ -121,6 +128,7 @@ async function loadCounters(profile: Profile): Promise<Counters> {
     unread: rows.length,
     fresh: [...new Set(rows.flatMap(r => (r.booking_id ? [r.booking_id] : [])))],
     waiting: waiting.count ?? 0,
+    problems: 0,
   };
 }
 
@@ -143,13 +151,13 @@ function shared(profile: Profile, key: string) {
   return inFlight.promise;
 }
 
-/** Counters of the signed-in user; reloaded on every page change and after actions. null for guests and admins. */
+/** Counters of the signed-in user; reloaded on every page change and after actions. null for guests. */
 export function useCounters(): Counters | null {
   const { profile } = useSession();
   const { pathname } = useLocation();
   const [tick, setTick] = useState(0);
   const [state, setState] = useState<{ for: string; value: Counters } | null>(null);
-  const active = profile && profile.role !== 'admin' ? profile : null;
+  const active = profile;
 
   useEffect(() => {
     const bump = () => setTick(t => t + 1);

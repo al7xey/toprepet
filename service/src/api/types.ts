@@ -8,9 +8,9 @@ export interface Profile {
   tz: string;
 }
 
-export const ROLE_HOME: Record<Role, string> = { student: '/cabinet/', tutor: '/tutor/', admin: '/admin/' };
+export const ROLE_HOME: Record<Role, string> = { student: '/cabinet/', tutor: '/tutor/', admin: '/admin/lessons' };
 export const ROLE_SETTINGS: Record<Role, string> = {
   student: '/cabinet/settings/',
   tutor: '/tutor/settings/',
-  admin: '/admin/',
+  admin: '/admin/lessons',
 };
