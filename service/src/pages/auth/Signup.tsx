@@ -41,6 +41,7 @@ export function Signup() {
     } // GuestOnly sends the new user on to ?next= or their home
     if (res.reason === 'taken') setTaken(true);
     else if (res.reason === 'weak') setErrors({ password: 'Пароль слишком простой. Добавьте цифры или буквы.' });
+    else if (res.reason === 'rate') setErrors({ form: 'Слишком много попыток. Подождите минуту и попробуйте ещё раз.' });
     else setErrors({ form: 'Не получилось создать аккаунт. Проверьте интернет и попробуйте ещё раз.' });
   }
 

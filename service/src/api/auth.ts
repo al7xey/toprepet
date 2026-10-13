@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 import type { Role } from './types';
 
-export type AuthResult = { ok: true } | { ok: false; reason: 'invalid' | 'taken' | 'weak' | 'blocked' | 'network' | 'unknown' };
+export type AuthResult = { ok: true } | { ok: false; reason: 'invalid' | 'taken' | 'weak' | 'blocked' | 'rate' | 'network' | 'unknown' };
 
 function classify(error: { message?: string; code?: string; status?: number } | null): AuthResult {
   if (!error) return { ok: true };
@@ -12,6 +12,7 @@ function classify(error: { message?: string; code?: string; status?: number } | 
   if (code === 'user_already_exists' || code === 'email_exists' || msg.includes('already registered')) return { ok: false, reason: 'taken' };
   if (code === 'invalid_credentials' || msg.includes('invalid login')) return { ok: false, reason: 'invalid' };
   if (code === 'weak_password' || msg.includes('password should')) return { ok: false, reason: 'weak' };
+  if (error.status === 429 || code.startsWith('over_') || msg.includes('rate limit')) return { ok: false, reason: 'rate' };
   if (!error.status || msg.includes('fetch')) return { ok: false, reason: 'network' };
   return { ok: false, reason: 'unknown' };
 }
