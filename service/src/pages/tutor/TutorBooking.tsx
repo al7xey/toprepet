@@ -15,6 +15,7 @@ import { usePageMeta } from '../../ui/meta';
 import { Overlay } from '../../ui/Overlay';
 import { NotFound } from '../common/NotFound';
 import { pupil } from './parts';
+import { reachGoal } from '../../app/metrika';
 
 /* Р4.1 (mockup tutorReject): reasons offered when declining. */
 const REASONS = ['Это время уже занято', 'Не веду этот уровень', 'Заболел(а) или не смогу', 'Другое'];
@@ -49,6 +50,7 @@ function Decide({ b, onStale }: { b: Booking; onStale: () => void }) {
     const res = await confirmBooking(b.id);
     setBusy(false);
     if (res.ok) {
+      reachGoal('booking_confirmed');
       void navigate(`/tutor/lessons/${b.id}`, { replace: true, state: { toast: `Запись подтверждена. ${dative(student)} ушло письмо.` } });
       return;
     }
@@ -160,6 +162,7 @@ function DeclineForm({ b, onCancel, onStale }: { b: Booking; onCancel: () => voi
     const res = await declineBooking(b.id, reason);
     setBusy(false);
     if (res.ok) {
+      reachGoal('booking_declined');
       void navigate('/tutor/bookings/', { replace: true, state: { toast: `Запись отклонена. ${dative(student)} ушло письмо с причиной.` } });
       return;
     }

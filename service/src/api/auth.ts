@@ -1,12 +1,14 @@
 import { supabase } from './supabase';
 import type { Role } from './types';
 
-export type AuthResult = { ok: true } | { ok: false; reason: 'invalid' | 'taken' | 'weak' | 'network' | 'unknown' };
+export type AuthResult = { ok: true } | { ok: false; reason: 'invalid' | 'taken' | 'weak' | 'blocked' | 'network' | 'unknown' };
 
 function classify(error: { message?: string; code?: string; status?: number } | null): AuthResult {
   if (!error) return { ok: true };
   const code = error.code ?? '';
   const msg = (error.message ?? '').toLowerCase();
+  // the Auth hook refuses a token to a blocked account (supabase/migrations/…_admin.sql)
+  if (msg === 'blocked' || (error.status === 403 && msg.includes('blocked'))) return { ok: false, reason: 'blocked' };
   if (code === 'user_already_exists' || code === 'email_exists' || msg.includes('already registered')) return { ok: false, reason: 'taken' };
   if (code === 'invalid_credentials' || msg.includes('invalid login')) return { ok: false, reason: 'invalid' };
   if (code === 'weak_password' || msg.includes('password should')) return { ok: false, reason: 'weak' };

@@ -28,8 +28,6 @@ function addRouteAssets(html, route) {
     : route === '/' ? 'src/pages/home/home-page.tsx'
     : route.startsWith('/teachers/') ? 'src/pages/teacher/teacher-page.tsx'
     : route === '/teachers' ? 'src/pages/teachers/teachers-page.tsx'
-    : route === '/lessons' ? 'src/pages/lessons/lessons-page.tsx'
-    : route === '/free-intro' ? 'src/pages/free-intro/free-intro-page.tsx'
     : route === '/for-repetitor' ? 'src/pages/for-tutors/for-tutors-page.tsx'
     : route === '/legal/payment-refund' ? 'src/pages/legal/payment-refund-page.tsx'
     : route.startsWith('/legal') ? 'src/pages/legal/legal-page.tsx'
@@ -73,14 +71,8 @@ if (!template.includes(rootPlaceholder)) {
 import { routes, titles, descriptions, canonicalForRoute } from './seo-routes.mjs';
 
 const breadcrumbNames = {
-  '/lessons':
-    'Занятия',
-
   '/contact':
     'Контакты',
-
-  '/free-intro':
-    'Бесплатное знакомство',
 
   '/for-repetitor':
     'Работа репетитором',
@@ -221,7 +213,7 @@ function addPageSchema(html, route) {
         },
       })),
     },
-  } : teacherSchemas[route] || (['/', '/lessons', '/contact', '/free-intro', '/for-repetitor'].includes(route) || route.startsWith('/legal') ? {
+  } : teacherSchemas[route] || (['/', '/contact', '/for-repetitor'].includes(route) || route.startsWith('/legal') ? {
     '@context': 'https://schema.org',
     '@type': route === '/contact' ? 'ContactPage' : 'WebPage',
     '@id': `${canonicalForRoute(route)}#webpage`,
@@ -230,14 +222,13 @@ function addPageSchema(html, route) {
     description: descriptions[route],
     inLanguage: 'ru-RU',
     isPartOf: { '@id': 'https://toprepet.ru/#website' },
-    ...(['/', '/lessons'].includes(route) ? { mainEntity: {
+    ...(route === '/' ? { mainEntity: {
       '@type': 'Service',
       name: 'Индивидуальные онлайн-занятия с частным репетитором',
       serviceType: 'Индивидуальные занятия по школьным предметам',
       broker: { '@id': 'https://toprepet.ru/#organization' },
       areaServed: { '@type': 'Country', name: 'Россия' },
-      availableChannel: { '@type': 'ServiceChannel', serviceUrl: 'https://toprepet.ru/lessons/' },
-      offers: { '@type': 'Offer', price: '1200', priceCurrency: 'RUB', url: 'https://toprepet.ru/lessons/', description: '60 минут индивидуально с преподавателем' },
+      availableChannel: { '@type': 'ServiceChannel', serviceUrl: 'https://toprepet.ru/teachers/' },
     } } : {}),
   } : undefined);
 
@@ -414,6 +405,15 @@ await writeFile(resolve('dist/sitemap.xml'), sitemap, 'utf8');
 const legacyTutorPath = resolve('dist/for-tutors/index.html');
 await mkdir(dirname(legacyTutorPath), { recursive: true });
 await writeFile(legacyTutorPath, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=https://toprepet.ru/for-repetitor/"><link rel="canonical" href="https://toprepet.ru/for-repetitor/"><title>Переход на страницу для репетиторов</title></head><body><p>Страница переехала: <a href="https://toprepet.ru/for-repetitor/">работа репетитором с TopRepet</a>.</p></body></html>`, 'utf8');
+
+// Р-6, О3: /lessons/ and /free-intro/ are gone. The Vercel build answers them with a 301 to /teachers/
+// (service/redirects.json); a static host gets these stubs instead, outside the sitemap.
+for (const oldRoute of ['/lessons', '/free-intro']) {
+  const destination = 'https://toprepet.ru/teachers/';
+  const oldPath = resolve('dist', oldRoute.slice(1), 'index.html');
+  await mkdir(dirname(oldPath), { recursive: true });
+  await writeFile(oldPath, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${destination}"><link rel="canonical" href="${destination}"><title>Страница переехала — TopRepet</title></head><body><p>Страница переехала: <a href="${destination}">каталог репетиторов</a>.</p></body></html>`, 'utf8');
+}
 
 for (const route of routes.filter(path => path.startsWith('/teachers/'))) {
   const oldRoute = route.replace('/teachers/', '/teacher/');

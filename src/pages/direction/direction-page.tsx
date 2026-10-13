@@ -1,16 +1,20 @@
 import { Navigate, useParams } from 'react-router-dom';
-import { legacyGoal } from '../../entities/lesson';
+
+/* Old direction addresses lead to the catalog with the same goal or subject (Р-6: /lessons/ is gone). */
+const CATALOG: Record<string, string> = {
+  'school-start': 'goal=preschool',
+  primary: 'subject=primary',
+  'school-program': 'goal=school',
+  subjects: 'goal=school',
+  homework: 'goal=homework',
+  oge: 'goal=oge',
+  ege: 'goal=ege',
+};
+
 export default function DirectionPage() {
   const { id } = useParams();
-  const goal = id && Object.hasOwn(legacyGoal, id) ? legacyGoal[id] : undefined;
-  if (goal) {
-    const params = new URLSearchParams({ goal });
-    if (id === 'ege') params.set('exam', 'ЕГЭ');
-    if (id === 'oge') params.set('exam', 'ОГЭ');
-    if (id === 'school-start') params.set('subject', 'Подготовка к школе');
-    if (id === 'primary') params.set('subject', 'Начальные классы');
-    return <Navigate to={'/lessons/?' + params} replace />;
-  }
+  const query = id && Object.hasOwn(CATALOG, id) ? CATALOG[id] : undefined;
+  if (query) return <Navigate to={`/teachers/?${query}`} replace />;
   return (
     <section className="not-found container">
       <p>404</p>

@@ -15,6 +15,7 @@ import { Overlay } from '../../ui/Overlay';
 import { StatusPill, shownStatus } from '../../ui/StatusPill';
 import { NotFound } from '../common/NotFound';
 import { subjectDat } from '../public/TutorPage';
+import { reachGoal } from '../../app/metrika';
 
 /** /cabinet/lessons/:id: the student's lesson card in every state (mockups lessonPending, cancelPending, lessonRejected, lessonConfirmed,
     lessonLink, cancelFree, cancelLate, cancelDone, lessonAfter, lessonDone, lessonAutoCancel, problemSent). У4.3, У5.2, У7.1, У7.3, У7.4, У7.5. */
@@ -86,6 +87,7 @@ function Lesson({ b, toast, onChanged }: { b: Booking; toast: string | null; onC
     const res = await markOk(b.id);
     setBusy(false);
     if (res.ok) {
+      reachGoal('lesson_ok');
       onChanged('Спасибо! Занятие завершено.');
       return;
     }

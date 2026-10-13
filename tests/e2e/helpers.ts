@@ -345,3 +345,33 @@ export async function signInAs(page: Page, account: Account, role: 'student' | '
   await logInInForm(page, account.email);
   await expect(page).toHaveURL(role === 'tutor' ? /\/tutor\/$/ : /\/cabinet\/$/);
 }
+
+/* ---------- iteration 5: admin ---------- */
+
+/** An administrator: a student account turned admin in the database (the role is never self-assigned, spec section 6). */
+export async function createAdmin(request: APIRequestContext, info: TestInfo, name = 'Светлана') {
+  const admin = await createUser(request, { email: uniqueEmail('admin', info), name });
+  sql(`update profiles set role = 'admin' where id = '${admin.id}'`);
+  return admin;
+}
+
+/** Signs in at the staff entrance and waits for the lesson registry. */
+export async function signInAdmin(page: Page, admin: Account) {
+  await page.goto('/admin/login');
+  await logInInForm(page, admin.email);
+  await expect(page).toHaveURL(/\/admin\/lessons$/);
+}
+
+/** The journal is shared with SQL tests, which count its rows: an admin's entries leave with the test. */
+export function cleanAdmin(admin?: Account) {
+  if (admin) sql(`delete from admin_log where admin_id = '${admin.id}'`);
+}
+
+/** Problems of the given bookings go away (SQL tests and the admin queue see only their own). */
+export function dropProblems(ids: number[]) {
+  const list = ids.map(Number).filter(Number.isFinite);
+  if (list.length) sql(`delete from problems where booking_id in (${list.join(',')})`);
+}
+
+/** «16.10.2026» → «2026-10-16»: the Moscow calendar day of a moment, as a date input takes it. */
+export const mskDay = (ts: number) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(ts);

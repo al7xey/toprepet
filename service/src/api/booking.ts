@@ -8,6 +8,8 @@ export interface Booking {
   tutorName: string;
   tutorTz: string;
   tutorSlug: string | null;
+  /** readable by the admin and while the tutor's profile is public */
+  tutorEmail: string;
   subjectId: number;
   subjectName: string;
   subjectSlug: string;
@@ -150,6 +152,7 @@ async function withPeople(rows: Row[]): Promise<Booking[]> {
     tutorName: prof.get(r.tutor_id)?.name ?? 'Репетитор',
     tutorTz: prof.get(r.tutor_id)?.tz ?? 'Europe/Moscow',
     tutorSlug: slug.get(r.tutor_id) ?? null,
+    tutorEmail: prof.get(r.tutor_id)?.email ?? '',
     subjectId: r.subject_id,
     subjectName: r.subjects?.name ?? '',
     subjectSlug: r.subjects?.slug ?? '',

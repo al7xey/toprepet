@@ -30,6 +30,7 @@ import { Overlay } from '../../ui/Overlay';
 import { SlotList, TakenAlert } from '../../ui/Slots';
 import { LoginForm } from '../auth/LoginForm';
 import { NotFound } from '../common/NotFound';
+import { reachGoal } from '../../app/metrika';
 
 /* «Репетитор по математике»: subjects in the dative for titles and links. */
 const SUBJECT_DAT: Record<string, string> = {
@@ -209,6 +210,7 @@ function BookingBlock({ t, tz }: { t: PublicTutor; tz: string }) {
   const notStudent = profile && profile.role !== 'student';
   const book = () => {
     if (chosen === null || notStudent) return;
+    reachGoal('booking_start');
     if (!profile) setLogin(true);
     else void navigate(bookHref);
   };

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Ваша анкета на TopRepet: задайте пароль</title></head>
+<body style="margin:0;background:#fff7f1;font-family:Manrope,Arial,sans-serif;color:#202838">
+<div style="max-width:560px;margin:0 auto;padding:32px 20px">
+<p style="font-size:22px;font-weight:700;margin:0 0 24px">toprepet</p>
+<div style="background:#fff;border:1px solid #f0e3dc;border-radius:24px;padding:24px">
+<h1 style="font-size:22px;line-height:1.3;margin:0 0 16px;font-weight:650">Ваша анкета на TopRepet: задайте пароль</h1>
+<p style="font-size:16px;line-height:1.6;margin:0 0 12px">Здравствуйте, {{ .Data.name }}!</p>
+<p style="font-size:16px;line-height:1.6;margin:0 0 12px">TopRepet стал сервисом записи: ученики выбирают репетитора в каталоге и записываются на свободное время прямо из анкеты, без переписки. Вашу анкету с сайта мы уже перенесли: фото, описание, образование и предметы.</p>
+<p style="font-size:16px;line-height:1.6;margin:0 0 8px">Чтобы анкета появилась в каталоге:</p>
+<ol style="font-size:16px;line-height:1.6;margin:0 0 12px;padding-left:22px">
+<li>Задайте пароль по кнопке ниже.</li>
+<li>Укажите цены за 60 и 90 минут.</li>
+<li>Отметьте свободное время в расписании и нажмите «Опубликовать».</li>
+</ol>
+<p style="font-size:16px;line-height:1.6;margin:0 0 20px">Ученик видит вашу цену и платит вам напрямую после того, как вы подтвердите запись. Комиссии нет.</p>
+<a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#d9551d;color:#fff;text-decoration:none;font-weight:750;padding:14px 22px;border-radius:18px">Задать пароль</a>
+</div>
+<p style="font-size:13px;color:#667085;margin:20px 0 0">Ссылка работает один раз. Если она устарела, откройте toprepet.ru/reset/ и введите {{ .Email }}: придёт новая. Поддержка: Telegram @toprepet_manager</p>
+</div>
+</body>
+</html>

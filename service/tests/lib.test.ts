@@ -163,3 +163,84 @@ test('У4.3 + У7.2 notification texts for each side', async () => {
   assert.equal(t('link_missing').href, '/tutor/lessons/7');
   assert.equal(noteText({ ...base, tutorName: 'Дмитрий Орлов', kind: 'booking_declined', role: 'student' }).text, 'Дмитрий отклонил запись на Пт 16 окт');
 });
+
+/* ---------- iteration 5 ---------- */
+
+test('Метрика: no counter id or an opt-out means no script and no calls; with an id goals reach ym()', async () => {
+  const { counterId, createMetrika, CONSENT_KEY } = await import('../src/lib/metrika.ts');
+  assert.equal(counterId(undefined), null);
+  assert.equal(counterId(''), null);
+  assert.equal(counterId('abc'), null);
+  assert.equal(counterId(' 112922088 '), 112922088);
+
+  const fakeHost = (stored: string | null = null) => {
+    const appended: { src?: string }[] = [];
+    const host = {
+      ym: undefined as undefined | ((...a: unknown[]) => void),
+      document: { head: { append: (el: unknown) => void appended.push(el as { src?: string }) }, createElement: () => ({}) as { src?: string } },
+      localStorage: { getItem: (k: string) => (k === CONSENT_KEY ? stored : null) },
+      location: { origin: 'https://toprepet.ru', pathname: '/teachers/' },
+    };
+    return { host, appended };
+  };
+
+  const off = fakeHost();
+  const none = createMetrika(null, () => off.host);
+  none.goal('booking_created');
+  none.hit('Каталог');
+  assert.equal(none.enabled(), false);
+  assert.equal(off.appended.length, 0);
+  assert.equal(off.host.ym, undefined);
+
+  const optedOut = fakeHost(JSON.stringify({ version: 1, choice: 'necessary', at: 1 }));
+  const quiet = createMetrika(112922088, () => optedOut.host);
+  quiet.goal('signup', { role: 'student' });
+  assert.equal(optedOut.appended.length, 0);
+
+  const on = fakeHost();
+  const calls: unknown[][] = [];
+  on.host.ym = (...a: unknown[]) => void calls.push(a);
+  const m = createMetrika(112922088, () => on.host);
+  m.goal('booking_confirmed');
+  m.goal('signup', { role: 'tutor' });
+  m.hit('Каталог');
+  m.hit('Каталог');
+  assert.deepEqual(calls[0].slice(0, 2), [112922088, 'init']);
+  assert.deepEqual(calls[1], [112922088, 'reachGoal', 'booking_confirmed', undefined]);
+  assert.deepEqual(calls[2], [112922088, 'reachGoal', 'signup', { role: 'tutor' }]);
+  assert.deepEqual(calls[3].slice(0, 3), [112922088, 'hit', 'https://toprepet.ru/teachers/']);
+  assert.equal(calls.length, 4, 'the same page is counted once');
+
+  // without a preloaded ym the tag is added once, calls wait in its queue
+  const fresh = fakeHost();
+  const q = createMetrika(5, () => fresh.host);
+  q.goal('lesson_ok');
+  q.goal('problem_reported');
+  assert.equal(fresh.appended.length, 1);
+  assert.equal(fresh.appended[0].src, 'https://mc.yandex.ru/metrika/tag.js?id=5');
+  assert.equal((fresh.host.ym as unknown as { a: unknown[][] }).a.length, 3);
+});
+
+test('А1, А2, А3: history and journal texts, day range by Moscow, overdue problems', async () => {
+  const { eventText, journalText, dayRange, isOverdue, lessonNo } = await import('../src/lib/admin.ts');
+  const who = { studentId: 's', studentName: 'Ирина Петрова', tutorName: 'Анна Ковалёва' };
+  const e = (to: 'pending' | 'confirmed' | 'declined' | 'cancelled' | 'completed', actorId: string | null, note: string | null = null) => ({ at: 0, actorId, from: null, to, note });
+  assert.equal(eventText(e('pending', 's'), who), 'запись создана, ждёт подтверждения');
+  assert.equal(eventText(e('confirmed', 't'), who), 'Анна подтвердила');
+  assert.equal(eventText(e('declined', 't', 'Это время уже занято'), who), 'Анна отклонила: «Это время уже занято»');
+  assert.equal(eventText(e('cancelled', 's'), who), 'ученик отменил');
+  assert.equal(eventText(e('cancelled', null, 'автоотмена'), who), 'отменена автоматически: репетитор не ответил вовремя');
+  assert.equal(eventText(e('completed', null, 'решение по проблеме'), who), 'закрыто решением по проблеме');
+  assert.equal(eventText(e('completed', 's'), who), 'ученик подтвердил, что всё прошло хорошо');
+  assert.equal(eventText(e('confirmed', 't'), { ...who, tutorName: 'Дмитрий' }), 'Дмитрий подтвердил');
+  assert.equal(journalText('hide_tutor', 'Светлана', 'Павел Ким', 'Фото не по правилам'), 'Светлана скрыла анкету: Павел Ким: «Фото не по правилам»');
+  assert.equal(journalText('resolve_problem', 'Олег', 'B-2040', 'Ок'), 'Олег решил проблему по занятию B-2040: «Ок»');
+  assert.equal(lessonNo(2048), 'B-2048');
+  const [from, to] = dayRange('2026-10-16', 'Europe/Moscow')!;
+  assert.equal(new Date(from).toISOString(), '2026-10-15T21:00:00.000Z');
+  assert.equal(to - from, 24 * 3_600_000);
+  assert.equal(dayRange('', 'Europe/Moscow'), null);
+  assert.equal(dayRange('16.10.2026', 'Europe/Moscow'), null);
+  assert.equal(isOverdue(1000, 999), false);
+  assert.equal(isOverdue(1000, 1000), true);
+});

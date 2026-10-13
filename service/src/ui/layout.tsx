@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { signOut } from '../api/auth';
-import { BLOG_URL, SUPPORT_TELEGRAM, SUPPORT_URL } from '../api/config';
+import { BLOG_URL, DOCS_URL, SUPPORT_TELEGRAM, SUPPORT_URL } from '../api/config';
 import { useCounters, type Counters } from '../api/notifications';
 import { useSession } from '../api/session';
 import { ROLE_HOME, type Role } from '../api/types';
@@ -18,6 +18,8 @@ interface MenuItem {
   also?: RegExp;
   /** the number next to the item */
   count?: (c: Counters) => number;
+  /** what the number counts, for screen readers (default «новых») */
+  unit?: string;
 }
 
 const itemClass = (item: MenuItem, pathname: string) => ({ isActive }: { isActive: boolean }) =>
@@ -39,7 +41,11 @@ const CABINET_MENU: Record<Role, MenuItem[]> = {
     { to: '/cabinet/notifications/', label: 'Уведомления', count: c => c.unread },
     { to: '/tutor/settings/', label: 'Настройки' },
   ],
-  admin: [{ to: '/admin/', label: 'Админка' }],
+  admin: [
+    { to: '/admin/lessons', label: 'Занятия', also: /^\/admin\/lessons\// },
+    { to: '/admin/disputes', label: 'Проблемы', also: /^\/admin\/disputes\//, count: c => c.problems, unit: 'открытых' },
+    { to: '/admin/users', label: 'Пользователи' },
+  ],
 };
 
 /** Item text and its counter; the counter is part of the accessible name («Уведомления, 2 новых»). */
@@ -51,7 +57,7 @@ function ItemLabel({ item, counters }: { item: MenuItem; counters: Counters | nu
       {n ? (
         <em>
           {n}
-          <span className="sr-only"> новых</span>
+          <span className="sr-only"> {item.unit ?? 'новых'}</span>
         </em>
       ) : null}
     </>
@@ -139,6 +145,7 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
 export function Header() {
   const { user, profile, loading } = useSession();
   const location = useLocation();
+  const { pathname } = location;
   const [menu, setMenu] = useState(false);
   const unread = useCounters()?.unread ?? 0;
 
@@ -147,8 +154,8 @@ export function Header() {
 
   return (
     <header className="hd">
-      <Brand to={profile ? ROLE_HOME[profile.role] : '/'} />
-      {profile?.role === 'admin' ? null : <PublicNav />}
+      <Brand to={profile ? ROLE_HOME[profile.role] : '/'} admin={profile?.role === 'admin' || pathname.startsWith('/admin')} />
+      {profile?.role === 'admin' || pathname.startsWith('/admin') ? null : <PublicNav />}
       <span className="sp" />
       <div className="acts">
         {profile ? (
@@ -165,7 +172,7 @@ export function Header() {
             </span>
             <span className="nm">{profile.name}</span>
           </Link>
-        ) : loading && user ? null : (
+        ) : (loading && user) || pathname.startsWith('/admin') ? null : (
           <>
             <span className="only-d">
               <Link className="btn s p" to="/teachers/">
@@ -207,7 +214,7 @@ export function Footer() {
           Написать в&nbsp;поддержку
         </a>
         <a href={BLOG_URL}>Блог</a>
-        <a href="https://toprepet.ru/documents/">Документы</a>
+        <a href={DOCS_URL}>Документы</a>
       </div>
       <span className="mut sm">© 2026 TopRepet</span>
     </footer>
@@ -241,20 +248,21 @@ export function CabinetLayout({ area }: { area: Role | Role[] }) {
       <SkipLink />
       <Header />
       <RequireRole roles={Array.isArray(area) ? area : [area]}>
-        <CabinetShell />
+        <CabinetShell wide={area === 'admin'} />
       </RequireRole>
     </>
   );
 }
 
-function CabinetShell() {
+/** `wide`: the admin area uses a narrower menu and the full width for tables (mockup .admin .shell). */
+function CabinetShell({ wide = false }: { wide?: boolean }) {
   const { pathname } = useLocation();
   const { profile } = useSession();
   const logout = useLogout();
   const counters = useCounters();
   const role = profile?.role ?? 'student';
   return (
-      <div className="shell">
+      <div className={wide ? 'shell adm' : 'shell'}>
         <nav className="side" aria-label="Кабинет">
           {CABINET_MENU[role].map(item => (
             <NavLink key={item.to} to={item.to} end className={itemClass(item, pathname)}>
