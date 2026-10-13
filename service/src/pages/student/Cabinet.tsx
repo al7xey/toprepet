@@ -1,12 +1,14 @@
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { listMyBookings, type Booking } from '../../api/booking';
+import { useCounters } from '../../api/notifications';
 import { useSession, useViewerZone } from '../../api/session';
 import { useAsync } from '../../api/useAsync';
+import { awaitsReview } from '../../lib/lessons';
 import { first } from '../../lib/names';
 import { fmtDayTime, now } from '../../lib/time';
 import { LoadError, Loading } from '../../ui/LoadError';
 import { usePageMeta } from '../../ui/meta';
-import { StatusPill, shownStatus } from '../../ui/StatusPill';
+import { NewPill, StatusPill, shownStatus } from '../../ui/StatusPill';
 
 /** У4.3: upcoming first (by start), past separately (newest first). A lesson is past once it has ended. */
 export function splitLessons(list: Booking[], at: number) {
@@ -54,6 +56,7 @@ export function Cabinet() {
 
 function Lists({ list, tab, tz, at }: { list: Booking[]; tab: 'upcoming' | 'past'; tz: string; at: number }) {
   const { upcoming, past } = splitLessons(list, at);
+  const fresh = useCounters()?.fresh ?? [];
   const shown = tab === 'past' ? past : upcoming;
   return (
     <>
@@ -69,7 +72,7 @@ function Lists({ list, tab, tz, at }: { list: Booking[]; tab: 'upcoming' | 'past
         <ul className="stack" aria-label={tab === 'past' ? 'Прошедшие занятия' : 'Ближайшие занятия'}>
           {shown.map(b => (
             <li key={b.id}>
-              <LessonCard b={b} tz={tz} at={at} />
+              <LessonCard b={b} tz={tz} at={at} fresh={fresh.includes(b.id)} />
             </li>
           ))}
         </ul>
@@ -88,7 +91,8 @@ function Lists({ list, tab, tz, at }: { list: Booking[]; tab: 'upcoming' | 'past
   );
 }
 
-function LessonCard({ b, tz, at }: { b: Booking; tz: string; at: number }) {
+/** A row of «Мои занятия»: «Новое» when the lesson has unread notifications, «Как прошло?» while the student can still answer (У7.4). */
+function LessonCard({ b, tz, at, fresh }: { b: Booking; tz: string; at: number; fresh: boolean }) {
   const what = [b.tutorName, b.subjectName, b.forOther ? b.participantName : null].filter(Boolean).join(' · ');
   return (
     <Link className="lcard" to={`/cabinet/lessons/${b.id}`}>
@@ -101,6 +105,7 @@ function LessonCard({ b, tz, at }: { b: Booking; tz: string; at: number }) {
       </div>
       <div className="r">
         <StatusPill status={shownStatus(b, at)} />
+        {!b.problem && awaitsReview(b, at) ? <span className="pill act">Как прошло?</span> : fresh ? <NewPill /> : null}
       </div>
     </Link>
   );

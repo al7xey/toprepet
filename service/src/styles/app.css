@@ -2368,3 +2368,56 @@ fieldset.fgrp > .opts + .opts {
 .pg-arr:hover:not(:disabled) {
   background: var(--warm);
 }
+
+/* ---------- iteration 4: counters, notifications, lesson cards ---------- */
+.menu a em {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 700;
+  background: var(--acc-soft);
+  color: var(--ink);
+  border-radius: 99px;
+  padding: 3px 10px;
+}
+
+/* the cabinet footer stays above the fixed action bar on phones */
+body:has(.mbar) .foot1 {
+  padding-bottom: 100px;
+}
+
+.notes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notes .li {
+  color: var(--ink);
+}
+
+.notes .dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--blk2);
+}
+
+.notes .t b {
+  font-weight: 500;
+}
+
+.notes .unread .dot {
+  background: var(--acc);
+}
+
+.notes .unread .t b {
+  font-weight: 700;
+}
+
+.notes li:last-child .li {
+  border-bottom: 0;
+}
+
+.warm > .btn {
+  justify-self: start;
+}

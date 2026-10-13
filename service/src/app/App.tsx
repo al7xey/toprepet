@@ -11,6 +11,12 @@ import { TutorPage } from '../pages/public/TutorPage';
 import { Book } from '../pages/booking/Book';
 import { BookDone } from '../pages/booking/BookDone';
 import { StudentLesson } from '../pages/lessons/StudentLesson';
+import { ProblemPage } from '../pages/lessons/ProblemPage';
+import { TutorBookings } from '../pages/tutor/TutorBookings';
+import { TutorBooking } from '../pages/tutor/TutorBooking';
+import { TutorLessons } from '../pages/tutor/TutorLessons';
+import { TutorLesson } from '../pages/tutor/TutorLesson';
+import { Notifications } from '../pages/common/Notifications';
 import { Cabinet } from '../pages/student/Cabinet';
 import { TutorHome } from '../pages/tutor/TutorHome';
 import { TutorProfile } from '../pages/tutor/TutorProfile';
@@ -22,7 +28,7 @@ import { AdminHome } from '../pages/common/AdminHome';
 import { GuestOnly, RequireRole } from './Guard';
 
 /* Addresses from the spec end with a slash; the bare form is redirected to it. */
-const SLASHED = /^\/(login|signup|reset|reset\/new|teachers|teachers\/[^/]+|cabinet|cabinet\/settings|tutor|tutor\/profile|tutor\/schedule|tutor\/settings|admin)$/;
+const SLASHED = /^\/(login|signup|reset|reset\/new|teachers|teachers\/[^/]+|cabinet|cabinet\/settings|cabinet\/notifications|tutor|tutor\/profile|tutor\/schedule|tutor\/bookings|tutor\/lessons|tutor\/settings|admin)$/;
 
 export function App() {
   const { pathname, search, hash } = useLocation();
@@ -45,13 +51,21 @@ export function App() {
       <Route element={<CabinetLayout area="student" />}>
         <Route path="/cabinet/" element={<Cabinet />} />
         <Route path="/cabinet/lessons/:id" element={<StudentLesson />} />
+        <Route path="/cabinet/lessons/:id/problem" element={<ProblemPage />} />
         <Route path="/cabinet/settings/" element={<Settings />} />
       </Route>
       <Route element={<CabinetLayout area="tutor" />}>
         <Route path="/tutor/" element={<TutorHome />} />
         <Route path="/tutor/profile/" element={<TutorProfile />} />
         <Route path="/tutor/schedule/" element={<TutorSchedule />} />
+        <Route path="/tutor/bookings/" element={<TutorBookings />} />
+        <Route path="/tutor/bookings/:id" element={<TutorBooking />} />
+        <Route path="/tutor/lessons/" element={<TutorLessons />} />
+        <Route path="/tutor/lessons/:id" element={<TutorLesson />} />
         <Route path="/tutor/settings/" element={<Settings />} />
+      </Route>
+      <Route element={<CabinetLayout area={['student', 'tutor']} />}>
+        <Route path="/cabinet/notifications/" element={<Notifications />} />
       </Route>
       <Route element={<CabinetLayout area="admin" />}>
         <Route path="/admin/" element={<AdminHome />} />
