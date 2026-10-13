@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import type { Profile } from './types';
+import { guessZone } from '../lib/time';
 
 interface SessionState {
   user: User | null;
@@ -82,4 +83,10 @@ export function useSession() {
   const ctx = useContext(SessionContext);
   if (!ctx) throw new Error('useSession must be used inside <SessionProvider>');
   return ctx;
+}
+
+/** Zone the viewer sees times in: the signed-in user's profile zone, a guest's browser zone. */
+export function useViewerZone() {
+  const { profile } = useSession();
+  return profile?.tz ?? guessZone();
 }

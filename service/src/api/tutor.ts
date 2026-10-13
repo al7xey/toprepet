@@ -65,8 +65,11 @@ const PHOTO_BUCKET = 'tutor-photos';
 export const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 export const PHOTO_MAX_BYTES = 5 * 1024 * 1024;
 
+/** A storage path of an uploaded photo, or a site photo given as an absolute path (`/images/teachers/…`) or URL. */
 export function photoUrl(path: string | null) {
-  return path ? supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl : null;
+  if (!path) return null;
+  if (path.startsWith('/') || /^https?:\/\//.test(path)) return path;
+  return supabase.storage.from(PHOTO_BUCKET).getPublicUrl(path).data.publicUrl;
 }
 
 export async function listSubjects(): Promise<Subject[]> {

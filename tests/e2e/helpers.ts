@@ -59,6 +59,7 @@ export function rest(request: APIRequestContext, token?: string) {
     post: (path: string, data: unknown) => call('POST', path, data),
     patch: (path: string, data: unknown) => call('PATCH', path, data),
     rpc: (fn: string, args: unknown = {}) => call('POST', `rpc/${fn}`, args),
+    del: (path: string) => call('DELETE', path),
   };
 }
 
@@ -137,4 +138,109 @@ export function firstLink(html: string) {
 export async function cleanUp(request: APIRequestContext, { tutor, student, booking }: { tutor?: Account; student?: Account; booking?: number }) {
   if (student && booking) await rest(request, student.token).rpc('cancel_booking', { p_id: booking });
   if (tutor) await rest(request, tutor.token).rpc('unpublish_tutor');
+}
+
+/* ---------- iteration 3: catalog and booking ---------- */
+
+const CYR = 'абвгдежзиклмнопрстуфхэюя';
+/** A word no other test or real tutor has, to find this test's tutors by name in a shared catalog. */
+export function uniqueWord() {
+  let w = '';
+  for (let i = 0; i < 6; i++) w += CYR[Math.floor(Math.random() * CYR.length)];
+  return w[0].toUpperCase() + w.slice(1);
+}
+
+export interface TutorSeed {
+  name?: string;
+  tz?: string;
+  subjects?: { slug: string; prices: Record<number, number> }[];
+  goals?: string[];
+  exp?: number | null;
+  /** weekly windows [weekday 1–7, start minute, end minute] in the tutor's zone; default every day 09:00–21:00 */
+  windows?: [number, number, number][];
+  horizonWeeks?: 1 | 2 | 4;
+  minLeadHours?: 12 | 24;
+}
+
+export interface PublishedTutor extends Account {
+  name: string;
+  slug: string;
+  subjectIds: Record<string, number>;
+}
+
+/** A published tutor with a readable address, prices and windows, made through the API. */
+export async function publishedTutor(request: APIRequestContext, info: TestInfo, seed: TutorSeed = {}): Promise<PublishedTutor> {
+  const name = seed.name ?? `Ника ${uniqueWord()}`;
+  const account = await createUser(request, { email: uniqueEmail('cat-tutor', info), role: 'tutor', name, tz: seed.tz ?? 'Europe/Moscow' });
+  const db = rest(request, account.token);
+  const slug = `e2e-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`;
+  const patch = await db.patch(`tutors?user_id=eq.${account.id}`, {
+    slug,
+    photo_path: `${account.id}/seed.jpg`,
+    experience_years: seed.exp === undefined ? 5 : seed.exp,
+    goals: seed.goals ?? [],
+    horizon_weeks: seed.horizonWeeks ?? 2,
+    min_lead_hours: seed.minLeadHours ?? 12,
+  });
+  expect(patch.ok, JSON.stringify(patch.body)).toBeTruthy();
+  const subjects = seed.subjects ?? [{ slug: 'math', prices: { 60: 2000 } }];
+  const all = (await db.get('subjects?select=id,slug')).body as { id: number; slug: string }[];
+  const subjectIds: Record<string, number> = {};
+  for (const s of subjects) {
+    const sid = all.find(x => x.slug === s.slug)!.id;
+    subjectIds[s.slug] = sid;
+    expect((await db.post('tutor_subjects', { tutor_id: account.id, subject_id: sid })).ok).toBeTruthy();
+    for (const [dur, price] of Object.entries(s.prices)) {
+      const res = await db.post('prices', { tutor_id: account.id, subject_id: sid, duration_min: Number(dur), price_rub: price });
+      expect(res.ok, JSON.stringify(res.body)).toBeTruthy();
+    }
+  }
+  const windows = seed.windows ?? [1, 2, 3, 4, 5, 6, 7].map(d => [d, 540, 1260] as [number, number, number]);
+  const win = await db.post('weekly_windows', windows.map(([weekday, start_min, end_min]) => ({ tutor_id: account.id, weekday, start_min, end_min })));
+  expect(win.ok, JSON.stringify(win.body)).toBeTruthy();
+  const pub = await db.rpc('publish_tutor');
+  expect(pub.ok, JSON.stringify(pub.body)).toBeTruthy();
+  return { ...account, name, slug, subjectIds };
+}
+
+/** Free starts of a tutor as the API gives them to everyone. */
+export async function apiFreeSlots(request: APIRequestContext, tutorId: string, duration = 60) {
+  return ((await rest(request).rpc('free_slots', { p_tutor: tutorId, p_duration: duration })).body as string[]).map(s => Date.parse(s));
+}
+
+export async function apiBook(request: APIRequestContext, student: Account, tutor: PublishedTutor, startsAt: number, { subject = 'math', duration = 60 } = {}) {
+  const res = await rest(request, student.token).rpc('create_booking', {
+    p_tutor: tutor.id,
+    p_subject: tutor.subjectIds[subject],
+    p_duration: duration,
+    p_starts_at: new Date(startsAt).toISOString(),
+  });
+  expect(res.ok, JSON.stringify(res.body)).toBeTruthy();
+  return Number(res.body);
+}
+
+/** Address of the booking form for a slot, as the profile builds it. */
+export function bookPath(tutor: PublishedTutor, startsAt: number, { subject = 'math', duration = 60 } = {}) {
+  return `/book/${tutor.slug}?subject=${subject}&dur=${duration}&slot=${encodeURIComponent(new Date(startsAt).toISOString())}`;
+}
+
+/** Signs a student in through the login page and waits for the cabinet. */
+export async function signInStudent(page: Page, request: APIRequestContext, info: TestInfo, name = 'Ирина') {
+  const account = await createUser(request, { email: uniqueEmail('student', info), name });
+  await page.goto('/login/');
+  await logInInForm(page, account.email);
+  await expect(page).toHaveURL(/\/cabinet\/$/);
+  return account;
+}
+
+/** Opens every page of the catalog grid. */
+export async function showAll(page: Page) {
+  const more = page.getByRole('button', { name: 'Показать ещё' });
+  while (await more.isVisible()) await more.click();
+}
+
+/** Cancels live bookings (each as its student) and unpublishes tutors, so the shared database stays clean. */
+export async function cleanBooking(request: APIRequestContext, { tutors = [], bookings = [] }: { tutors?: Account[]; bookings?: { student: Account; id: number }[] }) {
+  for (const b of bookings) await rest(request, b.student.token).rpc('cancel_booking', { p_id: b.id });
+  for (const t of tutors) await rest(request, t.token).rpc('unpublish_tutor');
 }

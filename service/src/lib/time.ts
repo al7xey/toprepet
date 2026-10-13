@@ -246,3 +246,37 @@ export function guessZone() {
     return MSK;
   }
 }
+
+/* city in the cases used next to times: «по Москве», «в Екатеринбурге» */
+const ZONE_CASES: Record<string, { by: string; at: string }> = {
+  'Europe/Kaliningrad': { by: 'по Калининграду', at: 'в Калининграде' },
+  'Europe/Moscow': { by: 'по Москве', at: 'в Москве' },
+  'Europe/Samara': { by: 'по Самаре', at: 'в Самаре' },
+  'Asia/Yekaterinburg': { by: 'по Екатеринбургу', at: 'в Екатеринбурге' },
+  'Asia/Omsk': { by: 'по Омску', at: 'в Омске' },
+  'Asia/Novosibirsk': { by: 'по Новосибирску', at: 'в Новосибирске' },
+  'Asia/Krasnoyarsk': { by: 'по Красноярску', at: 'в Красноярске' },
+  'Asia/Irkutsk': { by: 'по Иркутску', at: 'в Иркутске' },
+  'Asia/Yakutsk': { by: 'по Якутску', at: 'в Якутске' },
+  'Asia/Vladivostok': { by: 'по Владивостоку', at: 'во Владивостоке' },
+  'Asia/Magadan': { by: 'по Магадану', at: 'в Магадане' },
+  'Asia/Kamchatka': { by: 'по Петропавловску-Камчатскому', at: 'в Петропавловске-Камчатском' },
+};
+
+/** «по Москве»; a zone outside the list reads «по UTC+4». */
+export const zoneBy = (tz: string, at = now()) => ZONE_CASES[tz]?.by ?? `по ${utcLabel(tz, at)}`;
+/** «в Екатеринбурге»; a zone outside the list reads «в поясе UTC+4». */
+export const zoneAt = (tz: string, at = now()) => ZONE_CASES[tz]?.at ?? `в поясе ${utcLabel(tz, at)}`;
+
+/* «Пт 10 окт 17:00»: deadlines in running text */
+export function fmtDayAt(ts: number, tz: string) {
+  return `${fmtDay(ts, tz)} ${fmtTime(ts, tz)}`;
+}
+
+/* «на 2 часа больше», «на 1 час меньше» */
+export function hoursDiffText(diff: number) {
+  const n = Math.abs(diff);
+  const num = Number.isInteger(n) ? String(n) : String(n).replace('.', ',');
+  const word = Number.isInteger(n) ? plural(n, 'час', 'часа', 'часов') : 'часа';
+  return `на${NB}${num}${NB}${word} ${diff > 0 ? 'больше' : 'меньше'}`;
+}
