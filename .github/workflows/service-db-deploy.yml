@@ -49,6 +49,7 @@ jobs:
         run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
       - name: Dry run (migrations that would be applied)
         if: steps.secrets.outputs.ready == 'true' && env.APPLY != 'true'
+        shell: bash
         run: supabase db push --dry-run | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Push migrations
         if: steps.secrets.outputs.ready == 'true' && env.APPLY == 'true'
