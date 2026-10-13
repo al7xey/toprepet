@@ -23,6 +23,8 @@ export function LoginForm({ next, emailLabel = 'Email', staff = false }: { next?
       setError(
         res.reason === 'network'
           ? 'Нет связи с сервером. Проверьте интернет и попробуйте ещё раз.'
+          : res.reason === 'rate'
+            ? 'Слишком много попыток. Подождите минуту и попробуйте ещё раз.'
           : res.reason === 'blocked'
             ? 'Аккаунт заблокирован. Если это ошибка, напишите в поддержку: Telegram @toprepet_manager.'
             : 'Email или пароль не подходят. Проверьте раскладку или восстановите пароль.',
