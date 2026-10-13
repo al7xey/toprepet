@@ -1,4 +1,4 @@
-import { useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react';
+import { useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 
 interface FieldShell {
   label: string;
@@ -53,6 +53,23 @@ export function SelectField({ label, error, hint, children, ...select }: FieldSh
       <select id={id} className="inp" aria-invalid={error ? true : undefined} aria-describedby={describedBy(id, error, hint)} {...select}>
         {children}
       </select>
+      <Notes id={id} error={error} hint={hint} />
+    </div>
+  );
+}
+
+export function TextAreaField({ label, error, hint, className, ...area }: FieldShell & TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const id = useId();
+  return (
+    <div className="fld">
+      <label htmlFor={id}>{label}</label>
+      <textarea
+        id={id}
+        className={`inp ta ${className ?? ''}`}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy(id, error, hint)}
+        {...area}
+      />
       <Notes id={id} error={error} hint={hint} />
     </div>
   );

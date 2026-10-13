@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { signOut } from '../api/auth';
-import { BLOG_URL, SUPPORT_TELEGRAM, SUPPORT_URL } from '../api/config';
+import { BLOG_URL, DOCS_URL, SUPPORT_TELEGRAM, SUPPORT_URL } from '../api/config';
+import { useCounters, type Counters } from '../api/notifications';
 import { useSession } from '../api/session';
 import { ROLE_HOME, type Role } from '../api/types';
 import { first } from '../lib/names';
@@ -13,20 +14,55 @@ import { Overlay } from './Overlay';
 interface MenuItem {
   to: string;
   label: string;
+  /** deeper pages that belong to this item, e.g. a lesson card under «Мои занятия» */
+  also?: RegExp;
+  /** the number next to the item */
+  count?: (c: Counters) => number;
+  /** what the number counts, for screen readers (default «новых») */
+  unit?: string;
 }
+
+const itemClass = (item: MenuItem, pathname: string) => ({ isActive }: { isActive: boolean }) =>
+  isActive || item.also?.test(pathname) ? 'on' : undefined;
 
 /* Cabinet sections. Items join the menu in the iteration that builds their pages. */
 const CABINET_MENU: Record<Role, MenuItem[]> = {
   student: [
-    { to: '/cabinet/', label: 'Мои занятия' },
+    { to: '/cabinet/', label: 'Мои занятия', also: /^\/cabinet\/lessons\//, count: c => c.fresh.length },
+    { to: '/cabinet/notifications/', label: 'Уведомления', count: c => c.unread },
     { to: '/cabinet/settings/', label: 'Настройки' },
   ],
   tutor: [
     { to: '/tutor/', label: 'Сводка' },
+    { to: '/tutor/profile/', label: 'Анкета' },
+    { to: '/tutor/schedule/', label: 'Расписание' },
+    { to: '/tutor/bookings/', label: 'Записи', also: /^\/tutor\/bookings\//, count: c => c.waiting },
+    { to: '/tutor/lessons/', label: 'Занятия', also: /^\/tutor\/lessons\// },
+    { to: '/cabinet/notifications/', label: 'Уведомления', count: c => c.unread },
     { to: '/tutor/settings/', label: 'Настройки' },
   ],
-  admin: [{ to: '/admin/', label: 'Админка' }],
+  admin: [
+    { to: '/admin/lessons', label: 'Занятия', also: /^\/admin\/lessons\// },
+    { to: '/admin/disputes', label: 'Проблемы', also: /^\/admin\/disputes\//, count: c => c.problems, unit: 'открытых' },
+    { to: '/admin/users', label: 'Пользователи' },
+  ],
 };
+
+/** Item text and its counter; the counter is part of the accessible name («Уведомления, 2 новых»). */
+function ItemLabel({ item, counters }: { item: MenuItem; counters: Counters | null }) {
+  const n = counters && item.count ? item.count(counters) : 0;
+  return (
+    <>
+      {item.label}
+      {n ? (
+        <em>
+          {n}
+          <span className="sr-only"> {item.unit ?? 'новых'}</span>
+        </em>
+      ) : null}
+    </>
+  );
+}
 
 const PUBLIC_NAV: MenuItem[] = [
   { to: '/', label: 'Подобрать репетитора' },
@@ -61,7 +97,9 @@ function PublicNav() {
 
 function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { profile } = useSession();
+  const { pathname } = useLocation();
   const logout = useLogout();
+  const counters = useCounters();
   const items = profile ? CABINET_MENU[profile.role] : PUBLIC_NAV;
   return (
     <Overlay open={open} onClose={onClose} className="menu" label="Меню">
@@ -70,8 +108,8 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
         <button type="button" className="x" aria-label="Закрыть меню" onClick={onClose} />
       </div>
       {items.map(item => (
-        <NavLink key={item.to} to={item.to} end className={({ isActive }) => (isActive ? 'on' : undefined)} onClick={onClose}>
-          {item.label}
+        <NavLink key={item.to} to={item.to} end className={itemClass(item, pathname)} onClick={onClose}>
+          <ItemLabel item={item} counters={counters} />
         </NavLink>
       ))}
       <hr />
@@ -107,27 +145,34 @@ function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
 export function Header() {
   const { user, profile, loading } = useSession();
   const location = useLocation();
+  const { pathname } = location;
   const [menu, setMenu] = useState(false);
+  const unread = useCounters()?.unread ?? 0;
 
   const next = `${location.pathname}${location.search}`;
   const loginHref = location.pathname.startsWith('/login') ? '/login/' : `/login/?next=${encodeURIComponent(next)}`;
 
   return (
     <header className="hd">
-      <Brand to={profile ? ROLE_HOME[profile.role] : '/'} />
-      {profile?.role === 'admin' ? null : <PublicNav />}
+      <Brand to={profile ? ROLE_HOME[profile.role] : '/'} admin={profile?.role === 'admin' || pathname.startsWith('/admin')} />
+      {profile?.role === 'admin' || pathname.startsWith('/admin') ? null : <PublicNav />}
       <span className="sp" />
       <div className="acts">
         {profile ? (
-          <Link className="who" to={ROLE_HOME[profile.role]} aria-label={`Кабинет: ${profile.name}`}>
+          <Link
+            className="who"
+            to={ROLE_HOME[profile.role]}
+            aria-label={`Кабинет: ${profile.name}${unread ? `, новых уведомлений: ${unread}` : ''}`}
+          >
             <span className="cnt">
               <span className="av" aria-hidden="true">
                 {first(profile.name).slice(0, 1).toUpperCase()}
               </span>
+              {unread ? <em aria-hidden="true">{unread}</em> : null}
             </span>
             <span className="nm">{profile.name}</span>
           </Link>
-        ) : loading && user ? null : (
+        ) : (loading && user) || pathname.startsWith('/admin') ? null : (
           <>
             <span className="only-d">
               <Link className="btn s p" to="/teachers/">
@@ -169,7 +214,7 @@ export function Footer() {
           Написать в&nbsp;поддержку
         </a>
         <a href={BLOG_URL}>Блог</a>
-        <a href="https://toprepet.ru/documents/">Документы</a>
+        <a href={DOCS_URL}>Документы</a>
       </div>
       <span className="mut sm">© 2026 TopRepet</span>
     </footer>
@@ -195,20 +240,33 @@ export function PublicLayout() {
   );
 }
 
-/** Cabinet shell: left column from 1000 px, the same items in the slide-out menu below. */
-export function CabinetLayout({ area: role }: { area: Role }) {
-  const { pathname } = useLocation();
-  const logout = useLogout();
+/** Cabinet shell: left column from 1000 px, the same items in the slide-out menu below.
+    A page shared by several roles (/cabinet/notifications/) shows the menu of the signed-in role. */
+export function CabinetLayout({ area }: { area: Role | Role[] }) {
   return (
     <>
       <SkipLink />
       <Header />
-      <RequireRole roles={[role]}>
-      <div className="shell">
+      <RequireRole roles={Array.isArray(area) ? area : [area]}>
+        <CabinetShell wide={area === 'admin'} />
+      </RequireRole>
+    </>
+  );
+}
+
+/** `wide`: the admin area uses a narrower menu and the full width for tables (mockup .admin .shell). */
+function CabinetShell({ wide = false }: { wide?: boolean }) {
+  const { pathname } = useLocation();
+  const { profile } = useSession();
+  const logout = useLogout();
+  const counters = useCounters();
+  const role = profile?.role ?? 'student';
+  return (
+      <div className={wide ? 'shell adm' : 'shell'}>
         <nav className="side" aria-label="Кабинет">
           {CABINET_MENU[role].map(item => (
-            <NavLink key={item.to} to={item.to} end className={({ isActive }) => (isActive ? 'on' : undefined)}>
-              {item.label}
+            <NavLink key={item.to} to={item.to} end className={itemClass(item, pathname)}>
+              <ItemLabel item={item} counters={counters} />
             </NavLink>
           ))}
           <button type="button" className="mut" onClick={() => void logout()}>
@@ -230,7 +288,5 @@ export function CabinetLayout({ area: role }: { area: Role }) {
           <span>© 2026 TopRepet</span>
         </div>
       </div>
-      </RequireRole>
-    </>
   );
 }

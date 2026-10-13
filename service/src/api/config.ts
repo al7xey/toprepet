@@ -13,4 +13,6 @@ export const MAIL_API_URL = import.meta.env.VITE_MAIL_API_URL || 'http://127.0.0
 
 export const SUPPORT_TELEGRAM = '@toprepet_manager';
 export const SUPPORT_URL = 'https://t.me/toprepet_manager';
-export const BLOG_URL = 'https://toprepet.ru/blog/';
+/* One domain with the landing (iteration 5): the blog and the documents are its pages. */
+export const BLOG_URL = '/blog/';
+export const DOCS_URL = '/legal/';

@@ -19,7 +19,7 @@ export function Hero() {
           <li><ChartNoAxesColumnIncreasing aria-hidden="true" /><span>Быстрый<br />результат</span></li>
         </ul>
         <div className="hero-offer">
-          <Link className="button button-primary" to="/lessons/">
+          <Link className="button button-primary" to="/teachers/">
             Подобрать репетитора <ArrowRight size={20} aria-hidden="true" />
           </Link>
           <Link className="button button-light hero-intro" to="/#how">

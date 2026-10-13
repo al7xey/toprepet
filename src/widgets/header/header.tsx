@@ -25,7 +25,7 @@ export function Header() {
   }, [location.pathname, location.hash]);
 
   const navigation = () => ([
-    { to: '/lessons/', label: 'Подобрать репетитора' },
+    { to: '/', label: 'Подобрать репетитора' },
     { to: '/teachers/', label: 'Репетиторы' },
     { to: '/for-repetitor/', label: 'Для репетиторов' },
     { to: '/blog/', label: 'Блог' },
@@ -55,7 +55,7 @@ export function Header() {
         <div className="header-actions">
           <Link
             className="button button-secondary header-contact"
-            to="/lessons/"
+            to="/teachers/"
           >
             Подобрать репетитора
           </Link>

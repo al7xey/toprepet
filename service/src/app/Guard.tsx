@@ -7,7 +7,7 @@ import { LoadError, Loading } from '../ui/LoadError';
 /** Only same-site paths are allowed as a return address. */
 export function safeNext(next: string | null) {
   if (!next || !next.startsWith('/') || next.startsWith('//') || next.startsWith('/\\')) return null;
-  if (/^\/(login|signup|reset)\b/.test(next)) return null;
+  if (/^\/(login|signup|reset|admin\/login)\b/.test(next)) return null;
   return next;
 }
 
@@ -18,7 +18,9 @@ export function RequireRole({ roles, children }: { roles: Role[]; children: Reac
   if (loading) return <div className="ct pg"><Loading /></div>;
   if (!user) {
     const next = `${location.pathname}${location.search}`;
-    return <Navigate to={`/login/?next=${encodeURIComponent(next)}`} replace />;
+    // staff sign in at their own entrance (mockup adminLogin)
+    const login = roles.length === 1 && roles[0] === 'admin' ? '/admin/login' : '/login/';
+    return <Navigate to={`${login}?next=${encodeURIComponent(next)}`} replace />;
   }
   if (!profile) return <div className="ct pg"><LoadError title="Не получилось загрузить профиль" /></div>;
   if (!roles.includes(profile.role)) return <Navigate to={ROLE_HOME[profile.role]} replace />;

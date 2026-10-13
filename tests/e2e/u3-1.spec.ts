@@ -8,7 +8,7 @@ test.describe('У3.1 регистрация', () => {
     await signUpInForm(page, { name: 'Ирина', email: uniqueEmail('u31-student', info) });
     await expect(page).toHaveURL(/\/cabinet\/$/);
     await expect(page.getByRole('heading', { name: 'Мои занятия' })).toBeVisible();
-    await expect(page.getByText('Пока нет занятий')).toBeVisible();
+    await expect(page.getByText('Здесь появятся ваши занятия')).toBeVisible();
     await expect(page.getByRole('link', { name: 'Кабинет: Ирина' })).toBeVisible();
   });
 

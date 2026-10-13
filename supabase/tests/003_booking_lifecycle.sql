@@ -89,6 +89,8 @@ begin
   assert (select status from bookings where id = id1) = 'confirmed', 'confirmed';
   begin perform set_meeting_url(id1, 'zoom meeting'); assert false, 'bad url';
   exception when raise_exception then assert sqlerrm = 'bad_url', sqlerrm; end;
+  begin perform set_meeting_url(id1, 'https://a b.ru'); assert false, 'space in url';
+  exception when raise_exception then assert sqlerrm = 'bad_url', sqlerrm; end;
   perform set_meeting_url(id1, 'https://telemost.yandex.ru/j/123');
   assert (select participant_name from bookings where id = id1) = 'Миша', 'tutor sees the participant';
   assert exists (select 1 from profiles where email = 'olga@example.com'), 'tutor sees the student name in a shared booking';
@@ -102,7 +104,8 @@ declare res jsonb := run_jobs(); id2 bigint := (select v from ctx where k = 'b2'
 begin
   assert (res ->> 'cancelled')::int = 1, 'one autocancel: ' || res::text;
   assert (select status from bookings where id = id2) = 'cancelled' and (select cancelled_by from bookings where id = id2) = 'system', 'system cancel';
-  assert (select count(*) from email_outbox where template = 'booking_autocancelled') = 2, 'letters to both';
+  -- counted per booking: e2e runs leave their own letters in a shared local database
+  assert (select count(*) from email_outbox where template = 'booking_autocancelled' and (payload ->> 'booking_id')::bigint = id2) = 2, 'letters to both';
   assert exists (select 1 from free_slots('00000000-0000-0000-0000-0000000000a1', 60::smallint, '2026-10-20 07:00+03') s
                  where s = '2026-10-20 10:00+03'), 'slots are free again';
 end $$;
@@ -111,13 +114,15 @@ end $$;
 do $$
 begin
   -- the run above already sent it, because 19.10 18:00 had passed
-  assert (select count(*) from email_outbox where template = 'reminder_24h') = 2, '24 h reminder to both sides';
+  assert (select count(*) from email_outbox where template = 'reminder_24h' and (payload ->> 'booking_id')::bigint = (select v from ctx where k = 'b1')) = 2,
+    '24 h reminder to both sides';
   assert (run_jobs() ->> 'reminders')::int = 0, 'not sent twice';
 end $$;
 select set_config('app.now', '2026-10-20 17:05+03', true);
 do $$ begin
   assert (run_jobs() ->> 'reminders')::int = 1, '1 h reminder';
-  assert (select count(*) from email_outbox where template = 'reminder_1h') = 2, 'to both sides';
+  assert (select count(*) from email_outbox where template = 'reminder_1h' and (payload ->> 'booking_id')::bigint = (select v from ctx where k = 'b1')) = 2,
+    'to both sides';
 end $$;
 
 -- У7.3-поздно: Olga cancels 55 minutes before → late cancel flag

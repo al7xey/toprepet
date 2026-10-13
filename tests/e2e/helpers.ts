@@ -1,4 +1,5 @@
 /// <reference types="node" />
+import { execFileSync } from 'node:child_process';
 import { expect, type APIRequestContext, type Page, type TestInfo } from '@playwright/test';
 
 /* Local `supabase start` defaults; CI uses the same stack. */
@@ -17,13 +18,84 @@ export function uniqueEmail(prefix: string, info: TestInfo) {
 /** Creates an account through the Auth API (faster than the form when the form is not under test). */
 export async function createUser(
   request: APIRequestContext,
-  { email, name = 'Ирина', role = 'student', password = PASSWORD }: { email: string; name?: string; role?: 'student' | 'tutor'; password?: string },
-) {
+  {
+    email,
+    name = 'Ирина',
+    role = 'student',
+    password = PASSWORD,
+    tz = 'Europe/Moscow',
+  }: { email: string; name?: string; role?: 'student' | 'tutor'; password?: string; tz?: string },
+): Promise<Account> {
   const res = await request.post(`${SUPABASE_URL}/auth/v1/signup`, {
     headers: { apikey: ANON_KEY, 'content-type': 'application/json' },
-    data: { email, password, data: { name, role, tz: 'Europe/Moscow' } },
+    data: { email, password, data: { name, role, tz } },
   });
   expect(res.ok(), await res.text()).toBeTruthy();
+  const body = (await res.json()) as { access_token?: string; user?: { id: string }; id?: string };
+  return { email, id: body.user?.id ?? body.id ?? '', token: body.access_token ?? '' };
+}
+
+export interface Account {
+  email: string;
+  id: string;
+  /** access token of the new account (sign-up returns a session locally) */
+  token: string;
+}
+
+/** PostgREST and rpc calls on behalf of an account, or as a guest without a token. */
+export function rest(request: APIRequestContext, token?: string) {
+  const headers = {
+    apikey: ANON_KEY,
+    authorization: `Bearer ${token ?? ANON_KEY}`,
+    'content-type': 'application/json',
+    prefer: 'return=representation',
+  };
+  const call = async (method: 'GET' | 'POST' | 'PATCH' | 'DELETE', path: string, data?: unknown) => {
+    const res = await request.fetch(`${SUPABASE_URL}/rest/v1/${path}`, { method, headers, data });
+    const text = await res.text();
+    return { ok: res.ok(), status: res.status(), body: (text ? JSON.parse(text) : null) as unknown };
+  };
+  return {
+    get: (path: string) => call('GET', path),
+    post: (path: string, data: unknown) => call('POST', path, data),
+    patch: (path: string, data: unknown) => call('PATCH', path, data),
+    rpc: (fn: string, args: unknown = {}) => call('POST', `rpc/${fn}`, args),
+    del: (path: string) => call('DELETE', path),
+  };
+}
+
+/** A fresh tutor signed in through the login form, landing on the summary.
+    The default name is not one of the real tutors, so generated addresses never take theirs (supabase/tests use anna-kovaleva). */
+export async function signInNewTutor(
+  page: Page,
+  request: APIRequestContext,
+  info: TestInfo,
+  { name = 'Анна Тестова', tz = 'Europe/Moscow' }: { name?: string; tz?: string } = {},
+) {
+  const account = await createUser(request, { email: uniqueEmail('tutor', info), role: 'tutor', name, tz });
+  await page.goto('/login/');
+  await logInInForm(page, account.email);
+  await expect(page).toHaveURL(/\/tutor\/$/);
+  return account;
+}
+
+/** Fills what publication needs straight through the API: photo path, a subject with a 60-minute price, weekly windows. */
+export async function seedReadyTutor(request: APIRequestContext, tutor: Account, { windows = true }: { windows?: boolean } = {}) {
+  const db = rest(request, tutor.token);
+  const subject = (await db.get('subjects?slug=eq.math&select=id')).body as { id: number }[];
+  const sid = subject[0].id;
+  expect((await db.patch(`tutors?user_id=eq.${tutor.id}`, { photo_path: `${tutor.id}/seed.jpg`, experience_years: 5 })).ok).toBeTruthy();
+  expect((await db.post('tutor_subjects', { tutor_id: tutor.id, subject_id: sid })).ok).toBeTruthy();
+  expect((await db.post('prices', { tutor_id: tutor.id, subject_id: sid, duration_min: 60, price_rub: 2000 })).ok).toBeTruthy();
+  if (windows) await seedWindows(request, tutor);
+  return sid;
+}
+
+/** Every day 09:00–21:00 in the tutor's zone, so there are free slots whatever the clock. */
+export async function seedWindows(request: APIRequestContext, tutor: Account) {
+  const rows = [1, 2, 3, 4, 5, 6, 7].map(weekday => ({ tutor_id: tutor.id, weekday, start_min: 540, end_min: 1260 }));
+  const res = await rest(request, tutor.token).post('weekly_windows', rows);
+  expect(res.ok, JSON.stringify(res.body)).toBeTruthy();
 }
 
 export async function signUpInForm(page: Page, { name, email, password = PASSWORD }: { name: string; email: string; password?: string }) {
@@ -62,3 +134,244 @@ export function firstLink(html: string) {
   if (!m) throw new Error('no link in the letter');
   return m[1].replace(/&amp;/g, '&');
 }
+
+/** Leaves the shared local database as SQL tests expect it: no published e2e profiles and no live e2e bookings. */
+export async function cleanUp(request: APIRequestContext, { tutor, student, booking }: { tutor?: Account; student?: Account; booking?: number }) {
+  if (student && booking) await rest(request, student.token).rpc('cancel_booking', { p_id: booking });
+  if (tutor) await rest(request, tutor.token).rpc('unpublish_tutor');
+}
+
+/* ---------- iteration 3: catalog and booking ---------- */
+
+const CYR = 'абвгдежзиклмнопрстуфхэюя';
+/** A word no other test or real tutor has, to find this test's tutors by name in a shared catalog. */
+export function uniqueWord() {
+  let w = '';
+  for (let i = 0; i < 6; i++) w += CYR[Math.floor(Math.random() * CYR.length)];
+  return w[0].toUpperCase() + w.slice(1);
+}
+
+export interface TutorSeed {
+  name?: string;
+  tz?: string;
+  subjects?: { slug: string; prices: Record<number, number> }[];
+  goals?: string[];
+  exp?: number | null;
+  /** weekly windows [weekday 1–7, start minute, end minute] in the tutor's zone; default every day 09:00–21:00 */
+  windows?: [number, number, number][];
+  horizonWeeks?: 1 | 2 | 4;
+  minLeadHours?: 12 | 24;
+}
+
+export interface PublishedTutor extends Account {
+  name: string;
+  slug: string;
+  subjectIds: Record<string, number>;
+}
+
+/** A published tutor with a readable address, prices and windows, made through the API. */
+export async function publishedTutor(request: APIRequestContext, info: TestInfo, seed: TutorSeed = {}): Promise<PublishedTutor> {
+  const name = seed.name ?? `Ника ${uniqueWord()}`;
+  const account = await createUser(request, { email: uniqueEmail('cat-tutor', info), role: 'tutor', name, tz: seed.tz ?? 'Europe/Moscow' });
+  const db = rest(request, account.token);
+  const slug = `e2e-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e6).toString(36)}`;
+  const patch = await db.patch(`tutors?user_id=eq.${account.id}`, {
+    slug,
+    photo_path: `${account.id}/seed.jpg`,
+    experience_years: seed.exp === undefined ? 5 : seed.exp,
+    goals: seed.goals ?? [],
+    horizon_weeks: seed.horizonWeeks ?? 2,
+    min_lead_hours: seed.minLeadHours ?? 12,
+  });
+  expect(patch.ok, JSON.stringify(patch.body)).toBeTruthy();
+  const subjects = seed.subjects ?? [{ slug: 'math', prices: { 60: 2000 } }];
+  const all = (await db.get('subjects?select=id,slug')).body as { id: number; slug: string }[];
+  const subjectIds: Record<string, number> = {};
+  for (const s of subjects) {
+    const sid = all.find(x => x.slug === s.slug)!.id;
+    subjectIds[s.slug] = sid;
+    expect((await db.post('tutor_subjects', { tutor_id: account.id, subject_id: sid })).ok).toBeTruthy();
+    for (const [dur, price] of Object.entries(s.prices)) {
+      const res = await db.post('prices', { tutor_id: account.id, subject_id: sid, duration_min: Number(dur), price_rub: price });
+      expect(res.ok, JSON.stringify(res.body)).toBeTruthy();
+    }
+  }
+  const windows = seed.windows ?? [1, 2, 3, 4, 5, 6, 7].map(d => [d, 540, 1260] as [number, number, number]);
+  const win = await db.post('weekly_windows', windows.map(([weekday, start_min, end_min]) => ({ tutor_id: account.id, weekday, start_min, end_min })));
+  expect(win.ok, JSON.stringify(win.body)).toBeTruthy();
+  const pub = await db.rpc('publish_tutor');
+  expect(pub.ok, JSON.stringify(pub.body)).toBeTruthy();
+  return { ...account, name, slug, subjectIds };
+}
+
+/** Free starts of a tutor as the API gives them to everyone. */
+export async function apiFreeSlots(request: APIRequestContext, tutorId: string, duration = 60) {
+  return ((await rest(request).rpc('free_slots', { p_tutor: tutorId, p_duration: duration })).body as string[]).map(s => Date.parse(s));
+}
+
+export async function apiBook(
+  request: APIRequestContext,
+  student: Account,
+  tutor: PublishedTutor,
+  startsAt: number,
+  { subject = 'math', duration = 60, forOther }: { subject?: string; duration?: number; forOther?: { name: string; age: number } } = {},
+) {
+  const res = await rest(request, student.token).rpc('create_booking', {
+    p_tutor: tutor.id,
+    p_subject: tutor.subjectIds[subject],
+    p_duration: duration,
+    p_starts_at: new Date(startsAt).toISOString(),
+    ...(forOther ? { p_for_other: true, p_name: forOther.name, p_age: forOther.age } : {}),
+  });
+  expect(res.ok, JSON.stringify(res.body)).toBeTruthy();
+  return Number(res.body);
+}
+
+/** Address of the booking form for a slot, as the profile builds it. */
+export function bookPath(tutor: PublishedTutor, startsAt: number, { subject = 'math', duration = 60 } = {}) {
+  return `/book/${tutor.slug}?subject=${subject}&dur=${duration}&slot=${encodeURIComponent(new Date(startsAt).toISOString())}`;
+}
+
+/** Signs a student in through the login page and waits for the cabinet. */
+export async function signInStudent(page: Page, request: APIRequestContext, info: TestInfo, name = 'Ирина') {
+  const account = await createUser(request, { email: uniqueEmail('student', info), name });
+  await page.goto('/login/');
+  await logInInForm(page, account.email);
+  await expect(page).toHaveURL(/\/cabinet\/$/);
+  return account;
+}
+
+/** Opens every page of the catalog grid. */
+export async function showAll(page: Page) {
+  const more = page.getByRole('button', { name: 'Показать ещё' });
+  while (await more.isVisible()) await more.click();
+}
+
+/** Cancels live bookings (each as its student) and unpublishes tutors, so the shared database stays clean. */
+export async function cleanBooking(request: APIRequestContext, { tutors = [], bookings = [] }: { tutors?: Account[]; bookings?: { student: Account; id: number }[] }) {
+  for (const b of bookings) await rest(request, b.student.token).rpc('cancel_booking', { p_id: b.id });
+  for (const t of tutors) await rest(request, t.token).rpc('unpublish_tutor');
+}
+
+/* ---------- iteration 4: time, background jobs, letters ---------- */
+
+export const HOUR = 3_600_000;
+export const DB_URL = process.env.SUPABASE_DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
+
+/** Runs SQL as the database owner (only for what a user cannot do: moving a booking in time, running the cron job). */
+export function sql(query: string) {
+  return execFileSync('psql', [DB_URL, '-X', '-q', '-t', '-A', '-v', 'ON_ERROR_STOP=1', '-c', query], { encoding: 'utf8' }).trim();
+}
+
+/** Moves one booking in time, keeping its length: the database clock stays real (app_now() = now()), so every function and
+    every other test see one consistent time. `deadline` moves the answer deadline (default: unchanged). */
+export function moveBooking(id: number, startsAt: number, { deadline }: { deadline?: number } = {}) {
+  const iso = new Date(startsAt).toISOString();
+  sql(
+    `update bookings set ends_at = '${iso}'::timestamptz + (ends_at - starts_at), starts_at = '${iso}'` +
+      (deadline !== undefined ? `, confirm_deadline = '${new Date(deadline).toISOString()}'` : '') +
+      ` where id = ${Number(id)}`,
+  );
+}
+
+/** One run of the pg_cron job (autocancel, autocomplete, reminders, «no link» reminder) at the real time. */
+export function runJobs() {
+  return JSON.parse(sql('select public.run_jobs()')) as { cancelled: number; completed: number; reminders: number };
+}
+
+/** Database time now, to pin page.clock to the same moment. */
+export function dbNow() {
+  return Date.parse(sql(`select to_char(now() at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')`));
+}
+
+/** Letters queued for an address (newest first), as the outbox holds them. */
+export function outboxTo(email: string, template?: string) {
+  const rows = sql(
+    `select coalesce(json_agg(json_build_object('template', template, 'payload', payload) order by id desc), '[]') from email_outbox where to_email = '${email.replace(/'/g, "''")}'` +
+      (template ? ` and template = '${template}'` : ''),
+  );
+  return JSON.parse(rows) as { template: string; payload: Record<string, unknown> }[];
+}
+
+/** First free start of a tutor at least `after` ms from now (free_slots order), so a lesson is out of reach of reminders run by parallel tests. */
+export async function slotAfter(request: APIRequestContext, tutorId: string, after: number, duration = 60) {
+  const from = Date.now() + after;
+  const slot = (await apiFreeSlots(request, tutorId, duration)).find(s => s >= from);
+  expect(slot, 'a free slot in the horizon').toBeTruthy();
+  return slot!;
+}
+
+/** Leaves no live booking behind: ended ones become completed, the rest cancelled (SQL tests count what run_jobs() finds). */
+export function finishBookings(ids: number[]) {
+  const list = ids.map(Number).filter(Number.isFinite);
+  if (!list.length) return;
+  sql(
+    `update bookings set status = case when ends_at <= now() then 'completed' else 'cancelled' end::booking_status,
+       cancelled_by = case when ends_at <= now() then cancelled_by else coalesce(cancelled_by, 'system') end
+     where id in (${list.join(',')}) and status in ('pending', 'confirmed')`,
+  );
+}
+
+/** Confirms a booking as its tutor through the API. */
+export async function apiConfirm(request: APIRequestContext, tutor: Account, id: number) {
+  const res = await rest(request, tutor.token).rpc('confirm_booking', { p_id: id });
+  expect(res.ok, JSON.stringify(res.body)).toBeTruthy();
+}
+
+/** The value of a fact row («Когда», «Стоимость») in a lesson or booking card. */
+export const fact = (page: Page, term: string) => page.locator('.dl > div').filter({ has: page.locator('dt').getByText(term, { exact: true }) }).locator('dd');
+
+/** «19:00» of a moment in a zone, as cards show it. */
+export const hm = (ts: number, tz: string) =>
+  new Intl.DateTimeFormat('ru-RU', { timeZone: tz, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(ts);
+
+/** A published tutor «Анна …» (UTC+5 by default), a student «Ирина» in Moscow and a booking between them, confirmed unless `pending`. */
+export async function lessonFixture(
+  request: APIRequestContext,
+  info: TestInfo,
+  { tz = 'Asia/Yekaterinburg', after = 30 * HOUR, pending = false, forOther }: { tz?: string; after?: number; pending?: boolean; forOther?: { name: string; age: number } } = {},
+) {
+  const tutor = await publishedTutor(request, info, { name: `Анна ${uniqueWord()}`, tz });
+  const student = await createUser(request, { email: uniqueEmail('student', info), name: 'Ирина' });
+  const slot = await slotAfter(request, tutor.id, after);
+  const id = await apiBook(request, student, tutor, slot, { forOther });
+  if (!pending) await apiConfirm(request, tutor, id);
+  return { tutor, student, slot, id };
+}
+
+/** Signs in through the login page and waits for the role's home. */
+export async function signInAs(page: Page, account: Account, role: 'student' | 'tutor' = 'student') {
+  await page.goto('/login/');
+  await logInInForm(page, account.email);
+  await expect(page).toHaveURL(role === 'tutor' ? /\/tutor\/$/ : /\/cabinet\/$/);
+}
+
+/* ---------- iteration 5: admin ---------- */
+
+/** An administrator: a student account turned admin in the database (the role is never self-assigned, spec section 6). */
+export async function createAdmin(request: APIRequestContext, info: TestInfo, name = 'Светлана') {
+  const admin = await createUser(request, { email: uniqueEmail('admin', info), name });
+  sql(`update profiles set role = 'admin' where id = '${admin.id}'`);
+  return admin;
+}
+
+/** Signs in at the staff entrance and waits for the lesson registry. */
+export async function signInAdmin(page: Page, admin: Account) {
+  await page.goto('/admin/login');
+  await logInInForm(page, admin.email);
+  await expect(page).toHaveURL(/\/admin\/lessons$/);
+}
+
+/** The journal is shared with SQL tests, which count its rows: an admin's entries leave with the test. */
+export function cleanAdmin(admin?: Account) {
+  if (admin) sql(`delete from admin_log where admin_id = '${admin.id}'`);
+}
+
+/** Problems of the given bookings go away (SQL tests and the admin queue see only their own). */
+export function dropProblems(ids: number[]) {
+  const list = ids.map(Number).filter(Number.isFinite);
+  if (list.length) sql(`delete from problems where booking_id in (${list.join(',')})`);
+}
+
+/** «16.10.2026» → «2026-10-16»: the Moscow calendar day of a moment, as a date input takes it. */
+export const mskDay = (ts: number) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(ts);

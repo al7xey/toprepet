@@ -17,10 +17,9 @@ export function enquiryMessage(topic?: string) {
   return [
     'Здравствуйте!',
     '',
-    'Хочу записаться на бесплатное знакомство в TopRepet.',
+    'Хочу подобрать репетитора в TopRepet.',
     topic || 'Помогите подобрать занятия для ребёнка.',
     '',
-    'Давайте обсудим цель, индивидуальный план и удобное время.',
   ].join('\n');
 }
 export function telegramLink(topic?: string) {

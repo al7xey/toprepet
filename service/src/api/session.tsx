@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import type { Profile } from './types';
+import { guessZone } from '../lib/time';
 
 interface SessionState {
   user: User | null;
@@ -15,9 +16,16 @@ interface SessionState {
 const SessionContext = createContext<SessionState | null>(null);
 
 async function fetchProfile(id: string): Promise<Profile | null> {
-  const { data, error } = await supabase.from('profiles').select('id, role, name, email, tz').eq('id', id).maybeSingle();
+  const { data, error } = await supabase.from('profiles').select('id, role, name, email, tz, blocked_at').eq('id', id).maybeSingle();
   if (error) throw error;
-  return data as Profile | null;
+  if (!data) return null;
+  const { blocked_at: blocked, ...profile } = data as Profile & { blocked_at: string | null };
+  // А1: a session that outlived the block ends here (new sign-ins are refused by the Auth hook)
+  if (blocked) {
+    await supabase.auth.signOut();
+    return null;
+  }
+  return profile;
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {
@@ -82,4 +90,10 @@ export function useSession() {
   const ctx = useContext(SessionContext);
   if (!ctx) throw new Error('useSession must be used inside <SessionProvider>');
   return ctx;
+}
+
+/** Zone the viewer sees times in: the signed-in user's profile zone, a guest's browser zone. */
+export function useViewerZone() {
+  const { profile } = useSession();
+  return profile?.tz ?? guessZone();
 }

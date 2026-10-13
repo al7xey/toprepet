@@ -33,3 +33,11 @@ export function instrumental(name: string) {
 }
 
 export const first = (full: string) => full.trim().split(/\s+/)[0] ?? full;
+
+/* Men's names ending in -а/-я take the masculine past tense: «Никита подтвердил». */
+const MALE_A = new Set(['Никита', 'Илья', 'Кузьма', 'Лука', 'Фома', 'Савва', 'Данила', 'Гаврила', 'Миша', 'Дима', 'Петя', 'Ваня', 'Паша', 'Лёша', 'Алёша', 'Серёжа', 'Коля', 'Витя', 'Вова', 'Слава']);
+
+/** Past tense by the first name: «Анна подтвердила», «Дмитрий подтвердил». Names ending in -а/-я are read as female unless known as male. */
+export function past(name: string, masc: string, fem: string) {
+  return /[ая]$/.test(name) && !MALE_A.has(name) ? fem : masc;
+}

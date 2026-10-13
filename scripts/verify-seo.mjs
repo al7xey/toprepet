@@ -75,10 +75,19 @@ for (const route of ['/blog/admin', '/blog/admin/login', '/blog/admin/articles',
   if (!html.includes('noindex,follow') || urls.some(url=>url.includes('/blog/admin'))) fail(`${route}: admin indexed`);
 }
 if (!robots.includes('Clean-param:') || /Disallow:\s*\/(?:\s|$)/m.test(robots)) fail('robots clean-param/public access');
-for (const route of ['/contact', '/free-intro']) {
-  const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');
-  if (!html.includes('service-details') || !html.includes('/teachers/')) fail(`${route}: helpful content/links`);
+{
+  const html = await readFile(resolve('dist/contact/index.html'), 'utf8');
+  if (!html.includes('service-details') || !html.includes('/teachers/')) fail('/contact: helpful content/links');
 }
-const lessons = await readFile(resolve('dist/lessons/index.html'), 'utf8');
-if (!lessons.includes('lesson-layout') || !lessons.includes('/teachers/')) fail('/lessons: picker/catalog navigation');
-if (lessons.includes('Как подобрать репетитора под вашу задачу')) fail('/lessons: removed explanation returned');
+// Р-6, О3: the old pages only lead to the catalog and stay out of the sitemap
+for (const route of ['/lessons', '/free-intro']) {
+  const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');
+  if (!html.includes('url=https://toprepet.ru/teachers/') || !html.includes('noindex') || urls.some(url => url.endsWith(`${route}/`))) fail(`${route}: redirect stub`);
+}
+// Р-6 (spec, section 10): no fixed price, promo codes or refund guarantee outside the legal documents
+for (const route of routes.filter(route => !route.startsWith('/legal'))) {
+  const html = await readFile(resolve(route === '/' ? 'dist/index.html' : `dist${route}/index.html`), 'utf8');
+  for (const banned of ['1 200 ₽', '1 200 ₽', '1200 ₽', 'промокод', 'ОСЕНЬ', '100% гарантия', 'бесплатное знакомство', 'Бесплатное знакомство']) {
+    if (html.includes(banned)) fail(`${route}: «${banned}» returned (Р-6)`);
+  }
+}
