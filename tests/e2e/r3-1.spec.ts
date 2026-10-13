@@ -106,6 +106,8 @@ test.describe('Р3.1 регулярная неделя окон', () => {
     await expect(cell).toHaveAccessibleName(/ждёт подтверждения$/);
     await expect(cell).toBeDisabled();
     // other cells of the same window are locked too
-    await expect(page.getByRole('button', { name: `${short} 09:00–09:30, свободно` })).toBeDisabled();
+    const bookedStart = `${part('hour')}:${part('minute')}`;
+    const other = bookedStart === '09:00' ? '09:30–10:00' : '09:00–09:30';
+    await expect(page.getByRole('button', { name: `${short} ${other}, свободно` })).toBeDisabled();
   });
 });
