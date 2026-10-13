@@ -1,247 +1,236 @@
-import { useState, type ReactNode } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Icon, type IconName } from './icons';
-import { Ava, Dropdown, cx } from './kit';
-import { usePhone, useWide, useTitle } from './hooks';
-import { useApp } from './app-state';
-import { useDb, useSession, auth, chat as chatApi, rules, requests as rq } from '../api';
-import type { Db, User } from '../api/types';
-import { now } from '../lib/time';
+import { useState } from 'react';
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { signOut } from '../api/auth';
+import { BLOG_URL, SUPPORT_TELEGRAM, SUPPORT_URL } from '../api/config';
+import { useSession } from '../api/session';
+import { ROLE_HOME, type Role } from '../api/types';
+import { first } from '../lib/names';
+import { RequireRole } from '../app/Guard';
+import { Brand } from './Brand';
+import { ErrorBoundary } from './ErrorBoundary';
+import { Overlay } from './Overlay';
 
-/* ---------- navigation model ---------- */
-interface NavItem {
-  icon: IconName;
-  label: string;
-  short?: string;
+interface MenuItem {
   to: string;
-  badge?: number;
-  external?: boolean;
+  label: string;
 }
 
-const BLOG_URL = 'https://toprepet.ru/blog';
+/* Cabinet sections. Items join the menu in the iteration that builds their pages. */
+const CABINET_MENU: Record<Role, MenuItem[]> = {
+  student: [
+    { to: '/cabinet/', label: 'Мои занятия' },
+    { to: '/cabinet/settings/', label: 'Настройки' },
+  ],
+  tutor: [
+    { to: '/tutor/', label: 'Сводка' },
+    { to: '/tutor/settings/', label: 'Настройки' },
+  ],
+  admin: [{ to: '/admin/', label: 'Админка' }],
+};
 
-function counts(d: Db, me: User | null) {
-  if (!me) return { lessons: 0, requests: 0, chats: 0, tutorRq: 0, notices: 0 };
-  const at = now();
-  const chats = chatApi.unreadTotal(d, me);
-  const notices = d.notices.filter(n => n.userId === me.id && !n.read).length;
-  if (me.role === 'tutor') {
-    const pending = d.lessons.filter(l => l.tutorId === me.id && (l.status === 'pending' || l.reschedule?.status === 'pending' && l.reschedule.by === 'student')).length;
-    const t = d.tutors.find(x => x.userId === me.id);
-    const tutorRq = t ? d.requests.filter(r => rq.visibleToTutors(r, at) && rq.matches(d, t, r) && !d.responses.some(x => x.requestId === r.id && x.tutorId === me.id)).length : 0;
-    return { lessons: pending, requests: 0, chats, tutorRq, notices };
-  }
-  const lessons = d.lessons.filter(l => l.studentId === me.id && (rules.phase(l) === 'awaiting' || l.status === 'unpaid' || (l.reschedule?.status === 'pending' && l.reschedule.by === 'tutor'))).length;
-  const requests = d.responses.filter(r => r.status === 'sent' && d.requests.find(x => x.id === r.requestId)?.studentId === me.id).length;
-  return { lessons, requests, chats, tutorRq: 0, notices };
-}
+const PUBLIC_NAV: MenuItem[] = [
+  { to: '/', label: 'Подобрать репетитора' },
+  { to: '/teachers/', label: 'Репетиторы' },
+  { to: '/signup/?role=tutor', label: 'Для репетиторов' },
+];
 
-export function navFor(d: Db, me: User | null): { header: NavItem[]; side: NavItem[]; tabs: NavItem[] } {
-  const c = counts(d, me);
-  if (!me) {
-    const header: NavItem[] = [
-      { icon: 'home', label: 'Подобрать репетитора', to: '/' },
-      { icon: 'search', label: 'Репетиторы', to: '/teachers' },
-      { icon: 'doc', label: 'Заявки учеников', to: '/requests' },
-      { icon: 'user', label: 'Для репетиторов', to: '/signup/tutor' },
-      { icon: 'doc', label: 'Блог', to: BLOG_URL, external: true },
-    ];
-    return { header, side: [], tabs: [] };
-  }
-  if (me.role === 'tutor') {
-    const side: NavItem[] = [
-      { icon: 'cal', label: 'Уроки', to: '/tutor/lessons', badge: c.lessons },
-      { icon: 'doc', label: 'Заявки', to: '/tutor/requests', badge: c.tutorRq },
-      { icon: 'chat', label: 'Сообщения', short: 'Чаты', to: '/messages', badge: c.chats },
-      { icon: 'wallet', label: 'Финансы', to: '/tutor/finance' },
-      { icon: 'user', label: 'Анкета', to: '/tutor/profile' },
-      { icon: 'star', label: 'Отзывы', to: '/tutor/reviews' },
-      { icon: 'inbox', label: 'Ученики', to: '/tutor/students' },
-      { icon: 'help', label: 'Помощь', to: '/help' },
-    ];
-    return { header: side.slice(0, 5), side, tabs: side.slice(0, 5) };
-  }
-  if (me.role === 'admin') {
-    const d0 = d;
-    const side: NavItem[] = [
-      { icon: 'help', label: 'Споры', to: '/admin/disputes', badge: d0.disputes.filter(x => x.status === 'open').length },
-      { icon: 'star', label: 'Отзывы', to: '/admin/reviews', badge: d0.reviews.filter(r => r.status === 'review' || r.complaint?.status === 'open').length },
-      { icon: 'shield', label: 'Документы', to: '/admin/documents', badge: d0.tutors.reduce((s, t) => s + t.docs.filter(x => x.status === 'review').length, 0) },
-      { icon: 'x', label: 'Отмены', to: '/admin/cancellations' },
-      { icon: 'flag', label: 'Жалобы', to: '/admin/complaints', badge: d0.complaints.filter(x => x.status === 'open').length },
-      { icon: 'chat', label: 'Поддержка', to: '/admin/support', badge: c.chats },
-    ];
-    return { header: side, side, tabs: [side[0], side[1], side[2], side[4], side[5]] };
-  }
-  const side: NavItem[] = [
-    { icon: 'search', label: 'Найти репетитора', short: 'Найти', to: '/teachers' },
-    { icon: 'cal', label: 'Мои уроки', short: 'Уроки', to: '/my/lessons', badge: c.lessons },
-    { icon: 'doc', label: 'Мои заявки', short: 'Заявки', to: '/my/requests', badge: c.requests },
-    { icon: 'heart', label: 'Избранное', to: '/me/favorites' },
-    { icon: 'user', label: 'Мои репетиторы', to: '/account/tutors' },
-    { icon: 'chat', label: 'Сообщения', short: 'Чаты', to: '/messages', badge: c.chats },
-    { icon: 'card', label: 'Платежи', to: '/account/payments' },
-    { icon: 'help', label: 'Помощь', to: '/help' },
-  ];
-  const tabs: NavItem[] = [side[0], side[1], side[2], side[5], { icon: 'user', label: 'Профиль', to: '/account' }];
-  return { header: [side[0], side[1], side[2], side[6]], side, tabs };
-}
-
-/* ---------- header ---------- */
-export function SiteHeader() {
-  const d = useDb();
-  const me = useSession();
-  const { askLogin } = useApp();
-  const nav = navFor(d, me);
-  const [menu, setMenu] = useState(false);
+function useLogout() {
   const navigate = useNavigate();
-  const c = counts(d, me);
-  const home = me?.role === 'tutor' ? '/tutor/lessons' : me?.role === 'admin' ? '/admin/disputes' : '/';
-  return (
-    <div className="site-top">
-      <div className="nv-header glass">
-        <Link className="nv-logo" to={home}><Icon name="logo" />toprepet</Link>
-        {me?.role === 'admin' && <span className="st st--neutral">Админка</span>}
-        <nav aria-label="Сайт">
-          {nav.header.map(i => (i.external
-            ? <a key={i.to} href={i.to}>{i.label}</a>
-            : <NavLink key={i.to} to={i.to} end={i.to === '/'}>{i.label}</NavLink>))}
-        </nav>
-        {!me ? (
-          <button className="nv-btn" type="button" onClick={() => askLogin()}>Войти</button>
-        ) : (
-          <div className="hdr-right">
-            <Link className="ibtn r6-hb" to="/notifications" aria-label={c.notices ? `Уведомления: ${c.notices} новых` : 'Уведомления'}><Icon name="bell" />{c.notices ? <span className="nv-badge">{c.notices}</span> : null}</Link>
-            {me.role !== 'admin' && <Link className="ibtn r6-hb" to="/messages" aria-label={c.chats ? `Сообщения: ${c.chats} новых` : 'Сообщения'}><Icon name="chat" />{c.chats ? <span className="nv-badge">{c.chats}</span> : null}</Link>}
-            <div className="filter">
-              <button type="button" className="ava-btn" data-dd-anchor aria-label="Меню профиля" aria-expanded={menu} onClick={() => setMenu(m => !m)}>
-                <Ava tone={me.tone} src={me.photo} />
-              </button>
-              <Dropdown open={menu} onClose={() => setMenu(false)} align="right" style={{ top: 'calc(100% + 10px)' }}>
-                <div className="menu-head"><b>{me.name}</b><span>{me.email}</span></div>
-                <button type="button" onClick={() => { setMenu(false); navigate(me.role === 'tutor' ? '/tutor/profile' : me.role === 'admin' ? '/admin/disputes' : '/account'); }}>{me.role === 'tutor' ? 'Анкета' : me.role === 'admin' ? 'Админка' : 'Профиль'}</button>
-                <button type="button" onClick={() => { setMenu(false); navigate('/account/settings'); }}>Настройки</button>
-                <button type="button" onClick={() => { setMenu(false); navigate('/mail'); }}>Почта (демо)</button>
-                <button type="button" onClick={() => { setMenu(false); auth.logout(); navigate('/'); }}>Выйти</button>
-              </Dropdown>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return async () => {
+    await signOut();
+    await navigate('/', { replace: true });
+  };
 }
 
-export function SideNav({ current }: { current?: string }) {
-  const d = useDb();
-  const me = useSession();
-  const location = useLocation();
-  const nav = navFor(d, me);
+function PublicNav() {
+  const { pathname } = useLocation();
   return (
-    <nav className="nv-side" aria-label="Кабинет">
-      {nav.side.map(i => {
-        const active = current ? current === i.label : location.pathname.startsWith(i.to);
+    <nav className="nav" aria-label="Разделы сайта">
+      {PUBLIC_NAV.map(item => {
+        const on = item.to === pathname;
         return (
-          <Link key={i.to} to={i.to} aria-current={active ? 'page' : undefined}>
-            <Icon name={i.icon} />{i.label}{i.badge ? <span className="nv-badge">{i.badge}</span> : null}
+          <Link key={item.to} to={item.to} className={on ? 'on' : undefined} aria-current={on ? 'page' : undefined}>
+            {item.label}
           </Link>
         );
       })}
+      <a href={BLOG_URL}>Блог</a>
     </nav>
   );
 }
 
-export function TabBar({ current }: { current?: string }) {
-  const d = useDb();
-  const me = useSession();
-  const location = useLocation();
-  if (!me) return null;
-  const tabs = navFor(d, me).tabs;
+function MobileMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { profile } = useSession();
+  const logout = useLogout();
+  const items = profile ? CABINET_MENU[profile.role] : PUBLIC_NAV;
   return (
-    <div className="float-bottom tabbar-fixed">
-      <nav className="nv-tabs glass" aria-label="Разделы" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
-        {tabs.map(i => {
-          const active = current ? current === (i.short ?? i.label) || current === i.label : location.pathname === i.to || (i.to !== '/account' && location.pathname.startsWith(i.to));
-          return (
-            <Link key={i.to} to={i.to} aria-current={active ? 'page' : undefined}>
-              <Icon name={i.icon} />{i.short ?? i.label}{i.badge ? <span className="nv-badge">{i.badge}</span> : null}
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
-  );
-}
-
-export function AppBar({ title, back, right, onBack }: { title?: ReactNode; back?: string | true; right?: ReactNode; onBack?: () => void }) {
-  const navigate = useNavigate();
-  return (
-    <div className="appbar">
-      {back || onBack ? (
-        <button className="ibtn" type="button" aria-label="Назад" onClick={() => (onBack ? onBack() : back === true ? navigate(-1) : navigate(back as string))}><Icon name="left" /></button>
-      ) : <span className="sp" />}
-      <span className="ttl">{title}</span>
-      {right ?? <span className="sp" />}
-    </div>
-  );
-}
-
-/* guest top line on phones */
-export function PhoneTop() {
-  const me = useSession();
-  const { askLogin } = useApp();
-  return (
-    <div className="between phone-top">
-      <Link className="nv-logo" to="/"><Icon name="logo" />toprepet</Link>
-      {!me ? <button className="btn btn--s btn--white" type="button" onClick={() => askLogin()}>Войти</button> : <Link to={me.role === 'tutor' ? '/tutor/profile' : '/account'} aria-label="Профиль"><Ava tone={me.tone} src={me.photo} /></Link>}
-    </div>
-  );
-}
-
-interface PageProps {
-  title: string; // document title and the phone app bar title
-  kind?: 'site' | 'cabinet' | 'bare';
-  side?: string; // current item of the cabinet menu
-  tab?: string; // current tab on phones
-  back?: string | true; // phone back button target
-  onBack?: () => void; // custom back action, e.g. the previous wizard step
-  mTitle?: ReactNode;
-  right?: ReactNode;
-  phoneTop?: boolean;
-  bottom?: ReactNode; // floating bar on phones
-  hideTabs?: boolean;
-  children: ReactNode;
-  wide?: boolean;
-  className?: string;
-}
-
-export function Page({ title, kind = 'site', side, tab, back, onBack, mTitle, right, bottom, hideTabs, children, wide, className }: PageProps) {
-  useTitle(title);
-  const phone = usePhone();
-  const wideScreen = useWide();
-  const me = useSession();
-  const showTabs = phone && !!me && !back && !hideTabs && !bottom;
-  return (
-    <div className={cx('page', phone && 'is-phone', showTabs && 'has-tabs', !!bottom && phone && 'has-bottom', className)}>
-      {kind !== 'bare' && (!phone || !back) && <SiteHeader />}
-      {phone && back && <AppBar title={mTitle ?? title} back={back} onBack={onBack} right={right} />}
-      {kind === 'cabinet' && !phone ? (
-        <div className={cx('cab-d', !wideScreen && 'cab-narrow')}>
-          {wideScreen && <SideNav current={side} />}
-          <main id="main" tabIndex={-1}>{children}</main>
-        </div>
+    <Overlay open={open} onClose={onClose} className="menu" label="Меню">
+      <div className="row sb nw" style={{ padding: '0 6px 10px' }}>
+        <Brand to={profile ? ROLE_HOME[profile.role] : '/'} />
+        <button type="button" className="x" aria-label="Закрыть меню" onClick={onClose} />
+      </div>
+      {items.map(item => (
+        <NavLink key={item.to} to={item.to} end className={({ isActive }) => (isActive ? 'on' : undefined)} onClick={onClose}>
+          {item.label}
+        </NavLink>
+      ))}
+      <hr />
+      {profile ? (
+        <>
+          {profile.role !== 'admin' ? <NavLink to="/teachers/" onClick={onClose}>
+              Репетиторы
+            </NavLink> : null}
+          <a href={BLOG_URL}>Блог</a>
+          <button
+            type="button"
+            className="mi"
+            onClick={() => {
+              onClose();
+              void logout();
+            }}
+          >
+            Выйти
+          </button>
+        </>
       ) : (
-        <main id="main" tabIndex={-1} className={cx(phone ? 'pg' : 'desk-in', wide && 'desk-wide')} style={phone && !back ? { paddingTop: 16 } : undefined}>
-          {children}
-        </main>
+        <>
+          <a href={BLOG_URL}>Блог</a>
+          <NavLink to="/login/" onClick={onClose}>
+            Войти
+          </NavLink>
+        </>
       )}
-      {phone && bottom && <div className="float-bottom bottom-fixed">{bottom}</div>}
-      {showTabs && <TabBar current={tab} />}
-    </div>
+    </Overlay>
   );
 }
 
-/* sticky action bar for phones */
-export function ActionBar({ children, meta }: { children: ReactNode; meta?: ReactNode }) {
-  return <div className="actionbar glass">{meta && <div className="meta">{meta}</div>}{children}</div>;
+export function Header() {
+  const { user, profile, loading } = useSession();
+  const location = useLocation();
+  const [menu, setMenu] = useState(false);
+
+  const next = `${location.pathname}${location.search}`;
+  const loginHref = location.pathname.startsWith('/login') ? '/login/' : `/login/?next=${encodeURIComponent(next)}`;
+
+  return (
+    <header className="hd">
+      <Brand to={profile ? ROLE_HOME[profile.role] : '/'} />
+      {profile?.role === 'admin' ? null : <PublicNav />}
+      <span className="sp" />
+      <div className="acts">
+        {profile ? (
+          <Link className="who" to={ROLE_HOME[profile.role]} aria-label={`Кабинет: ${profile.name}`}>
+            <span className="cnt">
+              <span className="av" aria-hidden="true">
+                {first(profile.name).slice(0, 1).toUpperCase()}
+              </span>
+            </span>
+            <span className="nm">{profile.name}</span>
+          </Link>
+        ) : loading && user ? null : (
+          <>
+            <span className="only-d">
+              <Link className="btn s p" to="/teachers/">
+                Подобрать репетитора
+              </Link>
+            </span>
+            <Link className="btn s" to={loginHref}>
+              Войти
+            </Link>
+          </>
+        )}
+        <button type="button" className="burger only-m" aria-label="Открыть меню" aria-haspopup="dialog" onClick={() => setMenu(true)}>
+          <b />
+          <b />
+          <b />
+        </button>
+      </div>
+      <MobileMenu open={menu} onClose={() => setMenu(false)} />
+    </header>
+  );
+}
+
+function SkipLink() {
+  return (
+    <a className="skip" href="#main">
+      К содержанию
+    </a>
+  );
+}
+
+export function Footer() {
+  return (
+    <footer className="foot">
+      <Brand />
+      <span className="mut">Сервис частных репетиторов</span>
+      <div className="cols">
+        <Link to="/signup/?role=tutor">Для репетиторов</Link>
+        <a href={SUPPORT_URL} target="_blank" rel="noreferrer">
+          Написать в&nbsp;поддержку
+        </a>
+        <a href={BLOG_URL}>Блог</a>
+        <a href="https://toprepet.ru/documents/">Документы</a>
+      </div>
+      <span className="mut sm">© 2026 TopRepet</span>
+    </footer>
+  );
+}
+
+/** Public pages, auth pages, 404: header, content column, site footer. */
+export function PublicLayout() {
+  const { pathname } = useLocation();
+  return (
+    <>
+      <SkipLink />
+      <Header />
+      <main id="main" className="main" tabIndex={-1}>
+        <div className="ct pg">
+          <ErrorBoundary resetKey={pathname}>
+            <Outlet />
+          </ErrorBoundary>
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
+
+/** Cabinet shell: left column from 1000 px, the same items in the slide-out menu below. */
+export function CabinetLayout({ area: role }: { area: Role }) {
+  const { pathname } = useLocation();
+  const logout = useLogout();
+  return (
+    <>
+      <SkipLink />
+      <Header />
+      <RequireRole roles={[role]}>
+      <div className="shell">
+        <nav className="side" aria-label="Кабинет">
+          {CABINET_MENU[role].map(item => (
+            <NavLink key={item.to} to={item.to} end className={({ isActive }) => (isActive ? 'on' : undefined)}>
+              {item.label}
+            </NavLink>
+          ))}
+          <button type="button" className="mut" onClick={() => void logout()}>
+            Выйти
+          </button>
+        </nav>
+        <main id="main" className="ct pg" tabIndex={-1}>
+          <ErrorBoundary resetKey={pathname}>
+            <Outlet />
+          </ErrorBoundary>
+        </main>
+        <div className="foot1">
+          <span>
+            Поддержка в&nbsp;Telegram:{' '}
+            <a href={SUPPORT_URL} target="_blank" rel="noreferrer">
+              {SUPPORT_TELEGRAM}
+            </a>
+          </span>
+          <span>© 2026 TopRepet</span>
+        </div>
+      </div>
+      </RequireRole>
+    </>
+  );
 }

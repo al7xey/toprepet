@@ -1,0 +1,33 @@
+/* Design tokens measured on toprepet.ru (docs/requirements.md, section 3). The site is light-only. */
+:root {
+  --paper: #ffffff;
+  --ink: #202838;
+  --mut: #667085;
+  --ln: #f0e3dc;
+  --inb: #dcd6d0;
+  --blk: #f7e8dc;
+  --blk2: #fbf3ec;
+  --surf: #ffffff;
+  --acc: #f26a2e;
+  --acc-h: #d9551d;
+  --on-acc: #ffffff;
+  --acc-soft: #fff0df;
+  --warm: #fff7f1;
+  --today: #b84a17;
+  --ok: #1f7a4d;
+  --ok-soft: #e6f5ec;
+  --bad: #c0352b;
+  --bad-soft: #fdebe8;
+  --glass: rgb(255 249 244 / 78%);
+  --dim: rgb(32 40 56 / 45%);
+  --f-site: 'Manrope Variable', 'Manrope', Arial, sans-serif;
+  --hd-h: 80px;
+
+  color-scheme: only light;
+}
+
+@media (min-width: 1000px) {
+  :root {
+    --hd-h: 88px;
+  }
+}

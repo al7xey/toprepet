@@ -1,84 +1,139 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Page } from '../../ui/layout';
-import { Btn, Confirm, Field, IBtn, Input, Note, Switch, TextField } from '../../ui/kit';
-import { usePhone } from '../../ui/hooks';
-import { useApp } from '../../ui/app-state';
-import { useSession, auth, students } from '../../api';
-import { ZONES, utcLabel } from '../../lib/time';
+import { useState, type SubmitEvent } from 'react';
+import { setNewPassword } from '../../api/auth';
+import { updateProfile } from '../../api/profile';
+import { useSession } from '../../api/session';
+import { ZONES, guessZone, utcLabel, zoneCity } from '../../lib/time';
+import { Field, SelectField } from '../../ui/Field';
+import { usePageMeta } from '../../ui/meta';
 
-export default function Settings() {
-  const me = useSession()!;
-  const phone = usePhone();
-  const navigate = useNavigate();
-  const { run, toast } = useApp();
-  const [name, setName] = useState(me.name);
-  const [oldPw, setOldPw] = useState('');
-  const [pw, setPw] = useState('');
-  const [childName, setChildName] = useState('');
-  const [childAge, setChildAge] = useState('');
-  const [removeChild, setRemoveChild] = useState('');
-  const student = me.role === 'student';
-  const zones = ZONES.some(z => z.id === me.tz) ? ZONES : [{ id: me.tz, city: me.tz }, ...ZONES];
-  const profile = (
-    <div className="card">
-      <b className="h3">Профиль</b>
-      <TextField label="Имя" value={name} onChange={setName} autoComplete="name" style={{ maxWidth: 'none' }} />
-      <Field label="Почта" help="Почту сменить нельзя: она нужна для входа и чеков" style={{ maxWidth: 'none' }}><Input value={me.email} disabled /></Field>
-      <Field label="Часовой пояс" htmlFor="tz" help="Всё время на сайте показываем в этом поясе" style={{ maxWidth: 'none' }}>
-        <select id="tz" className="input" value={me.tz} onChange={e => run(() => auth.updateMe({ tz: e.target.value }), 'Часовой пояс сохранён')}>
-          {zones.map(z => <option key={z.id} value={z.id}>{`${z.city} (${utcLabel(z.id)})`}</option>)}
-        </select>
-      </Field>
-      <div><Btn v="primary" size="m" disabled={!name.trim() || name === me.name} onClick={() => run(() => auth.updateMe({ name: name.trim() }), 'Имя сохранено')}>Сохранить</Btn></div>
-      {me.role === 'tutor' && <Note>Имя и фото в анкете меняются в мастере анкеты.</Note>}
-    </div>
-  );
-  const notices = (
-    <div className="card">
-      <b className="h3">Уведомления на почту</b>
-      <label className="between" style={{ gap: 12, cursor: 'pointer' }}><span><b style={{ display: 'block' }}>Непрочитанные сообщения</b><span className="small">Если сообщение не прочитано 15 минут</span></span><Switch checked={me.settings.emailUnread} onChange={v => run(() => auth.updateMe({ settings: { ...me.settings, emailUnread: v } }), v ? 'Письма о сообщениях включены' : 'Письма о сообщениях выключены')} label="Письма о непрочитанных сообщениях" /></label>
-      <label className="between" style={{ gap: 12, cursor: 'pointer' }}><span><b style={{ display: 'block' }}>Напоминания об уроках</b><span className="small">За 24 часа и за 1 час до урока</span></span><Switch checked={me.settings.lessonReminders} onChange={v => run(() => auth.updateMe({ settings: { ...me.settings, lessonReminders: v } }), v ? 'Напоминания включены' : 'Напоминания выключены')} label="Напоминания об уроках" /></label>
-      <span className="small">Подтверждения записей, переносы и решения по спорам приходят всегда.</span>
-    </div>
-  );
-  const password = (
-    <div className="card">
-      <b className="h3">Пароль</b>
-      {me.viaYandex && !me.passwordHash ? <Note>Вы входите через Яндекс ID. Пароль можно задать, чтобы входить и по почте.</Note> : <TextField label="Текущий пароль" type="password" value={oldPw} onChange={setOldPw} autoComplete="current-password" style={{ maxWidth: 'none' }} />}
-      <TextField label="Новый пароль" type="password" value={pw} onChange={setPw} autoComplete="new-password" help="Не короче 8 символов" style={{ maxWidth: 'none' }} />
-      <div><Btn size="m" disabled={pw.length < 8} onClick={() => { if (run(() => { auth.changePassword(oldPw, pw); return true; }, 'Пароль изменён')) { setOldPw(''); setPw(''); } }}>Сменить пароль</Btn></div>
-    </div>
-  );
-  const children = student && (
-    <div className="card">
-      <b className="h3">Дети</b>
-      <span className="small">Записывайте на уроки от своего имени — репетитор увидит, кто занимается.</span>
-      {me.children.map(c => <div key={c.id} className="between"><span><b>{c.name}</b> <span className="small">{c.age}</span></span><IBtn icon="trash" label={`Удалить ${c.name}`} onClick={() => setRemoveChild(c.id)} /></div>)}
-      <div className="cols half" style={{ gap: 8 }}>
-        <TextField label="Имя" value={childName} onChange={setChildName} placeholder="Миша" />
-        <TextField label="Возраст или класс" value={childAge} onChange={setChildAge} placeholder="14 лет, 8 класс" />
-      </div>
-      <div><Btn size="m" icon="plus" disabled={!childName.trim() || !childAge.trim()} onClick={() => { if (run(() => students.addChild(childName, childAge))) { setChildName(''); setChildAge(''); toast('Добавили', { tone: 'ok' }); } }}>Добавить</Btn></div>
-    </div>
-  );
-  const exit = <Btn v="danger" block={phone} onClick={() => { auth.logout(); navigate('/'); }}>Выйти из аккаунта</Btn>;
-  const modal = <Confirm open={!!removeChild} title="Удалить ребёнка из профиля?" text="Записанные уроки останутся, но выбрать его при новой записи будет нельзя." confirm="Удалить" danger onClose={() => setRemoveChild('')} onConfirm={() => { run(() => students.removeChild(removeChild), 'Удалено'); setRemoveChild(''); }} />;
-  const side = me.role === 'tutor' ? 'Анкета' : me.role === 'admin' ? 'Споры' : '';
-  if (phone)
-    return (
-      <Page title="Настройки" back={true}>
-        {profile}{notices}{children}{password}{exit}{modal}
-      </Page>
-    );
+/* /cabinet/settings/ and /tutor/settings/: name, time zone, password. The role is fixed at sign-up (У3.1), so there is no field for it. */
+export function Settings() {
+  usePageMeta('Настройки', { noindex: true });
+  const { profile, refresh } = useSession();
+  const [name, setName] = useState(profile?.name ?? '');
+  const [tz, setTz] = useState(profile?.tz ?? guessZone());
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [status, setStatus] = useState<{ ok: boolean; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const zones = ZONES.some(z => z.id === tz) ? ZONES : [{ id: tz, city: zoneCity(tz) }, ...ZONES];
+
+  async function save(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!profile) return;
+    if (!name.trim()) {
+      setNameError('Напишите, как к вам обращаться.');
+      return;
+    }
+    setNameError(null);
+    setBusy(true);
+    try {
+      await updateProfile(profile.id, { name, tz });
+      await refresh();
+      setStatus({ ok: true, text: 'Сохранили' });
+    } catch {
+      setStatus({ ok: false, text: 'Не получилось сохранить. Проверьте интернет и попробуйте ещё раз.' });
+    }
+    setBusy(false);
+  }
+
   return (
-    <Page title="Настройки" kind="cabinet" side={side}>
+    <>
       <h1 className="h1">Настройки</h1>
-      <div className="cols half" style={{ alignItems: 'start' }}>
-        <div className="stack">{profile}{children}</div>
-        <div className="stack">{notices}{password}<div>{exit}</div></div>
+      <div className="stack l" style={{ maxWidth: 520 }}>
+        <form id="profile-form" className="stack l" onSubmit={save} noValidate>
+          <Field label="Имя" name="name" autoComplete="name" value={name} onChange={e => setName(e.target.value)} error={nameError} maxLength={80} />
+          <Field label="Email" type="email" value={profile?.email ?? ''} readOnly hint={"На него приходят письма о\u00a0занятиях"} />
+          <SelectField
+            label="Часовой пояс"
+            value={tz}
+            onChange={e => setTz(e.target.value)}
+            hint={tz === guessZone() ? 'Определили по\u00a0браузеру' : 'Все времена в\u00a0кабинете и\u00a0письмах показываем в\u00a0этом поясе'}
+          >
+            {zones.map(z => (
+              <option key={z.id} value={z.id}>
+                {z.city}, {utcLabel(z.id)}
+              </option>
+            ))}
+          </SelectField>
+        </form>
+        <PasswordCard />
+        {status ? <output className={status.ok ? 'toast' : 'alert'}>{status.text}</output> : null}
+        <button type="submit" form="profile-form" className="btn p" disabled={busy}>
+          Сохранить
+        </button>
       </div>
-      {modal}
-    </Page>
+    </>
+  );
+}
+
+function PasswordCard() {
+  const [open, setOpen] = useState(false);
+  const [password, setPassword] = useState('');
+  const [repeat, setRepeat] = useState('');
+  const [errors, setErrors] = useState<{ password?: string; repeat?: string }>({});
+  const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const errs: typeof errors = {};
+    if (password.length < 8) errs.password = 'Пароль короче 8 символов.';
+    else if (repeat !== password) errs.repeat = 'Пароли не совпадают.';
+    setErrors(errs);
+    if (Object.keys(errs).length) return;
+    setBusy(true);
+    const res = await setNewPassword(password);
+    setBusy(false);
+    if (res.ok) {
+      setOpen(false);
+      setPassword('');
+      setRepeat('');
+      setResult({ ok: true, text: 'Пароль изменён' });
+    } else {
+      setResult({ ok: false, text: 'Не получилось изменить пароль. Попробуйте ещё раз.' });
+    }
+  }
+
+  return (
+    <section className="card f" aria-labelledby="pwd-title">
+      <b id="pwd-title">Пароль</b>
+      {result ? (
+        <output className={result.ok ? 'toast' : 'alert'}>{result.text}</output>
+      ) : null}
+      {open ? (
+        <form className="stack" onSubmit={submit} noValidate>
+          <Field
+            label="Новый пароль"
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            error={errors.password}
+            hint="Не меньше 8 символов"
+          />
+          <Field label="Ещё раз" type="password" autoComplete="new-password" value={repeat} onChange={e => setRepeat(e.target.value)} error={errors.repeat} />
+          <div className="row">
+            <button type="submit" className="btn s p" disabled={busy}>
+              Сохранить пароль
+            </button>
+            <button type="button" className="btn s" onClick={() => setOpen(false)}>
+              Отмена
+            </button>
+          </div>
+        </form>
+      ) : (
+        <button
+          type="button"
+          className="btn s"
+          onClick={() => {
+            setOpen(true);
+            setResult(null);
+          }}
+        >
+          Изменить пароль
+        </button>
+      )}
+    </section>
   );
 }

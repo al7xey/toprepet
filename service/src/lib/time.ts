@@ -6,40 +6,9 @@ export const DAY = 24 * HOUR;
 
 export const MSK = 'Europe/Moscow';
 
-/* ---------- clock with a developer time machine ---------- */
-const OFFSET_KEY = 'toprepet.service.timeOffset';
-let offset = readOffset();
-const clockListeners = new Set<() => void>();
-
-function readOffset() {
-  try {
-    return Number(localStorage.getItem(OFFSET_KEY)) || 0;
-  } catch {
-    return 0;
-  }
-}
-
+/* Current moment; one place to change if the app ever needs a server-synced clock. */
 export function now() {
-  return Date.now() + offset;
-}
-
-export function timeOffset() {
-  return offset;
-}
-
-export function setTimeOffset(value: number) {
-  offset = value;
-  try {
-    localStorage.setItem(OFFSET_KEY, String(value));
-  } catch {
-    /* storage can be unavailable in private mode */
-  }
-  clockListeners.forEach(fn => fn());
-}
-
-export function onClockChange(fn: () => void) {
-  clockListeners.add(fn);
-  return () => clockListeners.delete(fn);
+  return Date.now();
 }
 
 /* ---------- zoned parts ---------- */

@@ -1,0 +1,1 @@
+-- Local and CI seed. Subjects come from the schema migration; demo tutors are added in iteration 5.

@@ -1,90 +1,108 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Page } from '../../ui/layout';
-import { Btn, Card, St, TextField } from '../../ui/kit';
-import { usePhone } from '../../ui/hooks';
-import { useApp } from '../../ui/app-state';
-import { auth, ApiError } from '../../api';
-import { YandexButton, takeReturn } from './shared';
+import { useState, type SubmitEvent } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { signUp } from '../../api/auth';
+import { safeNext } from '../../app/Guard';
+import { guessZone } from '../../lib/time';
+import { Field } from '../../ui/Field';
+import { usePageMeta } from '../../ui/meta';
 
-export default function Signup({ role }: { role: 'student' | 'tutor' }) {
-  const phone = usePhone();
-  const navigate = useNavigate();
-  const { askLogin, toast } = useApp();
+type Errors = Partial<Record<'name' | 'email' | 'password' | 'form', string>>;
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function Signup() {
+  usePageMeta('Регистрация', { noindex: true });
+  const [params] = useSearchParams();
+  const next = safeNext(params.get('next'));
+  const [role, setRole] = useState<'student' | 'tutor'>(params.get('role') === 'tutor' ? 'tutor' : 'student');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<Partial<Record<'name' | 'email' | 'password', string>>>({});
+  const [errors, setErrors] = useState<Errors>({});
+  const [taken, setTaken] = useState(false);
   const [busy, setBusy] = useState(false);
-  const tutor = role === 'tutor';
 
-  const submit = (e: React.FormEvent) => {
+  async function submit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    const errs = auth.validateSignup({ role, name, email, password });
+    const errs: Errors = {};
+    if (!name.trim()) errs.name = 'Напишите, как к вам обращаться.';
+    if (!EMAIL_RE.test(email.trim())) errs.email = 'Проверьте email: в нём должны быть @ и домен.';
+    if (password.length < 8) errs.password = 'Пароль короче 8 символов.';
     setErrors(errs);
+    setTaken(false);
     if (Object.keys(errs).length) return;
     setBusy(true);
-    try {
-      auth.signup({ role, name, email, password });
-      toast('Аккаунт создан', { tone: 'ok' });
-      const ret = takeReturn();
-      if (tutor) navigate('/tutor/profile/edit?step=1', { replace: true });
-      else navigate(ret?.to && ret.to !== '/' ? `/start/for-whom?then=${encodeURIComponent(ret.to)}` : '/start/for-whom', { replace: true });
-    } catch (err) {
-      if (err instanceof ApiError && err.data) setErrors(err.data as typeof errors);
-      else toast(err instanceof Error ? err.message : 'Не получилось', { tone: 'bad' });
-    } finally {
-      setBusy(false);
-    }
-  };
+    const res = await signUp({ name, email, password, role, tz: guessZone() });
+    setBusy(false);
+    if (res.ok) return; // GuestOnly sends the new user on to ?next= or their home
+    if (res.reason === 'taken') setTaken(true);
+    else if (res.reason === 'weak') setErrors({ password: 'Пароль слишком простой. Добавьте цифры или буквы.' });
+    else setErrors({ form: 'Не получилось создать аккаунт. Проверьте интернет и попробуйте ещё раз.' });
+  }
 
-  const roleTag = (
-    <div className="between">
-      <St tone="action" icon={tutor ? 'user' : 'search'}>{tutor ? 'Хочу преподавать' : 'Хочу учиться'}</St>
-      <Btn size="s" to="/signup">Сменить</Btn>
-    </div>
-  );
-  const form = (
-    <form className="r1-form" onSubmit={submit} noValidate>
-      <YandexButton label="Продолжить с Яндекс ID" returnTo={tutor ? '/tutor/profile/edit?step=1' : '/start/for-whom'} />
-      <div className="r1-or">или по почте</div>
-      {tutor
-        ? <TextField label="Имя и фамилия" value={name} onChange={setName} autoComplete="name" help="Так вас увидят ученики в анкете" error={errors.name} />
-        : <TextField label="Как к вам обращаться" value={name} onChange={setName} autoComplete="given-name" error={errors.name} />}
-      <TextField label="Почта, она же логин" type="email" value={email} onChange={setEmail} autoComplete="email" error={errors.email} />
-      <TextField label="Пароль" type="password" value={password} onChange={setPassword} placeholder="Не меньше 8 символов" autoComplete="new-password" error={errors.password} />
-      <p className="r1-legal">Нажимая «Создать аккаунт», вы принимаете условия сервиса и даёте согласие на обработку персональных данных.</p>
-      <Btn v="primary" block type="submit" loading={busy}>Создать аккаунт</Btn>
-    </form>
-  );
-  const wiz = (
-    <Card tint style={{ gap: 12 }}>
-      <b>Дальше анкета в 4 шага</b>
-      <div className="r1-wiz"><div>О себе</div><div>Направления</div><div>Цены</div><div>Расписание</div></div>
-      <span className="small" style={{ color: 'var(--ink)' }}>Анкета появится в каталоге сразу после обязательных полей.</span>
-    </Card>
-  );
-  const already = <div className="between" style={{ justifyContent: 'center' }}><span className="small">Уже есть аккаунт?</span><Btn size="s" onClick={() => askLogin()}>Войти</Btn></div>;
-
-  if (phone)
-    return (
-      <Page title="Регистрация" back="/signup" mTitle="Регистрация">
-        {roleTag}
-        <h1 className="h2">{tutor ? 'Аккаунт преподавателя' : 'Создайте аккаунт'}</h1>
-        {form}
-        {tutor ? wiz : already}
-      </Page>
-    );
+  const loginHref = next ? `/login/?next=${encodeURIComponent(next)}` : '/login/';
   return (
-    <Page title="Регистрация">
-      {tutor ? (
-        <div className="cols c2" style={{ maxWidth: 900, justifySelf: 'center', width: '100%', gap: 24, paddingTop: 16 }}>
-          <div className="r1-auth" style={{ maxWidth: 'none' }}>{roleTag}<h1 className="h2">Аккаунт преподавателя</h1>{form}</div>
-          <div style={{ display: 'grid', gap: 16, alignContent: 'start' }}>{wiz}<Card><b>Уже есть аккаунт?</b><Btn size="s" style={{ justifySelf: 'start' }} onClick={() => askLogin()}>Войти</Btn></Card></div>
+    <form className="center stack" onSubmit={submit} noValidate>
+      <h1 className="h1">Регистрация</h1>
+      <fieldset className="stack s">
+        <legend className="h3">Кто вы на&nbsp;TopRepet?</legend>
+        <div className="opts col">
+          <label className="opt">
+            <input type="radio" name="role" value="student" checked={role === 'student'} onChange={() => setRole('student')} />Я учусь
+          </label>
+          <label className="opt">
+            <input type="radio" name="role" value="tutor" checked={role === 'tutor'} onChange={() => setRole('tutor')} />Я преподаю
+          </label>
         </div>
-      ) : (
-        <div className="r1-auth" style={{ marginTop: 16 }}>{roleTag}<h1 className="h2">Создайте аккаунт</h1>{form}{already}</div>
-      )}
-    </Page>
+        <span className="hint">
+          Роль потом не&nbsp;меняется. Чтобы и&nbsp;учиться, и&nbsp;преподавать, понадобятся два аккаунта с&nbsp;разными email.
+        </span>
+      </fieldset>
+      <Field label="Имя" name="name" autoComplete="name" value={name} onChange={e => setName(e.target.value)} error={errors.name} maxLength={80} />
+      <div className="fld">
+        <Field
+          label="Email"
+          type="email"
+          name="email"
+          autoComplete="email"
+          inputMode="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          error={errors.email ?? (taken ? 'С этим email уже есть аккаунт. Войдите или зарегистрируйтесь с другим email.' : null)}
+        />
+        {taken ? (
+          <Link className="lnk tap" to={loginHref} style={{ justifySelf: 'start' }}>
+            Войти с&nbsp;этим email
+          </Link>
+        ) : null}
+      </div>
+      <Field
+        label="Пароль"
+        type="password"
+        name="password"
+        autoComplete="new-password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        error={errors.password}
+        hint="Не меньше 8 символов"
+      />
+      <p className="mut sm">
+        Нажимая «Создать аккаунт», вы принимаете условия сервиса и&nbsp;соглашаетесь на&nbsp;обработку персональных данных.
+      </p>
+      {errors.form ? (
+        <p className="err" role="alert">
+          {errors.form}
+        </p>
+      ) : null}
+      <button type="submit" className="btn p w" disabled={busy}>
+        Создать аккаунт
+      </button>
+      <p className="mut sm">
+        Уже есть аккаунт?{' '}
+        <Link className="lnk" to={loginHref}>
+          Войти
+        </Link>
+      </p>
+    </form>
   );
 }

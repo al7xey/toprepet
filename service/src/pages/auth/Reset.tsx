@@ -1,59 +1,59 @@
-import { useState } from 'react';
-import { Page } from '../../ui/layout';
-import { Btn, Note, TextField } from '../../ui/kit';
-import { Icon } from '../../ui/icons';
-import { auth, ApiError } from '../../api';
-import { useCountdown } from '../../ui/hooks';
-import { now } from '../../lib/time';
+import { useState, type SubmitEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { requestPasswordReset } from '../../api/auth';
+import { Field } from '../../ui/Field';
+import { usePageMeta } from '../../ui/meta';
 
-export default function Reset() {
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function Reset() {
+  usePageMeta('Восстановление пароля', { noindex: true });
   const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-  const [sentAt, setSentAt] = useState<number | null>(null);
-  const resend = useCountdown((sentAt ?? 0) + 60_000);
+  const [error, setError] = useState<string | null>(null);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  const send = () => {
-    setError('');
-    try {
-      auth.requestReset(email);
-      setSentAt(now());
-    } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'Не получилось отправить');
+  async function submit(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!EMAIL_RE.test(email.trim())) {
+      setError('Проверьте email: в нём должны быть @ и домен.');
+      return;
     }
-  };
+    setError(null);
+    setBusy(true);
+    await requestPasswordReset(email);
+    setBusy(false);
+    setSentTo(email.trim());
+  }
 
-  const body = sentAt ? (
-    <>
-      <div className="r1-sent"><Icon name="inbox" /></div>
-      <div style={{ display: 'grid', gap: 8 }}>
-        <h1 className="h2">Проверьте почту</h1>
-        <p className="sub">Отправили ссылку на <b style={{ color: 'var(--ink)' }}>{email}</b>, если такой аккаунт есть. Она действует 1&nbsp;час.</p>
+  if (sentTo) {
+    // The same answer for any address (У3.2): the form must not reveal who has an account.
+    return (
+      <div className="center stack">
+        <span className="ico" aria-hidden="true" />
+        <h1 className="h1">Проверьте почту</h1>
+        <output data-testid="reset-answer">
+          Если {sentTo} зарегистрирован в&nbsp;TopRepet, на&nbsp;него придёт письмо со&nbsp;ссылкой. Ссылка работает 1&nbsp;час и&nbsp;только один раз.
+        </output>
+        <p className="mut sm">Письма нет? Проверьте папку «Спам» или отправьте ещё раз через 60&nbsp;секунд.</p>
+        <Link className="btn w" to="/login/">
+          Ко входу
+        </Link>
       </div>
-      <Note icon="info">Письма нет? Проверьте папку «Спам» или отправьте ещё раз через минуту.</Note>
-      <div className="r1-form">
-        <Btn v="primary" block to="/login">Ко входу</Btn>
-        <Btn block disabled={resend.left > 0} onClick={send}>{resend.left > 0 ? `Отправить ещё раз · ${resend.label}` : 'Отправить ещё раз'}</Btn>
-        <Btn block size="s" v="white" to="/mail" icon="mail">Открыть демо-почту</Btn>
-      </div>
-    </>
-  ) : (
-    <>
-      <div style={{ display: 'grid', gap: 8 }}>
-        <h1 className="h2">Восстановление пароля</h1>
-        <p className="sub">Пришлём на почту ссылку, чтобы задать новый пароль.</p>
-      </div>
-      <form className="r1-form" onSubmit={e => { e.preventDefault(); send(); }} noValidate>
-        <TextField label="Почта" type="email" value={email} onChange={setEmail} autoComplete="email" error={error} autoFocus />
-        <Btn v="primary" block type="submit">Отправить ссылку</Btn>
-      </form>
-    </>
-  );
+    );
+  }
+
   return (
-    <Page title="Восстановление пароля" back="/login" mTitle="Пароль">
-      <div className="r1-auth" style={{ marginTop: 16 }}>
-        {!sentAt && <Btn size="s" icon="left" to="/login" className="hide-phone" style={{ justifySelf: 'start' }}>Ко входу</Btn>}
-        {body}
-      </div>
-    </Page>
+    <form className="center stack" onSubmit={submit} noValidate>
+      <Link className="back" to="/login/">
+        Ко входу
+      </Link>
+      <h1 className="h1">Восстановление пароля</h1>
+      <p className="sub">Пришлём ссылку для нового пароля.</p>
+      <Field label="Email" type="email" name="email" autoComplete="email" inputMode="email" value={email} onChange={e => setEmail(e.target.value)} error={error} />
+      <button type="submit" className="btn p w" disabled={busy}>
+        Отправить ссылку
+      </button>
+    </form>
   );
 }
