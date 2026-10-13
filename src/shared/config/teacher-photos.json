@@ -58,5 +58,11 @@
     "srcSet": "/images/teachers/chemistry-480.webp 480w, /images/teachers/chemistry-960.webp 960w",
     "width": 960,
     "height": 1200
+  },
+  "russian-literature-math": {
+    "src": "/images/teachers/anna-russian-literature-math-960.webp",
+    "srcSet": "/images/teachers/anna-russian-literature-math-480.webp 480w, /images/teachers/anna-russian-literature-math-960.webp 960w",
+    "width": 960,
+    "height": 1200
   }
 }
