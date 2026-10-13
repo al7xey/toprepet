@@ -2,7 +2,7 @@ name: Service CI
 
 on:
   pull_request:
-    branches: [feature/new-service]
+    branches: [feature/new-service, 'mvp/**']
   push:
     branches: [feature/new-service]
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
         with:
           version: 2.40.7
       - name: Start Supabase (migrations and seed)
-        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,storage-api,supavisor
+        run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,realtime,supavisor
       - name: Database tests
         run: pnpm test:db
       - name: Export local keys

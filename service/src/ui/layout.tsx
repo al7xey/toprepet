@@ -23,6 +23,8 @@ const CABINET_MENU: Record<Role, MenuItem[]> = {
   ],
   tutor: [
     { to: '/tutor/', label: 'Сводка' },
+    { to: '/tutor/profile/', label: 'Анкета' },
+    { to: '/tutor/schedule/', label: 'Расписание' },
     { to: '/tutor/settings/', label: 'Настройки' },
   ],
   admin: [{ to: '/admin/', label: 'Админка' }],

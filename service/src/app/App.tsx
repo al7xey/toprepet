@@ -9,6 +9,8 @@ import { Home } from '../pages/public/Home';
 import { Teachers } from '../pages/public/Teachers';
 import { Cabinet } from '../pages/student/Cabinet';
 import { TutorHome } from '../pages/tutor/TutorHome';
+import { TutorProfile } from '../pages/tutor/TutorProfile';
+import { TutorSchedule } from '../pages/tutor/TutorSchedule';
 import { Settings } from '../pages/common/Settings';
 import { NotFound } from '../pages/common/NotFound';
 import { DevMail } from '../pages/common/DevMail';
@@ -16,7 +18,7 @@ import { AdminHome } from '../pages/common/AdminHome';
 import { GuestOnly } from './Guard';
 
 /* Addresses from the spec end with a slash; the bare form is redirected to it. */
-const SLASHED = /^\/(login|signup|reset|reset\/new|teachers|cabinet|cabinet\/settings|tutor|tutor\/settings|admin)$/;
+const SLASHED = /^\/(login|signup|reset|reset\/new|teachers|cabinet|cabinet\/settings|tutor|tutor\/profile|tutor\/schedule|tutor\/settings|admin)$/;
 
 export function App() {
   const { pathname, search, hash } = useLocation();
@@ -39,6 +41,8 @@ export function App() {
       </Route>
       <Route element={<CabinetLayout area="tutor" />}>
         <Route path="/tutor/" element={<TutorHome />} />
+        <Route path="/tutor/profile/" element={<TutorProfile />} />
+        <Route path="/tutor/schedule/" element={<TutorSchedule />} />
         <Route path="/tutor/settings/" element={<Settings />} />
       </Route>
       <Route element={<CabinetLayout area="admin" />}>
