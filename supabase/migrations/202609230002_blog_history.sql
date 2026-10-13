@@ -1,0 +1,3 @@
+-- Placeholder for a migration of the blog that is already applied in the shared Supabase project.
+-- Its content is not in this repository; the file only keeps the local migration history equal to the remote one.
+-- Do not add statements here.
