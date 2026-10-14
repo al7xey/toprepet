@@ -1,0 +1,185 @@
+/* UI-кит TopRepet. Всё внутри .tr. Размеры заголовков: страница 40/30, секция 30/26, карточка 22/20. */
+
+.tr .trk-sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.tr .trk-stack{display:grid;gap:16px}
+.tr .trk-narrow{width:100%;max-width:520px;margin:0 auto;display:grid;gap:24px;align-content:start}
+.tr .trk-narrow>*{min-width:0}
+.tr .trh-main{display:contents}
+.tr .trk-narrow.trh-main{display:grid}
+
+/* Заголовки */
+.tr .trk-pagehead{display:grid;gap:12px}
+.tr .trk-pagehead-row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px 24px;flex-wrap:wrap}
+.tr .trk-pagehead-text{display:grid;gap:10px;min-width:0;max-width:760px}
+.tr .trk-pagehead-actions{display:flex;flex-wrap:wrap;gap:10px}
+.tr .trk-pagehead.center{text-align:center;justify-items:center}
+.tr .trk-pagehead.center .trk-pagehead-row{justify-content:center}
+.tr .trk-cardtitle{font-size:22px;letter-spacing:-0.02em;font-weight:700;line-height:1.2;margin:0}
+
+/* Кнопки */
+.tr .btn{cursor:pointer;font-family:inherit;text-decoration:none}
+.tr .btn:disabled,.tr .btn[aria-disabled=true]{opacity:.55;cursor:not-allowed;transform:none!important;box-shadow:none}
+.tr .btn:focus-visible,.tr .trk-iconbtn:focus-visible,.tr .trk-choice:focus-visible,.tr .opt:focus-visible,.tr .date:focus-visible,.tr .slot:focus-visible,.tr .tab:focus-visible,.tr a:focus-visible{outline:3px solid rgb(242 106 46 / 45%);outline-offset:2px}
+.tr .trk-loading{position:relative;color:transparent!important}
+.tr .trk-loading::after{content:'';position:absolute;inset:0;margin:auto;width:20px;height:20px;border-radius:50%;border:2.5px solid rgb(255 255 255 / 55%);border-top-color:#fff;animation:trk-spin .8s linear infinite;display:block!important;background:none!important;transform:none!important}
+.tr .btn-line.trk-loading::after,.tr .btn-fill.trk-loading::after,.tr .btn-warm.trk-loading::after,.tr .btn-soft.trk-loading::after{border-color:rgb(32 40 56 / 18%);border-top-color:var(--accent)}
+@keyframes trk-spin{to{transform:rotate(360deg)}}
+.tr .trk-iconbtn{position:relative;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;color:var(--ink);border:0;background:rgb(32 40 56 / 6%);cursor:pointer;transition:transform .3s var(--spring),background .2s}
+.tr .trk-iconbtn:hover{background:rgb(32 40 56 / 10%)}
+.tr .trk-iconbtn.glass{background:rgb(255 255 255 / 72%)}
+.tr .trk-iconbtn .i{width:21px;height:21px}
+.tr .trk-badge{position:absolute;top:-3px;right:-3px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;display:grid;place-items:center;box-shadow:0 0 0 2px #fff}
+.tr .trk-badge:empty{min-width:10px;width:10px;height:10px;padding:0;top:2px;right:2px}
+.tr .trk-back{display:inline-flex;align-items:center;gap:10px;font-weight:650;min-height:40px;justify-self:start;color:var(--ink)}
+.tr .trk-back .i{width:20px;height:20px}
+
+/* Карточки */
+.tr .trk-card{display:grid;gap:16px;align-content:start}
+.tr .trk-card.pad-sm{padding:18px}
+.tr .trk-card.pad-md{padding:28px}
+.tr .trk-card.pad-lg{padding:36px}
+.tr .trk-note-text{flex:1;min-width:0;line-height:1.5}
+.tr .trk-note-action{flex-shrink:0;align-self:center}
+.tr .note.trk-note{flex-wrap:wrap}
+.tr .trk-empty{padding:40px 24px}
+.tr .trk-empty span{max-width:46ch}
+.tr .trk-empty-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:10px}
+.tr .trk-skel{display:block;width:100%}
+.tr .trk-slot-skel{display:grid;gap:12px}
+.tr .trk-slot-skel .skel{display:block;height:84px}
+
+/* Люди, данные */
+.tr .trk-avatar-letter{display:grid;place-items:center;background:var(--accent-soft);color:var(--accent-press);font-weight:800}
+.tr .trk-person{width:100%}
+.tr .trk-person-text{min-width:0;flex:1}
+.tr .trk-person-text b,.tr .trk-person-text span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr .trk-person-right{margin-left:auto;flex-shrink:0}
+.tr .trk-rows .rowline{padding:14px 0}
+.tr .trk-rows .rowline b{text-align:right}
+.tr .trk-rows.boxed{border-radius:26px;background:var(--surface);padding:2px 18px;box-shadow:inset 0 0 0 1px var(--line)}
+.tr .trk-rows.boxed .rowline{padding:12px 0}
+.tr .trk-tags{display:flex;flex-wrap:wrap;gap:10px}
+.tr .trk-stats b{font-size:19px;white-space:nowrap}
+.tr .trk-stats span{white-space:nowrap}
+.tr .trk-tabs button{min-height:44px;padding:0 22px;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;font:inherit;font-weight:650;background:transparent;color:inherit;cursor:pointer;transition:background .3s var(--ease),box-shadow .3s}
+.tr .trk-tabs button.on{background:linear-gradient(180deg,#fff,#fff8f3);box-shadow:0 4px 14px rgb(32 40 56 / 12%),inset 0 1px 0 #fff}
+.tr .trk-tabs.wide{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;width:100%}
+.tr .trk-tabs.wide button{justify-content:center}
+.tr .trk-progress{display:grid;gap:8px}
+
+/* Поля */
+.tr .trk-label-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.tr .trk-label-row a,.tr .trk-label-row button{font-size:15px;font-weight:650;color:var(--accent-press)}
+.tr .trk-input-box{transition:box-shadow .2s,background .2s}
+.tr .trk-input-box:focus-within{box-shadow:inset 0 0 0 2px var(--accent);background:#fff}
+.tr .has-error .trk-input-box{box-shadow:inset 0 0 0 2px var(--bad)}
+.tr .trk-input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:17px;color:var(--ink);padding:0;align-self:stretch}
+.tr .trk-input::placeholder{color:#a89d97}
+.tr textarea.trk-input{resize:vertical;min-height:96px;line-height:1.5}
+.tr .trk-select{position:relative}
+.tr .trk-select select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:28px}
+.tr .trk-select .i{position:absolute;right:18px;width:18px;height:18px;color:var(--muted);pointer-events:none}
+.tr .trk-eye{border:0;background:transparent;padding:6px;margin-right:-6px;color:var(--muted);cursor:pointer;display:grid}
+.tr .trk-eye .i{width:20px;height:20px}
+.tr .trk-error{color:var(--bad);font-size:14px;font-weight:600}
+.tr .trk-check{cursor:pointer;line-height:1.45}
+.tr .trk-check a{color:var(--accent-press);border-bottom:1px solid #f4cdb8}
+.tr .trk-switch-row{display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer}
+.tr .trk-switch-text{display:grid;gap:2px}
+.tr .trk-switch-text b{font-weight:650}
+.tr .opt{cursor:pointer;font-family:inherit;color:inherit}
+
+/* Карточки выбора */
+.tr .trk-choices{display:grid;gap:16px}
+.tr .trk-choices.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tr .trk-choices.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tr .trk-choice{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:14px;text-align:left;padding:24px;border:0;border-radius:32px;background:linear-gradient(180deg,#fff,#fffaf6);box-shadow:inset 0 0 0 1px var(--line);font:inherit;color:inherit;cursor:pointer;transition:transform .3s var(--spring),box-shadow .25s,background .25s}
+.tr .trk-choice:hover{transform:translateY(-3px);box-shadow:inset 0 0 0 1px rgb(242 106 46 / 35%),0 14px 30px rgb(32 40 56 / 8%)}
+.tr .trk-choice.on{background:linear-gradient(180deg,#fff7f0,#fff0e4);box-shadow:inset 0 0 0 2px var(--accent),0 12px 28px rgb(242 106 46 / 14%)}
+.tr .trk-choice .ic-sq{width:48px;height:48px;border-radius:16px}
+.tr .trk-choice .ic-sq .i{width:24px;height:24px}
+.tr .trk-choice-text{display:grid;gap:6px;padding-right:28px}
+.tr .trk-choice-text b{font-size:20px;font-weight:700;letter-spacing:-0.02em;line-height:1.25}
+.tr .trk-choice-text span{color:var(--muted);font-size:16px;line-height:1.5}
+.tr .trk-choice-mark{position:absolute;top:22px;right:22px;width:24px;height:24px;border-radius:50%;border:1.5px solid #c9bdb5;background:#fff}
+.tr .trk-choice.on .trk-choice-mark{border-color:var(--accent);background:radial-gradient(circle,var(--accent) 0 6px,#fff 7px)}
+
+/* Урок */
+.tr .trk-lesson{position:relative;transition:transform .3s var(--spring),box-shadow .25s}
+.tr .trk-lesson:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgb(32 40 56 / 8%)}
+.tr .trk-lesson-link{position:absolute;inset:0;border-radius:inherit;z-index:1}
+.tr .trk-lesson-actions{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:10px}
+.tr .trk-lesson .lesson-top{gap:12px;flex-wrap:wrap}
+
+/* Выбор времени */
+.tr .trk-slots{display:grid;gap:14px}
+.tr .trk-slots .date{cursor:pointer;font:inherit;color:inherit;padding:0}
+.tr .trk-slots .date.trk-off{opacity:.45}
+.tr .trk-slots .slot{cursor:pointer;font:inherit;font-weight:650;color:inherit}
+.tr .trk-slots .slot.off{cursor:not-allowed}
+.tr .trk-tz{display:flex;gap:8px;align-items:center}
+.tr .trk-tz .i{width:16px;height:16px}
+
+/* Окна */
+.tr.trk-modal-root{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:transparent;min-height:0}
+.tr .trk-scrim{position:absolute;inset:0;background:rgb(32 40 56 / 34%);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:trk-fade .25s ease both}
+.tr .trk-modal{position:relative;width:100%;max-height:calc(100vh - 32px);overflow:auto;border-radius:40px;padding:28px;display:grid;gap:18px;animation:tr-pop .45s var(--spring) both}
+.tr .trk-modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tr .trk-modal-body{display:grid;gap:16px}
+.tr .trk-modal-foot{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px}
+.tr .trk-grab{display:none}
+@keyframes trk-fade{from{opacity:0}}
+.tr .trk-toasts{position:fixed;left:50%;top:20px;transform:translateX(-50%);z-index:120;display:grid;gap:10px;width:min(520px,calc(100vw - 32px));pointer-events:none}
+.tr .trk-toast{pointer-events:auto;padding:12px 20px}
+.tr .trk-toast.bad .i{color:var(--bad)}
+.tr .trk-toast.info .i{color:var(--accent)}
+
+/* Кабинет */
+.tr .trk-app .trk-tabbar{display:none}
+.tr .trk-app-hdr .icons{gap:8px}
+.tr .trk-ava-link{display:block;border-radius:50%}
+.tr .trk-app .trk-hdr-ic{background:rgb(32 40 56 / 6%)}
+.tr .tab{text-decoration:none;color:inherit}
+
+/* Сетки страниц */
+.tr .trk-two{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:40px;align-items:start}
+.tr .trk-two>aside{position:sticky;top:96px;display:grid;gap:16px}
+.tr .trk-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.tr .trk-grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.tr .trk-list{display:grid;gap:16px}
+.tr .trk-actions{display:flex;flex-wrap:wrap;gap:10px}
+.tr .trk-form{display:grid;gap:20px}
+
+@media (max-width:760px){
+  .tr .trk-cardtitle{font-size:20px}
+  .tr .trk-card.pad-md,.tr .trk-card.pad-lg{padding:22px}
+  .tr .trk-choices.c2,.tr .trk-choices.c3{grid-template-columns:1fr}
+  .tr .trk-choice{padding:20px;border-radius:28px}
+  .tr .trk-two,.tr .trk-grid2,.tr .trk-grid3{grid-template-columns:1fr;gap:16px}
+  .tr .trk-two>aside{position:static}
+  .tr.trk-modal-root{align-items:end;padding:0}
+  .tr .trk-modal{max-width:none!important;border-radius:36px 36px 0 0;padding:14px 20px calc(24px + env(safe-area-inset-bottom,0px));max-height:90vh;animation:tr-sheetup .5s var(--spring) both}
+  .tr .trk-grab{display:block}
+  .tr .trk-modal-foot{display:grid}
+  .tr .trk-modal-foot .btn{width:100%}
+  .tr .trk-app{padding-bottom:110px}
+  .tr .trk-app .trk-app-hdr{display:none}
+  .tr .trk-app .trk-tabbar{display:grid;position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:auto;z-index:50}
+  .tr .trk-pagehead-actions{width:100%}
+}
+.tr .trk-split{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
+.tr .trk-calc{gap:14px}
+.tr .trk-calc-row{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+.tr .trk-calc-price{font-size:44px;letter-spacing:-0.04em}
+.tr .trk-range{width:100%;accent-color:var(--accent);height:28px;cursor:pointer}
+.tr .trk-calc-bar{display:flex;gap:4px}
+.tr .trk-calc-bar i{display:block;height:14px;background:var(--accent);border-radius:14px 4px 4px 14px}
+.tr .trk-calc-bar i+i{background:#ffd9c5;border-radius:4px 14px 14px 4px}
+.tr .trk-calc-total{border-top:1px solid var(--line);padding-top:14px}
+.tr .trk-calc-total b{font-size:24px}
+.tr .trk-price{align-items:center;gap:48px}
+@media (max-width:760px){.tr .trk-calc-price{font-size:34px}.tr .trk-price{gap:24px}}
+.tr .trk-route-loading{min-height:100vh}
+.tr .trk-range{-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;background:var(--fill-strong);outline:0}
+.tr .trk-range::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--accent),0 4px 10px rgb(242 106 46 / 30%);cursor:pointer}
+.tr .trk-range::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--accent);cursor:pointer}

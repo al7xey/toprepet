@@ -19,14 +19,10 @@ import { SeoMetadata } from './seo-metadata';
 import { MetrikaTracker } from './metrika-tracker';
 import { useScrollToSection } from '../shared/lib/use-scroll-to-section';
 import { Header } from '../widgets/header/header';
-const HomePage = lazy(() => import('../pages/home/home-page'));
+import { isNewPath, NewApp } from '../new-design/router';
 const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
 const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
-const TeacherPage = lazy(() => import('../pages/teacher/teacher-page'));
-const TeachersPage = lazy(() => import('../pages/teachers/teachers-page'));
 const FreeIntroPage = lazy(() => import('../pages/free-intro/free-intro-page'));
-const ForTutorsPage = lazy(() => import('../pages/for-tutors/for-tutors-page'));
-const ScreenRoute = lazy(() => import('../new-design/screen').then(module => ({ default: module.ScreenRoute })));
 import { Footer } from '../widgets/footer/footer';
 const PaymentRefundPage = lazy(() => import('../pages/legal/payment-refund-page'));
 const LegalPage = lazy(() => import('../pages/legal/legal-page'));
@@ -119,22 +115,13 @@ function AppRoutes() {
       <Route path="*" element={<PublicBlog page="not-found" />} />
     </Routes></Suspense></ErrorBoundary>;
   }
-  const path = pathname.replace(/\/+$/, '') || '/';
-  if (path === '/' || path === '/teachers' || path.startsWith('/teachers/') || path.startsWith('/screens/') || path === '/for-repetitor') {
-    // страницы в новом дизайне: свои шапка и подвал
+  if (isNewPath(pathname)) {
+    // страницы нового интерфейса: свои шапка, подвал, сессия и данные
     return (
       <ErrorBoundary>
         <Provider store={store}>
           <ScrollManager />
-          <Suspense fallback={<div className="container"><output>Загрузка страницы…</output></div>}>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/teachers" element={<TeachersPage />} />
-              <Route path="/teachers/:id" element={<TeacherPage />} />
-              <Route path="/screens/:id" element={<ScreenRoute />} />
-              <Route path="/for-repetitor" element={<ForTutorsPage />} />
-            </Routes>
-          </Suspense>
+          <NewApp />
         </Provider>
       </ErrorBoundary>
     );
@@ -169,11 +156,6 @@ function AppRoutes() {
             <Route path="/legal/payment-refund" element={<PaymentRefundPage />} />
             <Route path="/legal/:document" element={<LegalPage />} />
             <Route
-              path="/"
-              element={<HomePage />}
-            />
-
-            <Route
               path="/lessons"
               element={<LessonsPage />}
             />
@@ -193,20 +175,9 @@ function AppRoutes() {
               element={<FreeIntroPage />}
             />
 
-            <Route
-              path="/for-repetitor"
-              element={<ForTutorsPage />}
-            />
             <Route path="/for-tutors" element={<Navigate to="/for-repetitor/" replace />} />
 
-            <Route
-              path="/teachers/:id"
-              element={<TeacherPage />}
-            />
-
             <Route path="/teacher/:id" element={<LegacyTeacherRedirect />} />
-
-            <Route path="/teachers" element={<TeachersPage />} />
 
             <Route
               path="/direction/:id"

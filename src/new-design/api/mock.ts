@@ -1,0 +1,522 @@
+import { teachers } from '../../entities/teacher';
+import { PRICE } from '../../shared/config/site';
+import teacherPhotos from '../../shared/config/teacher-photos.json';
+import { ApiError, type Api } from './contract';
+import type {
+  Card, Conversation, Dispute, Id, Lesson, Message, Notification, PaymentRecord, PayoutSettings, Review, Role,
+  ScheduleException, StudyRequest, RequestResponse, Tutor, TutorDocument, TutorProfileDraft, User, WeekSchedule,
+} from './types';
+
+/**
+ * Моковый бэкенд в браузере. Повторяет правила продукта, чтобы экраны вели себя как с настоящим сервером:
+ * заморозка денег при записи, подтверждение репетитором, бесплатная отмена за 4 часа, одно знакомство на пару.
+ * Состояние хранится в localStorage, сбросить: localStorage.removeItem('toprepet-mock').
+ */
+
+const KEY = 'toprepet-mock-v1';
+const HOUR = 3_600_000;
+const DAY = 24 * HOUR;
+const FEE = 0.1;
+
+export const studentPriceOf = (price: number) => Math.round(price * (1 + FEE));
+
+type Photos = Record<string, { src: string; srcSet: string }>;
+const photos = teacherPhotos as Photos;
+
+function seedTutors(): Tutor[] {
+  return teachers.map((t, index) => ({
+    id: t.id,
+    name: t.name,
+    photo: t.photo,
+    photoSrcSet: photos[t.id]?.srcSet,
+    headline: t.role,
+    subjects: t.cardSubjects.split(' / '),
+    cardSubjects: t.cardSubjects,
+    helpTopics: [...t.helpTopics],
+    experience: t.experience,
+    intro: t.intro,
+    approach: t.approach,
+    achievements: t.achievements.map((a) => ({ ...a })),
+    price: PRICE,
+    studentPrice: studentPriceOf(PRICE),
+    introMinutes: [20, 30, 15][index % 3],
+    rating: null,
+    reviewsCount: 0,
+    status: 'published',
+    timezone: 'Europe/Moscow',
+  }));
+}
+
+interface State {
+  sessionUserId: Id | null;
+  users: (User & { password: string })[];
+  tutors: Tutor[];
+  lessons: Lesson[];
+  requests: StudyRequest[];
+  responses: RequestResponse[];
+  conversations: Conversation[];
+  messages: Message[];
+  cards: (Card & { userId: Id })[];
+  payments: (PaymentRecord & { userId: Id })[];
+  notifications: (Notification & { userId: Id })[];
+  reviews: Review[];
+  disputes: Dispute[];
+  week: WeekSchedule;
+  exceptions: ScheduleException[];
+  documents: TutorDocument[];
+  profile: TutorProfileDraft;
+  payout: PayoutSettings;
+  seq: number;
+}
+
+const iso = (ms: number) => new Date(ms).toISOString();
+/** Ровный час через n дней в hh:00 по локальному времени. */
+const at = (days: number, hour: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  d.setHours(hour, 0, 0, 0);
+  return d.getTime();
+};
+
+function seed(): State {
+  const now = Date.now();
+  const tutors = seedTutors();
+  const anastasia = tutors[0];
+  const student: User & { password: string } = { id: 'u-student', role: 'student', name: 'Ольга', email: 'olga@mail.ru', emailVerified: true, timezone: 'Europe/Moscow', onboarded: true, password: 'demo' };
+  const tutor: User & { password: string } = { id: 'u-tutor', role: 'tutor', name: anastasia.name, email: 'anastasia@toprepet.ru', emailVerified: true, timezone: 'Europe/Moscow', tutorId: anastasia.id, onboarded: true, password: 'demo' };
+  const admin: User & { password: string } = { id: 'u-admin', role: 'admin', name: 'Поддержка', email: 'admin@toprepet.ru', emailVerified: true, timezone: 'Europe/Moscow', onboarded: true, password: 'demo' };
+  const lesson = (id: string, t: Tutor, start: number, status: Lesson['status'], extra: Partial<Lesson> = {}): Lesson => ({
+    id, kind: 'regular', tutorId: t.id, tutorName: t.name, tutorPhoto: t.photo, studentId: student.id, studentName: student.name,
+    subject: t.subjects[0], start: iso(start), durationMin: 60, status, price: t.studentPrice, tutorPrice: t.price,
+    payment: status === 'pending' ? 'hold' : status === 'confirmed' ? 'captured' : status === 'completed' ? 'paid_out' : 'refunded',
+    confirmBy: status === 'pending' ? iso(Math.min(start - 2 * HOUR, now + DAY)) : undefined,
+    meetingUrl: null, moveProposal: null, reviewId: null, disputeId: null, seriesId: null, ...extra,
+  });
+  const lessons: Lesson[] = [
+    lesson('l-1', anastasia, at(1, 19), 'confirmed', { meetingUrl: 'https://telemost.yandex.ru/' }),
+    lesson('l-2', anastasia, at(3, 19), 'pending'),
+    lesson('l-3', tutors[1], at(5, 17), 'confirmed', { kind: 'intro', price: 0, tutorPrice: 0, payment: 'none', durationMin: tutors[1].introMinutes, subject: tutors[1].subjects[0] }),
+    lesson('l-4', anastasia, at(-2, 19), 'completed'),
+    lesson('l-5', anastasia, at(-9, 19), 'completed', { reviewId: null }),
+    lesson('l-6', tutors[5], at(-5, 16), 'cancelled', { cancelledBy: 'student', cancelReason: 'Заболел ребёнок', payment: 'refunded' }),
+  ];
+  const conv = (id: string, t: Tutor, last: string, unread: number, ago: number): Conversation => ({
+    id, peerName: t.name, peerPhoto: t.photo, peerRole: 'tutor', lastMessage: last, updatedAt: iso(now - ago), unread, tutorId: t.id, studentId: student.id,
+  });
+  const conversations = [conv('c-1', anastasia, 'Отлично, тогда до четверга!', 1, 2 * HOUR), conv('c-2', tutors[1], 'Здравствуйте! Знакомство подтвердила.', 0, DAY)];
+  const msg = (id: string, c: string, author: Id | null, text: string, ago: number, kind: Message['kind'] = 'text'): Message => ({ id, conversationId: c, authorId: author, kind, text, at: iso(now - ago) });
+  const messages: Message[] = [
+    msg('m-1', 'c-1', null, 'Ольга записалась на урок английского', 26 * HOUR, 'event'),
+    msg('m-2', 'c-1', student.id, 'Здравствуйте! Хотим подтянуть грамматику перед контрольной.', 25 * HOUR),
+    msg('m-3', 'c-1', tutor.id, 'Здравствуйте! Хорошо, начнём с повторения времён. Пришлите, пожалуйста, тему контрольной.', 24 * HOUR),
+    msg('m-4', 'c-1', null, 'Анастасия подтвердила урок', 23 * HOUR, 'event'),
+    msg('m-5', 'c-1', tutor.id, 'Отлично, тогда до четверга!', 2 * HOUR),
+    msg('m-6', 'c-2', null, 'Ольга записалась на бесплатное знакомство', 30 * HOUR, 'event'),
+    msg('m-7', 'c-2', tutors[1].id, 'Здравствуйте! Знакомство подтвердила.', DAY),
+  ];
+  const request: StudyRequest = {
+    id: 'r-1', studentId: student.id, studentName: student.name, subject: 'Математика', goal: 'Подготовка к ОГЭ', level: '9 класс', budgetMax: 1800,
+    schedule: ['Будни вечером'], description: 'Нужно подтянуть геометрию и вторую часть ОГЭ. Удобно 2 раза в неделю.', status: 'open',
+    createdAt: iso(now - 2 * DAY), expiresAt: iso(now + 12 * DAY), responsesCount: 2,
+  };
+  const openRequests: StudyRequest[] = [
+    request,
+    { ...request, id: 'r-2', studentId: 'u-other', studentName: 'Ирина', subject: 'Английский язык', goal: 'Разговорный английский', level: 'Взрослый, A2', budgetMax: 2000, schedule: ['Выходные'], description: 'Хочу свободнее говорить на работе, нужна разговорная практика.', responsesCount: 1, createdAt: iso(now - DAY) },
+    { ...request, id: 'r-3', studentId: 'u-other2', studentName: 'Сергей', subject: 'Английский язык', goal: 'Домашние задания', level: '6 класс', budgetMax: null, schedule: ['Будни днём'], description: 'Помогите сыну с домашними заданиями по английскому.', responsesCount: 0, createdAt: iso(now - 5 * HOUR) },
+  ];
+  const resp = (id: string, t: Tutor, message: string, ago: number): RequestResponse => ({
+    id, requestId: 'r-1', tutorId: t.id, tutorName: t.name, tutorPhoto: t.photo, tutorRating: t.rating, price: t.studentPrice, message,
+    slots: [iso(at(2, 18)), iso(at(4, 18))], status: 'sent', createdAt: iso(now - ago),
+  });
+  const ervan = tutors.find((t) => t.subjects.includes('Математика')) ?? tutors[0];
+  const daria = tutors.find((t) => t.id.startsWith('physics')) ?? tutors[1];
+  const responses = [
+    resp('rr-1', ervan, 'Готовлю к ОГЭ третий год. Начнём с диагностики и составим план по геометрии.', 20 * HOUR),
+    resp('rr-2', daria, 'Могу два раза в неделю вечером. Разберём вторую часть на примерах прошлых лет.', 6 * HOUR),
+  ];
+  const note = (id: string, userId: Id, kind: Notification['kind'], title: string, text: string, ago: number, link: string | null, read = false): Notification & { userId: Id } =>
+    ({ id, userId, kind, title, text, at: iso(now - ago), read, link });
+  return {
+    sessionUserId: null,
+    users: [student, tutor, admin],
+    tutors,
+    lessons,
+    requests: openRequests,
+    responses,
+    conversations,
+    messages,
+    cards: [{ id: 'card-1', userId: student.id, brand: 'МИР', last4: '4417', primary: true }],
+    payments: [
+      { id: 'p-1', userId: student.id, lessonId: 'l-2', title: `Урок с ${anastasia.name}`, amount: anastasia.studentPrice, kind: 'hold', at: iso(now - 3 * HOUR), cardLast4: '4417' },
+      { id: 'p-2', userId: student.id, lessonId: 'l-1', title: `Урок с ${anastasia.name}`, amount: anastasia.studentPrice, kind: 'charge', at: iso(now - DAY), cardLast4: '4417' },
+      { id: 'p-3', userId: student.id, lessonId: 'l-6', title: `Урок с ${tutors[5].name}`, amount: tutors[5].studentPrice, kind: 'refund', at: iso(now - 5 * DAY), cardLast4: '4417' },
+    ],
+    notifications: [
+      note('n-1', student.id, 'lesson', 'Урок подтверждён', `${anastasia.name} подтвердила урок`, 23 * HOUR, '/me/lessons/l-1'),
+      note('n-2', student.id, 'request', 'Новый отклик на заявку', 'По заявке «Математика» откликнулись 2 репетитора', 6 * HOUR, '/me/requests/r-1'),
+      note('n-3', student.id, 'message', 'Новое сообщение', `${anastasia.name}: Отлично, тогда до четверга!`, 2 * HOUR, '/me/chats/c-1'),
+      note('n-4', tutor.id, 'lesson', 'Новая запись', 'Ольга записалась на урок. Подтвердите до срока.', 3 * HOUR, '/tutor/lessons/l-2'),
+      note('n-5', tutor.id, 'request', 'Новая заявка по вашему предмету', 'Английский язык, разговорная практика', DAY, '/tutor/requests/r-2', true),
+    ],
+    reviews: [],
+    disputes: [],
+    week: { days: [1, 2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, intervals: weekday <= 5 ? [{ from: '17:00', to: '21:00' }] : weekday === 6 ? [{ from: '10:00', to: '14:00' }] : [] })) },
+    exceptions: [],
+    documents: [{ id: 'd-1', title: 'Диплом бакалавра', status: 'approved' }, { id: 'd-2', title: 'Сертификат Cambridge FCE', status: 'checking' }],
+    profile: {
+      name: anastasia.name, headline: anastasia.headline, about: anastasia.intro, approach: anastasia.approach, subjects: anastasia.subjects,
+      levels: ['1–4 класс', '5–9 класс'], experience: anastasia.experience, education: anastasia.achievements, price: anastasia.price,
+      introMinutes: anastasia.introMinutes, durations: [60], photo: anastasia.photo, status: 'published', slug: anastasia.id,
+    },
+    payout: { inn: '', cardLast4: null, selfEmployedConfirmed: false },
+    seq: 100,
+  };
+}
+
+let state: State | null = null;
+const hasStorage = () => typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+
+function load(): State {
+  if (state) return state;
+  if (hasStorage()) {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) { state = JSON.parse(raw) as State; return state; }
+    } catch { /* повреждённые данные: начинаем заново */ }
+  }
+  state = seed();
+  return state;
+}
+function save() {
+  if (!hasStorage() || !state) return;
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* приватный режим */ }
+}
+
+const delay = <T>(value: T, ms = 220): Promise<T> => new Promise((resolve) => setTimeout(() => resolve(structuredClone(value)), ms));
+const nextId = (prefix: string) => { const s = load(); s.seq += 1; return `${prefix}-${s.seq}`; };
+const fail = (message: string, status = 400): never => { throw new ApiError(message, status); };
+
+function me(): User & { password: string } {
+  const s = load();
+  const user = s.users.find((u) => u.id === s.sessionUserId);
+  if (!user) fail('Войдите, чтобы продолжить', 401);
+  return user as User & { password: string };
+}
+const publicUser = (u: User & { password?: string }): User => { const { password: _p, ...rest } = u; return rest; };
+const myTutor = () => { const u = me(); const t = load().tutors.find((x) => x.id === u.tutorId); if (!t) fail('Анкета не найдена', 404); return t as Tutor; };
+const findLesson = (id: Id) => { const l = load().lessons.find((x) => x.id === id); if (!l) fail('Урок не найден', 404); return l as Lesson; };
+const canSee = (l: Lesson) => { const u = me(); if (u.role === 'admin') return; if (l.studentId !== u.id && l.tutorId !== u.tutorId) fail('Нет доступа', 403); };
+const notify = (userId: Id, n: Omit<Notification, 'id' | 'at' | 'read'>) => { load().notifications.unshift({ ...n, id: nextId('n'), at: iso(Date.now()), read: false, userId }); };
+const tutorUserId = (tutorId: Id) => load().users.find((u) => u.tutorId === tutorId)?.id;
+const systemMessage = (tutorId: Id, studentId: Id, text: string) => {
+  const s = load();
+  const c = s.conversations.find((x) => x.tutorId === tutorId && x.studentId === studentId);
+  if (!c) return;
+  s.messages.push({ id: nextId('m'), conversationId: c.id, authorId: null, kind: 'event', text, at: iso(Date.now()) });
+  c.lastMessage = text; c.updatedAt = iso(Date.now());
+};
+const norm = (v: string) => v.trim().toLocaleLowerCase('ru').replaceAll('ё', 'е');
+
+function slotsFor(tutor: Tutor, fromMs: number, days: number) {
+  const s = load();
+  const busy = new Set(s.lessons.filter((l) => l.tutorId === tutor.id && ['pending', 'confirmed'].includes(l.status)).map((l) => new Date(l.start).getTime()));
+  const out: { start: string; available: boolean }[] = [];
+  const base = new Date(fromMs); base.setHours(0, 0, 0, 0);
+  for (let d = 0; d < days; d += 1) {
+    const day = new Date(base.getTime() + d * DAY);
+    const weekday = ((day.getDay() + 6) % 7) + 1;
+    const rule = s.week.days.find((x) => x.weekday === weekday);
+    for (const interval of rule?.intervals ?? []) {
+      const [fh] = interval.from.split(':').map(Number);
+      const [th] = interval.to.split(':').map(Number);
+      for (let h = fh; h < th; h += 1) {
+        const t = new Date(day); t.setHours(h, 0, 0, 0);
+        const ms = t.getTime();
+        // у каждого репетитора своя «занятость», чтобы расписания отличались
+        const taken = (t.getDate() * 7 + h + tutor.id.length) % 5 === 0;
+        out.push({ start: iso(ms), available: ms > Date.now() + 2 * HOUR && !busy.has(ms) && !taken });
+      }
+    }
+  }
+  return out;
+}
+
+function chargeOrRefund(l: Lesson, kind: PaymentRecord['kind']) {
+  if (l.price === 0) return;
+  const s = load();
+  const card = s.cards.find((c) => c.userId === l.studentId && c.primary);
+  s.payments.unshift({ id: nextId('p'), userId: l.studentId, lessonId: l.id, title: `${l.kind === 'intro' ? 'Знакомство' : 'Урок'} с ${l.tutorName}`, amount: l.price, kind, at: iso(Date.now()), cardLast4: card?.last4 ?? '••••' });
+}
+
+export function createMockApi(): Api {
+  return {
+    mode: 'mock',
+    async me() { const s = load(); const u = s.users.find((x) => x.id === s.sessionUserId); return delay(u ? publicUser(u) : null, 60); },
+    async login(email, password) {
+      const s = load();
+      const u = s.users.find((x) => x.email === email.trim().toLowerCase());
+      if (!u || (u.password !== password && password !== 'demo')) fail('Неверная почта или пароль');
+      s.sessionUserId = (u as User).id; save();
+      return delay(publicUser(u as User));
+    },
+    async loginWithYandex() { const s = load(); s.sessionUserId = 'u-student'; save(); return delay(publicUser(me())); },
+    async signup({ role, name, email, password }) {
+      const s = load();
+      if (s.users.some((u) => u.email === email.trim().toLowerCase())) fail('Аккаунт с этой почтой уже есть. Войдите или восстановите пароль.');
+      const user = { id: nextId('u'), role, name: name.trim(), email: email.trim().toLowerCase(), emailVerified: false, timezone: 'Europe/Moscow', onboarded: false, password } as User & { password: string };
+      s.users.push(user); s.sessionUserId = user.id; save();
+      return delay(publicUser(user));
+    },
+    async logout() { load().sessionUserId = null; save(); return delay(undefined); },
+    async requestPasswordReset(email) { if (!email.includes('@')) fail('Проверьте адрес почты'); return delay(undefined, 400); },
+    async resendVerification() { me(); return delay(undefined); },
+    async completeOnboarding() { const u = me(); u.onboarded = true; save(); return delay(publicUser(u)); },
+    async updateMe(input) { const u = me(); Object.assign(u, input); save(); return delay(publicUser(u)); },
+
+    async listTutors(filter) {
+      const s = load();
+      const query = filter.query ? norm(filter.query) : '';
+      let items = s.tutors.filter((t) => t.status === 'published')
+        .filter((t) => !filter.subject || t.helpTopics.includes(filter.subject) || t.subjects.some((x) => filter.subject?.startsWith(x)))
+        .filter((t) => !filter.priceMax || t.studentPrice <= filter.priceMax)
+        .filter((t) => !filter.hasIntro || t.introMinutes > 0)
+        .filter((t) => !query || norm([t.name, t.headline, t.cardSubjects, ...t.helpTopics, t.intro].join(' ')).includes(query));
+      if (filter.sort === 'price_asc') items = [...items].sort((a, b) => a.studentPrice - b.studentPrice);
+      if (filter.sort === 'price_desc') items = [...items].sort((a, b) => b.studentPrice - a.studentPrice);
+      const total = items.length;
+      const start = filter.cursor ? Number(filter.cursor) : 0;
+      const limit = filter.limit ?? 8;
+      items = items.slice(start, start + limit);
+      return delay({ items, total, nextCursor: start + limit < total ? String(start + limit) : null });
+    },
+    async getTutor(id) { const t = load().tutors.find((x) => x.id === id); if (!t) fail('Анкета не найдена', 404); return delay(t as Tutor); },
+    async getTutorSlots(id, from, days) { const t = load().tutors.find((x) => x.id === id); if (!t) fail('Анкета не найдена', 404); return delay(slotsFor(t as Tutor, new Date(from).getTime(), days)); },
+    async getTutorReviews(id) { return delay(load().reviews.filter((r) => r.tutorId === id && r.status === 'published')); },
+
+    async createBooking(input) {
+      const s = load(); const u = me();
+      if (u.role !== 'student') fail('Записываться могут только ученики');
+      const t = s.tutors.find((x) => x.id === input.tutorId); if (!t) fail('Анкета не найдена', 404);
+      const tutor = t as Tutor;
+      const slot = slotsFor(tutor, new Date(input.start).getTime(), 1).find((x) => x.start === input.start);
+      if (!slot?.available) fail('Это время уже занято. Выберите другое.');
+      if (input.kind === 'intro') {
+        if (!tutor.introMinutes) fail('У этого репетитора нет бесплатного знакомства');
+        if (s.lessons.some((l) => l.kind === 'intro' && l.tutorId === tutor.id && l.studentId === u.id && !['declined', 'expired', 'cancelled'].includes(l.status)))
+          fail('Бесплатное знакомство с этим репетитором уже было');
+      } else if (!s.cards.some((c) => c.userId === u.id)) fail('Добавьте карту, чтобы записаться', 402);
+      const startMs = new Date(input.start).getTime();
+      const price = input.kind === 'intro' ? 0 : Math.round(tutor.studentPrice * input.durationMin / 60);
+      const lesson: Lesson = {
+        id: nextId('l'), kind: input.kind, tutorId: tutor.id, tutorName: tutor.name, tutorPhoto: tutor.photo, studentId: u.id, studentName: u.name,
+        subject: input.subject, start: input.start, durationMin: input.kind === 'intro' ? tutor.introMinutes : input.durationMin, status: 'pending',
+        price, tutorPrice: input.kind === 'intro' ? 0 : Math.round(tutor.price * input.durationMin / 60), payment: price ? 'hold' : 'none',
+        confirmBy: iso(Math.min(startMs - 2 * HOUR, Date.now() + DAY)), meetingUrl: null, moveProposal: null, reviewId: null, disputeId: null, seriesId: null,
+      };
+      s.lessons.push(lesson);
+      chargeOrRefund(lesson, 'hold');
+      let c = s.conversations.find((x) => x.tutorId === tutor.id && x.studentId === u.id);
+      if (!c) { c = { id: nextId('c'), peerName: tutor.name, peerPhoto: tutor.photo, peerRole: 'tutor', lastMessage: '', updatedAt: iso(Date.now()), unread: 0, tutorId: tutor.id, studentId: u.id }; s.conversations.unshift(c); }
+      systemMessage(tutor.id, u.id, `${u.name} записалась на ${lesson.kind === 'intro' ? 'бесплатное знакомство' : 'урок'}`);
+      const tuid = tutorUserId(tutor.id);
+      if (tuid) notify(tuid, { kind: 'lesson', title: 'Новая запись', text: `${u.name} записалась. Подтвердите запись.`, link: `/tutor/lessons/${lesson.id}` });
+      save();
+      return delay(lesson, 500);
+    },
+    async listLessons(scope) {
+      const u = me(); const now = Date.now();
+      const mine = load().lessons.filter((l) => (u.role === 'student' ? l.studentId === u.id : l.tutorId === u.tutorId));
+      const active = (l: Lesson) => ['pending', 'confirmed'].includes(l.status) && new Date(l.start).getTime() + l.durationMin * 60_000 > now;
+      const list = mine.filter((l) => (scope === 'upcoming' ? active(l) : !active(l)));
+      list.sort((a, b) => (scope === 'upcoming' ? 1 : -1) * (new Date(a.start).getTime() - new Date(b.start).getTime()));
+      return delay(list);
+    },
+    async getLesson(id) { const l = findLesson(id); canSee(l); return delay(l); },
+    async cancelLesson(id, reason) {
+      const l = findLesson(id); canSee(l); const u = me();
+      if (!['pending', 'confirmed'].includes(l.status)) fail('Этот урок уже нельзя отменить');
+      const late = new Date(l.start).getTime() - Date.now() < 4 * HOUR;
+      l.status = 'cancelled'; l.cancelReason = reason; l.cancelledBy = u.role;
+      const refund = u.role === 'tutor' || !late || l.payment === 'hold';
+      l.payment = l.price === 0 ? 'none' : refund ? 'refunded' : 'captured';
+      if (refund) chargeOrRefund(l, 'refund');
+      systemMessage(l.tutorId, l.studentId, `${u.name} отменил${u.role === 'student' ? 'а' : 'а'} урок`);
+      const other = u.role === 'student' ? tutorUserId(l.tutorId) : l.studentId;
+      if (other) notify(other, { kind: 'lesson', title: 'Урок отменён', text: reason, link: u.role === 'student' ? `/tutor/lessons/${l.id}` : `/me/lessons/${l.id}` });
+      save(); return delay(l);
+    },
+    async proposeMove(id, start) {
+      const l = findLesson(id); canSee(l); const u = me();
+      if (l.status !== 'confirmed' && l.status !== 'pending') fail('Перенести можно только предстоящий урок');
+      l.moveProposal = { start, by: u.role }; save(); return delay(l);
+    },
+    async answerMove(id, accept) {
+      const l = findLesson(id); canSee(l);
+      if (!l.moveProposal) fail('Нет предложения о переносе');
+      if (accept) l.start = (l.moveProposal as { start: string }).start;
+      l.moveProposal = null; save(); return delay(l);
+    },
+    async confirmLesson(id) {
+      const l = findLesson(id); canSee(l); const u = me();
+      if (u.role !== 'tutor') fail('Подтверждает запись репетитор');
+      if (l.status !== 'pending') fail('Запись уже обработана');
+      l.status = 'confirmed'; if (l.price) { l.payment = 'captured'; chargeOrRefund(l, 'charge'); }
+      l.meetingUrl = 'https://telemost.yandex.ru/';
+      systemMessage(l.tutorId, l.studentId, `${l.tutorName} подтвердила ${l.kind === 'intro' ? 'знакомство' : 'урок'}`);
+      notify(l.studentId, { kind: 'lesson', title: 'Запись подтверждена', text: `${l.tutorName} подтвердила запись`, link: `/me/lessons/${l.id}` });
+      save(); return delay(l);
+    },
+    async declineLesson(id, reason) {
+      const l = findLesson(id); canSee(l);
+      if (l.status !== 'pending') fail('Запись уже обработана');
+      l.status = 'declined'; l.declineReason = reason; if (l.price) { l.payment = 'refunded'; chargeOrRefund(l, 'release'); }
+      notify(l.studentId, { kind: 'lesson', title: 'Запись отклонена', text: reason, link: `/me/lessons/${l.id}` });
+      save(); return delay(l);
+    },
+    async markLessonResult(id, result) {
+      const l = findLesson(id); canSee(l);
+      l.status = result === 'happened' ? 'completed' : result;
+      if (result === 'no_show_tutor' && l.price) { l.payment = 'refunded'; chargeOrRefund(l, 'refund'); }
+      save(); return delay(l);
+    },
+    async reportProblem({ lessonId, reason, text }) {
+      const l = findLesson(lessonId); canSee(l);
+      if (Date.now() - new Date(l.start).getTime() > DAY + l.durationMin * 60_000) fail('Сообщить о проблеме можно в течение 24 часов после начала урока');
+      const d: Dispute = { id: nextId('dp'), lessonId, reason, text, status: 'open', createdAt: iso(Date.now()), tutorReply: null, resolution: null };
+      load().disputes.push(d); l.status = 'disputed'; l.disputeId = d.id; save(); return delay(d);
+    },
+    async getDispute(id) { const d = load().disputes.find((x) => x.id === id); if (!d) fail('Спор не найден', 404); return delay(d as Dispute); },
+    async replyDispute(id, text) { const d = load().disputes.find((x) => x.id === id); if (!d) fail('Спор не найден', 404); (d as Dispute).tutorReply = text; (d as Dispute).status = 'tutor_replied'; save(); return delay(d as Dispute); },
+
+    async createReview(lessonId, rating, text) {
+      const l = findLesson(lessonId); const u = me();
+      if (l.studentId !== u.id) fail('Отзыв оставляет ученик');
+      if (l.status !== 'completed' || l.kind !== 'regular') fail('Отзыв можно оставить после оплаченного урока');
+      if (l.reviewId) fail('Отзыв уже оставлен');
+      const r: Review = { id: nextId('rv'), lessonId, tutorId: l.tutorId, authorName: u.name, authorNote: l.subject, rating, text, status: 'pending', createdAt: iso(Date.now()), reply: null };
+      load().reviews.push(r); l.reviewId = r.id; save(); return delay(r);
+    },
+    async getReview(id) { const r = load().reviews.find((x) => x.id === id); if (!r) fail('Отзыв не найден', 404); return delay(r as Review); },
+    async listMyReviews() { const u = me(); return delay(load().reviews.filter((r) => r.tutorId === u.tutorId)); },
+    async replyReview(id, text) { const r = load().reviews.find((x) => x.id === id); if (!r) fail('Отзыв не найден', 404); (r as Review).reply = text; save(); return delay(r as Review); },
+
+    async listMyRequests() { const u = me(); return delay(load().requests.filter((r) => r.studentId === u.id)); },
+    async createRequest(input) {
+      const u = me();
+      if (!input.subject || input.description.trim().length < 20) fail('Опишите задачу подробнее: хотя бы пару предложений');
+      const r: StudyRequest = { ...input, id: nextId('r'), studentId: u.id, studentName: u.name, status: 'open', createdAt: iso(Date.now()), expiresAt: iso(Date.now() + 14 * DAY), responsesCount: 0 };
+      load().requests.unshift(r); save(); return delay(r, 400);
+    },
+    async getRequest(id) { const r = load().requests.find((x) => x.id === id); if (!r) fail('Заявка не найдена', 404); return delay(r as StudyRequest); },
+    async closeRequest(id) { const r = load().requests.find((x) => x.id === id); if (!r) fail('Заявка не найдена', 404); (r as StudyRequest).status = 'closed'; save(); return delay(r as StudyRequest); },
+    async listResponses(requestId) { return delay(load().responses.filter((x) => x.requestId === requestId)); },
+    async listOpenRequests(subject) { return delay(load().requests.filter((r) => r.status === 'open' && (!subject || r.subject === subject))); },
+    async respondToRequest(requestId, input) {
+      const t = myTutor(); const s = load();
+      const r = s.requests.find((x) => x.id === requestId); if (!r) fail('Заявка не найдена', 404);
+      if (s.responses.some((x) => x.requestId === requestId && x.tutorId === t.id)) fail('Вы уже откликнулись на эту заявку');
+      const resp: RequestResponse = { id: nextId('rr'), requestId, tutorId: t.id, tutorName: t.name, tutorPhoto: t.photo, tutorRating: t.rating, price: studentPriceOf(input.price), message: input.message, slots: input.slots, status: 'sent', createdAt: iso(Date.now()) };
+      s.responses.push(resp); (r as StudyRequest).responsesCount += 1;
+      notify((r as StudyRequest).studentId, { kind: 'request', title: 'Новый отклик на заявку', text: `${t.name} откликнулась на заявку`, link: `/me/requests/${requestId}` });
+      save(); return delay(resp);
+    },
+    async listMyResponses() {
+      const t = myTutor(); const s = load();
+      return delay(s.responses.filter((x) => x.tutorId === t.id).map((x) => ({ ...x, request: s.requests.find((r) => r.id === x.requestId) as StudyRequest })));
+    },
+
+    async listConversations() { const u = me(); return delay(load().conversations.filter((c) => (u.role === 'student' ? c.studentId === u.id : c.tutorId === u.tutorId)).map((c) => (u.role === 'tutor' ? { ...c, peerName: load().users.find((x) => x.id === c.studentId)?.name ?? 'Ученик', peerPhoto: null, peerRole: 'student' as Role } : c))); },
+    async openConversation(tutorId) {
+      const u = me(); const s = load();
+      let c = s.conversations.find((x) => x.tutorId === tutorId && x.studentId === u.id);
+      if (!c) { const t = s.tutors.find((x) => x.id === tutorId); if (!t) fail('Анкета не найдена', 404); c = { id: nextId('c'), peerName: (t as Tutor).name, peerPhoto: (t as Tutor).photo, peerRole: 'tutor', lastMessage: '', updatedAt: iso(Date.now()), unread: 0, tutorId, studentId: u.id }; s.conversations.unshift(c); save(); }
+      return delay(c);
+    },
+    async getConversation(id) { const c = load().conversations.find((x) => x.id === id); if (!c) fail('Диалог не найден', 404); return delay(c as Conversation); },
+    async listMessages(id) { const s = load(); const c = s.conversations.find((x) => x.id === id); if (c) { c.unread = 0; save(); } return delay(s.messages.filter((m) => m.conversationId === id)); },
+    async sendMessage(id, text) {
+      const u = me(); const s = load();
+      const c = s.conversations.find((x) => x.id === id); if (!c) fail('Диалог не найден', 404);
+      if (!text.trim()) fail('Напишите сообщение');
+      const m: Message = { id: nextId('m'), conversationId: id, authorId: u.id, kind: 'text', text: text.trim(), at: iso(Date.now()) };
+      s.messages.push(m); (c as Conversation).lastMessage = m.text; (c as Conversation).updatedAt = m.at; save();
+      return delay(m, 150);
+    },
+    async reportConversation() { me(); return delay(undefined); },
+
+    async listPayments() { const u = me(); return delay(load().payments.filter((p) => p.userId === u.id)); },
+    async listCards() { const u = me(); return delay(load().cards.filter((c) => c.userId === u.id)); },
+    async addCard({ number }) {
+      const u = me(); const digits = number.replace(/\D/g, '');
+      if (digits.length < 16) fail('Проверьте номер карты');
+      const s = load(); const card = { id: nextId('card'), userId: u.id, brand: digits.startsWith('2') ? 'МИР' : digits.startsWith('4') ? 'Visa' : 'Карта', last4: digits.slice(-4), primary: !s.cards.some((c) => c.userId === u.id) };
+      s.cards.push(card); save(); return delay(card, 500);
+    },
+    async removeCard(id) { const s = load(); s.cards = s.cards.filter((c) => c.id !== id); save(); return delay(undefined); },
+    async getFinance() {
+      const t = myTutor(); const ls = load().lessons.filter((l) => l.tutorId === t.id && l.tutorPrice > 0);
+      const entries = ls.map((l) => ({ id: l.id, title: `${l.studentName}, ${l.subject}`, amount: l.tutorPrice, status: (l.payment === 'paid_out' ? 'paid' : l.payment === 'hold' ? 'held' : 'pending') as 'paid' | 'held' | 'pending', at: l.start }));
+      return delay({ available: entries.filter((e) => e.status === 'pending' && ['completed'].includes(ls.find((l) => l.id === e.id)?.status ?? '')).reduce((a, e) => a + e.amount, 0), pending: entries.filter((e) => e.status !== 'paid').reduce((a, e) => a + e.amount, 0), paidThisMonth: entries.filter((e) => e.status === 'paid').reduce((a, e) => a + e.amount, 0), entries });
+    },
+    async getPayoutSettings() { myTutor(); return delay(load().payout); },
+    async savePayoutSettings({ inn, cardNumber }) {
+      myTutor(); if (!/^\d{12}$/.test(inn)) fail('ИНН самозанятого — 12 цифр');
+      const digits = cardNumber.replace(/\D/g, ''); if (digits.length < 16) fail('Проверьте номер карты');
+      const s = load(); s.payout = { inn, cardLast4: digits.slice(-4), selfEmployedConfirmed: true }; save(); return delay(s.payout);
+    },
+
+    async listNotifications() { const u = me(); return delay(load().notifications.filter((n) => n.userId === u.id)); },
+    async markNotificationsRead() { const u = me(); load().notifications.forEach((n) => { if (n.userId === u.id) n.read = true; }); save(); return delay(undefined); },
+
+    async getMyProfile() { myTutor(); return delay(load().profile); },
+    async saveMyProfile(patch) {
+      const t = myTutor(); const s = load();
+      s.profile = { ...s.profile, ...patch };
+      Object.assign(t, { name: s.profile.name, headline: s.profile.headline, intro: s.profile.about, approach: s.profile.approach, price: s.profile.price, studentPrice: studentPriceOf(s.profile.price), introMinutes: s.profile.introMinutes, achievements: s.profile.education, experience: s.profile.experience });
+      save(); return delay(s.profile);
+    },
+    async submitMyProfile() {
+      myTutor(); const s = load(); const p = s.profile;
+      if (!p.name || !p.about || !p.subjects.length || !p.price) fail('Заполните имя, описание, предметы и цену');
+      p.status = 'review'; save(); return delay(p, 500);
+    },
+    async getWeek() { myTutor(); return delay(load().week); },
+    async saveWeek(week) { myTutor(); const s = load(); s.week = week; save(); return delay(s.week); },
+    async listExceptions() { myTutor(); return delay(load().exceptions); },
+    async saveException(item) { myTutor(); const s = load(); s.exceptions = [...s.exceptions.filter((x) => x.date !== item.date), item]; save(); return delay(s.exceptions); },
+    async listDocuments() { myTutor(); return delay(load().documents); },
+    async uploadDocument(title) { myTutor(); const d: TutorDocument = { id: nextId('d'), title, status: 'checking' }; load().documents.push(d); save(); return delay(d, 600); },
+    async listMyStudents() {
+      const t = myTutor(); const byStudent = new Map<string, Lesson[]>();
+      load().lessons.filter((l) => l.tutorId === t.id).forEach((l) => byStudent.set(l.studentId, [...(byStudent.get(l.studentId) ?? []), l]));
+      return delay([...byStudent.entries()].map(([id, ls]) => ({ id, name: ls[0].studentName, note: ls[0].subject, lessonsCount: ls.filter((l) => l.status === 'completed').length, nextLesson: ls.filter((l) => new Date(l.start).getTime() > Date.now() && ['pending', 'confirmed'].includes(l.status)).map((l) => l.start).sort()[0] ?? null })));
+    },
+    async listMyTutors() {
+      const u = me(); const byTutor = new Map<string, Lesson[]>();
+      load().lessons.filter((l) => l.studentId === u.id).forEach((l) => byTutor.set(l.tutorId, [...(byTutor.get(l.tutorId) ?? []), l]));
+      return delay([...byTutor.entries()].map(([tutorId, ls]) => ({ tutorId, name: ls[0].tutorName, photo: ls[0].tutorPhoto, subject: ls[0].subject, lessonsCount: ls.filter((l) => l.status === 'completed').length, lastLesson: ls.filter((l) => l.status === 'completed').map((l) => l.start).sort().at(-1) ?? null })));
+    },
+
+    async adminCancellations() {
+      return delay(load().lessons.filter((l) => l.status === 'cancelled').map((l) => ({ lessonId: l.id, tutorName: l.tutorName, studentName: l.studentName, by: l.cancelledBy ?? 'student', reason: l.cancelReason ?? '', at: l.start, late: l.payment === 'captured' })));
+    },
+    async adminDisputes() { const s = load(); return delay(s.disputes.map((d) => ({ ...d, lesson: s.lessons.find((l) => l.id === d.lessonId) as Lesson }))); },
+    async adminResolveDispute(id, outcome) {
+      const s = load(); const d = s.disputes.find((x) => x.id === id); if (!d) fail('Спор не найден', 404);
+      const dispute = d as Dispute; dispute.status = outcome === 'refund' ? 'resolved_refund' : 'resolved_paid';
+      dispute.resolution = outcome === 'refund' ? 'Деньги вернули ученику' : 'Оплата ушла репетитору';
+      const l = s.lessons.find((x) => x.id === dispute.lessonId); if (l) { l.payment = outcome === 'refund' ? 'refunded' : 'paid_out'; if (outcome === 'refund') chargeOrRefund(l, 'refund'); }
+      save(); return delay(dispute);
+    },
+    async adminReviewQueue() { return delay(load().reviews.filter((r) => r.status === 'pending')); },
+    async adminModerateReview(id, approve) {
+      const s = load(); const r = s.reviews.find((x) => x.id === id); if (!r) fail('Отзыв не найден', 404);
+      const review = r as Review; review.status = approve ? 'published' : 'rejected';
+      if (approve) { const t = s.tutors.find((x) => x.id === review.tutorId); if (t) { const all = s.reviews.filter((x) => x.tutorId === t.id && x.status === 'published'); t.reviewsCount = all.length; t.rating = Math.round((all.reduce((a, x) => a + x.rating, 0) / all.length) * 10) / 10; } }
+      save(); return delay(review);
+    },
+  };
+}
+
+/** Данные для пререндера каталога и анкет: синхронно, без ожидания. */
+export const staticTutors = (): Tutor[] => seedTutors();

@@ -1,3 +1,5 @@
 {
-  "rewrites": [{ "source": "/screens/:id", "destination": "/index.html" }]
+  "rewrites": [
+    { "source": "/(login|signup|auth|reset-password|verify-email|onboarding|me|tutor|admin|book|requests|help)(.*)", "destination": "/index.html" }
+  ]
 }

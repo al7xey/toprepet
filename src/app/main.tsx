@@ -31,8 +31,10 @@ const app = (
   </React.StrictMode>
 );
 
-// Экраны-болванки (/screens/*) открываются по прямой ссылке через index.html главной: заново, без гидратации.
-const clientOnly = window.location.pathname.startsWith('/screens/');
+// Кабинеты и формы не пререндерятся: по прямой ссылке их отдаёт index.html главной, поэтому рисуем заново, без гидратации.
+const prerendered = ['/', '/teachers', '/for-repetitor', '/lessons', '/contact', '/free-intro', '/legal', '/blog', '/direction'];
+const path = window.location.pathname.replace(/\/+$/, '') || '/';
+const clientOnly = !prerendered.some((p) => path === p || (p !== '/' && path.startsWith(`${p}/`)));
 if (rootElement.hasChildNodes() && !clientOnly) {
   hydrateRoot(rootElement, app);
 } else {
