@@ -118,6 +118,18 @@ function AppRoutes() {
       <Route path="*" element={<PublicBlog page="not-found" />} />
     </Routes></Suspense></ErrorBoundary>;
   }
+  if (pathname === '/') {
+    return (
+      <ErrorBoundary>
+        <Provider store={store}>
+          <ScrollManager />
+          <Suspense fallback={<div className="container"><output>Загрузка страницы…</output></div>}>
+            <HomePage />
+          </Suspense>
+        </Provider>
+      </ErrorBoundary>
+    );
+  }
   return (
     <ErrorBoundary>
       <Provider store={store}>

@@ -1,0 +1,89 @@
+/* Раскладка главной по макетам: компьютер (d-home, 1280 px) и телефон (m-home, 390 px). Всё внутри .tr. */
+.tr .trh-page{width:100%;max-width:1280px;margin:0 auto;min-height:100vh;padding:16px 48px 56px;display:flex;flex-direction:column;gap:56px}
+.tr .trh-main{display:contents}
+.tr .trh-main:focus{outline:none}
+.tr .trh-burger{display:none;border:0;cursor:pointer}
+.tr .trh-foot-cap{font-size:17px}
+
+/* Герой */
+.tr .trh-hero{display:flex;flex-wrap:wrap;gap:56px;align-items:center;margin-top:-8px}
+.tr .trh-hero-text{flex:1 1 520px;min-width:0;max-width:580px;display:grid;gap:32px}
+.tr .trh-hero-h{font-size:76px}
+.tr .trh-hero-btns{display:flex;flex-wrap:wrap;gap:14px}
+.tr .trh-hero-media{position:relative;flex:1 1 520px;min-width:0}
+.tr .trh-hero-media>img{width:100%;height:auto;display:block;border-radius:40px}
+.tr .trh-badge{position:absolute;border-radius:999px;display:flex;align-items:center;font-weight:700;font-size:15px}
+.tr .trh-badge-a{left:4%;top:10%;padding:9px 16px 9px 10px;gap:10px}
+.tr .trh-badge-a .avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top}
+.tr .trh-badge-b{right:3%;bottom:12%;padding:10px 18px;gap:8px;animation-delay:-2.5s}
+
+/* Занятия, репетиторы */
+.tr .trh-formats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.tr .trh-teachers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.tr .trh-teachers>.tc:nth-child(n+4){display:none}
+.tr .trh-teachers .tc{aspect-ratio:4/5}
+
+.tr .trh-intro{max-width:760px}
+.tr .trh-trust{display:flex;flex-wrap:wrap;gap:64px;align-items:center}
+.tr .trh-trust>img{flex:1 1 480px;min-width:0;max-width:560px;height:auto;border-radius:36px}
+.tr .trh-trust>div{flex:1 1 440px}
+.tr .trh-panel{padding:44px}
+.tr .trh-panel-h{font-size:40px;letter-spacing:-0.035em}
+.tr .trh-panel-in{max-width:560px}
+
+/* Экран меню на телефоне */
+.tr .trh-menu{position:fixed;inset:0;z-index:60;overflow:auto;padding:12px 16px 24px;display:flex;flex-direction:column;gap:24px;background:#fff}
+.tr .trh-menu-list{display:grid;margin-top:8px}
+.tr .trh-menu-list a{display:flex;justify-content:space-between;align-items:center;min-height:60px;padding:0 6px;font-size:22px;font-weight:650;letter-spacing:-0.02em;border-top:1px solid var(--line)}
+.tr .trh-menu-list a:first-child{border-top:0}
+.tr .trh-menu-list .i{width:22px;height:22px;color:var(--muted)}
+
+@media (min-width:761px){
+  .tr .trh-menu{display:none}
+}
+
+@media (max-width:760px){
+  .tr .trh-page{padding:12px 16px 24px;gap:40px}
+  .tr .hdr.trh-hdr{height:56px;padding:0 6px 0 16px;justify-content:space-between}
+  .tr .hdr .trh-nav,.tr .hdr .trh-actions{display:none}
+  .tr .trh-burger{display:inline-flex}
+  .tr .trh-foot-cap{font-size:15px}
+
+  .tr .trh-hero{display:grid;gap:24px;margin-top:4px}
+  .tr .trh-hero-text{display:contents}
+  .tr .trh-hero-h{order:1;font-size:40px}
+  .tr .trh-hero-media{order:2}
+  .tr .trh-hero-text .benefits{order:3}
+  .tr .trh-hero-btns{order:4;display:grid;gap:12px}
+  .tr .trh-hero-btns .btn{width:100%;white-space:normal;text-align:center}
+  .tr .trh-hero-media>img{border-radius:28px}
+  .tr .trh-badge{font-size:13px}
+  .tr .trh-badge-a{left:6%;top:8%}
+  .tr .trh-badge-a .avatar{width:30px;height:30px}
+  .tr .trh-badge-b{right:5%;bottom:10%}
+
+  .tr .trh-h2{font-size:32px;letter-spacing:-0.035em}
+  .tr .trh-h2-s{font-size:30px}
+  .tr .trh-formats{grid-template-columns:minmax(0,1fr);gap:10px}
+  .tr .trh-formats>.fmt2:nth-child(n+7){display:none}
+
+  .tr .trh-teachers{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:4px 16px 12px;scrollbar-width:none;scroll-padding-left:16px}
+  .tr .trh-teachers::-webkit-scrollbar{display:none}
+  .tr .trh-teachers>.tc:nth-child(n+4){display:block}
+  .tr .trh-teachers>.tc{flex:0 0 236px;aspect-ratio:3/4;scroll-snap-align:start;animation:none}
+  .tr .trh-teachers .tc .pl{left:10px;right:10px;bottom:10px;padding:10px 14px 11px}
+  .tr .trh-teachers .tc .pl b{font-size:17px}
+  .tr .trh-teachers .tc .pl span{font-size:13px}
+  .tr .trh-teachers .tc .pp{top:12px;left:12px;min-height:32px;padding:0 13px;font-size:14px}
+  .tr .trh-teachers .tc .heart{top:12px;right:12px;width:40px;height:40px}
+
+  .tr .trh-trust{gap:24px}
+  .tr .trh-trust>img{flex-basis:300px}
+  .tr .trh-trust>div{flex-basis:300px}
+  .tr .trh-panel{padding:28px 22px}
+  .tr .trh-panel-h{font-size:32px}
+  .tr .trh-panel-h2{font-size:30px}
+}
+
+/* Мягкий перелив фона без швов: узор из макета повторяется по высоте, но задан координатами, а не плиткой (плитка давала видимый шов каждые 1600 px). */
+.tr .wash.trh-page{background:radial-gradient(560px 460px at 94% 64px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 608px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 1152px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 1664px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 2208px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 2752px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 3264px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 3808px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 4352px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 4864px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 5408px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 5952px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 6464px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 7008px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 7552px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 8064px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 8608px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 9152px,rgb(255 214 184 / 18%),transparent 72%),#fff;background-size:auto;background-repeat:no-repeat}
