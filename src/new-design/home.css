@@ -1,5 +1,5 @@
 /* Раскладка главной по макетам: компьютер (d-home, 1280 px) и телефон (m-home, 390 px). Всё внутри .tr. */
-.tr .trh-page{width:100%;max-width:1280px;margin:0 auto;min-height:100vh;padding:16px 48px 56px;display:flex;flex-direction:column;gap:56px}
+.tr .trh-page{width:100%;margin:0;min-height:100vh;padding:16px max(48px,calc((100% - 1184px) / 2)) 56px;display:flex;flex-direction:column;gap:56px}
 .tr .trh-main{display:contents}
 .tr .trh-main:focus{outline:none}
 .tr .trh-burger{display:none;border:0;cursor:pointer}
@@ -19,8 +19,8 @@
 
 /* Занятия, репетиторы */
 .tr .trh-formats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
-.tr .trh-teachers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
-.tr .trh-teachers>.tc:nth-child(n+4){display:none}
+.tr .trh-teachers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.tr .trh-teachers>.tc:nth-child(n+5){display:none}
 .tr .trh-teachers .tc{aspect-ratio:4/5}
 
 .tr .trh-intro{max-width:760px}
@@ -69,7 +69,7 @@
 
   .tr .trh-teachers{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:4px 16px 12px;scrollbar-width:none;scroll-padding-left:16px}
   .tr .trh-teachers::-webkit-scrollbar{display:none}
-  .tr .trh-teachers>.tc:nth-child(n+4){display:block}
+  .tr .trh-teachers>.tc:nth-child(n+5){display:block}
   .tr .trh-teachers>.tc{flex:0 0 236px;aspect-ratio:3/4;scroll-snap-align:start;animation:none}
   .tr .trh-teachers .tc .pl{left:10px;right:10px;bottom:10px;padding:10px 14px 11px}
   .tr .trh-teachers .tc .pl b{font-size:17px}
@@ -85,5 +85,6 @@
   .tr .trh-panel-h2{font-size:30px}
 }
 
-/* Мягкий перелив фона без швов: узор из макета повторяется по высоте, но задан координатами, а не плиткой (плитка давала видимый шов каждые 1600 px). */
-.tr .wash.trh-page{background:radial-gradient(560px 460px at 94% 64px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 608px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 1152px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 1664px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 2208px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 2752px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 3264px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 3808px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 4352px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 4864px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 5408px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 5952px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 6464px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 7008px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 7552px,rgb(255 214 184 / 18%),transparent 72%),radial-gradient(560px 460px at 94% 8064px,rgb(255 205 170 / 26%),transparent 72%),radial-gradient(520px 440px at 2% 8608px,rgb(255 228 192 / 24%),transparent 72%),radial-gradient(480px 400px at 80% 9152px,rgb(255 214 184 / 18%),transparent 72%),#fff;background-size:auto;background-repeat:no-repeat}
+/* Фон только белый, без оранжевых переливов. */
+.tr .wash.trh-page{background:#fff}
+.tr .wash.trh-page::before,.tr .wash.trh-page::after{display:none}
