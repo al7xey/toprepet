@@ -34,7 +34,8 @@ export function TrShell({ children, current, bareMobile, tight }: { children: Re
   );
   return (
     <div className="tr" ref={root}>
-      <div className={`wash anim trh-page${bareMobile ? ' trh-bare' : ''}${tight ? ' trh-tight' : ''}`}>
+      <div className="trh-progress" aria-hidden="true" />
+      <div className={`wash trh-page${bareMobile ? ' trh-bare' : ''}${tight ? ' trh-tight' : ''}`}>
         <header className="hdr glass trh-hdr">
           <Logo />
           <nav className="trh-nav" aria-label="Основная навигация">

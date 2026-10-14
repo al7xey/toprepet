@@ -26,6 +26,7 @@ const TeacherPage = lazy(() => import('../pages/teacher/teacher-page'));
 const TeachersPage = lazy(() => import('../pages/teachers/teachers-page'));
 const FreeIntroPage = lazy(() => import('../pages/free-intro/free-intro-page'));
 const ForTutorsPage = lazy(() => import('../pages/for-tutors/for-tutors-page'));
+const ScreenRoute = lazy(() => import('../new-design/screen').then(module => ({ default: module.ScreenRoute })));
 import { Footer } from '../widgets/footer/footer';
 const PaymentRefundPage = lazy(() => import('../pages/legal/payment-refund-page'));
 const LegalPage = lazy(() => import('../pages/legal/legal-page'));
@@ -119,7 +120,7 @@ function AppRoutes() {
     </Routes></Suspense></ErrorBoundary>;
   }
   const path = pathname.replace(/\/+$/, '') || '/';
-  if (path === '/' || path === '/teachers' || path.startsWith('/teachers/')) {
+  if (path === '/' || path === '/teachers' || path.startsWith('/teachers/') || path.startsWith('/screens/') || path === '/for-repetitor') {
     // страницы в новом дизайне: свои шапка и подвал
     return (
       <ErrorBoundary>
@@ -130,6 +131,8 @@ function AppRoutes() {
               <Route path="/" element={<HomePage />} />
               <Route path="/teachers" element={<TeachersPage />} />
               <Route path="/teachers/:id" element={<TeacherPage />} />
+              <Route path="/screens/:id" element={<ScreenRoute />} />
+              <Route path="/for-repetitor" element={<ForTutorsPage />} />
             </Routes>
           </Suspense>
         </Provider>

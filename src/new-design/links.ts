@@ -6,13 +6,13 @@
 export const LINKS = {
   home: '/',
   catalog: '/teachers/',
-  request: '/contact/',
-  intro: '/free-intro/',
+  request: '/screens/rq1',
+  intro: '/screens/intro',
   tutors: '/for-repetitor/',
-  help: '/contact/',
+  help: '/screens/help',
   refund: '/legal/payment-refund/',
   blog: '/blog',
   docs: '/legal/',
-  login: '#',
-  signup: '#',
+  login: '/screens/login',
+  signup: '/screens/role',
 } as const;

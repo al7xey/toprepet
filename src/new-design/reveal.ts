@@ -34,3 +34,19 @@ export function useReveal(root: RefObject<HTMLElement | null>) {
     };
   }, [root]);
 }
+
+/** Лёгкий параллакс: иллюстрация смещается чуть медленнее прокрутки. */
+export function useParallax(target: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    const el = target.current;
+    if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      el.style.setProperty('--py', `${Math.min(window.scrollY, 700) * 0.1}px`);
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', onScroll); if (frame) cancelAnimationFrame(frame); };
+  }, [target]);
+}

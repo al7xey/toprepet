@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { findTeacher } from '../entities/teacher';
 import { teacherPhotoAttributes } from '../shared/lib/teacher-photo';
@@ -9,10 +10,40 @@ import { A, TrShell } from './shell';
 
 const rub = (value: number) => `${new Intl.NumberFormat('ru-RU').format(value).replace(/\s/g, ' ')} ₽`;
 const ACH_ICONS = ['target', 'school', 'book'] as const;
+const TIMES = ['10:00', '12:00', '14:00', '16:00', '18:00', '19:00', '20:00', '21:00'];
+
+type Day = { key: string; wd: string; n: number; label: string; month: string; off: boolean[] };
+
+/** Ближайшие семь дней. Считается в браузере, поэтому в пререндере блок пустой. Расписание демонстрационное. */
+function buildDays(): Day[] {
+  const out: Day[] = [];
+  const base = new Date();
+  for (let i = 1; i <= 7; i += 1) {
+    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
+    const wd = d.toLocaleDateString('ru-RU', { weekday: 'short' }).replace('.', '');
+    const month = d.toLocaleDateString('ru-RU', { month: 'short' }).replace('.', '');
+    out.push({
+      key: d.toISOString().slice(0, 10), wd, n: d.getDate(), month,
+      label: `${wd[0].toUpperCase()}${wd.slice(1)} ${d.getDate()} ${month}`,
+      off: TIMES.map((_, index) => (d.getDate() + index) % 4 === 0),
+    });
+  }
+  return out;
+}
 
 export function ProfileNew() {
   const { id } = useParams();
   const teacher = findTeacher(id);
+  const [days, setDays] = useState<Day[]>([]);
+  const [dayIndex, setDayIndex] = useState(0);
+  const [time, setTime] = useState<string | null>(null);
+  useEffect(() => {
+    const list = buildDays();
+    setDays(list);
+    setTime(TIMES.find((_, index) => !list[0].off[index]) ?? null);
+  }, []);
+  const day = days[dayIndex];
+  const when = day && time ? `${day.label}, ${time}` : null;
 
   if (!teacher) {
     return (
@@ -34,7 +65,7 @@ export function ProfileNew() {
 
   const stats: [string, string][] = [
     [rub(studentPrice), 'за 60 мин'],
-    ['20 мин', 'знакомство'],
+    ['Бесплатно', 'знакомство'],
     ['Онлайн', 'формат'],
     [teacher.experience, 'опыт'],
   ];
@@ -50,15 +81,13 @@ export function ProfileNew() {
               <div className="trh-pf-photo" {...rv('scale')}>
                 <img src={teacher.photo} {...teacherPhotoAttributes(teacher.id, 'profile')} alt={`Фото: ${teacher.name}`} fetchPriority="high" decoding="async" />
                 <Link className="gbtn glass trh-pf-back" to={LINKS.catalog} aria-label="Назад"><Icon name="back" /></Link>
-                <span className="gbtn glass trh-pf-heart" role="button" aria-label="В избранное"><Icon name="heart" /></span>
               </div>
               <div className="trh-pf-sheet">
                 <div className="trh-sec" {...rv('up', 0.05)}>
                   <h1 id="teacher-name" className="trh-h1 trh-h1-xl">{teacher.name}</h1>
                   <p className="muted trh-pf-role">{teacher.role}</p>
                   <div className="fr fw" style={{ gap: 8 }}>
-                    <span className="st st-wait"><Icon name="gift" />Знакомство 20 мин бесплатно</span>
-                    <span className="st st-neutral"><Icon name="video" />Онлайн</span>
+                    <span className="st st-neutral"><Icon name="gift" />Бесплатное знакомство</span>
                   </div>
                 </div>
                 <div className="stats" {...rv('up', 0.1)}>
@@ -96,6 +125,28 @@ export function ProfileNew() {
             </div>
 
             <hr className="rule" />
+            <section className="trh-sec" aria-labelledby="slots-title">
+              <div className="fr fb" {...rv('up')}>
+                <h2 id="slots-title" className="h2 trh-h2">Свободное время</h2>
+                <span className="muted md">{day ? `${day.month} ${new Date().getFullYear()}` : '\u00a0'}</span>
+              </div>
+              <div className="dates trh-dates" {...rv('up', 0.05)}>
+                {days.map((item, index) => (
+                  <button type="button" key={item.key} className={`date${index === dayIndex ? ' sel' : ''}`} aria-pressed={index === dayIndex}
+                    onClick={() => { setDayIndex(index); setTime(TIMES.find((_, i) => !item.off[i]) ?? null); }}>
+                    <small>{item.wd}</small><b>{item.n}</b>
+                  </button>
+                ))}
+              </div>
+              <div className="slots trh-slots" {...rv('up', 0.1)}>
+                {day && TIMES.map((t, index) => (
+                  <button type="button" key={t} className={`slot${t === time ? ' sel' : ''}${day.off[index] ? ' off' : ''}`} disabled={day.off[index]} aria-pressed={t === time} onClick={() => setTime(t)}>{t}</button>
+                ))}
+              </div>
+              <span className="muted sm trh-tz"><Icon name="globe" />Время московское. Расписание пока демонстрационное.</span>
+            </section>
+
+            <hr className="rule" />
             <section className="trh-sec">
               <h2 className="h2 trh-h2" {...rv('up')}>Как проходят занятия</h2>
               <p className="cap trh-pf-text" {...rv('up', 0.05)}>{teacher.approach}</p>
@@ -105,10 +156,9 @@ export function ProfileNew() {
             <section className="trh-sec">
               <h2 className="h2 trh-h2" {...rv('up')}>Цены</h2>
               <div {...rv('up', 0.05)}>
-                <div className="rowline"><span><b>Знакомство</b><br /><span className="muted">20 минут, один раз, без оплаты</span></span><b className="ok" style={{ color: 'var(--ok)' }}>бесплатно</b></div>
+                <div className="rowline"><span><b>Знакомство</b><br /><span className="muted">один раз, длительность выбирает репетитор</span></span><b className="ok" style={{ color: 'var(--ok)' }}>бесплатно</b></div>
                 <div className="rowline"><span><b>Занятие</b><br /><span className="muted">60 минут</span></span><b className="tn">{rub(studentPrice)}</b></div>
               </div>
-              <p className="muted md">Цену назначает репетитор. Сервисный сбор 10% уже включён в сумму.</p>
             </section>
 
             <hr className="rule" />
@@ -128,19 +178,19 @@ export function ProfileNew() {
               <div className="trh-sum-rows">
                 <div className="rowline"><span className="muted">Репетитор</span><b>{teacher.name}</b></div>
                 <div className="rowline"><span className="muted">Занятие</span><b>60 минут</b></div>
-                <div className="rowline"><span className="muted">Знакомство</span><b>20 минут, бесплатно</b></div>
+                <div className="rowline"><span className="muted">Когда</span><b>{when ?? 'Выберите время'}</b></div>
               </div>
               <div className="fr fb"><span>Цена за 60 минут</span><b className="tn" style={{ fontSize: 30, letterSpacing: '-0.04em' }}>{rub(studentPrice)}</b></div>
-              <A to={LINKS.intro} className="btn btn-primary btn-lg btn-block">Записаться на знакомство</A>
-              <A to={LINKS.help} className="btn btn-fill btn-block">Написать преподавателю</A>
-              <p className="muted sm">Цена указана с учётом сервисного сбора 10%.</p>
+              <A to="/screens/confirm" className="btn btn-primary btn-lg btn-block">Записаться</A>
+              <A to="/screens/introc" className="btn btn-soft btn-block">Бесплатное знакомство</A>
+              <A to="/screens/firstmsg" className="btn btn-fill btn-block">Написать преподавателю</A>
             </div>
           </aside>
         </div>
 
         <div className="actionbar glass trh-pf-bar">
-          <div className="meta"><b className="tn">{rub(studentPrice)}</b><span>за 60 минут</span></div>
-          <A to={LINKS.intro} className="btn btn-primary" >Записаться</A>
+          <div className="meta"><b className="tn">{when ?? 'Выберите время'}</b><span>60 минут · {rub(studentPrice)}</span></div>
+          <A to="/screens/confirm" className="btn btn-primary">Записаться</A>
         </div>
       </main>
     </TrShell>

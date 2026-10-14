@@ -24,6 +24,7 @@ export function CatalogNew() {
   const [subject, setSubject] = useState<string | null>(null);
   const [shown, setShown] = useState(PAGE);
   const drop = useRef<HTMLDetailsElement>(null);
+  const sentinel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const outside = (event: PointerEvent) => {
@@ -39,6 +40,16 @@ export function CatalogNew() {
       document.removeEventListener('keydown', escape);
     };
   }, []);
+
+  useEffect(() => {
+    const node = sentinel.current;
+    if (!node || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) setShown((n) => n + PAGE);
+    }, { rootMargin: '600px 0px' });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [shown, subject, query]);
 
   const term = norm(query);
   const results = teachers.filter((teacher) => matches(teacher, subject, term));
@@ -128,11 +139,7 @@ export function CatalogNew() {
               </div>
             </div>
           )}
-          {results.length > shown && (
-            <div style={{ display: 'grid', justifyItems: 'center' }}>
-              <button type="button" className="btn btn-line btn-lg" style={{ padding: '0 40px' }} onClick={() => setShown((n) => n + PAGE)}>Показать ещё</button>
-            </div>
-          )}
+          {results.length > shown && <div ref={sentinel} className="trh-sentinel" aria-hidden="true" />}
         </section>
       </main>
     </TrShell>

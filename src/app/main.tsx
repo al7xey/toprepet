@@ -31,8 +31,11 @@ const app = (
   </React.StrictMode>
 );
 
-if (rootElement.hasChildNodes()) {
+// Экраны-болванки (/screens/*) открываются по прямой ссылке через index.html главной: заново, без гидратации.
+const clientOnly = window.location.pathname.startsWith('/screens/');
+if (rootElement.hasChildNodes() && !clientOnly) {
   hydrateRoot(rootElement, app);
 } else {
+  rootElement.replaceChildren();
   createRoot(rootElement).render(app);
 }
