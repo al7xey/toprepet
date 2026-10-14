@@ -25,7 +25,7 @@ function A({ to, className, children }: { to: string; className?: string; childr
 export { A };
 
 /** Каркас новых страниц: стеклянная шапка, контент, подвал. На телефоне вместо меню в шапке открывается экран меню. */
-export function TrShell({ children, current }: { children: ReactNode; current?: 'catalog' | 'tutors' | 'blog' }) {
+export function TrShell({ children, current, bareMobile, tight }: { children: ReactNode; current?: 'catalog' | 'tutors' | 'blog'; bareMobile?: boolean; tight?: boolean }) {
   const [menu, setMenu] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   useReveal(root);
@@ -34,7 +34,7 @@ export function TrShell({ children, current }: { children: ReactNode; current?: 
   );
   return (
     <div className="tr" ref={root}>
-      <div className="wash anim trh-page">
+      <div className={`wash anim trh-page${bareMobile ? ' trh-bare' : ''}${tight ? ' trh-tight' : ''}`}>
         <header className="hdr glass trh-hdr">
           <Logo />
           <nav className="trh-nav" aria-label="Основная навигация">

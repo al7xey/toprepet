@@ -118,13 +118,19 @@ function AppRoutes() {
       <Route path="*" element={<PublicBlog page="not-found" />} />
     </Routes></Suspense></ErrorBoundary>;
   }
-  if (pathname === '/') {
+  const path = pathname.replace(/\/+$/, '') || '/';
+  if (path === '/' || path === '/teachers' || path.startsWith('/teachers/')) {
+    // страницы в новом дизайне: свои шапка и подвал
     return (
       <ErrorBoundary>
         <Provider store={store}>
           <ScrollManager />
           <Suspense fallback={<div className="container"><output>Загрузка страницы…</output></div>}>
-            <HomePage />
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/teachers" element={<TeachersPage />} />
+              <Route path="/teachers/:id" element={<TeacherPage />} />
+            </Routes>
           </Suspense>
         </Provider>
       </ErrorBoundary>
