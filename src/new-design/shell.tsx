@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from './icon';
 import { LINKS } from './links';
+import { useReveal } from './reveal';
 import './tr.css';
 import './home.css';
 
@@ -26,11 +27,13 @@ export { A };
 /** Каркас новых страниц: стеклянная шапка, контент, подвал. На телефоне вместо меню в шапке открывается экран меню. */
 export function TrShell({ children, current }: { children: ReactNode; current?: 'catalog' | 'tutors' | 'blog' }) {
   const [menu, setMenu] = useState(false);
+  const root = useRef<HTMLDivElement>(null);
+  useReveal(root);
   const nav = (label: string, to: string, key: string) => (
     <A to={to} className={current === key ? 'cur' : undefined}>{label}</A>
   );
   return (
-    <div className="tr">
+    <div className="tr" ref={root}>
       <div className="wash anim trh-page">
         <header className="hdr glass trh-hdr">
           <Logo />
