@@ -19,7 +19,7 @@
 /* Кнопки */
 .tr .btn{cursor:pointer;font-family:inherit;text-decoration:none}
 .tr .btn:disabled,.tr .btn[aria-disabled=true]{opacity:.55;cursor:not-allowed;transform:none!important;box-shadow:none}
-.tr .btn:focus-visible,.tr .trk-iconbtn:focus-visible,.tr .trk-choice:focus-visible,.tr .opt:focus-visible,.tr .date:focus-visible,.tr .slot:focus-visible,.tr .tab:focus-visible,.tr a:focus-visible{outline:3px solid rgb(242 106 46 / 45%);outline-offset:2px}
+.tr .btn:focus-visible,.tr .trk-iconbtn:focus-visible,.tr .trk-choice:has(input:focus-visible),.tr .opt:focus-visible,.tr .date:focus-visible,.tr .slot:focus-visible,.tr .tab:focus-visible,.tr a:focus-visible{outline:3px solid rgb(242 106 46 / 45%);outline-offset:2px}
 .tr .trk-loading{position:relative;color:transparent!important}
 .tr .trk-loading::after{content:'';position:absolute;inset:0;margin:auto;width:20px;height:20px;border-radius:50%;border:2.5px solid rgb(255 255 255 / 55%);border-top-color:#fff;animation:trk-spin .8s linear infinite;display:block!important;background:none!important;transform:none!important}
 .tr .btn-line.trk-loading::after,.tr .btn-fill.trk-loading::after,.tr .btn-warm.trk-loading::after,.tr .btn-soft.trk-loading::after{border-color:rgb(32 40 56 / 18%);border-top-color:var(--accent)}
@@ -123,6 +123,7 @@
 /* Окна */
 .tr.trk-modal-root{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:transparent;min-height:0}
 .tr .trk-scrim{position:absolute;inset:0;background:rgb(32 40 56 / 34%);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:trk-fade .25s ease both}
+.tr dialog.trk-modal{border:0;margin:0;color:inherit}
 .tr .trk-modal{position:relative;width:100%;max-height:calc(100vh - 32px);overflow:auto;border-radius:40px;padding:28px;display:grid;gap:18px;animation:tr-pop .45s var(--spring) both}
 .tr .trk-modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .tr .trk-modal-body{display:grid;gap:16px}
@@ -184,3 +185,8 @@
 .tr .trk-range::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--accent),0 4px 10px rgb(242 106 46 / 30%);cursor:pointer}
 .tr .trk-range::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--accent);cursor:pointer}
 .tr .trh-drop-menu.right{left:auto;right:0}
+
+/* fieldset и radio внутри карточек выбора */
+.tr .trk-fieldset{border:0;margin:0;padding:0;min-width:0}
+.tr .trk-fieldset>legend{padding:0}
+.tr .trk-choice{cursor:pointer}

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { api } from '../api';
 import { useQuery } from '../api/hooks';
@@ -48,9 +48,11 @@ function SessionActions({ block }: { block?: boolean }) {
 
 /** Публичные страницы: стеклянная шапка, контент, подвал; на телефоне меню открывается отдельным экраном. */
 export function PublicLayout({ children, tight, bareMobile, narrow }: { children: ReactNode; tight?: boolean; bareMobile?: boolean; narrow?: boolean }) {
-  const [menu, setMenu] = useState(false);
   const { pathname } = useLocation();
-  useEffect(() => setMenu(false), [pathname]);
+  // меню закрывается само при переходе: открытым оно считается только на той странице, где его открыли
+  const [menuAt, setMenuAt] = useState<string | null>(null);
+  const menu = menuAt === pathname;
+  const setMenu = (open: boolean) => setMenuAt(open ? pathname : null);
   return (
     <>
       <div className={cx('wash trh-page', tight && 'trh-tight', bareMobile && 'trh-bare')}>
@@ -66,13 +68,13 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
         <Footer />
       </div>
       {menu && (
-        <div className="wash trh-menu" role="dialog" aria-modal="true" aria-label="Меню">
+        <dialog open className="wash trh-menu" aria-modal="true" aria-label="Меню">
           <header className="hdr m glass"><Logo /><button type="button" className="btn btn-icon" aria-label="Закрыть меню" onClick={() => setMenu(false)}><Icon name="x" /></button></header>
           <nav className="trh-menu-list" aria-label="Меню">
             {[...PUBLIC_NAV, ['Заявки учеников', '/requests'], ['Помощь', '/help']].map(([label, to]) => <Link key={to} to={to}>{label}<Icon name="right" /></Link>)}
           </nav>
           <div className="g10" style={{ marginTop: 'auto' }}><SessionActions block /></div>
-        </div>
+        </dialog>
       )}
     </>
   );

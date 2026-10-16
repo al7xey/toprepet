@@ -8,7 +8,7 @@ import { Button, type ButtonVariant } from './kit';
  * фокус переносится внутрь и возвращается обратно.
  */
 export function Modal({ open, onClose, title, children, footer, width = 520 }: { open: boolean; onClose: () => void; title: ReactNode; children?: ReactNode; footer?: ReactNode; width?: number }) {
-  const box = useRef<HTMLDivElement>(null);
+  const box = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
@@ -26,7 +26,7 @@ export function Modal({ open, onClose, title, children, footer, width = 520 }: {
   return createPortal(
     <div className="tr trk-modal-root">
       <div className="trk-scrim" onClick={onClose} aria-hidden="true" />
-      <div className="trk-modal glass-thick" role="dialog" aria-modal="true" aria-label={typeof title === 'string' ? title : undefined} ref={box} style={{ maxWidth: width }}>
+      <dialog open className="trk-modal glass-thick" aria-modal="true" aria-label={typeof title === 'string' ? title : undefined} ref={box} style={{ maxWidth: width }}>
         <div className="grab trk-grab" aria-hidden="true" />
         <div className="trk-modal-head">
           <h2 className="trk-cardtitle">{title}</h2>
@@ -34,7 +34,7 @@ export function Modal({ open, onClose, title, children, footer, width = 520 }: {
         </div>
         {children && <div className="trk-modal-body">{children}</div>}
         {footer && <div className="trk-modal-foot">{footer}</div>}
-      </div>
+      </dialog>
     </div>,
     document.body,
   );

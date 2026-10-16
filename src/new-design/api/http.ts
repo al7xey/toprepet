@@ -19,7 +19,7 @@ export function createHttpApi(base: string): Api {
   const post = <T>(path: string, body?: unknown) => request<T>('POST', path, body ?? {});
   const q = (params: Record<string, unknown>) => {
     const search = new URLSearchParams();
-    for (const [key, value] of Object.entries(params)) if (value !== undefined && value !== null && value !== '') search.set(key, String(value));
+    for (const [key, value] of Object.entries(params)) if (value !== undefined && value !== null && value !== '') search.set(key, typeof value === 'object' ? JSON.stringify(value) : String(value as string | number | boolean));
     const text = search.toString();
     return text ? `?${text}` : '';
   };

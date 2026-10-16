@@ -12,36 +12,42 @@ export interface Query<T> {
 const errorText = (error: unknown) =>
   error instanceof ApiError ? error.message : 'Не удалось загрузить данные. Проверьте соединение и попробуйте ещё раз.';
 
+interface Result<T> {
+  /** Метка запроса `ключ#повтор`: по ней видно, относится ли результат к текущему запросу. */
+  id: string;
+  data: T | undefined;
+  error: string | null;
+}
+
 /**
  * Загрузка данных с состояниями «загрузка / ошибка / данные».
  * key — строка зависимостей: при её смене запрос повторяется; null — не загружать.
  * initial — данные для первой отрисовки (например, для пререндера).
+ * Пока идёт новый запрос, прежние данные остаются на экране.
  */
 export function useQuery<T>(key: string | null, fetcher: () => Promise<T>, initial?: T): Query<T> {
-  const [data, setData] = useState<T | undefined>(initial);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(key !== null && initial === undefined);
   const [tick, setTick] = useState(0);
+  const id = key === null ? null : `${key}#${tick}`;
+  const [result, setResult] = useState<Result<T>>({ id: initial !== undefined && key !== null ? `${key}#0` : '', data: initial, error: null });
   const fetcherRef = useRef(fetcher);
-  fetcherRef.current = fetcher;
+  useEffect(() => { fetcherRef.current = fetcher; });
 
   useEffect(() => {
-    if (key === null) return;
+    if (id === null) return;
     let alive = true;
-    setLoading(true);
-    setError(null);
-    fetcherRef.current()
-      .then((value) => { if (alive) setData(value); })
-      .catch((reason) => { if (alive) setError(errorText(reason)); })
-      .finally(() => { if (alive) setLoading(false); });
+    fetcherRef.current().then(
+      (value) => { if (alive) setResult({ id, data: value, error: null }); },
+      (reason) => { if (alive) setResult((prev) => ({ id, data: prev.data, error: errorText(reason) })); },
+    );
     return () => { alive = false; };
-  }, [key, tick]);
+  }, [id]);
 
   const reload = useCallback(() => setTick((n) => n + 1), []);
-  const set = useCallback((update: T | ((prev: T | undefined) => T)) => {
-    setData((prev) => (typeof update === 'function' ? (update as (p: T | undefined) => T)(prev) : update));
+  const setData = useCallback((update: T | ((prev: T | undefined) => T)) => {
+    setResult((prev) => ({ ...prev, data: typeof update === 'function' ? (update as (p: T | undefined) => T)(prev.data) : update }));
   }, []);
-  return { data, error, loading, reload, setData: set };
+  const current = id !== null && result.id === id;
+  return { data: result.data, error: current ? result.error : null, loading: id !== null && !current, reload, setData };
 }
 
 export interface Mutation<A extends unknown[], R> {
@@ -56,7 +62,7 @@ export function useMutation<A extends unknown[], R>(action: (...args: A) => Prom
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const actionRef = useRef(action);
-  actionRef.current = action;
+  useEffect(() => { actionRef.current = action; });
   const run = useCallback(async (...args: A) => {
     setPending(true);
     setError(null);

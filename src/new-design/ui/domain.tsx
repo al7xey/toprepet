@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import type { Lesson, Role, Slot, Tutor } from '../api/types';
 import { dayLabel, fromRub, minutes, rub, timeLabel, until, whenLabel } from '../lib/format';
+import { useNow } from '../lib/useNow';
 import { rv } from '../reveal';
 import { Icon } from './icon';
 import { Person, Status, type Tone } from './kit';
@@ -48,7 +49,9 @@ const STATUS: Record<Lesson['status'], { tone: Tone; icon: string; student: stri
 
 export function LessonStatus({ lesson, role }: { lesson: Lesson; role: Role }) {
   const s = STATUS[lesson.status];
-  const live = lesson.status === 'confirmed' && Date.now() >= new Date(lesson.start).getTime() && Date.now() < new Date(lesson.start).getTime() + lesson.durationMin * 60_000;
+  const now = useNow();
+  const start = new Date(lesson.start).getTime();
+  const live = lesson.status === 'confirmed' && now >= start && now < start + lesson.durationMin * 60_000;
   if (live) return <Status tone="info" icon="video">Идёт сейчас</Status>;
   return <Status tone={s.tone} icon={s.icon}>{role === 'tutor' ? s.tutor : s.student}</Status>;
 }

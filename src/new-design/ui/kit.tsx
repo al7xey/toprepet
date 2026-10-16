@@ -337,34 +337,40 @@ export function Switch({ checked, onChange, title, text }: { checked: boolean; o
   return (
     <label className="trk-switch-row">
       <span className="trk-switch-text"><b>{title}</b>{text && <span className="muted sm">{text}</span>}</span>
-      <input type="checkbox" role="switch" className="trk-sr" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input type="checkbox" role="switch" aria-checked={checked} className="trk-sr" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span className={cx('switch', checked && 'on')} aria-hidden="true" />
     </label>
   );
 }
 
 /** Выбор вариантов пилюлями: один (radio) или несколько (multiple). */
-export function OptionChips<T extends string>({ options, value, onChange, multiple, label }: { options: (T | { value: T; label: string; hint?: string })[]; value: T | T[] | null; onChange: (v: any) => void; multiple?: boolean; label?: ReactNode }) {
-  const selected = (v: T) => (Array.isArray(value) ? value.includes(v) : value === v);
+type ChipOption<T extends string> = T | { value: T; label: string; hint?: string };
+type OptionChipsProps<T extends string> = { options: ChipOption<T>[]; label?: ReactNode } & (
+  | { multiple: true; value: T[]; onChange: (v: T[]) => void }
+  | { multiple?: false; value: T | null; onChange: (v: T) => void }
+);
+
+export function OptionChips<T extends string>(props: OptionChipsProps<T>) {
+  const { options, label } = props;
+  const selected = (v: T) => (props.multiple ? props.value.includes(v) : props.value === v);
   const toggle = (v: T) => {
-    if (!multiple) return onChange(v);
-    const list = Array.isArray(value) ? value : [];
-    onChange(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
+    if (!props.multiple) return props.onChange(v);
+    props.onChange(props.value.includes(v) ? props.value.filter((x) => x !== v) : [...props.value, v]);
   };
   return (
-    <div className="field-row" role="group">
-      {label && <span className="label">{label}</span>}
+    <fieldset className="field-row trk-fieldset">
+      {label && <legend className="label">{label}</legend>}
       <div className="optrow">
         {options.map((o) => {
           const item = typeof o === 'string' ? { value: o, label: o } : o;
           return (
-            <button key={item.value} type="button" className={cx('opt', multiple && 'ck', selected(item.value) && 'on')} aria-pressed={selected(item.value)} onClick={() => toggle(item.value)}>
+            <button key={item.value} type="button" className={cx('opt', props.multiple && 'ck', selected(item.value) && 'on')} aria-pressed={selected(item.value)} onClick={() => toggle(item.value)}>
               {item.label}{'hint' in item && item.hint ? <small>{item.hint}</small> : null}
             </button>
           );
         })}
       </div>
-    </div>
+    </fieldset>
   );
 }
 
@@ -372,16 +378,19 @@ export interface ChoiceOption<T extends string> { value: T; title: string; text?
 
 /** Крупные карточки выбора (роль, онбординг, причина). Выбранная — с оранжевой обводкой. */
 export function ChoiceCards<T extends string>({ options, value, onChange, columns = 2, label }: { options: ChoiceOption<T>[]; value: T | null; onChange: (v: T) => void; columns?: 1 | 2 | 3; label?: string }) {
+  const name = useId();
   return (
-    <div className={cx('trk-choices', `c${columns}`)} role="radiogroup" aria-label={label}>
+    <fieldset className={cx('trk-choices trk-fieldset', `c${columns}`)}>
+      {label && <legend className="trk-sr">{label}</legend>}
       {options.map((o, index) => (
-        <button key={o.value} type="button" role="radio" aria-checked={value === o.value} className={cx('trk-choice', value === o.value && 'on')} onClick={() => onChange(o.value)} {...rv('up', index * 0.06)}>
+        <label key={o.value} className={cx('trk-choice', value === o.value && 'on')} {...rv('up', index * 0.06)}>
+          <input type="radio" className="trk-sr" name={name} value={o.value} checked={value === o.value} onChange={() => onChange(o.value)} />
           {o.icon && <span className="ic-sq"><Icon name={o.icon} /></span>}
           <span className="trk-choice-text"><b>{o.title}</b>{o.text && <span>{o.text}</span>}</span>
           <span className="trk-choice-mark" aria-hidden="true" />
-        </button>
+        </label>
       ))}
-    </div>
+    </fieldset>
   );
 }
 
