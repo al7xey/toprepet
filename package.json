@@ -6,10 +6,11 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-  "dev": "node scripts/sync-blog.mjs && vite",
-  "dev:all": "pnpm dev",
-  "build": "node scripts/sync-blog.mjs && tsc --noEmit && node scripts/verify-analytics.mjs && vite build && vite build --ssr src/app/entry-server.tsx --outDir dist-server && node scripts/prerender.mjs && node scripts/verify-seo.mjs",
+    "dev": "node scripts/sync-blog.mjs && vite",
+    "dev:all": "pnpm dev",
+    "build": "node scripts/sync-blog.mjs && tsc --noEmit && node scripts/verify-analytics.mjs && vite build && vite build --ssr src/app/entry-server.tsx --outDir dist-server && node scripts/prerender.mjs && node scripts/verify-seo.mjs",
     "start": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
     "lint": "oxlint src vite.config.ts components/ui/accordion.tsx components/ui/radio-group.tsx components/ui/carousel.tsx components/ui/sheet.tsx components/ui/button.tsx lib/utils.ts",
     "format": "oxfmt"
   },
@@ -65,6 +66,7 @@
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3",
     "vite": "8.0.13",
+    "vitest": "^5.0.5",
     "wrangler": "4.92.0"
   },
   "type": "module"

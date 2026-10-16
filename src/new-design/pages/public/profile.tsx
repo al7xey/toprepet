@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api, staticTutors, type Tutor } from '../../api';
+import { api, LESSON_MINUTES, staticTutors, type Tutor } from '../../api';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
@@ -37,7 +37,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const write = () => navigate(`/me/chats/new?tutor=${tutor.id}`);
 
   const stats: [string, string][] = [
-    [rub(tutor.studentPrice), 'за 60 мин'],
+    [rub(tutor.studentPrice), `за ${LESSON_MINUTES} мин`],
     tutor.rating ? [String(tutor.rating).replace('.', ','), count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')] : ['Новый', 'репетитор'],
     tutor.introMinutes ? [minutes(tutor.introMinutes).replace(' минут', ' мин').replace(' минуты', ' мин'), 'знакомство'] : ['Онлайн', 'формат'],
     [tutor.experience, 'опыт'],
@@ -46,8 +46,8 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const booking = (
     <div className="card sum" {...rv('right', 0.1)}>
       <h2 className="trk-cardtitle">Запись</h2>
-      <Rows boxed rows={[['Репетитор', tutor.name], ['Занятие', '60 минут'], ['Когда', start ? whenLabel(start) : 'Выберите время'], ...(tutor.introMinutes ? [['Знакомство', `${minutes(tutor.introMinutes)}, бесплатно`] as [string, string]] : [])]} />
-      <div className="fr fb"><span>Цена за 60 минут</span><b className="tn" style={{ fontSize: 30, letterSpacing: '-0.04em' }}>{rub(tutor.studentPrice)}</b></div>
+      <Rows boxed rows={[['Репетитор', tutor.name], ['Занятие', minutes(LESSON_MINUTES)], ['Когда', start ? whenLabel(start) : 'Выберите время'], ...(tutor.introMinutes ? [['Знакомство', `${minutes(tutor.introMinutes)}, бесплатно`] as [string, string]] : [])]} />
+      <div className="fr fb"><span>Цена за {minutes(LESSON_MINUTES)}</span><b className="tn trk-price-xl">{rub(tutor.studentPrice)}</b></div>
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
         <>
           <Button to={bookHref('regular')} size="lg" block disabled={!start}>{start ? 'Записаться' : 'Выберите время'}</Button>
@@ -72,7 +72,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
               <div className="trh-sec" {...rv('up', 0.05)}>
                 <h1 className="trh-h1">{tutor.name}</h1>
                 <p className="muted trh-pf-role">{tutor.headline}</p>
-                {tutor.introMinutes > 0 && <div className="fr fw" style={{ gap: 8 }}><Status tone="neutral" icon="gift">Бесплатное знакомство</Status></div>}
+                {tutor.introMinutes > 0 && <div className="fr fw u-gap8"><Status tone="neutral" icon="gift">Бесплатное знакомство</Status></div>}
               </div>
               <div {...rv('up', 0.1)}><Stats items={stats} /></div>
               <p className="trh-pf-intro" {...rv('up', 0.15)}>{tutor.intro}</p>
@@ -108,8 +108,8 @@ function Profile({ tutor }: { tutor: Tutor }) {
           <hr className="rule" />
           <Section title="Цены">
             <div {...rv('up', 0.05)}>
-              {tutor.introMinutes > 0 && <div className="rowline"><span><b>Знакомство</b><br /><span className="muted">{minutes(tutor.introMinutes)}, один раз</span></span><b style={{ color: 'var(--ok)' }}>бесплатно</b></div>}
-              <div className="rowline"><span><b>Занятие</b><br /><span className="muted">60 минут</span></span><b className="tn">{rub(tutor.studentPrice)}</b></div>
+              {tutor.introMinutes > 0 && <div className="rowline"><span><b>Знакомство</b><br /><span className="muted">{minutes(tutor.introMinutes)}, один раз</span></span><b className="u-ok">бесплатно</b></div>}
+              <div className="rowline"><span><b>Занятие</b><br /><span className="muted">{minutes(LESSON_MINUTES)}</span></span><b className="tn">{rub(tutor.studentPrice)}</b></div>
             </div>
           </Section>
 
@@ -134,7 +134,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
 
       {!isTutorAccount && (
         <div className="actionbar glass trh-pf-bar">
-          <div className="meta"><b className="tn">{start ? whenLabel(start) : fromRub(tutor.studentPrice)}</b><span>{start ? `60 минут · ${rub(tutor.studentPrice)}` : 'Выберите время в календаре'}</span></div>
+          <div className="meta"><b className="tn">{start ? whenLabel(start) : fromRub(tutor.studentPrice)}</b><span>{start ? `${minutes(LESSON_MINUTES)} · ${rub(tutor.studentPrice)}` : 'Выберите время в календаре'}</span></div>
           <Button to={start ? bookHref('regular') : undefined} onClick={start ? undefined : () => document.querySelector('.trk-slots')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>{start ? 'Записаться' : 'Выбрать время'}</Button>
         </div>
       )}

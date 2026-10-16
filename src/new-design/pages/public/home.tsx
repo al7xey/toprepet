@@ -53,7 +53,7 @@ export default function HomePage() {
           {([['target', 'Определим цель', 'Разберёмся, с чем нужна помощь.'], ['cal', 'Согласуем формат', 'Обсудим график и удобный темп.'], ['checks', 'Составим план', 'Определим, с чего начать занятия.']] as const).map(([icon, title, text], index) => (
             <li key={title} className="fr" {...rv('up', index * 0.08, { gap: 16 })}>
               <span className="ic-sq"><Icon name={icon} /></span>
-              <div className="g4"><b style={{ fontSize: 18 }}>{title}</b><span className="muted">{text}</span></div>
+              <div className="g4"><b className="u-fs18">{title}</b><span className="muted">{text}</span></div>
             </li>
           ))}
         </ol>
@@ -64,7 +64,7 @@ export default function HomePage() {
         <img src="/images/payment-trust.webp" alt="Человек спокойно читает книгу, облокотившись на большой замок" width={1536} height={1024} loading="lazy" {...rv('left')} />
         <div className="trh-sec" {...rv('right', 0.1)}>
           <h2 id="trust-title" className="h2 trh-h2">100% гарантия возврата средств</h2>
-          <p className="cap" style={{ fontSize: 18 }}>100% возврат оплаты, если оплаченное занятие не было проведено.</p>
+          <p className="cap u-fs18">100% возврат оплаты, если оплаченное занятие не было проведено.</p>
           <p className="cap">Деньги не переводятся репетитору сразу: их списывают, когда репетитор подтвердит запись, и выплачивают после проведённого занятия. В других спорных ситуациях поддержка поможет разобраться.</p>
           <div><Button to="/legal/payment-refund/" variant="line">Оплата и возвраты</Button></div>
         </div>
@@ -79,7 +79,7 @@ export default function HomePage() {
       </Panel>
 
       <section className="trk-split" aria-labelledby="help-title" {...rv('up')}>
-        <div className="trh-sec" style={{ maxWidth: 560 }}>
+        <div className="trh-sec u-mw560">
           <h2 id="help-title" className="h2 trh-h2">Нужна помощь?</h2>
           <p className="cap">Ответим на вопросы об оплате, переносах и возвратах в чате поддержки.</p>
         </div>
@@ -87,8 +87,8 @@ export default function HomePage() {
       </section>
 
       <Panel>
-        <div className="trh-sec" style={{ justifyItems: 'start' }}>
-          <h2 className="trh-panel-h" style={{ maxWidth: 600 }}>Вы репетитор? Найдём для вас учеников</h2>
+        <div className="trh-sec u-start">
+          <h2 className="trh-panel-h u-mw600">Вы репетитор? Найдём для вас учеников</h2>
           <Button to="/for-repetitor/" size="lg">Стать топ-репетом</Button>
         </div>
       </Panel>

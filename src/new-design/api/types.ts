@@ -24,6 +24,9 @@ export interface Achievement { title: string; text: string }
 
 export type TutorStatus = 'draft' | 'review' | 'published' | 'hidden';
 
+/** Длительность стандартного урока: все цены в контракте указаны за него. */
+export const LESSON_MINUTES = 60;
+
 export interface Tutor {
   id: Id;
   name: string;
@@ -37,9 +40,9 @@ export interface Tutor {
   intro: string;
   approach: string;
   achievements: Achievement[];
-  /** Цена, которую получает репетитор за 60 минут. */
+  /** Цена, которую получает репетитор за стандартный урок (LESSON_MINUTES). */
   price: number;
-  /** Цена для ученика за 60 минут (с учётом сбора). */
+  /** Цена для ученика за стандартный урок (сбор уже добавлен сервером). */
   studentPrice: number;
   /** Длительность бесплатного знакомства в минутах, выбирает репетитор. 0 — знакомства нет. */
   introMinutes: number;

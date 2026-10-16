@@ -190,3 +190,24 @@
 .tr .trk-fieldset{border:0;margin:0;padding:0;min-width:0}
 .tr .trk-fieldset>legend{padding:0}
 .tr .trk-choice{cursor:pointer}
+
+/* Небольшие вспомогательные классы вместо инлайн-стилей */
+.tr .u-align-start{align-content:start}
+.tr .u-mt-auto{margin-top:auto}
+.tr .u-start{justify-items:start}
+.tr .u-fs18{font-size:18px}
+.tr .u-mw560{max-width:560px}
+.tr .u-mw600{max-width:600px}
+.tr .u-mw620{max-width:620px}
+.tr .u-gap8{gap:8px}
+.tr .u-ink{color:var(--ink)}
+.tr .u-ok{color:var(--ok)}
+.tr .u-peach{color:#f2b08f}
+.tr .logo.logo-l{font-size:22px}
+.tr .logo-l .logo-mark{width:30px;height:30px}
+.tr .trh-actions{gap:8px}
+.tr .trk-calc-bar i:first-child{flex:10}
+.tr .trk-calc-bar i:last-child{flex:1}
+.tr .trk-calc-wrap{flex:1 1 380px;min-width:0;max-width:520px}
+.tr .trk-price-xl{font-size:30px;letter-spacing:-0.04em}
+.tr .search>.i:first-child{color:var(--muted)}

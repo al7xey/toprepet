@@ -15,8 +15,8 @@ function Logo() {
 function Footer() {
   return (
     <footer className="foot">
-      <div className="g8" style={{ alignContent: 'start' }}>
-        <span className="logo" style={{ fontSize: 22 }}><i className="logo-mark" style={{ width: 30, height: 30 }} aria-hidden="true" />toprepet</span>
+      <div className="g8 u-align-start">
+        <span className="logo logo-l"><i className="logo-mark" aria-hidden="true" />toprepet</span>
         <p className="cap trh-foot-cap">Сервис частных репетиторов</p>
         <p className="muted sm">© 2026 TopRepet</p>
       </div>
@@ -61,7 +61,7 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
           <nav className="trh-nav" aria-label="Основная навигация">
             {PUBLIC_NAV.map(([label, to]) => <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{label}</NavLink>)}
           </nav>
-          <span className="fr trh-actions" style={{ gap: 8 }}><SessionActions /></span>
+          <span className="fr trh-actions"><SessionActions /></span>
           <button type="button" className="btn btn-icon trh-burger" aria-label="Открыть меню" aria-expanded={menu} onClick={() => setMenu(true)}><Icon name="menu" /></button>
         </header>
         <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>{children}</main>
@@ -73,7 +73,7 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
           <nav className="trh-menu-list" aria-label="Меню">
             {[...PUBLIC_NAV, ['Заявки учеников', '/requests'], ['Помощь', '/help']].map(([label, to]) => <Link key={to} to={to}>{label}<Icon name="right" /></Link>)}
           </nav>
-          <div className="g10" style={{ marginTop: 'auto' }}><SessionActions block /></div>
+          <div className="g10 u-mt-auto"><SessionActions block /></div>
         </dialog>
       )}
     </>
