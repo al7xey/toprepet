@@ -183,3 +183,4 @@
 .tr .trk-range{-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;background:var(--fill-strong);outline:0}
 .tr .trk-range::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px var(--accent),0 4px 10px rgb(242 106 46 / 30%);cursor:pointer}
 .tr .trk-range::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--accent);cursor:pointer}
+.tr .trh-drop-menu.right{left:auto;right:0}
