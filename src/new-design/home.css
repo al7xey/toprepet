@@ -8,7 +8,7 @@
 /* Герой */
 .tr .trh-hero{display:flex;flex-wrap:wrap;gap:56px;align-items:center}
 .tr .trh-hero-text{flex:1 1 520px;min-width:0;max-width:580px;display:grid;gap:32px}
-.tr .trh-hero-h{font-size:58px}
+.tr .trh-hero-h{font-size:40px}
 .tr .trh-hero-btns{display:flex;flex-wrap:wrap;gap:14px}
 .tr .trh-hero-media{position:relative;flex:1 1 520px;min-width:0}
 .tr .trh-hero-media>img{width:100%;height:auto;display:block;border-radius:40px}
@@ -54,7 +54,7 @@
 
   .tr .trh-hero{display:grid;gap:24px}
   .tr .trh-hero-text{display:contents}
-  .tr .trh-hero-h{order:1;font-size:34px}
+  .tr .trh-hero-h{order:1;font-size:30px}
   .tr .trh-hero-media{order:2}
   .tr .trh-hero-text .benefits{order:3}
   .tr .trh-hero-btns{order:4;display:grid;gap:12px}
@@ -77,8 +77,6 @@
   .tr .trh-teachers .tc .pl{left:10px;right:10px;bottom:10px;padding:10px 14px 11px}
   .tr .trh-teachers .tc .pl b{font-size:17px}
   .tr .trh-teachers .tc .pl span{font-size:13px}
-  .tr .trh-teachers .tc .pp{top:12px;left:12px;min-height:32px;padding:0 13px;font-size:14px}
-  .tr .trh-teachers .tc .heart{top:12px;right:12px;width:40px;height:40px}
 
   .tr .trh-trust{gap:24px}
   .tr .trh-trust>img{flex-basis:300px}
@@ -114,9 +112,6 @@
 /* Карточка репетитора: светлая плашка, чёрный текст, значок цены и сердечко одной высоты */
 .tr .trh-teachers .tc .pl,.tr .tc.s .pl{background:linear-gradient(180deg,rgb(255 255 255 / 90%),rgb(255 255 255 / 82%))}
 .tr .tc.s .pl b,.tr .tc.s .pl span,.tr .tc.s .pl .rt.new{color:#111}
-.tr .tc.s .pp{height:36px;min-height:36px;padding:0 14px;font-size:15px;top:14px;left:14px}
-.tr .tc.s .heart{width:36px;height:36px;top:14px;right:14px}
-.tr .tc.s .heart .i{width:18px;height:18px}
 
 /* Появление при прокрутке */
 .tr.rv-on [data-rv]{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease),transform .9s var(--spring);transition-delay:var(--d,0s)}
@@ -127,9 +122,6 @@
 .tr .trh-teachers>.tc{animation:none}
 
 @media (max-width:760px){
-  .tr .tc.s .pp,.tr .trh-teachers .tc.s .pp{height:32px;min-height:32px;padding:0 12px;font-size:14px;top:12px;left:12px}
-  .tr .tc.s .heart,.tr .trh-teachers .tc.s .heart{width:32px;height:32px;top:12px;right:12px}
-  .tr .tc.s .heart .i{width:16px;height:16px}
   .tr .trh-steps li{min-height:128px}
   .tr .trh-steps li:last-child{min-height:0}
 }
@@ -168,9 +160,6 @@
   .tr .trh-sort-t{display:none}
   .tr .trh-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .tr .trh-grid>.tc{aspect-ratio:3/4;border-radius:32px}
-  .tr .trh-grid .tc.s .pp{height:30px;min-height:30px;padding:0 11px;font-size:13px;top:10px;left:10px}
-  .tr .trh-grid .tc.s .heart{width:30px;height:30px;top:10px;right:10px}
-  .tr .trh-grid .tc.s .heart .i{width:15px;height:15px}
   .tr .trh-grid .tc.s .pl{left:8px;right:8px;bottom:8px;padding:8px 12px 9px;border-radius:22px}
   .tr .trh-grid .tc.s .pl b{font-size:15px;gap:6px}
   .tr .trh-grid .tc.s .pl b .rt{font-size:12px}
@@ -188,7 +177,6 @@
 .tr .trh-pf-photo{position:relative;flex:0 0 300px;aspect-ratio:4/5;border-radius:40px;overflow:hidden;background:var(--surface)}
 .tr .trh-pf-photo img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
 .tr .trh-pf-back{display:none}
-.tr .trh-pf-heart{position:absolute;top:14px;right:14px}
 .tr .trh-pf-sheet{flex:1 1 360px;min-width:0;display:grid;gap:20px}
 .tr .trh-pf-role{font-size:18px;font-weight:600}
 .tr .trh-pf-intro{font-size:17px;line-height:1.7}
@@ -213,7 +201,6 @@
   .tr .trh-pf-photo{margin:-12px -16px 0;width:auto;height:430px;aspect-ratio:auto;border-radius:0}
   .tr .trh-pf-photo img{object-position:50% 8%}
   .tr .trh-pf-back{display:grid;position:absolute;top:14px;left:14px}
-  .tr .trh-pf-heart{top:14px;right:14px}
   .tr .trh-pf-sheet{position:relative;margin:-44px -16px 0;padding:22px 20px 0;gap:20px;background:#fff;border-radius:44px 44px 0 0;box-shadow:0 -12px 40px rgb(32 40 56 / 10%)}
   .tr .trh-pf-two{grid-template-columns:1fr;gap:22px}
   .tr .trh-pf-bar{display:flex;position:fixed;left:16px;right:16px;bottom:12px;z-index:40;width:auto}
@@ -263,7 +250,6 @@
 
 /* Плашка карточки: цена третьей строкой */
 .tr .tc.s .pl .trh-price{font-weight:700;font-size:15px;margin-top:3px}
-.tr .tc .pp,.tr .tc .heart{display:none}
 
 /* Фильтры: белое стекло */
 .tr .trh-chips .chipf,.tr .trh-chips summary.chipf{background:linear-gradient(180deg,rgb(255 255 255 / 94%),rgb(255 255 255 / 80%));-webkit-backdrop-filter:blur(20px) saturate(190%);backdrop-filter:blur(20px) saturate(190%);border:0;box-shadow:var(--glass-edge),0 8px 22px rgb(32 40 56 / 7%);transition:transform .3s var(--spring),box-shadow .25s}

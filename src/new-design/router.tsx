@@ -17,11 +17,12 @@ import './ui/kit.css';
 const NotFoundPage = lazy(() => import('./pages/public/notfound'));
 
 /** Адреса, которые обслуживает новый интерфейс. Остальные (блог, документы, старые лендинги) — прежнее приложение. */
-const PREFIXES = ['/teachers', '/for-repetitor', '/login', '/signup', '/auth', '/reset-password', '/verify-email', '/onboarding', '/me', '/tutor', '/admin', '/book', '/requests', '/help'];
+/** Адреса, которые пока живут в старом приложении (переносятся на этапе 7). Всё остальное, включая 404, — новый интерфейс. */
+const LEGACY = ['/legal', '/lessons', '/contact', '/free-intro', '/for-tutors', '/teacher', '/direction'];
 
 export function isNewPath(pathname: string) {
   const path = pathname.replace(/\/+$/, '') || '/';
-  return path === '/' || PREFIXES.some((p) => path === p || path.startsWith(`${p}/`));
+  return !LEGACY.some((p) => path === p || path.startsWith(`${p}/`));
 }
 
 export function NewApp() {

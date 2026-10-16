@@ -31,11 +31,11 @@ const app = (
   </React.StrictMode>
 );
 
-// Кабинеты и формы не пререндерятся: по прямой ссылке их отдаёт index.html главной, поэтому рисуем заново, без гидратации.
-const prerendered = ['/', '/teachers', '/for-repetitor', '/lessons', '/contact', '/free-intro', '/legal', '/blog', '/direction'];
-const path = window.location.pathname.replace(/\/+$/, '') || '/';
-const clientOnly = !prerendered.some((p) => path === p || (p !== '/' && path.startsWith(`${p}/`)));
-if (rootElement.hasChildNodes() && !clientOnly) {
+// Гидрация только если разметка пришла из пререндера именно для этого адреса (атрибут data-prerendered).
+// Кабинеты, формы и неизвестные адреса получают index.html или 404.html: их рисуем заново, без гидрации.
+const normalize = (value: string) => value.replace(/\/+$/, '') || '/';
+const prerendered = rootElement.dataset.prerendered;
+if (rootElement.hasChildNodes() && prerendered !== undefined && normalize(prerendered) === normalize(window.location.pathname)) {
   hydrateRoot(rootElement, app);
 } else {
   rootElement.replaceChildren();

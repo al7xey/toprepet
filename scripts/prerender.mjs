@@ -334,7 +334,7 @@ for (const route of routes) {
 
   let finalHtml = template.replace(
     rootPlaceholder,
-    `<div id="root">${appHtml}</div>`,
+    `<div id="root" data-prerendered="${route}">${appHtml}</div>`,
   );
 
   finalHtml = addPageMeta(
@@ -405,7 +405,7 @@ for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: '
   const url = `https://toprepet.ru${page.route}/`;
   const appHtml = await render(page.route);
   if (!page.admin) trackLastmod(url, appHtml, page.title, page.description);
-  let html = template.replace(rootPlaceholder, `<div id="root">${appHtml}</div>`);
+  let html = template.replace(rootPlaceholder, `<div id="root" data-prerendered="${page.route}">${appHtml}</div>`);
   html = html.replace(/<title>.*?<\/title>/s, `<title>${escapeMeta(page.title)}</title>`)
     .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escapeMeta(page.description)}" />`);
   for (const [key, value] of [['og:title', page.title], ['og:description', page.description], ['og:url', url], ['twitter:title', page.title], ['twitter:description', page.description]]) {

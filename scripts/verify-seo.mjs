@@ -17,7 +17,7 @@ for (const route of routes) {
   if (title !== titles[route] || !title || seenTitles.has(title)) fail(`${route}: title`);
   if (description !== descriptions[route] || !description || seenDescriptions.has(description)) fail(`${route}: description`);
   if (canonicals.length !== 1 || canonicals[0][1] !== canonical) fail(`${route}: canonical`);
-  if (!/<h1(?:\s|>)/i.test(html) || !/<div id="root">[\s\S]{300,}<\/div>/.test(html)) fail(`${route}: prerender`);
+  if (!/<h1(?:\s|>)/i.test(html) || !/<div id="root"[^>]*>[\s\S]{300,}<\/div>/.test(html)) fail(`${route}: prerender`);
   if (/<meta name="robots" content="[^"]*noindex/i.test(html)) fail(`${route}: noindex`);
   if ((html.match(/<meta name="robots"/g) || []).length !== 1 || !html.includes('max-image-preview:large')) fail(`${route}: robots/image preview`);
   if (route === '/teachers' && (!html.includes('"@type": "CollectionPage"') || !html.includes('"@type": "ItemList"'))) fail(`${route}: directory schema`);
