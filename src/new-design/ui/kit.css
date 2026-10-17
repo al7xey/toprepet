@@ -557,3 +557,9 @@
   .tr .trk-iconbtn.trh-pf-back{left:14px}
   .tr .trk-iconbtn.trh-pf-share{right:14px}
 }
+
+/* ---- v11: меню не сдвигает шапку, заявки и занятые слоты ---- */
+/* при открытом меню шапка остаётся поверх списка */
+.tr .hdr.surf.trh-hdr-open{z-index:70}
+/* после входа контент кабинета ниже: на телефоне шапки нет, заголовок не должен прилипать к краю */
+@media(max-width:760px){.tr .trk-app{padding-top:32px}}

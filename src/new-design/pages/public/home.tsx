@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import { api, staticTutors } from '../../api';
+import { useSession } from '../../api/session';
 import { useQuery } from '../../api/hooks';
 import { PublicLayout } from '../../layout/layouts';
 import { rv, useParallax } from '../../reveal';
@@ -7,6 +8,7 @@ import { Button, Faq, Icon, IconButton, Panel, Section, Steps, TutorGrid } from 
 import { HOW_STEPS, STUDENT_FAQ } from './content';
 
 export default function HomePage() {
+  const { user } = useSession();
   const media = useRef<HTMLDivElement>(null);
   useParallax(media);
   const first = staticTutors().slice(0, 6);
@@ -23,7 +25,7 @@ export default function HomePage() {
           <p className="trh-hero-lead">Индивидуальные занятия с репетиторами онлайн: удобный график и быстрый результат.</p>
           <div className="trh-hero-btns">
             <Button to="/teachers" size="lg" className="trh-cta">Найти репетитора</Button>
-            <Button to="/me/requests/new" variant="warm" size="lg">Создать заявку</Button>
+            {user && <Button to="/me/requests/new" variant="warm" size="lg">Создать заявку</Button>}
           </div>
         </div>
         <div className="trh-hero-media" ref={media}>

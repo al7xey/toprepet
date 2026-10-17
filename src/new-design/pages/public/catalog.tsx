@@ -4,6 +4,7 @@ import { subjects } from '../../../entities/lesson';
 import { api, staticTutors, type Tutor, type TutorFilter } from '../../api';
 import { safeChoice, trackGoal } from '../../../shared/lib/analytics';
 import { PublicLayout } from '../../layout/layouts';
+import { useSession } from '../../api/session';
 import { count } from '../../lib/format';
 import { rv } from '../../reveal';
 import { Button, Chip, Dropdown, EmptyState, ErrorState, Icon, PageHeader, Skeleton, TutorGrid } from '../../ui';
@@ -32,6 +33,7 @@ function listReducer(state: ListState, action: ListAction): ListState {
 }
 
 export default function CatalogPage() {
+  const { user } = useSession();
   const [input, setInput] = useState('');
   const [params] = useSearchParams();
   const [filter, setFilter] = useState<TutorFilter>(() => ({ sort: 'recommended', subject: SUBJECTS.find((s) => s === params.get('subject')), hasIntro: params.get('intro') === '1' || undefined }));
@@ -101,7 +103,7 @@ export default function CatalogPage() {
         {error && !items.length ? <ErrorState text={error} onRetry={() => setFilter((f) => ({ ...f }))} /> : null}
         {!loading && total === 0 ? (
           <EmptyState icon="search" title="По вашему запросу преподавателей не нашлось" text="Попробуйте другое имя, предмет или тему. Или опишите задачу в заявке: подходящие репетиторы откликнутся сами."
-            actions={<><Button onClick={reset}>Показать всех</Button><Button to="/me/requests/new" variant="line">Создать заявку</Button></>} />
+            actions={<><Button onClick={reset}>Показать всех</Button>{user && <Button to="/me/requests/new" variant="line">Создать заявку</Button>}</>} />
         ) : (
           <TutorGrid tutors={items}>
             {loading && cursor && Array.from({ length: 4 }, (_, i) => <Skeleton key={i} height={360} radius={36} />)}

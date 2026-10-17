@@ -54,26 +54,26 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
   return (
     <>
       <div className={cx('wash trh-page', tight && 'trh-tight', bareMobile && 'trh-bare')}>
-        <header className="hdr surf trh-hdr">
+        {/* шапка одна и та же при открытом меню: логотип и кнопка не сдвигаются, меню открывается под ней */}
+        <header className={cx('hdr surf trh-hdr', menu && 'trh-hdr-open')}>
           <Logo />
           <nav className="trh-nav" aria-label="Основная навигация">
             {PUBLIC_NAV.map(([label, to]) => <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{label}</NavLink>)}
           </nav>
           <span className="fr trh-actions"><SessionActions /></span>
-          <button type="button" className="btn btn-icon trh-burger" aria-label="Открыть меню" aria-expanded={menu} onClick={() => setMenu(true)}><Icon name="menu" /></button>
+          <button type="button" className="btn btn-icon trh-burger" aria-label={menu ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={menu} onClick={() => setMenu(!menu)}><Icon name={menu ? 'x' : 'menu'} /></button>
         </header>
+        {menu && (
+          <dialog open className="trh-menu" aria-modal="true" aria-label="Меню">
+            <nav className="trh-menu-list" aria-label="Меню">
+              {[...PUBLIC_NAV, ...(user ? [['Заявки учеников', '/requests']] : []), ['Помощь', '/help'], ...(user ? [] : [['Регистрация', '/signup']])].map(([label, to]) => <Link key={to} to={to}>{label}<Icon name="right" /></Link>)}
+            </nav>
+            <div className="g10 u-mt-auto"><SessionActions block /></div>
+          </dialog>
+        )}
         <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>{children}</main>
         <Footer />
       </div>
-      {menu && (
-        <dialog open className="wash trh-menu" aria-modal="true" aria-label="Меню">
-          <header className="hdr m surf"><Logo /><button type="button" className="btn btn-icon" aria-label="Закрыть меню" onClick={() => setMenu(false)}><Icon name="x" /></button></header>
-          <nav className="trh-menu-list" aria-label="Меню">
-            {[...PUBLIC_NAV, ['Заявки учеников', '/requests'], ['Помощь', '/help'], ...(user ? [] : [['Регистрация', '/signup']])].map(([label, to]) => <Link key={to} to={to}>{label}<Icon name="right" /></Link>)}
-          </nav>
-          <div className="g10 u-mt-auto"><SessionActions block /></div>
-        </dialog>
-      )}
     </>
   );
 }

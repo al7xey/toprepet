@@ -85,9 +85,11 @@ export function LessonCard({ lesson, role, actions, delay = 0 }: { lesson: Lesso
  * slots — свободные и занятые окна от сервера, value — выбранное начало (ISO).
  */
 export function SlotPicker({ slots, value, onChange, days = 7, loading }: { slots: Slot[]; value: string | null; onChange: (start: string) => void; days?: number; loading?: boolean }) {
+  // занятое время не показываем вовсе: только свободные слоты и дни, где они есть
   const byDay = useMemo(() => {
     const map = new Map<string, Slot[]>();
     for (const s of slots) {
+      if (!s.available) continue;
       const key = new Date(s.start).toDateString();
       map.set(key, [...(map.get(key) ?? []), s]);
     }
@@ -95,7 +97,7 @@ export function SlotPicker({ slots, value, onChange, days = 7, loading }: { slot
   }, [slots, days]);
   const selectedDay = value ? new Date(value).toDateString() : null;
   const [day, setDay] = useState<string | null>(null);
-  const current = day ?? selectedDay ?? byDay.find(([, list]) => list.some((s) => s.available))?.[0] ?? byDay[0]?.[0] ?? null;
+  const current = day ?? selectedDay ?? byDay[0]?.[0] ?? null;
   const list = byDay.find(([k]) => k === current)?.[1] ?? [];
 
   if (loading) return <div className="trk-slot-skel" aria-busy="true"><span className="skel" /><span className="skel" /></div>;
@@ -106,9 +108,8 @@ export function SlotPicker({ slots, value, onChange, days = 7, loading }: { slot
       <div className="dates trh-dates" role="tablist" aria-label="День">
         {byDay.map(([key, items]) => {
           const date = new Date(items[0].start);
-          const free = items.some((s) => s.available);
           return (
-            <button key={key} type="button" role="tab" aria-selected={key === current} className={`date${key === current ? ' sel' : ''}${free ? '' : ' trk-off'}`} onClick={() => setDay(key)}>
+            <button key={key} type="button" role="tab" aria-selected={key === current} className={`date${key === current ? ' sel' : ''}`} onClick={() => setDay(key)}>
               <small>{date.toLocaleDateString('ru-RU', { weekday: 'short' }).replace('.', '')}</small><b>{date.getDate()}</b>
             </button>
           );
@@ -116,7 +117,7 @@ export function SlotPicker({ slots, value, onChange, days = 7, loading }: { slot
       </div>
       <div className="slots trh-slots" aria-label={current ? dayLabel(list[0]?.start ?? new Date()) : undefined}>
         {list.map((s) => (
-          <button key={s.start} type="button" className={`slot${s.start === value ? ' sel' : ''}${s.available ? '' : ' off'}`} disabled={!s.available} aria-pressed={s.start === value} onClick={() => onChange(s.start)}>
+          <button key={s.start} type="button" className={`slot${s.start === value ? ' sel' : ''}`} aria-pressed={s.start === value} onClick={() => onChange(s.start)}>
             {timeLabel(s.start)}
           </button>
         ))}

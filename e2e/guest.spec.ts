@@ -26,6 +26,13 @@ test.describe('гость', () => {
     await expect(page).toHaveURL(/\/book\//);
   });
 
+  test('заявки учеников скрыты от гостя, /requests ведёт на вход', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('link', { name: 'Создать заявку' })).toHaveCount(0);
+    await page.goto('/requests');
+    await expect(page).toHaveURL(/\/login/);
+  });
+
   test('старые адреса ведут на новые страницы', async ({ page }) => {
     for (const [from, to] of [['/lessons', '/teachers'], ['/contact', '/help'], ['/free-intro', '/teachers?intro=1'], ['/for-tutors', '/for-repetitor'], ['/teacher/mathematics', '/teachers/mathematics']]) {
       await page.goto(from);

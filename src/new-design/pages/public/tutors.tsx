@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api, staticTutors, studentPriceOf } from '../../api';
+import { useSession } from '../../api/session';
 import { useQuery } from '../../api/hooks';
 import { PublicLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
@@ -28,6 +29,7 @@ function PriceCalc() {
 }
 
 export default function TutorsLandingPage() {
+  const { user } = useSession();
   const first = staticTutors().slice(0, 6);
   const tutors = useQuery('tutors-landing', () => api.listTutors({ limit: 6 }).then((p) => p.items), first);
   return (
@@ -41,7 +43,7 @@ export default function TutorsLandingPage() {
           <p className="trh-hero-lead">TopRepet показывает вашу анкету ученикам, принимает записи и оплату, напоминает об уроках и переводит выплаты.</p>
           <div className="trh-hero-btns">
             <Button to="/signup?role=tutor" size="lg" className="trh-cta">Создать анкету</Button>
-            <Button to="/requests" variant="warm" size="lg">Заявки учеников</Button>
+            {user && <Button to="/requests" variant="warm" size="lg">Заявки учеников</Button>}
           </div>
         </div>
         <div className="trh-hero-media">
@@ -60,15 +62,17 @@ export default function TutorsLandingPage() {
 
       <Section title="Как начать"><Steps items={TUTOR_STEPS} /></Section>
 
-      <Panel>
-        <div className="trk-split">
-          <div className="trh-sec u-mw560">
-            <h2 className="trh-panel-h">Заявки учеников</h2>
-            <p className="muted">Смотрите, чего ищут ученики, и откликайтесь на подходящие заявки. Откликнуться можно после входа.</p>
+      {user && (
+        <Panel>
+          <div className="trk-split">
+            <div className="trh-sec u-mw560">
+              <h2 className="trh-panel-h">Заявки учеников</h2>
+              <p className="muted">Смотрите, чего ищут ученики, и откликайтесь на подходящие заявки. Откликнуться можно после входа.</p>
+            </div>
+            <Button to="/requests" size="lg">Смотреть заявки</Button>
           </div>
-          <Button to="/requests" size="lg">Смотреть заявки</Button>
-        </div>
-      </Panel>
+        </Panel>
+      )}
 
       <Section title="Они уже с TopRepet"><TutorGrid tutors={tutors.data ?? first} layout="row" /></Section>
 

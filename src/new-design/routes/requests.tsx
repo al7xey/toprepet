@@ -12,7 +12,7 @@ const student = (page: React.ReactNode) => <RequireRole role="student">{page}</R
 /** Заявки: общая лента, создание и отклики для ученика. */
 export const requestRoutes = (
   <>
-    <Route path="/requests" element={<FeedPage />} />
+    <Route path="/requests" element={<RequireRole role={['student', 'tutor']}><FeedPage /></RequireRole>} />
     <Route path="/me/requests" element={student(<MyRequestsPage />)} />
     <Route path="/me/requests/new" element={student(<NewRequestPage />)} />
     <Route path="/me/requests/:id" element={student(<RequestDetailPage />)} />
