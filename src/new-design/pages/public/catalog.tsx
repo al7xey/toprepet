@@ -82,21 +82,21 @@ export default function CatalogPage() {
       <search className="trh-sec trh-tools" {...rv('up', 0.05)}>
         <form className="search" onSubmit={(e) => { e.preventDefault(); set({ query: input.trim() || undefined }); trackGoal('teacher_search', { has_query: Boolean(input.trim()) }); }}>
           <Icon name="search" />
-          <input className="ym-disable-keys trh-search-input" type="search" aria-label="Поиск по предмету, теме или имени преподавателя" placeholder="Предмет, тема или репет" value={input} onChange={(e) => setInput(e.target.value)} />
+          <input className="ym-disable-keys trh-search-input" type="search" aria-label="Поиск по предмету, теме или имени преподавателя" placeholder="Предмет или имя" value={input} onChange={(e) => setInput(e.target.value)} />
           <Button type="submit" size="s">Найти</Button>
         </form>
         <div className="trh-chips">
           <Dropdown label="Предмет" icon="book" value={filter.subject ?? null} allLabel="Все предметы" options={SUBJECTS.map((s) => ({ value: s, label: s }))} onChange={(v) => { set({ subject: v }); trackGoal('teacher_filter', { subject: v ? safeChoice(v) : 'all' }); }} />
           <Dropdown label="Цена" value={filter.priceMax ?? null} allLabel="Любая цена" options={PRICES} onChange={(v) => set({ priceMax: v })} />
-          <Chip on={Boolean(filter.hasIntro)} onClick={() => set({ hasIntro: !filter.hasIntro || undefined })}><Icon name="gift" />Есть знакомство</Chip>
+          <Chip on={Boolean(filter.hasIntro)} onClick={() => set({ hasIntro: !filter.hasIntro || undefined })}><Icon name="gift" />Знакомство</Chip>
           {active && <button type="button" className="chipf gray" onClick={reset}>Сбросить</button>}
         </div>
       </search>
 
       <section className="trh-sec" aria-label="Преподаватели">
         <div className="fr fb" {...rv('up', 0.1)}>
-          <p className="muted" aria-live="polite">{total === null ? ' ' : <>Найдено: <b className="u-ink">{count(total, 'преподаватель', 'преподавателя', 'преподавателей')}</b></>}</p>
-          <Dropdown label="Сортировка" icon="sort" value={filter.sort ?? 'recommended'} options={SORTS.map((s) => ({ ...s }))} onChange={(v) => set({ sort: (v ?? 'recommended') as TutorFilter['sort'] })} align="right" />
+          <p className="muted sm" aria-live="polite">{total === null ? ' ' : <>Найдено: <b className="u-ink">{count(total, 'преподаватель', 'преподавателя', 'преподавателей')}</b></>}</p>
+          <Dropdown label="Сортировка" icon="sort" value={filter.sort ?? 'recommended'} options={SORTS.map((s) => ({ ...s }))} onChange={(v) => set({ sort: (v ?? 'recommended') as TutorFilter['sort'] })} align="right" iconOnly />
         </div>
         {error && !items.length ? <ErrorState text={error} onRetry={() => setFilter((f) => ({ ...f }))} /> : null}
         {!loading && total === 0 ? (

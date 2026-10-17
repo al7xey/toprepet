@@ -3,7 +3,7 @@ import { api, staticTutors } from '../../api';
 import { useQuery } from '../../api/hooks';
 import { PublicLayout } from '../../layout/layouts';
 import { rv, useParallax } from '../../reveal';
-import { Button, Faq, Icon, Panel, Section, Steps, TutorGrid } from '../../ui';
+import { Button, Faq, Icon, IconButton, Panel, Section, Steps, TutorGrid } from '../../ui';
 import { HOW_STEPS, STUDENT_FAQ } from './content';
 
 export default function HomePage() {
@@ -37,7 +37,7 @@ export default function HomePage() {
 
       <Section
         title="Топ репеты"
-        action={<Button to="/teachers" variant="line" size="s">Все репетиторы</Button>}
+        action={<IconButton icon="right" label="Все репетиторы" to="/teachers" />}
       >
         <TutorGrid tutors={tutors.data ?? first} layout="row" />
       </Section>

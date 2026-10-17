@@ -376,3 +376,33 @@
 
 /* Галочка в чекбоксе: белая на оранжевом (вложенный значок не наследует рамку и заливку коробки) */
 .tr .chk i .i,.tr .chk.on i .i{width:15px;height:15px;margin:0;border:0;border-radius:0;background:#fff}
+
+/* Каталог: компактные фильтры, меню под кнопкой в рамке, сортировка значком */
+.tr .trh-chips{gap:8px}
+.tr .chipf{min-height:36px;padding:0 14px;font-size:14px;gap:6px}
+.tr .chipf.ico{width:40px;min-height:40px;padding:0;justify-content:center}
+.tr .trh-sort{margin-left:auto}
+.tr .trh-drop-menu{background:#fff;box-shadow:inset 0 0 0 1.5px var(--accent),0 12px 28px rgb(32 40 56 / 10%);border:0;width:260px}
+@media(max-width:760px){
+  .tr .trh-chips{flex-wrap:wrap;overflow:visible;margin:0;padding:0}
+  .tr .trh-drop-menu{position:absolute;left:0;right:auto;top:calc(100% + 8px);bottom:auto;width:min(260px,calc(100vw - 32px));max-height:50vh;border-radius:28px}
+  .tr .trh-drop-menu.right{left:auto;right:0}
+  .tr .hdr .trh-burger{width:40px;min-width:40px;padding:0}
+  .tr .hdr.surf:not(.m){padding-right:4px}
+  .tr .trh-actions{margin-right:2px}
+}
+@media(max-width:760px){
+  .tr .trh-chips{position:relative;flex-wrap:nowrap}
+  .tr .trh-chips .trh-drop{position:static}
+  .tr .trh-drop-menu,.tr .trh-drop-menu.right{left:0;right:auto;top:calc(100% + 8px)}
+  .tr .trh-sort .trh-drop-menu,.tr .trh-sort .trh-drop-menu.right{left:auto;right:0}
+}
+.tr .trh-sec .trh-drop-menu.right{left:auto;right:0}
+
+/* Логотип и правая кнопка шапки стоят на одной линии с заголовками: сама «капсула» шире колонки на размер своих отступов */
+.tr .hdr.surf:not(.m){margin-inline:-22px -8px}
+@media(max-width:760px){
+  .tr .hdr.surf:not(.m){margin-inline:-8px;padding:0 8px}
+  .tr .trh-actions{margin-right:0}
+}
+@media(max-width:760px){.tr .chipf{min-height:40px}}
