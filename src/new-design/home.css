@@ -280,3 +280,15 @@
 .tr.trh-mock .trh-mock-main[data-v=m] .wash{max-width:none}
 .tr.trh-mock .anim>*{animation:none}
 .tr .hero-h .trh-ln:not(.trh-ln2)>span{color:var(--ink)}
+
+/* три значка под фото: только на телефоне */
+.tr .trh-benefits{display:none}
+@media (max-width:760px){
+  .tr .trh-benefits{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none;order:3}
+  .tr .trh-benefits li{display:grid;justify-items:center;gap:10px;text-align:center;font-size:14px;line-height:1.3;font-weight:600;color:var(--ink)}
+  .tr .trh-benefit-ic{display:grid;place-items:center;width:60px;height:60px;border-radius:22px;background:#fff0e4;color:var(--accent)}
+}
+@media (max-width:760px){
+  .tr .trh-benefit-ic svg{width:30px;height:30px;flex-shrink:0}
+  .tr .trh-benefits li{font-size:13px;padding:0 2px}
+}

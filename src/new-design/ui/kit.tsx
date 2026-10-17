@@ -215,7 +215,7 @@ export function Steps({ items, size = 'md' }: { items: StepItem[]; size?: 'md' |
     <ol className={cx('tl trh-steps', size === 's' && 's')} data-rv="seq">
       {items.map((item, index) => (
         <li key={index} className={item.state && item.state !== 'current' ? item.state : undefined} style={{ '--i': index } as CSSProperties}>
-          <i>{item.state === 'done' ? <Icon name="check" style={{ width: 22, height: 22 }} /> : index + 1}</i>
+          <i>{index + 1}</i>
           <div><h3>{item.title}</h3>{item.text && <p>{item.text}</p>}</div>
         </li>
       ))}
