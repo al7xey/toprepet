@@ -1,6 +1,7 @@
 import { useState, type SyntheticEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../../api';
+import { trackGoal } from '../../../shared/lib/analytics';
 import { useMutation } from '../../api/hooks';
 import { AuthLayout } from '../../layout/layouts';
 import { Button, EmptyState, FormError, PageHeader, PasswordField, TextField, useToast } from '../../ui';
@@ -50,7 +51,7 @@ function RequestPage() {
     e.preventDefault();
     if (!emailValid(email)) { setError('Введите почту, например name@mail.ru'); return; }
     setError(undefined);
-    if (await reset.run(email.trim())) setSent(true);
+    if (await reset.run(email.trim())) { trackGoal('reset_request'); setSent(true); }
   };
 
   return (

@@ -91,6 +91,28 @@ try {
   const count = calls.length;
   analytics.trackGoal('blog_article_view');
   assert.equal(calls.length, count, 'Admin events excluded');
+  // новые страницы: цели регистрации и входа работают, личные кабинеты и запись в Метрику не попадают
+  for (const path of ['/me/lessons/', '/tutor/finance/', '/admin/disputes/', '/book/english/', '/onboarding/', '/auth/verify/']) {
+    globalThis.location = new URL(`https://toprepet.ru${path}`);
+    const before = calls.length;
+    analytics.syncAnalytics();
+    analytics.trackPage();
+    analytics.trackGoal('signup_submit');
+    assert.equal(calls.length > before && calls.slice(before).some(call => call[1] === 'hit' || call[1] === 'reachGoal'), false, `${path}: no events in private areas`);
+    window.ym = (...args) => calls.push(args);
+  }
+  globalThis.location = new URL('https://toprepet.ru/signup/');
+  analytics.syncAnalytics();
+  window.ym = (...args) => calls.push(args);
+  analytics.trackGoal('signup_submit', { role: 'student' });
+  analytics.trackGoal('login_submit', { role: 'tutor' });
+  analytics.trackGoal('reset_request');
+  for (const goal of ['signup_submit', 'login_submit', 'reset_request']) assert.ok(calls.some(call => call[2] === goal && call[3].page === 'auth'), `${goal} on public auth pages`);
+  globalThis.location = new URL('https://toprepet.ru/teachers/english/');
+  analytics.trackGoal('book_start', { kind: 'intro' });
+  assert.ok(calls.some(call => call[2] === 'book_start' && call[3].kind === 'intro' && call[3].page === 'teacher_profile'));
+  assert.equal(analytics.pageKind('/requests/'), 'requests');
+  assert.equal(analytics.pageKind('/help/'), 'help');
   globalThis.location = new URL('http://127.0.0.1:5173/');
   assert.equal(analytics.syncAnalytics(), false, 'Local development excluded');
   globalThis.location = new URL('https://toprepet.ru/for-repetitor/');

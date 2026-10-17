@@ -28,7 +28,10 @@ export type AnalyticsGoal =
   | 'engaged_60'
   | 'blog_article_view'
   | 'blog_cta_click'
-  | 'promo_check';
+  | 'signup_submit'
+  | 'login_submit'
+  | 'reset_request'
+  | 'book_start';
 type Params = Record<string, string | number | boolean>;
 type MetrikaWindow = Window & {
   ym?: ((id: number, method: string, ...args: unknown[]) => void) & {
@@ -47,7 +50,9 @@ export function analyticsEnabled() {
 export function isPublicAnalyticsPage(hostname: string, pathname: string) {
   return (
     ['toprepet.ru', 'www.toprepet.ru'].includes(hostname) &&
-    !/^\/blog\/admin(?:\/|$)/.test(pathname)
+    !/^\/blog\/admin(?:\/|$)/.test(pathname) &&
+    // личные кабинеты, запись и админка: персональные данные, в Метрику не уходят
+    !/^\/(?:me|tutor|admin|book|onboarding|auth)(?:\/|$)/.test(pathname)
   );
 }
 
@@ -61,6 +66,9 @@ export function pageKind(pathname: string) {
   if (/^\/blog(?:\/|$)/.test(pathname)) return 'blog';
   if (/^\/free-intro\/?$/.test(pathname)) return 'free_intro';
   if (/^\/contact\/?$/.test(pathname)) return 'contact';
+  if (/^\/(?:login|signup|reset-password|verify-email)\/?$/.test(pathname)) return 'auth';
+  if (/^\/requests\/?$/.test(pathname)) return 'requests';
+  if (/^\/help\/?$/.test(pathname)) return 'help';
   if (/^\/legal(?:\/|$)/.test(pathname)) return 'legal';
   return 'other';
 }

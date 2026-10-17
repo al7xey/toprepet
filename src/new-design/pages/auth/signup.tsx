@@ -1,6 +1,7 @@
 import { useState, type SyntheticEvent } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../../api';
+import { trackGoal } from '../../../shared/lib/analytics';
 import { useMutation } from '../../api/hooks';
 import type { Role } from '../../api/types';
 import { homeFor, useSession } from '../../api/session';
@@ -37,7 +38,7 @@ export default function SignupPage() {
     setErrors(found);
     if (Object.values(found).some(Boolean)) return;
     const created = await signup.run({ role, name: name.trim(), email: email.trim(), password });
-    if (created) { setUser(created); void navigate('/verify-email', { replace: true }); }
+    if (created) { trackGoal('signup_submit', { role }); setUser(created); void navigate('/verify-email', { replace: true }); }
   };
 
   return (

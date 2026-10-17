@@ -123,7 +123,6 @@ export function LessonPicker({
     promoStatus === 'applied';
 
   function applyPromoCode() {
-    trackGoal('promo_check', { applied: isDiscountPromoCode(selection.promoCode) });
     setPromoCheck({
       code: normalizedPromoCode,
       status: isDiscountPromoCode(

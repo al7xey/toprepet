@@ -1,6 +1,7 @@
 import { useState, type SyntheticEvent } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../../api';
+import { trackGoal } from '../../../shared/lib/analytics';
 import { useMutation } from '../../api/hooks';
 import { homeFor, useSession } from '../../api/session';
 import { AuthLayout } from '../../layout/layouts';
@@ -25,6 +26,7 @@ export default function LoginPage() {
   const finish = (u: Awaited<ReturnType<typeof api.login>> | undefined) => {
     if (!u) return;
     setUser(u);
+    trackGoal('login_submit', { role: u.role });
     void navigate(safeNext(next, homeFor(u.role)), { replace: true });
   };
 

@@ -37,7 +37,7 @@ export interface ButtonProps {
 export function Button({ children, variant = 'primary', size = 'md', block, icon, iconAfter, to, href, onClick, type = 'button', disabled, loading, className, style, ...rest }: ButtonProps) {
   const cls = cx('btn', `btn-${variant}`, size === 'lg' && 'btn-lg', size === 's' && 'btn-s', block && 'btn-block', loading && 'trk-loading', className);
   const inner = (<>{icon && <Icon name={icon} />}{children}{iconAfter && <Icon name={iconAfter} />}</>);
-  if (to && !disabled) return <Link className={cls} to={to} style={style} aria-label={rest['aria-label']}>{inner}</Link>;
+  if (to && !disabled) return <Link className={cls} to={to} style={style} aria-label={rest['aria-label']} onClick={onClick}>{inner}</Link>;
   if (href && !disabled) return <a className={cls} href={href} target="_blank" rel="noreferrer" style={style} aria-label={rest['aria-label']}>{inner}</a>;
   return (
     <button type={type} className={cls} onClick={onClick} disabled={disabled || loading} aria-busy={loading || undefined} style={style} aria-label={rest['aria-label']}>

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, LESSON_MINUTES, staticTutors, type Tutor } from '../../api';
+import { trackGoal } from '../../../shared/lib/analytics';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
@@ -50,8 +51,8 @@ function Profile({ tutor }: { tutor: Tutor }) {
       <div className="fr fb"><span>Цена за {minutes(LESSON_MINUTES)}</span><b className="tn trk-price-xl">{rub(tutor.studentPrice)}</b></div>
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
         <>
-          <Button to={bookHref('regular')} size="lg" block disabled={!start}>{start ? 'Записаться' : 'Выберите время'}</Button>
-          {tutor.introMinutes > 0 && <Button to={bookHref('intro')} variant="soft" block icon="gift">Бесплатное знакомство</Button>}
+          <Button to={bookHref('regular')} size="lg" block disabled={!start} onClick={() => trackGoal('book_start', { kind: 'regular' })}>{start ? 'Записаться' : 'Выберите время'}</Button>
+          {tutor.introMinutes > 0 && <Button to={bookHref('intro')} variant="soft" block icon="gift" onClick={() => trackGoal('book_start', { kind: 'intro' })}>Бесплатное знакомство</Button>}
           <Button variant="fill" block icon="chat" onClick={write}>Написать репетитору</Button>
         </>
       )}
