@@ -37,8 +37,16 @@
 В меню и нижней панели показываются только страницы, которые уже собраны: список `READY` в `layout/layouts.tsx`. Собрали новую страницу — добавьте её адрес в `READY`, и кнопка появится сама. Так ни одна кнопка не ведёт на 404.
 
 ## Мок и данные репетитора
-Данные кабинета репетитора (расписание, исключения, анкета, документы, выплаты) хранятся по id анкеты. Регистрация репетитора создаёт черновик анкеты; в демо-режиме публикация проходит мгновенно, на сервере анкета уйдёт на модерацию (админка, этап 5). Ключ хранилища `toprepet-mock-v2`: при смене формы данных повышаем версию.
+Данные кабинета репетитора (расписание, исключения, анкета, документы, выплаты) хранятся по id анкеты. Регистрация репетитора создаёт черновик анкеты; в демо-режиме публикация проходит мгновенно, на сервере анкета уйдёт на модерацию (админка, этап 5). Ключ хранилища `toprepet-mock-v3`: при смене формы данных повышаем версию.
 
 ## Flat surfaces
 
 No blur (`backdrop-filter`), gradients, glossy highlights or drop shadows anywhere in the project: surfaces are white or a plain tint with a 1–1.5px ring (`box-shadow: inset 0 0 0 1px var(--line)`), buttons are solid colour, hover does not lift elements. The header is a solid white bar. Browser autofill is neutralised in `.trk-input`, letter avatars are centred with grid (`.avatar.trk-avatar-letter`). Class names `surf`, `surf-strong`, `surf-photo` replace the old `glass*` names.
+
+## Stage 5: reviews, disputes, payments, notifications, admin
+
+- Student: `/me/lessons/:id/review` (`RatingInput`, min 20 characters, goes to moderation), `/me/lessons/:id/problem` (24 hours after the start), `/me/disputes/:id`, `/me/payments` (history + cards, `AddCardModal` from the kit), `/me/notifications`.
+- Tutor: `/tutor/reviews` (one reply per published review), `/tutor/disputes/:id`, `/tutor/notifications`; a new profile goes to moderation (`TutorStatus 'review'`), a returned one carries `moderationNote`.
+- Admin: `/admin/disputes` (refund or pay out), `/admin/cancellations`, `/admin/reviews`, `/admin/profiles` (`adminProfileQueue`, `adminModerateProfile`).
+- The mock writes notifications for the other party on every step (`note()` in `api/mock.ts`); the header bell refreshes on the `tr:notes` window event.
+- Demo data: lesson `l-4` can be reviewed, `l-7` finished three hours ago and can be disputed. Accounts: `olga@mail.ru`, `anastasia@toprepet.ru`, `admin@toprepet.ru`, password `demo`.
