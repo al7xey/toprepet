@@ -573,6 +573,24 @@
 .tr .trh-more.trk-iconbtn .i{width:22px;height:22px;color:var(--ink)}
 .tr .trh-more.trk-iconbtn:hover{background:#fff;box-shadow:inset 0 0 0 2px var(--ink)}
 @media(max-width:760px){
-  .tr .hdr.surf:not(.m){padding:0 18px}
+  .tr .hdr.surf:not(.m){padding:0 6px 0 18px}
   .tr .hdr.surf:not(.m) .trh-burger{margin-left:12px}
+}
+
+/* ---- v14: под поиском две кнопки с иконками ---- */
+.tr .trh-chips{display:flex;flex-wrap:nowrap;gap:8px;align-items:center;overflow:visible;margin:0;padding:0}
+.tr .trh-chips .chipf.ico{width:52px;min-height:44px;height:44px;padding:0;justify-content:center;border-radius:999px;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line);position:relative}
+.tr .trh-chips .chipf.ico .i{width:22px;height:22px;color:var(--ink)}
+.tr .trh-sort{margin-left:0}
+.tr .trh-filters-dot{position:absolute;top:8px;right:11px;width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px #fff}
+.tr .trh-filters-menu{width:300px;max-height:70vh}
+.tr .trh-filters-group{display:grid;gap:2px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.tr .trh-filters-group:last-of-type{border-bottom:0}
+.tr .trh-filters-group>b{padding:8px 16px 2px;font-size:13px;color:var(--muted);font-weight:700}
+.tr .trh-filters-reset{color:var(--accent-press);font-weight:700}
+@media(max-width:760px){
+  .tr .trh-chips{flex-wrap:nowrap}
+  .tr .trh-chips .trh-drop{position:static}
+  .tr .trh-filters-menu{width:min(300px,calc(100vw - 32px))}
+  .tr .trh-chips .trh-sort .trh-drop-menu{left:0;right:auto}
 }

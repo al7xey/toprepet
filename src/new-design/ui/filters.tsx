@@ -33,3 +33,45 @@ export function Dropdown<T extends string | number>({ label, icon, value, option
 export const Chip = ({ on, onClick, children }: { on: boolean; onClick: () => void; children: ReactNode }) => (
   <button type="button" className={`chipf${on ? ' on' : ''}`} aria-pressed={on} onClick={onClick}>{children}</button>
 );
+
+/** Кнопка фильтров: значок с ползунками, под ним панель с группами. Точка на значке — фильтр включён. */
+export function FilterMenu({ groups, intro, onIntro, onReset, active }: {
+  groups: { label: string; allLabel: string; value: string | number | null; options: { value: string | number; label: string }[]; onChange: (v: string | number | null) => void }[];
+  intro: { label: string; on: boolean };
+  onIntro: () => void;
+  onReset: () => void;
+  active: boolean;
+}) {
+  const ref = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    const outside = (e: PointerEvent) => { if (!ref.current?.contains(e.target as Node)) ref.current?.removeAttribute('open'); };
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') ref.current?.removeAttribute('open'); };
+    document.addEventListener('pointerdown', outside);
+    document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', esc); };
+  }, []);
+  return (
+    <details className="trh-drop trh-filters" ref={ref}>
+      <summary className="chipf ico" aria-label="Фильтры" title="Фильтры">
+        <Icon name="filter" />{active && <span className="trh-filters-dot" aria-hidden="true" />}
+      </summary>
+      <div className="trh-drop-menu trh-filters-menu">
+        {groups.map((g) => (
+          <div className="trh-filters-group" key={g.label}>
+            <b>{g.label}</b>
+            <button type="button" className={g.value === null ? 'on' : undefined} onClick={() => g.onChange(null)}>{g.allLabel}{g.value === null && <Icon name="check" />}</button>
+            {g.options.map((o) => (
+              <button type="button" key={String(o.value)} className={o.value === g.value ? 'on' : undefined} aria-pressed={o.value === g.value} onClick={() => g.onChange(o.value)}>
+                {o.label}{o.value === g.value && <Icon name="check" />}
+              </button>
+            ))}
+          </div>
+        ))}
+        <div className="trh-filters-group">
+          <button type="button" className={intro.on ? 'on' : undefined} aria-pressed={intro.on} onClick={onIntro}>{intro.label}{intro.on && <Icon name="check" />}</button>
+        </div>
+        {active && <button type="button" className="trh-filters-reset" onClick={onReset}>Сбросить</button>}
+      </div>
+    </details>
+  );
+}

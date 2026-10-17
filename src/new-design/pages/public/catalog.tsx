@@ -5,9 +5,8 @@ import { api, staticTutors, type Tutor, type TutorFilter } from '../../api';
 import { safeChoice, trackGoal } from '../../../shared/lib/analytics';
 import { PublicLayout } from '../../layout/layouts';
 import { useSession } from '../../api/session';
-import { count } from '../../lib/format';
 import { rv } from '../../reveal';
-import { Button, Chip, Dropdown, EmptyState, ErrorState, Icon, PageHeader, Skeleton, TutorGrid } from '../../ui';
+import { Button, Dropdown, EmptyState, ErrorState, FilterMenu, Icon, PageHeader, Skeleton, TutorGrid } from '../../ui';
 
 const SUBJECTS = subjects.filter((s) => s !== 'Другой предмет');
 const PRICES = [{ value: 1500, label: 'до 1 500 ₽' }, { value: 2000, label: 'до 2 000 ₽' }, { value: 2500, label: 'до 2 500 ₽' }];
@@ -74,7 +73,6 @@ export default function CatalogPage() {
   }, [cursor, fresh, list.more, filter]);
 
   const set = (patch: Partial<TutorFilter>) => setFilter((f) => ({ ...f, ...patch, cursor: null }));
-  const active = Boolean(filter.query || filter.subject || filter.priceMax || filter.hasIntro);
   const reset = () => { setInput(''); setFilter({ sort: filter.sort }); };
 
   return (
@@ -88,18 +86,21 @@ export default function CatalogPage() {
           <Button type="submit" size="s">Найти</Button>
         </form>
         <div className="trh-chips">
-          <Dropdown label="Предмет" icon="book" value={filter.subject ?? null} allLabel="Все предметы" options={SUBJECTS.map((s) => ({ value: s, label: s }))} onChange={(v) => { set({ subject: v }); trackGoal('teacher_filter', { subject: v ? safeChoice(v) : 'all' }); }} />
-          <Dropdown label="Цена" value={filter.priceMax ?? null} allLabel="Любая цена" options={PRICES} onChange={(v) => set({ priceMax: v })} />
-          <Chip on={Boolean(filter.hasIntro)} onClick={() => set({ hasIntro: !filter.hasIntro || undefined })}>Бесплатное знакомство</Chip>
-          <span className="trh-sort"><Dropdown label="Сортировка" icon="sort" value={filter.sort ?? 'recommended'} options={SORTS.map((s) => ({ ...s }))} onChange={(v) => set({ sort: (v ?? 'recommended') as TutorFilter['sort'] })} align="right" iconOnly /></span>
-          {active && <button type="button" className="chipf gray" onClick={reset}>Сбросить</button>}
+          <FilterMenu
+            active={Boolean(filter.subject || filter.priceMax || filter.hasIntro)}
+            groups={[
+              { label: 'Предмет', allLabel: 'Все предметы', value: filter.subject ?? null, options: SUBJECTS.map((s) => ({ value: s, label: s })), onChange: (v) => { set({ subject: v as string | null }); trackGoal('teacher_filter', { subject: v ? safeChoice(String(v)) : 'all' });  } },
+              { label: 'Цена', allLabel: 'Любая цена', value: filter.priceMax ?? null, options: PRICES, onChange: (v) => set({ priceMax: v as number | null }) },
+            ]}
+            intro={{ label: 'Бесплатное знакомство', on: Boolean(filter.hasIntro) }}
+            onIntro={() => set({ hasIntro: !filter.hasIntro || undefined })}
+            onReset={() => setFilter({ sort: filter.sort, query: filter.query })}
+          />
+          <Dropdown label="Сортировка" icon="sort" value={filter.sort ?? 'recommended'} options={SORTS.map((s) => ({ ...s }))} onChange={(v) => set({ sort: (v ?? 'recommended') as TutorFilter['sort'] })} align="right" iconOnly />
         </div>
       </search>
 
       <section className="trh-sec" aria-label="Преподаватели">
-        <div className="fr fb" {...rv('up', 0.1)}>
-          <p className="muted sm" aria-live="polite">{total === null ? ' ' : <>Найдено: <b className="u-ink">{count(total, 'преподаватель', 'преподавателя', 'преподавателей')}</b></>}</p>
-        </div>
         {error && !items.length ? <ErrorState text={error} onRetry={() => setFilter((f) => ({ ...f }))} /> : null}
         {!loading && total === 0 ? (
           <EmptyState icon="search" title="По вашему запросу преподавателей не нашлось" text="Попробуйте другое имя, предмет или тему. Или опишите задачу в заявке: подходящие репетиторы откликнутся сами."

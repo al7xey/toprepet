@@ -35,6 +35,16 @@ test.describe('гость', () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
+  test('поиск: под полем только две кнопки с иконками, фильтр работает', async ({ page }) => {
+    await page.goto('/teachers/');
+    await expect(page.locator('.trh-tools .chipf')).toHaveCount(2);
+    await expect(page.getByText('Найдено')).toHaveCount(0);
+    const before = await page.locator('a.tc').count();
+    await page.getByLabel('Фильтры').click();
+    await page.getByRole('button', { name: 'Английский язык' }).click();
+    await expect.poll(() => page.locator('a.tc').count()).toBeLessThan(before);
+  });
+
   test('старые адреса ведут на новые страницы', async ({ page }) => {
     for (const [from, to] of [['/lessons', '/teachers'], ['/contact', '/help'], ['/free-intro', '/teachers?intro=1'], ['/for-tutors', '/for-repetitor'], ['/teacher/mathematics', '/teachers/mathematics']]) {
       await page.goto(from);
