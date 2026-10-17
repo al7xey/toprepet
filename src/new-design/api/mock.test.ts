@@ -96,4 +96,34 @@ describe('правила мока (их же обязан повторить с�
     expect((await api.cancelLesson(intro.id, 'Изменились планы')).status).toBe('cancelled');
     await expect(api.verifyEmail('  ')).rejects.toBeInstanceOf(ApiError);
   });
+
+  it('новый репетитор: черновик, расписание, публикация и запись к нему', async () => {
+    const created = await api.signup({ role: 'tutor', name: 'Ирина', email: 'irina.test@mail.ru', password: 'password1' });
+    expect(created.tutorId).toBeTruthy();
+    const draft = await api.getMyProfile();
+    expect(draft.status).toBe('draft');
+    expect((await api.listTutors({ limit: 50 })).items.some((t) => t.id === created.tutorId)).toBe(false);
+    await expect(api.submitMyProfile()).rejects.toThrow(/Заполните/);
+    await api.saveMyProfile({ headline: 'Репетитор по математике', about: 'Преподаю математику десять лет', subjects: ['Математика'], price: 1500, introMinutes: 15 });
+    await expect(api.submitMyProfile()).rejects.toThrow(/расписании/);
+    await api.saveWeek({ days: [{ weekday: 1, intervals: [{ from: '10:00', to: '14:00' }] }, ...[2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, intervals: [] }))] });
+    expect((await api.submitMyProfile()).status).toBe('published');
+    const listed = (await api.listTutors({ limit: 50 })).items.find((t) => t.id === created.tutorId);
+    expect(listed?.studentPrice).toBe(studentPriceOf(1500));
+    expect(listed?.introMinutes).toBe(15);
+  });
+
+  it('исключения расписания закрывают и открывают слоты', async () => {
+    await api.login('anastasia@toprepet.ru', 'demo');
+    const tutorId = (await api.me())?.tutorId as string;
+    const from = new Date(Date.now() + 2 * 24 * HOUR);
+    const slots = await api.getTutorSlots(tutorId, from.toISOString(), 1);
+    const day = slots.length ? slots[0].start : null;
+    if (!day) return; // воскресенье без окон
+    const key = `${new Date(day).getFullYear()}-${String(new Date(day).getMonth() + 1).padStart(2, '0')}-${String(new Date(day).getDate()).padStart(2, '0')}`;
+    await api.saveException({ date: key, kind: 'off', intervals: [] });
+    expect(await api.getTutorSlots(tutorId, from.toISOString(), 1)).toHaveLength(0);
+    await api.deleteException(key);
+    expect((await api.getTutorSlots(tutorId, from.toISOString(), 1)).length).toBe(slots.length);
+  });
 });

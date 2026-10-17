@@ -18,8 +18,8 @@ const ZONES = [
   { value: 'Asia/Vladivostok', label: 'Владивосток (МСК+7)' },
 ];
 
-/** Профиль ученика: имя, часовой пояс, выход. */
-export default function AccountPage() {
+/** Профиль: имя, часовой пояс, выход. Один экран для ученика и репетитора. */
+export function AccountView({ role }: { role: 'student' | 'tutor' }) {
   const { user, setUser, logout } = useSession();
   const navigate = useNavigate();
   const toast = useToast();
@@ -38,7 +38,7 @@ export default function AccountPage() {
   const exit = async () => { await logout(); void navigate('/', { replace: true }); };
 
   return (
-    <AppLayout role="student" narrow>
+    <AppLayout role={role} narrow>
       <PageHeader title="Профиль" />
       <Card>
         <form className="trk-form" onSubmit={submit} noValidate>
@@ -53,4 +53,8 @@ export default function AccountPage() {
       <div className="trk-actions"><Button variant="fill" icon="back" onClick={exit}>Выйти из аккаунта</Button></div>
     </AppLayout>
   );
+}
+
+export default function AccountPage() {
+  return <AccountView role="student" />;
 }

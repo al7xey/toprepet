@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { api } from '../api';
 import { useQuery } from '../api/hooks';
@@ -99,13 +99,20 @@ function useCounters(role: Role) {
   };
 }
 
+/**
+ * Разделы кабинета, у которых уже есть страницы. Остальных в меню нет, чтобы ни одна кнопка не вела на 404.
+ * По мере сборки страниц сюда добавляются адреса (заявки, чаты, платежи, уведомления, админка).
+ */
+const READY = ['/teachers', '/me/lessons', '/me/account', '/tutor/lessons', '/tutor/schedule', '/tutor/finance', '/tutor/profile', '/tutor/students', '/tutor/account'];
+const ready = (to: string) => READY.some((p) => to === p || to.startsWith(`${p}/`));
+
 const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   student: {
     top: [{ label: 'Найти репетитора', to: '/teachers', icon: 'search' }, { label: 'Мои уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Платежи', to: '/me/payments', icon: 'card' }],
     tabs: [{ label: 'Найти', to: '/teachers', icon: 'search' }, { label: 'Уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Чаты', to: '/me/chats', icon: 'chat' }, { label: 'Профиль', to: '/me/account', icon: 'user' }],
   },
   tutor: {
-    top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
+    top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
     tabs: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
   },
   admin: {
@@ -122,19 +129,20 @@ export function AppLayout({ role, children, narrow }: { role: Role; children: Re
   const { user } = useSession();
   const counters = useCounters(role);
   const nav = NAV[role];
-  const tabs = nav.tabs.map((t) => (t.icon === 'chat' ? { ...t, badge: counters.chats } : t));
+  const top = nav.top.filter((item) => ready(item.to));
+  const tabs = nav.tabs.filter((t) => ready(t.to)).map((t) => (t.icon === 'chat' ? { ...t, badge: counters.chats } : t));
   const accountTo = role === 'admin' ? '/admin/disputes' : `${counters.prefix}/account`;
   return (
-    <div className={cx('wash trh-page trh-tight trk-app', `tabs-${tabs.length}`)}>
+    <div className={cx('wash trh-page trh-tight trk-app', `tabs-${tabs.length}`)} style={{ '--n': tabs.length } as CSSProperties}>
       <header className="hdr glass trh-hdr trk-app-hdr">
         <Logo />
         <nav className="trh-nav" aria-label="Разделы кабинета">
-          {nav.top.map((item) => <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{item.label}</NavLink>)}
+          {top.map((item) => <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{item.label}</NavLink>)}
         </nav>
         {role !== 'admin' && (
           <span className="icons">
-            <IconButton icon="bell" label="Уведомления" to={`${counters.prefix}/notifications`} badge={counters.notifications > 0} className="trk-hdr-ic" />
-            <IconButton icon="chat" label="Сообщения" to={`${counters.prefix}/chats`} badge={counters.chats || false} className="trk-hdr-ic" />
+            {ready(`${counters.prefix}/notifications`) && <IconButton icon="bell" label="Уведомления" to={`${counters.prefix}/notifications`} badge={counters.notifications > 0} className="trk-hdr-ic" />}
+            {ready(`${counters.prefix}/chats`) && <IconButton icon="chat" label="Сообщения" to={`${counters.prefix}/chats`} badge={counters.chats || false} className="trk-hdr-ic" />}
             <Link className="trk-ava-link" to={accountTo} aria-label="Профиль"><Avatar name={user?.name ?? '•'} size={44} /></Link>
           </span>
         )}

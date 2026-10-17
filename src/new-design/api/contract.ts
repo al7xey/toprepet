@@ -88,6 +88,8 @@ export interface Api {
   saveWeek(week: WeekSchedule): Promise<WeekSchedule>; // PUT /tutor/schedule
   listExceptions(): Promise<ScheduleException[]>; // GET /tutor/schedule/exceptions
   saveException(item: ScheduleException): Promise<ScheduleException[]>; // PUT /tutor/schedule/exceptions/:date
+  deleteException(date: string): Promise<ScheduleException[]>; // DELETE /tutor/schedule/exceptions/:date
+  uploadPhoto(file: File): Promise<{ url: string }>; // POST /tutor/photo
   listDocuments(): Promise<TutorDocument[]>; // GET /tutor/documents
   uploadDocument(title: string, file: File): Promise<TutorDocument>; // POST /tutor/documents
   listMyStudents(): Promise<StudentSummary[]>; // GET /tutor/students

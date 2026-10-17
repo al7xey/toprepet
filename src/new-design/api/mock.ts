@@ -6,6 +6,7 @@ import type {
   Card, Conversation, Dispute, Id, Lesson, Message, Notification, PaymentRecord, PayoutSettings, Review, Role,
   ScheduleException, StudyRequest, RequestResponse, Tutor, TutorDocument, TutorProfileDraft, User, WeekSchedule,
 } from './types';
+import { LESSON_MINUTES } from './types';
 
 /**
  * Моковый бэкенд в браузере. Повторяет правила продукта, чтобы экраны вели себя как с настоящим сервером:
@@ -13,10 +14,22 @@ import type {
  * Состояние хранится в localStorage, сбросить: localStorage.removeItem('toprepet-mock').
  */
 
-const KEY = 'toprepet-mock-v1';
+const KEY = 'toprepet-mock-v2';
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 const FEE = 0.1;
+
+/** Недельное расписание по умолчанию: будни вечером и суббота днём. Другие репетиторы в демо работают по нему же. */
+const DEFAULT_WEEK: WeekSchedule = { days: [1, 2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, intervals: weekday <= 5 ? [{ from: '17:00', to: '21:00' }] : weekday === 6 ? [{ from: '10:00', to: '14:00' }] : [] })) };
+const EMPTY_WEEK: WeekSchedule = { days: [1, 2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, intervals: [] })) };
+const NO_PAYOUT: PayoutSettings = { inn: '', cardLast4: null, selfEmployedConfirmed: false };
+
+function profileOf(t: Tutor): TutorProfileDraft {
+  return {
+    name: t.name, headline: t.headline, about: t.intro, approach: t.approach, subjects: t.subjects, levels: [], experience: t.experience, education: t.achievements,
+    price: t.price, introMinutes: t.introMinutes, durations: [LESSON_MINUTES], photo: t.photo || null, status: t.status, slug: t.id,
+  };
+}
 
 export const studentPriceOf = (price: number) => Math.round(price * (1 + FEE));
 
@@ -61,11 +74,12 @@ interface State {
   notifications: (Notification & { userId: Id })[];
   reviews: Review[];
   disputes: Dispute[];
-  week: WeekSchedule;
-  exceptions: ScheduleException[];
-  documents: TutorDocument[];
-  profile: TutorProfileDraft;
-  payout: PayoutSettings;
+  /** Данные кабинета репетитора хранятся по id анкеты. */
+  weeks: Record<Id, WeekSchedule>;
+  exceptions: Record<Id, ScheduleException[]>;
+  documents: Record<Id, TutorDocument[]>;
+  profiles: Record<Id, TutorProfileDraft>;
+  payouts: Record<Id, PayoutSettings>;
   seq: number;
 }
 
@@ -160,15 +174,11 @@ function seed(): State {
     ],
     reviews: [],
     disputes: [],
-    week: { days: [1, 2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, intervals: weekday <= 5 ? [{ from: '17:00', to: '21:00' }] : weekday === 6 ? [{ from: '10:00', to: '14:00' }] : [] })) },
-    exceptions: [],
-    documents: [{ id: 'd-1', title: 'Диплом бакалавра', status: 'approved' }, { id: 'd-2', title: 'Сертификат Cambridge FCE', status: 'checking' }],
-    profile: {
-      name: anastasia.name, headline: anastasia.headline, about: anastasia.intro, approach: anastasia.approach, subjects: anastasia.subjects,
-      levels: ['1–4 класс', '5–9 класс'], experience: anastasia.experience, education: anastasia.achievements, price: anastasia.price,
-      introMinutes: anastasia.introMinutes, durations: [60], photo: anastasia.photo, status: 'published', slug: anastasia.id,
-    },
-    payout: { inn: '', cardLast4: null, selfEmployedConfirmed: false },
+    weeks: { [anastasia.id]: structuredClone(DEFAULT_WEEK) },
+    exceptions: {},
+    documents: { [anastasia.id]: [{ id: 'd-1', title: 'Диплом бакалавра', status: 'approved' }, { id: 'd-2', title: 'Сертификат Cambridge FCE', status: 'checking' }] },
+    profiles: { [anastasia.id]: profileOf(anastasia) },
+    payouts: {},
     seq: 100,
   };
 }
@@ -225,8 +235,12 @@ function slotsFor(tutor: Tutor, fromMs: number, days: number) {
   for (let d = 0; d < days; d += 1) {
     const day = new Date(base.getTime() + d * DAY);
     const weekday = ((day.getDay() + 6) % 7) + 1;
-    const rule = s.week.days.find((x) => x.weekday === weekday);
-    for (const interval of rule?.intervals ?? []) {
+    const rule = (s.weeks[tutor.id] ?? DEFAULT_WEEK).days.find((x) => x.weekday === weekday);
+    const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+    const exception = (s.exceptions[tutor.id] ?? []).find((x) => x.date === key);
+    if (exception?.kind === 'off') continue;
+    const intervals = [...(rule?.intervals ?? []), ...(exception?.kind === 'extra' ? exception.intervals : [])];
+    for (const interval of intervals) {
       const [fh] = interval.from.split(':').map(Number);
       const [th] = interval.to.split(':').map(Number);
       for (let h = fh; h < th; h += 1) {
@@ -264,6 +278,12 @@ export function createMockApi(): Api {
       const s = load();
       if (s.users.some((u) => u.email === email.trim().toLowerCase())) fail('Аккаунт с этой почтой уже есть. Войдите или восстановите пароль.');
       const user = { id: nextId('u'), role, name: name.trim(), email: email.trim().toLowerCase(), emailVerified: false, timezone: 'Europe/Moscow', onboarded: false, password } as User & { password: string };
+      if (role === 'tutor') {
+        const tutorId = nextId('t');
+        user.tutorId = tutorId;
+        const draft: Tutor = { id: tutorId, name: user.name, photo: '', headline: '', subjects: [], cardSubjects: '', helpTopics: [], experience: '', intro: '', approach: '', achievements: [], price: 0, studentPrice: 0, introMinutes: 0, rating: null, reviewsCount: 0, status: 'draft', timezone: 'Europe/Moscow' };
+        s.tutors.push(draft); s.weeks[tutorId] = structuredClone(EMPTY_WEEK); s.profiles[tutorId] = profileOf(draft);
+      }
       s.users.push(user); s.sessionUserId = user.id; save();
       return delay(publicUser(user));
     },
@@ -463,34 +483,47 @@ export function createMockApi(): Api {
       const entries = ls.map((l) => ({ id: l.id, title: `${l.studentName}, ${l.subject}`, amount: l.tutorPrice, status: (l.payment === 'paid_out' ? 'paid' : l.payment === 'hold' ? 'held' : 'pending') as 'paid' | 'held' | 'pending', at: l.start }));
       return delay({ available: entries.filter((e) => e.status === 'pending' && ['completed'].includes(ls.find((l) => l.id === e.id)?.status ?? '')).reduce((a, e) => a + e.amount, 0), pending: entries.filter((e) => e.status !== 'paid').reduce((a, e) => a + e.amount, 0), paidThisMonth: entries.filter((e) => e.status === 'paid').reduce((a, e) => a + e.amount, 0), entries });
     },
-    async getPayoutSettings() { myTutor(); return delay(load().payout); },
+    async getPayoutSettings() { const t = myTutor(); return delay(load().payouts[t.id] ?? NO_PAYOUT); },
     async savePayoutSettings({ inn, cardNumber }) {
-      myTutor(); if (!/^\d{12}$/.test(inn)) fail('ИНН самозанятого — 12 цифр');
+      const t = myTutor(); if (!/^\d{12}$/.test(inn)) fail('ИНН самозанятого — 12 цифр');
       const digits = cardNumber.replace(/\D/g, ''); if (digits.length < 16) fail('Проверьте номер карты');
-      const s = load(); s.payout = { inn, cardLast4: digits.slice(-4), selfEmployedConfirmed: true }; save(); return delay(s.payout);
+      const s = load(); s.payouts[t.id] = { inn, cardLast4: digits.slice(-4), selfEmployedConfirmed: true }; save(); return delay(s.payouts[t.id]);
     },
 
     async listNotifications() { const u = me(); return delay(load().notifications.filter((n) => n.userId === u.id)); },
     async markNotificationsRead() { const u = me(); load().notifications.forEach((n) => { if (n.userId === u.id) n.read = true; }); save(); return delay(undefined); },
 
-    async getMyProfile() { myTutor(); return delay(load().profile); },
+    async getMyProfile() { const t = myTutor(); return delay(load().profiles[t.id] ?? profileOf(t)); },
     async saveMyProfile(patch) {
       const t = myTutor(); const s = load();
-      s.profile = { ...s.profile, ...patch };
-      Object.assign(t, { name: s.profile.name, headline: s.profile.headline, intro: s.profile.about, approach: s.profile.approach, price: s.profile.price, studentPrice: studentPriceOf(s.profile.price), introMinutes: s.profile.introMinutes, achievements: s.profile.education, experience: s.profile.experience });
-      save(); return delay(s.profile);
+      const p = { ...(s.profiles[t.id] ?? profileOf(t)), ...patch, status: (s.profiles[t.id] ?? profileOf(t)).status, slug: t.id };
+      s.profiles[t.id] = p;
+      Object.assign(t, { name: p.name, headline: p.headline, intro: p.about, approach: p.approach, price: p.price, studentPrice: studentPriceOf(p.price), introMinutes: p.introMinutes, achievements: p.education, experience: p.experience, subjects: p.subjects, cardSubjects: p.subjects.join(' / '), helpTopics: p.subjects, photo: p.photo ?? '', photoSrcSet: undefined });
+      save(); return delay(p);
     },
     async submitMyProfile() {
-      myTutor(); const s = load(); const p = s.profile;
-      if (!p.name || !p.about || !p.subjects.length || !p.price) fail('Заполните имя, описание, предметы и цену');
-      p.status = 'review'; save(); return delay(p, 500);
+      const t = myTutor(); const s = load(); const p = s.profiles[t.id] ?? profileOf(t);
+      if (!p.name.trim() || !p.about.trim() || !p.subjects.length || !p.price) fail('Заполните имя, описание, предметы и цену');
+      if (!(s.weeks[t.id] ?? DEFAULT_WEEK).days.some((d) => d.intervals.length)) fail('Откройте хотя бы одно время для записи в расписании');
+      // в демо проверка проходит мгновенно; на сервере анкета уходит на модерацию (этап 5: админка)
+      p.status = 'published'; t.status = 'published'; s.profiles[t.id] = p;
+      const u = me(); u.onboarded = true;
+      save(); return delay(p, 500);
     },
-    async getWeek() { myTutor(); return delay(load().week); },
-    async saveWeek(week) { myTutor(); const s = load(); s.week = week; save(); return delay(s.week); },
-    async listExceptions() { myTutor(); return delay(load().exceptions); },
-    async saveException(item) { myTutor(); const s = load(); s.exceptions = [...s.exceptions.filter((x) => x.date !== item.date), item]; save(); return delay(s.exceptions); },
-    async listDocuments() { myTutor(); return delay(load().documents); },
-    async uploadDocument(title) { myTutor(); const d: TutorDocument = { id: nextId('d'), title, status: 'checking' }; load().documents.push(d); save(); return delay(d, 600); },
+    async uploadPhoto(file) {
+      myTutor();
+      if (file.size > 3_000_000) fail('Фото больше 3 МБ. Выберите файл поменьше.');
+      if (!file.type.startsWith('image/')) fail('Нужна картинка: JPG, PNG или WebP.');
+      const url = await new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(typeof r.result === 'string' ? r.result : ''); r.onerror = () => reject(new ApiError('Не удалось прочитать файл')); r.readAsDataURL(file); });
+      return delay({ url }, 400);
+    },
+    async getWeek() { const t = myTutor(); return delay(load().weeks[t.id] ?? EMPTY_WEEK); },
+    async saveWeek(week) { const t = myTutor(); const s = load(); s.weeks[t.id] = week; save(); return delay(week); },
+    async listExceptions() { const t = myTutor(); return delay(load().exceptions[t.id] ?? []); },
+    async saveException(item) { const t = myTutor(); const s = load(); s.exceptions[t.id] = [...(s.exceptions[t.id] ?? []).filter((x) => x.date !== item.date), item].sort((a, b) => a.date.localeCompare(b.date)); save(); return delay(s.exceptions[t.id]); },
+    async deleteException(date) { const t = myTutor(); const s = load(); s.exceptions[t.id] = (s.exceptions[t.id] ?? []).filter((x) => x.date !== date); save(); return delay(s.exceptions[t.id]); },
+    async listDocuments() { const t = myTutor(); return delay(load().documents[t.id] ?? []); },
+    async uploadDocument(title) { const t = myTutor(); const s = load(); const d: TutorDocument = { id: nextId('d'), title, status: 'checking' }; s.documents[t.id] = [...(s.documents[t.id] ?? []), d]; save(); return delay(d, 600); },
     async listMyStudents() {
       const t = myTutor(); const byStudent = new Map<string, Lesson[]>();
       load().lessons.filter((l) => l.tutorId === t.id).forEach((l) => byStudent.set(l.studentId, [...(byStudent.get(l.studentId) ?? []), l]));

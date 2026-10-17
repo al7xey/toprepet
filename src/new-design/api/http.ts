@@ -94,6 +94,8 @@ export function createHttpApi(base: string): Api {
     saveWeek: (week) => request('PUT', '/tutor/schedule', week),
     listExceptions: () => get('/tutor/schedule/exceptions'),
     saveException: (item) => request('PUT', `/tutor/schedule/exceptions/${item.date}`, item),
+    deleteException: (date) => request('DELETE', `/tutor/schedule/exceptions/${date}`),
+    uploadPhoto: (file) => { const form = new FormData(); form.set('file', file); return post('/tutor/photo', form); },
     listDocuments: () => get('/tutor/documents'),
     uploadDocument: (title, file) => { const form = new FormData(); form.set('title', title); form.set('file', file); return post('/tutor/documents', form); },
     listMyStudents: () => get('/tutor/students'),

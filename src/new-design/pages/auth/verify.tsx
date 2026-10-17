@@ -11,7 +11,7 @@ import { AuthCard } from './shared';
 const RESEND_SECONDS = 60;
 
 /** Куда вести после подтверждения почты: ученика — на онбординг, остальных — в их кабинет. */
-export const afterVerify = (user: Pick<User, 'role' | 'onboarded'>) => (user.role === 'student' && !user.onboarded ? '/onboarding' : homeFor(user.role));
+export const afterVerify = (user: Pick<User, 'role' | 'onboarded'>) => (!user.onboarded && user.role === 'student' ? '/onboarding' : !user.onboarded && user.role === 'tutor' ? '/tutor/profile/edit' : homeFor(user.role));
 
 /** «Проверьте почту»: письмо отправлено, можно отправить ещё раз. */
 export default function VerifyEmailPage() {
