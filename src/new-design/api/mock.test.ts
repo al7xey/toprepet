@@ -107,7 +107,12 @@ describe('правила мока (их же обязан повторить с�
     await api.saveMyProfile({ headline: 'Репетитор по математике', about: 'Преподаю математику десять лет', subjects: ['Математика'], price: 1500, introMinutes: 15 });
     await expect(api.submitMyProfile()).rejects.toThrow(/расписании/);
     await api.saveWeek({ days: [{ weekday: 1, intervals: [{ from: '10:00', to: '14:00' }] }, ...[2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, intervals: [] }))] });
-    expect((await api.submitMyProfile()).status).toBe('published');
+    expect((await api.submitMyProfile()).status).toBe('review');
+    expect((await api.listTutors({ limit: 50 })).items.some((t) => t.id === created.tutorId)).toBe(false);
+    await api.login('admin@toprepet.ru', 'demo');
+    expect((await api.adminProfileQueue()).some((q) => q.tutorId === created.tutorId)).toBe(true);
+    await expect(api.adminModerateProfile(created.tutorId as string, false)).rejects.toThrow(/исправить/);
+    expect((await api.adminModerateProfile(created.tutorId as string, true)).status).toBe('published');
     const listed = (await api.listTutors({ limit: 50 })).items.find((t) => t.id === created.tutorId);
     expect(listed?.studentPrice).toBe(studentPriceOf(1500));
     expect(listed?.introMinutes).toBe(15);
@@ -161,5 +166,37 @@ describe('правила мока (их же обязан повторить с�
     await api.login('olga@mail.ru', 'demo');
     await api.reportConversation(chat.id, 'Спам', true);
     await expect(api.sendMessage(chat.id, 'Ещё одно сообщение')).rejects.toThrow(/заблокирован/);
+  });
+
+  it('отзыв: одна оценка на урок, публикация после проверки, рейтинг пересчитывается', async () => {
+    await api.login('olga@mail.ru', 'demo');
+    const review = await api.createReview('l-4', 5, 'Очень понятно объясняет, после урока всё стало ясно.');
+    expect(review.status).toBe('pending');
+    await expect(api.createReview('l-4', 4, 'Ещё один отзыв на тот же урок')).rejects.toThrow(/уже/);
+    await expect(api.createReview('l-1', 4, 'Урок ещё не прошёл')).rejects.toThrow(/после/);
+    expect((await api.getTutorReviews(review.tutorId)).some((r) => r.id === review.id)).toBe(false);
+    await api.login('admin@toprepet.ru', 'demo');
+    expect((await api.adminReviewQueue()).some((r) => r.id === review.id)).toBe(true);
+    await api.adminModerateReview(review.id, true);
+    expect((await api.getTutorReviews(review.tutorId)).some((r) => r.id === review.id)).toBe(true);
+    expect((await api.getTutor(review.tutorId)).rating).toBe(5);
+    await api.login('anastasia@toprepet.ru', 'demo');
+    expect((await api.replyReview(review.id, 'Спасибо!')).reply).toBe('Спасибо!');
+  });
+
+  it('проблема с уроком: спор, ответ репетитора, возврат денег решением поддержки', async () => {
+    await api.login('olga@mail.ru', 'demo');
+    await expect(api.reportProblem({ lessonId: 'l-5', reason: 'Не было связи', text: 'Давно было' })).rejects.toThrow(/24 часов/);
+    const dispute = await api.reportProblem({ lessonId: 'l-7', reason: 'Не пришёл репетитор', text: 'Ждали 20 минут, никто не вышел на связь.' });
+    expect((await api.getLesson('l-7')).status).toBe('disputed');
+    await api.login('anastasia@toprepet.ru', 'demo');
+    expect((await api.listNotifications()).some((n) => n.link === `/tutor/disputes/${dispute.id}`)).toBe(true);
+    expect((await api.replyDispute(dispute.id, 'Была на связи, ученик не подключился.')).status).toBe('tutor_replied');
+    await api.login('admin@toprepet.ru', 'demo');
+    expect((await api.adminDisputes()).some((d) => d.id === dispute.id)).toBe(true);
+    expect((await api.adminResolveDispute(dispute.id, 'refund')).status).toBe('resolved_refund');
+    await api.login('olga@mail.ru', 'demo');
+    expect((await api.getLesson('l-7')).payment).toBe('refunded');
+    expect((await api.listNotifications()).some((n) => n.title === 'Спор решён')).toBe(true);
   });
 });

@@ -3,7 +3,7 @@ import { PRICE } from '../../shared/config/site';
 import teacherPhotos from '../../shared/config/teacher-photos.json';
 import { ApiError, type Api } from './contract';
 import type {
-  Card, Conversation, Dispute, Id, Lesson, Message, Notification, PaymentRecord, PayoutSettings, Review,
+  AdminProfile, Card, Conversation, Dispute, Id, Lesson, Message, Notification, PaymentRecord, PayoutSettings, Review,
   ScheduleException, StudyRequest, RequestResponse, Tutor, TutorDocument, TutorProfileDraft, User, WeekSchedule,
 } from './types';
 import { LESSON_MINUTES } from './types';
@@ -14,7 +14,7 @@ import { LESSON_MINUTES } from './types';
  * Состояние хранится в localStorage, сбросить: localStorage.removeItem('toprepet-mock').
  */
 
-const KEY = 'toprepet-mock-v2';
+const KEY = 'toprepet-mock-v3';
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 const FEE = 0.1;
@@ -112,6 +112,7 @@ function seed(): State {
     lesson('l-3', tutors[1], at(5, 17), 'confirmed', { kind: 'intro', price: 0, tutorPrice: 0, payment: 'none', durationMin: tutors[1].introMinutes, subject: tutors[1].subjects[0] }),
     lesson('l-4', anastasia, at(-2, 19), 'completed'),
     lesson('l-5', anastasia, at(-9, 19), 'completed', { reviewId: null }),
+    lesson('l-7', anastasia, now - 3 * HOUR, 'completed', { payment: 'captured' }),
     lesson('l-6', tutors[5], at(-5, 16), 'cancelled', { cancelledBy: 'student', cancelReason: 'Заболел ребёнок', payment: 'refunded' }),
   ];
   const conv = (id: string, t: Tutor, last: string, unread: number, ago: number): Conversation => ({
@@ -205,6 +206,7 @@ function save() {
 const delay = <T>(value: T, ms = 220): Promise<T> => new Promise((resolve) => setTimeout(() => resolve(structuredClone(value)), ms));
 const nextId = (prefix: string) => { const s = load(); s.seq += 1; return `${prefix}-${s.seq}`; };
 const fail = (message: string, status = 400): never => { throw new ApiError(message, status); };
+const adminUserId = () => load().users.find((u) => u.role === 'admin')?.id;
 
 function me(): User & { password: string } {
   const s = load();
@@ -217,6 +219,8 @@ const myTutor = () => { const u = me(); const t = load().tutors.find((x) => x.id
 const findLesson = (id: Id) => { const l = load().lessons.find((x) => x.id === id); if (!l) fail('Урок не найден', 404); return l as Lesson; };
 const canSee = (l: Lesson) => { const u = me(); if (u.role === 'admin') return; if (l.studentId !== u.id && l.tutorId !== u.tutorId) fail('Нет доступа', 403); };
 const notify = (userId: Id, n: Omit<Notification, 'id' | 'at' | 'read'>) => { load().notifications.unshift({ ...n, id: nextId('n'), at: iso(Date.now()), read: false, userId }); };
+/** Короткая запись уведомления; пустой адресат (репетитора нет в демо) пропускаем. */
+const note = (userId: Id | undefined, kind: Notification['kind'], title: string, text: string, link: string | null) => { if (userId) notify(userId, { kind, title, text, link }); };
 const tutorUserId = (tutorId: Id) => load().users.find((u) => u.tutorId === tutorId)?.id;
 const systemMessage = (tutorId: Id, studentId: Id, text: string) => {
   const s = load();
@@ -430,10 +434,17 @@ export function createMockApi(): Api {
       const l = findLesson(lessonId); canSee(l);
       if (Date.now() - new Date(l.start).getTime() > DAY + l.durationMin * 60_000) fail('Сообщить о проблеме можно в течение 24 часов после начала урока');
       const d: Dispute = { id: nextId('dp'), lessonId, reason, text, status: 'open', createdAt: iso(Date.now()), tutorReply: null, resolution: null };
-      load().disputes.push(d); l.status = 'disputed'; l.disputeId = d.id; save(); return delay(d);
+      load().disputes.push(d); l.status = 'disputed'; l.disputeId = d.id;
+      note(tutorUserId(l.tutorId), 'lesson', 'Ученик сообщил о проблеме', `Урок ${l.subject}: ${reason}. Ответьте, чтобы поддержка разобралась.`, `/tutor/disputes/${d.id}`);
+      note(adminUserId(), 'lesson', 'Новый спор', `${l.studentName} и ${l.tutorName}: ${reason}`, `/admin/disputes`);
+      save(); return delay(d);
     },
     async getDispute(id) { const d = load().disputes.find((x) => x.id === id); if (!d) fail('Спор не найден', 404); return delay(d as Dispute); },
-    async replyDispute(id, text) { const d = load().disputes.find((x) => x.id === id); if (!d) fail('Спор не найден', 404); (d as Dispute).tutorReply = text; (d as Dispute).status = 'tutor_replied'; save(); return delay(d as Dispute); },
+    async replyDispute(id, text) { const d = load().disputes.find((x) => x.id === id); if (!d) fail('Спор не найден', 404); (d as Dispute).tutorReply = text; (d as Dispute).status = 'tutor_replied';
+      const l = load().lessons.find((x) => x.id === (d as Dispute).lessonId);
+      note(l?.studentId, 'lesson', 'Репетитор ответил по спору', 'Поддержка рассмотрит ответ и сообщит решение.', `/me/disputes/${id}`);
+      note(adminUserId(), 'lesson', 'Репетитор ответил по спору', l ? `${l.studentName} и ${l.tutorName}` : '', `/admin/disputes`);
+      save(); return delay(d as Dispute); },
 
     async createReview(lessonId, rating, text) {
       const l = findLesson(lessonId); const u = me();
@@ -441,11 +452,16 @@ export function createMockApi(): Api {
       if (l.status !== 'completed' || l.kind !== 'regular') fail('Отзыв можно оставить после оплаченного урока');
       if (l.reviewId) fail('Отзыв уже оставлен');
       const r: Review = { id: nextId('rv'), lessonId, tutorId: l.tutorId, authorName: u.name, authorNote: l.subject, rating, text, status: 'pending', createdAt: iso(Date.now()), reply: null };
-      load().reviews.push(r); l.reviewId = r.id; save(); return delay(r);
+      load().reviews.push(r); l.reviewId = r.id;
+      note(adminUserId(), 'review', 'Отзыв ждёт проверки', `${u.name} о ${l.tutorName}, оценка ${rating}`, '/admin/reviews');
+      save(); return delay(r);
     },
     async getReview(id) { const r = load().reviews.find((x) => x.id === id); if (!r) fail('Отзыв не найден', 404); return delay(r as Review); },
     async listMyReviews() { const u = me(); return delay(load().reviews.filter((r) => r.tutorId === u.tutorId)); },
-    async replyReview(id, text) { const r = load().reviews.find((x) => x.id === id); if (!r) fail('Отзыв не найден', 404); (r as Review).reply = text; save(); return delay(r as Review); },
+    async replyReview(id, text) { const r = load().reviews.find((x) => x.id === id); if (!r) fail('Отзыв не найден', 404); (r as Review).reply = text;
+      const l = load().lessons.find((x) => x.id === (r as Review).lessonId);
+      note(l?.studentId, 'review', 'Репетитор ответил на отзыв', `${l?.tutorName ?? 'Репетитор'} ответил на ваш отзыв.`, `/teachers/${(r as Review).tutorId}`);
+      save(); return delay(r as Review); },
 
     async listMyRequests() { const u = me(); return delay(load().requests.filter((r) => r.studentId === u.id).map(withExpiry)); },
     async createRequest(input) {
@@ -554,8 +570,10 @@ export function createMockApi(): Api {
       const t = myTutor(); const s = load(); const p = s.profiles[t.id] ?? profileOf(t);
       if (!p.name.trim() || !p.about.trim() || !p.subjects.length || !p.price) fail('Заполните имя, описание, предметы и цену');
       if (!(s.weeks[t.id] ?? DEFAULT_WEEK).days.some((d) => d.intervals.length)) fail('Откройте хотя бы одно время для записи в расписании');
-      // в демо проверка проходит мгновенно; на сервере анкета уходит на модерацию (этап 5: админка)
-      p.status = 'published'; t.status = 'published'; s.profiles[t.id] = p;
+      // уже опубликованная анкета правится без повторной проверки (на сервере решает поддержка); новая уходит на модерацию
+      const next = t.status === 'published' ? 'published' : 'review';
+      p.status = next; t.status = next; p.moderationNote = null; s.profiles[t.id] = p;
+      if (next === 'review') note(adminUserId(), 'system', 'Анкета ждёт проверки', `${p.name || 'Репетитор'} отправил анкету`, '/admin/profiles');
       const u = me(); u.onboarded = true;
       save(); return delay(p, 500);
     },
@@ -593,6 +611,7 @@ export function createMockApi(): Api {
       const dispute = d as Dispute; dispute.status = outcome === 'refund' ? 'resolved_refund' : 'resolved_paid';
       dispute.resolution = outcome === 'refund' ? 'Деньги вернули ученику' : 'Оплата ушла репетитору';
       const l = s.lessons.find((x) => x.id === dispute.lessonId); if (l) { l.payment = outcome === 'refund' ? 'refunded' : 'paid_out'; if (outcome === 'refund') chargeOrRefund(l, 'refund'); }
+      if (l) { note(l.studentId, 'payment', 'Спор решён', dispute.resolution, `/me/disputes/${id}`); note(tutorUserId(l.tutorId), 'payment', 'Спор решён', dispute.resolution, `/tutor/disputes/${id}`); }
       save(); return delay(dispute);
     },
     async adminReviewQueue() { return delay(load().reviews.filter((r) => r.status === 'pending')); },
@@ -600,7 +619,23 @@ export function createMockApi(): Api {
       const s = load(); const r = s.reviews.find((x) => x.id === id); if (!r) fail('Отзыв не найден', 404);
       const review = r as Review; review.status = approve ? 'published' : 'rejected';
       if (approve) { const t = s.tutors.find((x) => x.id === review.tutorId); if (t) { const all = s.reviews.filter((x) => x.tutorId === t.id && x.status === 'published'); t.reviewsCount = all.length; t.rating = Math.round((all.reduce((a, x) => a + x.rating, 0) / all.length) * 10) / 10; } }
+      const lesson = s.lessons.find((x) => x.id === review.lessonId);
+      note(lesson?.studentId, 'review', approve ? 'Отзыв опубликован' : 'Отзыв не прошёл проверку', approve ? `Спасибо! Ваш отзыв о ${review.tutorId ? lesson?.tutorName : ''} виден в анкете.` : 'Он нарушает правила публикации.', approve ? `/teachers/${review.tutorId}` : null);
+      if (approve) note(tutorUserId(review.tutorId), 'review', 'Новый отзыв', `${review.authorName}: оценка ${review.rating}`, '/tutor/reviews');
       save(); return delay(review);
+    },
+    async adminProfileQueue() {
+      const s = load();
+      return delay(s.tutors.filter((t) => t.status === 'review').map((t): AdminProfile => ({ tutorId: t.id, email: s.users.find((u) => u.tutorId === t.id)?.email ?? '', submittedAt: iso(Date.now()), profile: s.profiles[t.id] ?? profileOf(t) })));
+    },
+    async adminModerateProfile(tutorId, approve, comment) {
+      const s = load(); const t = s.tutors.find((x) => x.id === tutorId); if (!t) fail('Анкета не найдена', 404);
+      const tutor = t as Tutor; const p = s.profiles[tutor.id] ?? profileOf(tutor);
+      if (tutor.status !== 'review') fail('Анкета не на проверке');
+      if (!approve && !comment?.trim()) fail('Напишите, что нужно исправить');
+      tutor.status = approve ? 'published' : 'draft'; p.status = tutor.status; p.moderationNote = approve ? null : comment?.trim(); s.profiles[tutor.id] = p;
+      note(tutorUserId(tutor.id), 'system', approve ? 'Анкета опубликована' : 'Анкету нужно доработать', approve ? 'Теперь ученики видят вас в каталоге.' : (comment ?? ''), '/tutor/profile');
+      save(); return delay(p);
     },
   };
 }

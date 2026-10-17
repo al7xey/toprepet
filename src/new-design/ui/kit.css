@@ -262,3 +262,15 @@
 .tr .trk-thread{display:grid;gap:10px;margin-block:8px}
 .tr .trk-compose{display:grid;gap:12px}
 .tr .trk-auth-foot a{text-decoration:underline;text-underline-offset:3px}
+.tr .trk-stars{display:inline-flex;align-items:center;gap:2px;color:var(--accent)}
+.tr .trk-stars .i{width:16px;height:16px}
+.tr .trk-stars b{margin-left:6px;color:var(--ink);font-size:15px}
+.tr .trk-rating{display:flex;align-items:center;gap:4px}
+.tr .trk-rating-star{position:relative;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;color:#cdbfb7;cursor:pointer}
+.tr .trk-rating-star.on{color:var(--accent)}
+.tr .trk-rating-star .i{width:30px;height:30px}
+.tr .trk-rating-star input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.tr .trk-rating-star:has(input:focus-visible){outline:3px solid rgb(242 106 46 / 45%);outline-offset:1px}
+.tr .trk-rating-word{margin-left:10px;font-weight:650;color:var(--muted)}
+
+.tr .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}

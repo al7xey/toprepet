@@ -4,7 +4,7 @@ import { api, LESSON_MINUTES, staticTutors, type Card as PayCard, type Tutor } f
 import { useMutation, useQuery } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
 import { minutes, rub, whenLabel } from '../../lib/format';
-import { Button, Card, Checkbox, CardTitle, EmptyState, FormError, Modal, Note, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker, TextField } from '../../ui';
+import { AddCardModal, Button, Card, Checkbox, CardTitle, EmptyState, FormError, Note, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker } from '../../ui';
 
 /** Запись на урок или бесплатное знакомство: проверить сводку, выбрать карту и подтвердить. */
 export default function BookPage() {
@@ -106,28 +106,5 @@ function CardRow({ card, active, onPick }: { card: PayCard; active: boolean; onP
       <span><b>{card.brand}</b> ···· {card.last4}</span>
       {card.primary && <span className="muted sm">основная</span>}
     </label>
-  );
-}
-
-/** Добавление карты. В демо-режиме поля ввода; с настоящим бэкендом здесь встанет виджет платёжного провайдера (номер карты не должен попадать на наш сервер). */
-function AddCardModal({ open, onClose, onAdded }: { open: boolean; onClose: () => void; onAdded: (card: PayCard) => void }) {
-  const [number, setNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvc, setCvc] = useState('');
-  const add = useMutation((input: { number: string; expiry: string; cvc: string }) => api.addCard(input));
-  const save = async () => {
-    const card = await add.run({ number, expiry, cvc });
-    if (card) { setNumber(''); setExpiry(''); setCvc(''); onAdded(card); }
-  };
-  return (
-    <Modal open={open} onClose={onClose} title="Новая карта" footer={<><Button variant="fill" onClick={onClose}>Отмена</Button><Button onClick={save} loading={add.pending}>Сохранить карту</Button></>}>
-      <Note tone="plain" icon="lock">Демо-режим: карта не списывается. Попробуйте номер 4000 0000 0000 0002.</Note>
-      <TextField label="Номер карты" inputMode="numeric" autoComplete="cc-number" placeholder="0000 0000 0000 0000" value={number} onChange={(e) => setNumber(e.target.value)} />
-      <div className="trk-two">
-        <TextField label="Срок" autoComplete="cc-exp" placeholder="ММ/ГГ" value={expiry} onChange={(e) => setExpiry(e.target.value)} />
-        <TextField label="CVC" inputMode="numeric" autoComplete="cc-csc" placeholder="000" value={cvc} onChange={(e) => setCvc(e.target.value)} />
-      </div>
-      <FormError error={add.error} />
-    </Modal>
   );
 }

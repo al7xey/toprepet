@@ -1,11 +1,14 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import type { Lesson, Role, Slot, Tutor } from '../api/types';
+import { api } from '../api';
+import { useMutation } from '../api/hooks';
+import type { Card as PayCard, Lesson, Role, Slot, Tutor } from '../api/types';
 import { dayLabel, fromRub, minutes, rub, timeLabel, until, whenLabel } from '../lib/format';
 import { useNow } from '../lib/useNow';
 import { rv } from '../reveal';
 import { Icon } from './icon';
-import { Person, Status, type Tone } from './kit';
+import { Modal } from './overlay';
+import { Button, FormError, Note, Person, Status, TextField, type Tone } from './kit';
 
 /* ---------- Репетиторы ---------- */
 
@@ -128,4 +131,27 @@ export function SlotPicker({ slots, value, onChange, days = 7, loading }: { slot
 export function Bubble({ mine, system, text, at }: { mine?: boolean; system?: boolean; text: string; at?: string }) {
   if (system) return <div className="bubble b-sys">{text}</div>;
   return <div className={`bubble ${mine ? 'b-out' : 'b-in'}`}>{text}{at && <small>{timeLabel(at)}</small>}</div>;
+}
+
+/** Добавление карты. В демо-режиме поля ввода; с настоящим бэкендом здесь встанет виджет платёжного провайдера (номер карты не должен попадать на наш сервер). */
+export function AddCardModal({ open, onClose, onAdded }: { open: boolean; onClose: () => void; onAdded: (card: PayCard) => void }) {
+  const [number, setNumber] = useState('');
+  const [expiry, setExpiry] = useState('');
+  const [cvc, setCvc] = useState('');
+  const add = useMutation((input: { number: string; expiry: string; cvc: string }) => api.addCard(input));
+  const save = async () => {
+    const card = await add.run({ number, expiry, cvc });
+    if (card) { setNumber(''); setExpiry(''); setCvc(''); onAdded(card); }
+  };
+  return (
+    <Modal open={open} onClose={onClose} title="Новая карта" footer={<><Button variant="fill" onClick={onClose}>Отмена</Button><Button onClick={save} loading={add.pending}>Сохранить карту</Button></>}>
+      <Note tone="plain" icon="lock">Демо-режим: карта не списывается. Попробуйте номер 4000 0000 0000 0002.</Note>
+      <TextField label="Номер карты" inputMode="numeric" autoComplete="cc-number" placeholder="0000 0000 0000 0000" value={number} onChange={(e) => setNumber(e.target.value)} />
+      <div className="trk-two">
+        <TextField label="Срок" autoComplete="cc-exp" placeholder="ММ/ГГ" value={expiry} onChange={(e) => setExpiry(e.target.value)} />
+        <TextField label="CVC" inputMode="numeric" autoComplete="cc-csc" placeholder="000" value={cvc} onChange={(e) => setCvc(e.target.value)} />
+      </div>
+      <FormError error={add.error} />
+    </Modal>
+  );
 }

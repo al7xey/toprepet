@@ -414,3 +414,36 @@ export function FilePick({ children, accept, onPick, loading, icon = 'upload' }:
     </label>
   );
 }
+
+/** Оценка звёздами для чтения: 4,5 из 5 показывается четырьмя заполненными и подписью. */
+export function Stars({ value, label }: { value: number; label?: boolean }) {
+  return (
+    <span className="trk-stars">
+      <span className="sr-only">Оценка {value} из 5</span>
+      {[1, 2, 3, 4, 5].map((n) => <Icon key={n} name={n <= Math.round(value) ? 'star-on' : 'star'} />)}
+      {label && <b>{String(value).replace('.', ',')}</b>}
+    </span>
+  );
+}
+
+const RATING_WORDS = ['', 'Ужасно', 'Плохо', 'Нормально', 'Хорошо', 'Отлично'];
+
+/** Выбор оценки от 1 до 5: радиогруппа со звёздами, стрелки и Tab работают как у обычных радио. */
+export function RatingInput({ value, onChange, label = 'Оценка', error }: { value: number; onChange: (v: number) => void; label?: string; error?: string }) {
+  const name = useId();
+  return (
+    <fieldset className={cx('field-row trk-fieldset', error && 'has-error')}>
+      <legend className="label">{label}</legend>
+      <div className="trk-rating">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <label key={n} className={cx('trk-rating-star', n <= value && 'on')}>
+            <input type="radio" name={name} value={n} checked={value === n} onChange={() => onChange(n)} aria-label={`${n} из 5, ${RATING_WORDS[n].toLowerCase()}`} />
+            <Icon name={n <= value ? 'star-on' : 'star'} />
+          </label>
+        ))}
+        <span className="trk-rating-word" aria-live="polite">{RATING_WORDS[value] ?? ''}</span>
+      </div>
+      {error && <span className="trk-error" role="alert">{error}</span>}
+    </fieldset>
+  );
+}

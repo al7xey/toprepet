@@ -1,5 +1,5 @@
 import type {
-  AdminCancellation, Card, Conversation, CreateBookingInput, CreateRequestInput, Dispute, Finance, Id, IsoDate, Lesson,
+  AdminCancellation, AdminProfile, Card, Conversation, CreateBookingInput, CreateRequestInput, Dispute, Finance, Id, IsoDate, Lesson,
   Message, Notification, Page, PaymentRecord, PayoutSettings, ProblemInput, RequestResponse, Review, Role, ScheduleException,
   Slot, StudentSummary, StudyRequest, Tutor, TutorDocument, TutorFilter, TutorProfileDraft, TutorSummary, User, WeekSchedule,
 } from './types';
@@ -101,6 +101,8 @@ export interface Api {
   adminResolveDispute(id: Id, outcome: 'refund' | 'pay'): Promise<Dispute>; // POST /admin/disputes/:id/resolve
   adminReviewQueue(): Promise<Review[]>; // GET /admin/reviews
   adminModerateReview(id: Id, approve: boolean): Promise<Review>; // POST /admin/reviews/:id
+  adminProfileQueue(): Promise<AdminProfile[]>; // GET /admin/profiles
+  adminModerateProfile(tutorId: Id, approve: boolean, note?: string): Promise<TutorProfileDraft>; // POST /admin/profiles/:tutorId
 }
 
 /** Ошибка API с понятным пользователю текстом. */

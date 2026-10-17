@@ -106,5 +106,7 @@ export function createHttpApi(base: string): Api {
     adminResolveDispute: (id, outcome) => post(`/admin/disputes/${id}/resolve`, { outcome }),
     adminReviewQueue: () => get('/admin/reviews'),
     adminModerateReview: (id, approve) => post(`/admin/reviews/${id}`, { approve }),
+    adminProfileQueue: () => get('/admin/profiles'),
+    adminModerateProfile: (tutorId, approve, note) => post(`/admin/profiles/${tutorId}`, { approve, note }),
   };
 }
