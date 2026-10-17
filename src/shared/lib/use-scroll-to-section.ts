@@ -44,7 +44,7 @@ export function useScrollToSection() {
           top += element.offsetTop;
           element = element.offsetParent as HTMLElement | null;
         }
-        const headerHeight = document.querySelector('.site-header')?.getBoundingClientRect().height ?? 0;
+        const headerHeight = document.querySelector('.hdr')?.getBoundingClientRect().height ?? 0;
         window.scrollTo({
           top: Math.max(0, top - headerHeight - 24),
           behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',

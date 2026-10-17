@@ -34,7 +34,7 @@ function listReducer(state: ListState, action: ListAction): ListState {
 export default function CatalogPage() {
   const [input, setInput] = useState('');
   const [params] = useSearchParams();
-  const [filter, setFilter] = useState<TutorFilter>(() => ({ sort: 'recommended', subject: SUBJECTS.find((s) => s === params.get('subject')) }));
+  const [filter, setFilter] = useState<TutorFilter>(() => ({ sort: 'recommended', subject: SUBJECTS.find((s) => s === params.get('subject')), hasIntro: params.get('intro') === '1' || undefined }));
   const [list, dispatch] = useReducer(listReducer, undefined, (): ListState => ({ key: '', items: staticTutors().slice(0, PAGE), total: null, cursor: null, more: false, error: null }));
   const sentinel = useRef<HTMLDivElement>(null);
   const key = JSON.stringify(filter);

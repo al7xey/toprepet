@@ -25,17 +25,14 @@ const fontFiles = (await readdir(resolve('dist/assets')))
 // the prerender stays styled before React and dynamic imports finish loading.
 function addRouteAssets(html, route) {
   const entry = route.startsWith('/blog/admin') ? 'src/blog/admin.tsx'
-    : route.startsWith('/blog') ? 'src/blog/public.tsx'
+    : route.startsWith('/blog') ? 'src/new-design/pages/public/blog.tsx'
     : route === '/' ? 'src/pages/home/home-page.tsx'
     : route.startsWith('/teachers/') ? 'src/pages/teacher/teacher-page.tsx'
     : route === '/teachers' ? 'src/pages/teachers/teachers-page.tsx'
-    : route === '/lessons' ? 'src/pages/lessons/lessons-page.tsx'
-    : route === '/free-intro' ? 'src/pages/free-intro/free-intro-page.tsx'
     : route === '/for-repetitor' ? 'src/pages/for-tutors/for-tutors-page.tsx'
-    : route === '/legal/payment-refund' ? 'src/pages/legal/payment-refund-page.tsx'
-    : route.startsWith('/legal') ? 'src/pages/legal/legal-page.tsx'
-    : route === '/contact' ? null
-    : 'src/pages/direction/direction-page.tsx';
+    : route === '/help' ? 'src/new-design/pages/public/help.tsx'
+    : route.startsWith('/legal') ? 'src/new-design/pages/public/legal.tsx'
+    : null;
   const visited = new Set();
   const links = [];
   const add = (file, rel) => {
@@ -74,14 +71,8 @@ if (!template.includes(rootPlaceholder)) {
 import { routes, titles, descriptions, canonicalForRoute } from './seo-routes.mjs';
 
 const breadcrumbNames = {
-  '/lessons':
-    'Занятия',
-
-  '/contact':
-    'Контакты',
-
-  '/free-intro':
-    'Бесплатное знакомство',
+  '/help':
+    'Помощь',
 
   '/for-repetitor':
     'Работа репетитором',
@@ -222,23 +213,22 @@ function addPageSchema(html, route) {
         },
       })),
     },
-  } : teacherSchemas[route] || (['/', '/lessons', '/contact', '/free-intro', '/for-repetitor'].includes(route) || route.startsWith('/legal') ? {
+  } : teacherSchemas[route] || (['/', '/help', '/for-repetitor'].includes(route) || route.startsWith('/legal') ? {
     '@context': 'https://schema.org',
-    '@type': route === '/contact' ? 'ContactPage' : 'WebPage',
+    '@type': 'WebPage',
     '@id': `${canonicalForRoute(route)}#webpage`,
     url: canonicalForRoute(route),
     name: titles[route],
     description: descriptions[route],
     inLanguage: 'ru-RU',
     isPartOf: { '@id': 'https://toprepet.ru/#website' },
-    ...(['/', '/lessons'].includes(route) ? { mainEntity: {
+    ...(route === '/' ? { mainEntity: {
       '@type': 'Service',
       name: 'Индивидуальные онлайн-занятия с частным репетитором',
       serviceType: 'Индивидуальные занятия по школьным предметам',
       broker: { '@id': 'https://toprepet.ru/#organization' },
       areaServed: { '@type': 'Country', name: 'Россия' },
-      availableChannel: { '@type': 'ServiceChannel', serviceUrl: 'https://toprepet.ru/lessons/' },
-      offers: { '@type': 'Offer', price: '1200', priceCurrency: 'RUB', url: 'https://toprepet.ru/lessons/', description: '60 минут индивидуально с преподавателем' },
+      availableChannel: { '@type': 'ServiceChannel', serviceUrl: 'https://toprepet.ru/teachers/' },
     } } : {}),
   } : undefined);
 
@@ -441,6 +431,15 @@ if (previousLastmod) await writeFile(resolve('dist', lastmodManifestName), `${JS
 const legacyTutorPath = resolve('dist/for-tutors/index.html');
 await mkdir(dirname(legacyTutorPath), { recursive: true });
 await writeFile(legacyTutorPath, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=https://toprepet.ru/for-repetitor/"><link rel="canonical" href="https://toprepet.ru/for-repetitor/"><title>Переход на страницу для репетиторов</title></head><body><p>Страница переехала: <a href="https://toprepet.ru/for-repetitor/">работа репетитором с TopRepet</a>.</p></body></html>`, 'utf8');
+
+// Страницы, которые переехали на новые адреса: статический редирект для поисковиков и внешних ссылок.
+const movedPages = { '/lessons': '/teachers', '/contact': '/help', '/free-intro': '/teachers' };
+for (const [from, to] of Object.entries(movedPages)) {
+  const destination = canonicalForRoute(to);
+  const path = resolve('dist', from.slice(1), 'index.html');
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${destination}"><link rel="canonical" href="${destination}"><title>Страница переехала — TopRepet</title></head><body><p>Страница переехала: <a href="${destination}">открыть новый адрес</a>.</p></body></html>`, 'utf8');
+}
 
 for (const route of routes.filter(path => path.startsWith('/teachers/'))) {
   const oldRoute = route.replace('/teachers/', '/teacher/');

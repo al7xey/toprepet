@@ -1,6 +1,6 @@
 # Новый интерфейс TopRepet
 
-Всё новое живёт в `src/new-design`. Старое приложение (блог, документы, старые лендинги) не трогаем; какие адреса обслуживает новый интерфейс — `isNewPath` в `router.tsx`.
+Весь сайт живёт в `src/new-design`: публичные страницы, документы (`pages/public/legal*.tsx`), блог (`pages/public/blog.tsx`, данные из `src/blog/data.ts`), кабинеты. Старые адреса (`/lessons`, `/contact`, `/free-intro`, `/direction/*`, `/for-tutors`, `/teacher/*`) перенаправляются в `routes/public.tsx`, а для поисковиков на них создаются статические страницы-редиректы в `scripts/prerender.mjs`. Админка блога `/blog/admin/*` осталась отдельной оболочкой (`src/blog/admin.tsx`, вне Метрики).
 
 ## Как устроено
 

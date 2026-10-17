@@ -80,10 +80,14 @@ for (const route of ['/blog/admin', '/blog/admin/login', '/blog/admin/articles',
   if (!html.includes('noindex,follow') || urls.some(url=>url.includes('/blog/admin'))) fail(`${route}: admin indexed`);
 }
 if (!robots.includes('Clean-param:') || /Disallow:\s*\/(?:\s|$)/m.test(robots)) fail('robots clean-param/public access');
-for (const route of ['/contact', '/free-intro']) {
-  const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');
-  if (!html.includes('service-details') || !html.includes('/teachers/')) fail(`${route}: helpful content/links`);
+for (const [from, to] of [['/lessons', '/teachers'], ['/contact', '/help'], ['/free-intro', '/teachers']]) {
+  const html = await readFile(resolve(`dist${from}/index.html`), 'utf8');
+  const destination = canonicalForRoute(to);
+  if (!html.includes('noindex,follow') || !html.includes(`content="0;url=${destination}"`) || !html.includes(`rel="canonical" href="${destination}"`)) fail(`${from}: moved page redirect`);
+  if (urls.some(url => url.endsWith(`${from}/`))) fail(`${from}: moved page in sitemap`);
 }
-const lessons = await readFile(resolve('dist/lessons/index.html'), 'utf8');
-if (!lessons.includes('lesson-layout') || !lessons.includes('/teachers/')) fail('/lessons: picker/catalog navigation');
-if (lessons.includes('Как подобрать репетитора под вашу задачу')) fail('/lessons: removed explanation returned');
+for (const route of ['/help', '/legal', '/legal/payment-refund', '/legal/terms']) {
+  const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');
+  if (!html.includes('class="tr"') || !html.includes('class="hdr surf')) fail(`${route}: new layout`);
+  if (/менеджер|20 минут|промокод/i.test(html.match(/<main[\s\S]*?<\/main>/)?.[0] ?? '')) fail(`${route}: removed wording returned`);
+}

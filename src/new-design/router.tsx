@@ -16,15 +16,6 @@ import './ui/kit.css';
 
 const NotFoundPage = lazy(() => import('./pages/public/notfound'));
 
-/** Адреса, которые обслуживает новый интерфейс. Остальные (блог, документы, старые лендинги) — прежнее приложение. */
-/** Адреса, которые пока живут в старом приложении (переносятся на этапе 7). Всё остальное, включая 404, — новый интерфейс. */
-const LEGACY = ['/legal', '/lessons', '/contact', '/free-intro', '/for-tutors', '/teacher', '/direction'];
-
-export function isNewPath(pathname: string) {
-  const path = pathname.replace(/\/+$/, '') || '/';
-  return !LEGACY.some((p) => path === p || path.startsWith(`${p}/`));
-}
-
 export function NewApp() {
   const root = useRef<HTMLDivElement>(null);
   useReveal(root);

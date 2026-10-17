@@ -6,16 +6,7 @@ import '@fontsource-variable/manrope';
 
 import { AppContent } from './app';
 
-import './styles.css';
-import './refinements.css';
-import './experience.css';
-import './landing-update.css';
-import './tutor-landing.css';
-import './payment-trust.css';
-import './footer.css';
-import './cookies.css';
-import '../pages/legal/payment-refund.css';
-import '../pages/teachers/teachers-page.css';
+import './base.css';
 
 const rootElement = document.getElementById('root');
 

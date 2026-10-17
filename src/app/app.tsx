@@ -1,55 +1,18 @@
-import {
-  Component,
-  type ReactNode,
-  type ErrorInfo,
-  lazy,
-  Suspense,
-} from 'react';
-import {
-  Route,
-  Routes,
-  useLocation,
-  useParams,
-  Navigate,
-} from 'react-router-dom';
-import { Provider } from 'react-redux';
+import { Component, type ErrorInfo, type ReactNode, lazy, Suspense } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 
-import { store } from './store';
 import { SeoMetadata } from './seo-metadata';
 import { MetrikaTracker } from './metrika-tracker';
 import { useScrollToSection } from '../shared/lib/use-scroll-to-section';
-import { Header } from '../widgets/header/header';
-import { isNewPath, NewApp } from '../new-design/router';
-const DirectionPage = lazy(() => import('../pages/direction/direction-page'));
-const LessonsPage = lazy(() => import('../pages/lessons/lessons-page'));
-const FreeIntroPage = lazy(() => import('../pages/free-intro/free-intro-page'));
-import { Footer } from '../widgets/footer/footer';
-const PaymentRefundPage = lazy(() => import('../pages/legal/payment-refund-page'));
-const LegalPage = lazy(() => import('../pages/legal/legal-page'));
+import { NewApp } from '../new-design/router';
 
-import { MessengerLinks } from '../shared/ui/messenger-links';
-import { Contact } from '../widgets/contact/contact';
-import { ServiceDetails } from '../shared/ui/service-details';
-const PublicBlog = lazy(() => import('../blog/public').then(module => ({ default: module.PublicBlog })));
 const AdminBlog = lazy(() => import('../blog/admin').then(module => ({ default: module.AdminBlog })));
 
-function LegacyTeacherRedirect() {
-  const { id } = useParams();
-  return <Navigate to={`/teachers/${id}/`} replace />;
-}
-
-class ErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean }
-> {
-  state = {
-    hasError: false,
-  };
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
 
   static getDerivedStateFromError() {
-    return {
-      hasError: true,
-    };
+    return { hasError: true };
   }
 
   componentDidCatch(error: Error, _info: ErrorInfo) {
@@ -59,33 +22,15 @@ class ErrorBoundary extends Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="container not-found">
-          <h1>
-            Не удалось
-            <br />
-            загрузить страницу.
-          </h1>
-
-          <p>
-            Попробуйте обновить страницу или напишите менеджеру
-            в удобном мессенджере.
-          </p>
-
-          <MessengerLinks
-            topic="Не загрузилась страница"
-            className="not-found-messengers"
-          />
-
-          <button
-            className="button button-light error-refresh-button"
-            onClick={() => window.location.reload()}
-          >
-            Обновить
-          </button>
+        <div className="tr">
+          <main id="main" className="trh-sec trh-notfound">
+            <h1 className="trh-h1">Не удалось загрузить страницу</h1>
+            <p className="lead">Попробуйте обновить страницу.</p>
+            <button type="button" className="btn btn-primary btn-lg" onClick={() => window.location.reload()}>Обновить</button>
+          </main>
         </div>
       );
     }
-
     return this.props.children;
   }
 }
@@ -101,99 +46,27 @@ export function AppContent() {
 
 function AppRoutes() {
   const { pathname } = useLocation();
-  if (pathname === '/blog' || pathname.startsWith('/blog/')) {
-    return <ErrorBoundary><Suspense fallback={<div className="container"><output>Загрузка страницы…</output></div>}><Routes>
-      <Route path="/blog" element={<PublicBlog page="home" />} />
-      <Route path="/blog/rubrics/*" element={<PublicBlog page="rubric" />} />
-      <Route path="/blog/articles/:slug" element={<PublicBlog page="article" />} />
-      <Route path="/blog/admin/login" element={<AdminBlog page="login" />} />
-      <Route path="/blog/admin" element={<AdminBlog page="dashboard" />} />
-      <Route path="/blog/admin/articles" element={<AdminBlog page="articles" />} />
-      <Route path="/blog/admin/articles/new" element={<AdminBlog page="new" />} />
-      <Route path="/blog/admin/articles/edit" element={<AdminBlog page="edit" />} />
-      <Route path="/blog/admin/categories" element={<AdminBlog page="categories" />} />
-      <Route path="*" element={<PublicBlog page="not-found" />} />
-    </Routes></Suspense></ErrorBoundary>;
-  }
-  if (isNewPath(pathname)) {
-    // страницы нового интерфейса: свои шапка, подвал, сессия и данные
+  // админка блога: отдельная простая оболочка, без сессии кабинетов и вне Метрики
+  if (pathname === '/blog/admin' || pathname.startsWith('/blog/admin/')) {
     return (
       <ErrorBoundary>
-        <Provider store={store}>
-          <ScrollManager />
-          <NewApp />
-        </Provider>
+        <Suspense fallback={<div className="trk-route-loading" aria-busy="true" />}>
+          <Routes>
+            <Route path="/blog/admin/login" element={<AdminBlog page="login" />} />
+            <Route path="/blog/admin" element={<AdminBlog page="dashboard" />} />
+            <Route path="/blog/admin/articles" element={<AdminBlog page="articles" />} />
+            <Route path="/blog/admin/articles/new" element={<AdminBlog page="new" />} />
+            <Route path="/blog/admin/articles/edit" element={<AdminBlog page="edit" />} />
+            <Route path="/blog/admin/categories" element={<AdminBlog page="categories" />} />
+          </Routes>
+        </Suspense>
       </ErrorBoundary>
     );
   }
   return (
     <ErrorBoundary>
-      <Provider store={store}>
-        <ScrollManager />
-
-        <a
-          className="skip-link"
-          href="#main"
-          onClick={(event) => {
-            event.preventDefault();
-            document
-              .getElementById('main')
-              ?.focus();
-          }}
-        >
-          К содержимому
-        </a>
-
-        <Header />
-
-        <main
-          id="main"
-          tabIndex={-1}
-        >
-          <Suspense fallback={<div className="container"><output>Загрузка страницы…</output></div>}>
-          <Routes>
-            <Route path="/legal" element={<LegalPage />} />
-            <Route path="/legal/payment-refund" element={<PaymentRefundPage />} />
-            <Route path="/legal/:document" element={<LegalPage />} />
-            <Route
-              path="/lessons"
-              element={<LessonsPage />}
-            />
-
-            <Route
-              path="/contact"
-              element={
-                <div className="manager-page">
-                  <Contact standalone />
-                  <ServiceDetails page="contact" />
-                </div>
-              }
-            />
-
-            <Route
-              path="/free-intro"
-              element={<FreeIntroPage />}
-            />
-
-            <Route path="/for-tutors" element={<Navigate to="/for-repetitor/" replace />} />
-
-            <Route path="/teacher/:id" element={<LegacyTeacherRedirect />} />
-
-            <Route
-              path="/direction/:id"
-              element={<DirectionPage />}
-            />
-
-            <Route
-              path="*"
-              element={<DirectionPage />}
-            />
-          </Routes>
-          </Suspense>
-        </main>
-
-        <Footer />
-      </Provider>
+      <ScrollManager />
+      <NewApp />
     </ErrorBoundary>
   );
 }
