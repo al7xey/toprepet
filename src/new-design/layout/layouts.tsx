@@ -1,5 +1,5 @@
-import { useState, type CSSProperties, type ReactNode } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useQuery } from '../api/hooks';
 import { homeFor, useSession } from '../api/session';
@@ -90,6 +90,11 @@ interface NavItem { label: string; to: string; icon: string; badge?: number }
 function useCounters(role: Role) {
   const { user } = useSession();
   const notes = useQuery(user ? `notes-${user.id}` : null, () => api.listNotifications());
+  const reloadNotes = notes.reload;
+  useEffect(() => {
+    window.addEventListener('tr:notes', reloadNotes);
+    return () => window.removeEventListener('tr:notes', reloadNotes);
+  }, [reloadNotes]);
   const chats = useQuery(user ? `chats-${user.id}` : null, () => api.listConversations());
   const prefix = role === 'tutor' ? '/tutor' : '/me';
   return {
@@ -103,7 +108,7 @@ function useCounters(role: Role) {
  * Разделы кабинета, у которых уже есть страницы. Остальных в меню нет, чтобы ни одна кнопка не вела на 404.
  * По мере сборки страниц сюда добавляются адреса (заявки, чаты, платежи, уведомления, админка).
  */
-const READY = ['/teachers', '/me/lessons', '/me/account', '/me/requests', '/me/chats', '/tutor/requests', '/tutor/chats', '/tutor/lessons', '/tutor/schedule', '/tutor/finance', '/tutor/profile', '/tutor/students', '/tutor/account'];
+const READY = ['/teachers', '/me/lessons', '/me/account', '/me/requests', '/me/chats', '/tutor/requests', '/tutor/chats', '/tutor/lessons', '/tutor/schedule', '/tutor/finance', '/tutor/profile', '/tutor/students', '/tutor/account', '/me/payments', '/me/notifications', '/tutor/notifications', '/tutor/reviews', '/admin'];
 const ready = (to: string) => READY.some((p) => to === p || to.startsWith(`${p}/`));
 
 const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
@@ -112,12 +117,12 @@ const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
     tabs: [{ label: 'Найти', to: '/teachers', icon: 'search' }, { label: 'Уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Чаты', to: '/me/chats', icon: 'chat' }, { label: 'Профиль', to: '/me/account', icon: 'user' }],
   },
   tutor: {
-    top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
+    top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
     tabs: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
   },
   admin: {
-    top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }],
-    tabs: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }],
+    top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],
+    tabs: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],
   },
 };
 
@@ -126,7 +131,8 @@ const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
  * Компьютер: стеклянная шапка с разделами и значками. Телефон: без закреплённой шапки, снизу стеклянная панель вкладок.
  */
 export function AppLayout({ role, children, narrow }: { role: Role; children: ReactNode; narrow?: boolean }) {
-  const { user } = useSession();
+  const { user, logout } = useSession();
+  const navigate = useNavigate();
   const counters = useCounters(role);
   const nav = NAV[role];
   const top = nav.top.filter((item) => ready(item.to));
@@ -139,6 +145,7 @@ export function AppLayout({ role, children, narrow }: { role: Role; children: Re
         <nav className="trh-nav" aria-label="Разделы кабинета">
           {top.map((item) => <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{item.label}</NavLink>)}
         </nav>
+        {role === 'admin' && <span className="icons"><Button size="s" variant="fill" onClick={() => { void logout().then(() => navigate('/')); }}>Выйти</Button></span>}
         {role !== 'admin' && (
           <span className="icons">
             {ready(`${counters.prefix}/notifications`) && <IconButton icon="bell" label="Уведомления" to={`${counters.prefix}/notifications`} badge={counters.notifications > 0} className="trk-hdr-ic" />}

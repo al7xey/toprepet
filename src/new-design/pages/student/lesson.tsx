@@ -33,6 +33,7 @@ function LessonView({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson
   const startMs = new Date(lesson.start).getTime();
   const active = lesson.status === 'pending' || lesson.status === 'confirmed';
   const late = startMs - now < 4 * HOUR;
+  const problemOpen = (lesson.status === 'completed' || lesson.status === 'confirmed') && now >= startMs && now - startMs < 24 * HOUR + lesson.durationMin * 60_000;
   const joinOpen = lesson.status === 'confirmed' && now >= startMs - 10 * 60_000 && now < startMs + lesson.durationMin * 60_000;
   const answer = useMutation((accept: boolean) => api.answerMove(lesson.id, accept));
   const proposal = lesson.moveProposal && lesson.moveProposal.by !== 'student' ? lesson.moveProposal : null;
@@ -75,6 +76,15 @@ function LessonView({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson
         </div>
       )}
       {lesson.moveProposal?.by === 'student' && <Note tone="plain" icon="clock">Вы предложили перенести урок на {whenLabel(lesson.moveProposal.start)}. Ждём ответ репетитора.</Note>}
+
+      {lesson.status === 'completed' && lesson.kind === 'regular' && (
+        lesson.reviewId
+          ? <Note tone="ok" icon="star">Спасибо за отзыв! Он появится в анкете репетитора после проверки.</Note>
+          : <Note tone="info" icon="star" action={<Button size="s" to={`/me/lessons/${lesson.id}/review`}>Оставить отзыв</Button>}>Как прошёл урок? Ваш отзыв поможет другим ученикам.</Note>
+      )}
+      {lesson.disputeId
+        ? <Note tone="plain" icon="flag" action={<Button size="s" variant="line" to={`/me/disputes/${lesson.disputeId}`}>Открыть спор</Button>}>По этому уроку открыт спор с поддержкой.</Note>
+        : problemOpen && <Note tone="plain" icon="flag" action={<Button size="s" variant="line" to={`/me/lessons/${lesson.id}/problem`}>Сообщить о проблеме</Button>}>Что-то пошло не так? Расскажите, и поддержка разберётся.</Note>}
 
       <Section title="Отмена и перенос">
         <Card><p className="cap">Отмена бесплатна за 4 часа и раньше до начала. Позже деньги получает репетитор. Для переноса предложите другое время: репетитор подтвердит его.</p></Card>

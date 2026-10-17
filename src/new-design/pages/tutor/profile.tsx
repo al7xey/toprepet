@@ -29,7 +29,9 @@ export default function TutorProfilePage() {
           <>
             <PageHeader title="Моя анкета" actions={<><Button to="/tutor/profile/edit" icon="edit">Редактировать</Button>{p.status === 'published' && <Button to={`/teachers/${p.slug}/`} variant="line" icon="search">Как видят ученики</Button>}</>} />
             <Status tone={STATUS[p.status].tone}>{STATUS[p.status].text}</Status>
-            {p.status === 'draft' && <Note tone="info" icon="edit" action={<Button size="s" to="/tutor/profile/edit">Продолжить</Button>}>Анкета ещё не опубликована. Заполните её, и ученики смогут записываться.</Note>}
+            {p.status === 'review' && <Note tone="info" icon="clock">Мы проверяем анкету, обычно это занимает до одного рабочего дня. Когда она будет опубликована, придёт уведомление.</Note>}
+            {p.status === 'draft' && p.moderationNote && <Note tone="bad" icon="alert" action={<Button size="s" to="/tutor/profile/edit">Исправить</Button>}>Анкету вернули на доработку: {p.moderationNote}</Note>}
+            {p.status === 'draft' && !p.moderationNote && <Note tone="info" icon="edit" action={<Button size="s" to="/tutor/profile/edit">Продолжить</Button>}>Анкета ещё не опубликована. Заполните её, и ученики смогут записываться.</Note>}
             <Card>
               <Person name={p.name || 'Без имени'} photo={p.photo} sub={p.headline || 'Короткое описание не заполнено'} size={64} />
               {p.subjects.length > 0 && <Tags items={p.subjects} />}

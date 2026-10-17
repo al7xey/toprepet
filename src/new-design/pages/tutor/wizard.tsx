@@ -81,7 +81,7 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
 
   const submit = async () => {
     const done = await publish.run();
-    if (done) { toast('Анкета опубликована'); void navigate('/tutor/profile', { replace: true }); }
+    if (done) { toast(done.status === 'review' ? 'Анкета отправлена на проверку' : 'Анкета сохранена'); void navigate('/tutor/profile', { replace: true }); }
   };
 
   return (
@@ -136,7 +136,7 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
             {step > 1 && <Button variant="fill" onClick={() => setStep(step - 1)}>Назад</Button>}
             {step < STEPS.length
               ? <Button onClick={next} loading={busy} iconAfter="arrow">Дальше</Button>
-              : <Button onClick={submit} loading={publish.pending} icon="check">Опубликовать анкету</Button>}
+              : <Button onClick={submit} loading={publish.pending} icon="check">Отправить на проверку</Button>}
           </div>
         </div>
       </Card>

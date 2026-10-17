@@ -10,16 +10,26 @@ const AccountPage = lazy(() => import('../pages/student/account'));
 const ChatsPage = lazy(() => import('../pages/chats/list'));
 const ChatPage = lazy(() => import('../pages/chats/view'));
 const NewChatPage = lazy(() => import('../pages/chats/new'));
+const ReviewPage = lazy(() => import('../pages/student/review'));
+const ProblemPage = lazy(() => import('../pages/student/problem'));
+const StudentDisputePage = lazy(() => import('../pages/student/dispute'));
+const PaymentsPage = lazy(() => import('../pages/student/payments'));
+const NotificationsPage = lazy(() => import('../pages/shared/notifications'));
 
 const student = (page: React.ReactNode) => <RequireRole role="student">{page}</RequireRole>;
 
-/** Кабинет ученика: запись, уроки, профиль. */
+/** Кабинет ученика: запись, уроки, отзывы, платежи, уведомления, профиль. */
 export const studentRoutes = (
   <>
     <Route path="/book/:id" element={student(<BookPage />)} />
     <Route path="/book/:id/done" element={student(<BookDonePage />)} />
     <Route path="/me/lessons" element={student(<LessonsPage />)} />
     <Route path="/me/lessons/:id" element={student(<LessonPage />)} />
+    <Route path="/me/lessons/:id/review" element={student(<ReviewPage />)} />
+    <Route path="/me/lessons/:id/problem" element={student(<ProblemPage />)} />
+    <Route path="/me/disputes/:id" element={student(<StudentDisputePage />)} />
+    <Route path="/me/payments" element={student(<PaymentsPage />)} />
+    <Route path="/me/notifications" element={student(<NotificationsPage />)} />
     <Route path="/me/account" element={student(<AccountPage />)} />
     <Route path="/me/chats" element={student(<ChatsPage />)} />
     <Route path="/me/chats/new" element={student(<NewChatPage />)} />

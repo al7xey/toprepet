@@ -11,6 +11,9 @@ const TutorAccountPage = lazy(() => import('../pages/tutor/account'));
 const TutorRequestsPage = lazy(() => import('../pages/requests/tutor'));
 const TutorChatsPage = lazy(() => import('../pages/chats/tutor-list'));
 const TutorChatPage = lazy(() => import('../pages/chats/tutor-view'));
+const TutorReviewsPage = lazy(() => import('../pages/tutor/reviews'));
+const TutorDisputePage = lazy(() => import('../pages/tutor/dispute'));
+const NotificationsPage = lazy(() => import('../pages/shared/notifications'));
 
 const tutor = (page: React.ReactNode) => <RequireRole role="tutor">{page}</RequireRole>;
 
@@ -26,5 +29,8 @@ export const tutorRoutes = (
     <Route path="/tutor/requests" element={tutor(<TutorRequestsPage />)} />
     <Route path="/tutor/chats" element={tutor(<TutorChatsPage />)} />
     <Route path="/tutor/chats/:id" element={tutor(<TutorChatPage />)} />
+    <Route path="/tutor/reviews" element={tutor(<TutorReviewsPage />)} />
+    <Route path="/tutor/disputes/:id" element={tutor(<TutorDisputePage />)} />
+    <Route path="/tutor/notifications" element={tutor(<NotificationsPage />)} />
   </>
 );

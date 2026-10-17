@@ -61,6 +61,7 @@ function View({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson) => v
           Ученик предлагает перенести урок на <b>{whenLabel(proposal.start)}</b>.
         </Note>
       )}
+      {lesson.disputeId && <Note tone="bad" icon="flag" action={<Button size="s" to={`/tutor/disputes/${lesson.disputeId}`}>Открыть спор</Button>}>Ученик сообщил о проблеме с этим уроком. Ответьте поддержке.</Note>}
       <FormError error={confirm.error ?? mark.error ?? answer.error} />
       <div className="trk-actions">
         {lesson.status === 'pending' && <><Button size="lg" onClick={() => run(confirm.run(), 'Запись подтверждена')} loading={confirm.pending}>Подтвердить</Button><Button size="lg" variant="fill" onClick={() => setDeclineOpen(true)}>Отклонить</Button></>}
