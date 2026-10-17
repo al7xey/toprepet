@@ -50,3 +50,8 @@ No blur (`backdrop-filter`), gradients, glossy highlights or drop shadows anywhe
 - Admin: `/admin/disputes` (refund or pay out), `/admin/cancellations`, `/admin/reviews`, `/admin/profiles` (`adminProfileQueue`, `adminModerateProfile`).
 - The mock writes notifications for the other party on every step (`note()` in `api/mock.ts`); the header bell refreshes on the `tr:notes` window event.
 - Demo data: lesson `l-4` can be reviewed, `l-7` finished three hours ago and can be disputed. Accounts: `olga@mail.ru`, `anastasia@toprepet.ru`, `admin@toprepet.ru`, password `demo`.
+
+## Backend
+
+`VITE_API_URL` включает настоящий сервер (Django, `backend/`, см. `docs/backend.md`); без неё работает мок. Общие сценарии правил продукта лежат в `api/scenarios.ts`: их проходят и мок (`mock.test.ts`), и сервер (`http.contract.test.ts`, запуск `bash backend/scripts/contract.sh`). Меняете правило в моке — меняйте сценарий, и тест покажет, что сервер разошёлся.
+
