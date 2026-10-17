@@ -28,6 +28,7 @@ class Lesson(models.Model):
     move_by = models.CharField(max_length=10, blank=True)
     series_id = models.CharField(max_length=40, blank=True)
     request = models.ForeignKey('requests_board.StudyRequest', null=True, blank=True, on_delete=models.SET_NULL, related_name='lessons')
+    paid_out_at = models.DateTimeField(null=True, blank=True)
     idempotency_key = models.CharField(max_length=64, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

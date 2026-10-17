@@ -120,6 +120,8 @@ SITE_URL = env('SITE_URL', 'http://localhost:5173').rstrip('/')
 # Платежи: сейчас заглушка; провайдера меняет одна переменная (см. payments/providers.py).
 PAYMENT_PROVIDER = env('PAYMENT_PROVIDER', 'fake')
 SERVICE_FEE = 0.10
+# Видеосвязь: пока одна общая ссылка-заглушка, на этапе подключения Телемоста/Zoom здесь будет создание комнаты на урок.
+MEETING_URL = env('MEETING_URL', 'https://telemost.yandex.ru/')
 YANDEX_CLIENT_ID = env('YANDEX_CLIENT_ID')
 YANDEX_CLIENT_SECRET = env('YANDEX_CLIENT_SECRET')
 

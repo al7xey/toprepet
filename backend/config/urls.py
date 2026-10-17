@@ -12,4 +12,9 @@ urlpatterns = [
     path('health', health),
     path('', include('accounts.urls')),
     path('', include('tutors.urls')),
+    path('', include('lessons.urls')),
+    path('', include('payments.urls')),
+    path('', include('notifications.urls')),
+    path('', include('reviews.urls')),
+    path('', include('adminpanel.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

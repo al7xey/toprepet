@@ -78,6 +78,8 @@ class Command(BaseCommand):
             if status == 'pending':
                 fields['confirm_by'] = min(start - 2 * HOUR, now + DAY)
             fields.update(extra)
+            if fields['payment'] == 'paid_out':
+                fields['paid_out_at'] = start + 2 * DAY
             return Lesson.objects.create(**fields)
 
         lesson('l-1', anastasia, at(1, 19), 'confirmed', meeting_url='https://telemost.yandex.ru/')

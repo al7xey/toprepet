@@ -1,0 +1,18 @@
+from django.utils import timezone
+
+from .models import Conversation, Message
+
+
+def get_or_create_conversation(tutor, student) -> Conversation:
+    conversation, _ = Conversation.objects.get_or_create(tutor=tutor, student=student)
+    return conversation
+
+
+def system_message(tutor, student, text: str):
+    """Строка-событие в диалоге («Ольга записалась на урок»)."""
+    conversation = get_or_create_conversation(tutor, student)
+    message = Message.objects.create(conversation=conversation, author=None, kind='event', text=text)
+    conversation.last_message = text
+    conversation.updated_at = timezone.now()
+    conversation.save(update_fields=['last_message', 'updated_at'])
+    return message
