@@ -42,6 +42,7 @@ test.describe('гость', () => {
     const before = await page.locator('a.tc').count();
     await page.getByLabel('Фильтры').click();
     await page.getByRole('button', { name: 'Английский язык' }).click();
+    await page.getByRole('button', { name: 'Показать' }).click();
     await expect.poll(() => page.locator('a.tc').count()).toBeLessThan(before);
   });
 

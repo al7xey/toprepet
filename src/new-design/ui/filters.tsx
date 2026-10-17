@@ -1,4 +1,5 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from './icon';
 
 /** Выпадающее меню фильтра из белого стекла. */
@@ -34,7 +35,7 @@ export const Chip = ({ on, onClick, children }: { on: boolean; onClick: () => vo
   <button type="button" className={`chipf${on ? ' on' : ''}`} aria-pressed={on} onClick={onClick}>{children}</button>
 );
 
-/** Кнопка фильтров: значок с ползунками, под ним панель с группами. Точка на значке — фильтр включён. */
+/** Кнопка фильтров: значок с ползунками открывает страницу фильтров на весь экран. Точка на значке — фильтр включён. */
 export function FilterMenu({ groups, intro, onIntro, onReset, active }: {
   groups: { label: string; allLabel: string; value: string | number | null; options: { value: string | number; label: string }[]; onChange: (v: string | number | null) => void }[];
   intro: { label: string; on: boolean };
@@ -42,36 +43,50 @@ export function FilterMenu({ groups, intro, onIntro, onReset, active }: {
   onReset: () => void;
   active: boolean;
 }) {
-  const ref = useRef<HTMLDetailsElement>(null);
+  const [open, setOpen] = useState(false);
   useEffect(() => {
-    const outside = (e: PointerEvent) => { if (!ref.current?.contains(e.target as Node)) ref.current?.removeAttribute('open'); };
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') ref.current?.removeAttribute('open'); };
-    document.addEventListener('pointerdown', outside);
+    if (!open) return;
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
     document.addEventListener('keydown', esc);
-    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', esc); };
-  }, []);
-  return (
-    <details className="trh-drop trh-filters" ref={ref}>
-      <summary className="chipf ico" aria-label="Фильтры" title="Фильтры">
-        <Icon name="filter" />{active && <span className="trh-filters-dot" aria-hidden="true" />}
-      </summary>
-      <div className="trh-drop-menu trh-filters-menu">
+    document.documentElement.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', esc); document.documentElement.style.overflow = ''; };
+  }, [open]);
+  const page = open && (
+    <dialog open className="trh-fpage" aria-modal="true" aria-label="Фильтры">
+      <div className="trh-fpage-head">
+        <h2>Фильтры</h2>
+        <button type="button" className="trk-iconbtn" aria-label="Закрыть фильтры" onClick={() => setOpen(false)}><Icon name="x" /></button>
+      </div>
+      <div className="trh-fpage-body">
         {groups.map((g) => (
-          <div className="trh-filters-group" key={g.label}>
+          <div className="trh-fpage-group" key={g.label}>
             <b>{g.label}</b>
-            <button type="button" className={g.value === null ? 'on' : undefined} onClick={() => g.onChange(null)}>{g.allLabel}{g.value === null && <Icon name="check" />}</button>
-            {g.options.map((o) => (
-              <button type="button" key={String(o.value)} className={o.value === g.value ? 'on' : undefined} aria-pressed={o.value === g.value} onClick={() => g.onChange(o.value)}>
-                {o.label}{o.value === g.value && <Icon name="check" />}
-              </button>
-            ))}
+            <div className="trh-fpage-opts">
+              <button type="button" className={`opt${g.value === null ? ' on' : ''}`} aria-pressed={g.value === null} onClick={() => g.onChange(null)}>{g.allLabel}</button>
+              {g.options.map((o) => (
+                <button type="button" key={String(o.value)} className={`opt${o.value === g.value ? ' on' : ''}`} aria-pressed={o.value === g.value} onClick={() => g.onChange(o.value)}>{o.label}</button>
+              ))}
+            </div>
           </div>
         ))}
-        <div className="trh-filters-group">
-          <button type="button" className={intro.on ? 'on' : undefined} aria-pressed={intro.on} onClick={onIntro}>{intro.label}{intro.on && <Icon name="check" />}</button>
+        <div className="trh-fpage-group">
+          <div className="trh-fpage-opts">
+            <button type="button" className={`opt${intro.on ? ' on' : ''}`} aria-pressed={intro.on} onClick={onIntro}>{intro.label}</button>
+          </div>
         </div>
-        {active && <button type="button" className="trh-filters-reset" onClick={onReset}>Сбросить</button>}
       </div>
-    </details>
+      <div className="trh-fpage-foot">
+        <button type="button" className="btn btn-line btn-lg" onClick={onReset} disabled={!active}>Сбросить</button>
+        <button type="button" className="btn btn-primary btn-lg" onClick={() => setOpen(false)}>Показать</button>
+      </div>
+    </dialog>
+  );
+  return (
+    <>
+      <button type="button" className="chipf ico trh-filters" aria-label="Фильтры" title="Фильтры" aria-haspopup="dialog" onClick={() => setOpen(true)}>
+        <Icon name="filter" />{active && <span className="trh-filters-dot" aria-hidden="true" />}
+      </button>
+      {page && createPortal(page, document.querySelector('.tr') ?? document.body)}
+    </>
   );
 }
