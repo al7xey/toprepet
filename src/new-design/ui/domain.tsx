@@ -13,10 +13,10 @@ import { Button, FormError, Note, Person, Status, TextField, type Tone } from '.
 /* ---------- Репетиторы ---------- */
 
 /** Карточка репетитора: фото, имя, предметы, цена третьей строкой. Одна на главной, в каталоге и в подборках. */
-export function TutorCard({ tutor, delay = 0 }: { tutor: Pick<Tutor, 'id' | 'name' | 'photo' | 'photoSrcSet' | 'cardSubjects' | 'studentPrice' | 'rating'>; delay?: number }) {
+export function TutorCard({ tutor, delay = 0, priority }: { priority?: boolean; tutor: Pick<Tutor, 'id' | 'name' | 'photo' | 'photoSrcSet' | 'cardSubjects' | 'studentPrice' | 'rating'>; delay?: number }) {
   return (
     <Link className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false} {...rv('scale', delay)}>
-      <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 280px, 50vw" alt="" loading="lazy" decoding="async" draggable={false} />
+      <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 280px, 50vw" alt="" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : undefined} decoding="async" draggable={false} />
       <span className="pl">
         <b>{tutor.name}{tutor.rating ? <span className="rt"><Icon name="star-on" />{String(tutor.rating).replace('.', ',')}</span> : null}</b>
         <span>{tutor.cardSubjects}</span>
@@ -30,7 +30,7 @@ export function TutorCard({ tutor, delay = 0 }: { tutor: Pick<Tutor, 'id' | 'nam
 export function TutorGrid({ tutors, layout = 'grid', children }: { tutors: Parameters<typeof TutorCard>[0]['tutor'][]; layout?: 'grid' | 'row'; children?: ReactNode }) {
   return (
     <div className={layout === 'row' ? 'tcg trh-teachers' : 'tcg trh-grid'}>
-      {tutors.map((t, index) => <TutorCard key={t.id} tutor={t} delay={(index % 4) * 0.07} />)}
+      {tutors.map((t, index) => <TutorCard key={t.id} tutor={t} delay={(index % 4) * 0.07} priority={index < 2} />)}
       {children}
     </div>
   );
