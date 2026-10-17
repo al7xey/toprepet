@@ -12,7 +12,9 @@
     "start": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "lint": "oxlint src vite.config.ts components/ui/accordion.tsx components/ui/radio-group.tsx components/ui/carousel.tsx components/ui/sheet.tsx components/ui/button.tsx lib/utils.ts",
-    "format": "oxfmt"
+    "format": "oxfmt",
+    "e2e": "playwright test",
+    "build:e2e": "vite build && vite build --ssr src/app/entry-server.tsx --outDir dist-server && node scripts/prerender.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
@@ -48,9 +50,11 @@
     "vinext": "1.0.0-beta.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@cloudflare/vite-plugin": "1.37.1",
     "@cloudflare/workers-types": "4.20260515.1",
     "@openai/sites-vite-plugin": "0.2.0",
+    "@playwright/test": "1.56.1",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",

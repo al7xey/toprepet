@@ -70,7 +70,7 @@ export default function NewRequestPage() {
           <FormError error={create.error} />
           <div className="trk-actions">
             {step === 2 && <Button variant="fill" onClick={() => setStep(1)}>Назад</Button>}
-            <Button onClick={next} loading={create.pending} iconAfter={step === 1 ? 'arrow' : undefined} icon={step === 2 ? 'check' : undefined}>{step === 1 ? 'Дальше' : 'Опубликовать заявку'}</Button>
+            <Button onClick={next} loading={create.pending} icon={step === 2 ? 'check' : undefined}>{step === 1 ? 'Дальше' : 'Опубликовать заявку'}</Button>
           </div>
         </div>
       </Card>

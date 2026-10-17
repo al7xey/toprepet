@@ -79,3 +79,30 @@ jobs:
       - run: pip install -r backend/requirements-dev.txt
       - name: Shared scenarios against the real server
         run: bash backend/scripts/contract.sh
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - run: pnpm install --frozen-lockfile
+      - run: pip install -r backend/requirements-dev.txt
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Browser scenario against the real server
+        run: bash backend/scripts/e2e.sh
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-real-backend
+          path: test-results

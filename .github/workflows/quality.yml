@@ -40,3 +40,47 @@ jobs:
 
       - name: Unit tests (правила мока)
         run: pnpm test
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build site (without sync-blog)
+        run: pnpm build:e2e
+
+      - name: SEO and analytics checks
+        run: |
+          node scripts/verify-seo.mjs
+          node scripts/verify-analytics.mjs
+
+      - name: End-to-end (desktop 1440 and phone 390)
+        run: pnpm e2e
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
