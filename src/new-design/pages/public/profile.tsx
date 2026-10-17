@@ -5,9 +5,9 @@ import { trackGoal } from '../../../shared/lib/analytics';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
-import { count, fromRub, minutes, rub, whenLabel } from '../../lib/format';
+import { minutes, rub, whenLabel } from '../../lib/format';
 import { rv } from '../../reveal';
-import { BackLink, Button, EmptyState, Icon, IconButton, Note, QueryView, Rows, Section, SlotPicker, Stats, Status, Tags } from '../../ui';
+import { BackLink, Button, EmptyState, Icon, IconButton, Note, QueryView, Rows, Section, SlotPicker, Status, Tags } from '../../ui';
 import { NotFoundBody } from './notfound';
 
 const ACH_ICONS = ['target', 'school', 'book'] as const;
@@ -45,13 +45,6 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const bookHref = (kind: 'regular' | 'intro') => `/book/${tutor.id}?kind=${kind}${start ? `&start=${encodeURIComponent(start)}` : ''}`;
   const write = () => navigate(`/me/chats/new?tutor=${tutor.id}`);
 
-  const stats: [string, string][] = [
-    [rub(tutor.studentPrice), `за ${LESSON_MINUTES} мин`],
-    tutor.rating ? [String(tutor.rating).replace('.', ','), count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')] : ['Новый', 'репетитор'],
-    tutor.introMinutes ? [minutes(tutor.introMinutes).replace(' минут', ' мин').replace(' минуты', ' мин'), 'знакомство'] : ['Онлайн', 'формат'],
-    [tutor.experience, 'опыт'],
-  ];
-
   const booking = (
     <div className="card sum" {...rv('right', 0.1)}>
       <h2 className="trk-cardtitle">Запись</h2>
@@ -81,13 +74,17 @@ function Profile({ tutor }: { tutor: Tutor }) {
             <div className="trh-pf-sheet">
               <div className="trh-sec" {...rv('up', 0.05)}>
                 <h1 className="trh-h1">{tutor.name}</h1>
-                <p className="muted trh-pf-role">{tutor.headline}</p>
+                <p className="muted trh-pf-role">{tutor.cardSubjects}</p>
                 <div className="fr fw u-gap8">
                   {tutor.documentsVerified && <Status tone="ok" icon="shield">Документы проверены</Status>}
-                  {tutor.introMinutes > 0 && <span className="trh-pf-intro-tag"><Icon name="gift" />Знакомство {tutor.introMinutes} мин</span>}
+                  {tutor.introMinutes > 0 && <span className="trh-pf-intro-tag"><Icon name="gift" />Бесплатное знакомство</span>}
                 </div>
               </div>
-              <div {...rv('up', 0.1)}><Stats items={stats} /></div>
+              {!isTutorAccount && (
+                <div className="trh-pf-cta" {...rv('up', 0.1)}>
+                  <Button to={start ? bookHref('regular') : undefined} onClick={start ? () => trackGoal('book_start', { kind: 'regular' }) : () => document.querySelector('.trk-slots')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>Записаться</Button>
+                </div>
+              )}
               <p className="trh-pf-intro" {...rv('up', 0.15)}>{tutor.intro}</p>
             </div>
           </section>
@@ -111,11 +108,6 @@ function Profile({ tutor }: { tutor: Tutor }) {
           </div>
 
           <hr className="rule" />
-          <Section title="Свободное время">
-            {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} />}
-          </Section>
-
-          <hr className="rule" />
           <Section title="Как проходят занятия"><p className="cap trh-pf-text" {...rv('up', 0.05)}>{tutor.approach}</p></Section>
 
           <hr className="rule" />
@@ -124,6 +116,11 @@ function Profile({ tutor }: { tutor: Tutor }) {
               {tutor.introMinutes > 0 && <div className="rowline"><span><b>Знакомство</b><br /><span className="muted">{minutes(tutor.introMinutes)}, один раз</span></span><b className="u-ok">бесплатно</b></div>}
               <div className="rowline"><span><b>Занятие</b><br /><span className="muted">{minutes(LESSON_MINUTES)}</span></span><b className="tn">{rub(tutor.studentPrice)}</b></div>
             </div>
+          </Section>
+
+          <hr className="rule" />
+          <Section title="Свободное время">
+            {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} />}
           </Section>
 
           <hr className="rule" />
@@ -145,12 +142,6 @@ function Profile({ tutor }: { tutor: Tutor }) {
         <aside className="trh-pf-aside" aria-label="Запись">{booking}</aside>
       </div>
 
-      {!isTutorAccount && (
-        <div className="actionbar surf trh-pf-bar">
-          <div className="meta"><b className="tn">{start ? whenLabel(start) : fromRub(tutor.studentPrice)}</b><span>{start ? `${minutes(LESSON_MINUTES)} · ${rub(tutor.studentPrice)}` : 'Выберите время в календаре'}</span></div>
-          <Button to={start ? bookHref('regular') : undefined} onClick={start ? undefined : () => document.querySelector('.trk-slots')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>Записаться</Button>
-        </div>
-      )}
     </PublicLayout>
   );
 }
