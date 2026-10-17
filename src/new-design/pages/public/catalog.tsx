@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { subjects } from '../../../entities/lesson';
 import { api, staticTutors, type Tutor, type TutorFilter } from '../../api';
 import { safeChoice, trackGoal } from '../../../shared/lib/analytics';
@@ -32,7 +33,8 @@ function listReducer(state: ListState, action: ListAction): ListState {
 
 export default function CatalogPage() {
   const [input, setInput] = useState('');
-  const [filter, setFilter] = useState<TutorFilter>({ sort: 'recommended' });
+  const [params] = useSearchParams();
+  const [filter, setFilter] = useState<TutorFilter>(() => ({ sort: 'recommended', subject: SUBJECTS.find((s) => s === params.get('subject')) }));
   const [list, dispatch] = useReducer(listReducer, undefined, (): ListState => ({ key: '', items: staticTutors().slice(0, PAGE), total: null, cursor: null, more: false, error: null }));
   const sentinel = useRef<HTMLDivElement>(null);
   const key = JSON.stringify(filter);

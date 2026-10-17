@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 const HomePage = lazy(() => import('../../pages/home/home-page'));
 const CatalogPage = lazy(() => import('../../pages/teachers/teachers-page'));
 const ProfilePage = lazy(() => import('../../pages/teacher/teacher-page'));
+const HelpPage = lazy(() => import('../pages/public/help'));
 const TutorsLandingPage = lazy(() => import('../../pages/for-tutors/for-tutors-page'));
 
 export const publicRoutes = (
@@ -13,5 +14,6 @@ export const publicRoutes = (
     <Route path="/teachers" element={<CatalogPage />} />
     <Route path="/teachers/:id" element={<ProfilePage />} />
     <Route path="/for-repetitor" element={<TutorsLandingPage />} />
+    <Route path="/help" element={<HelpPage />} />
   </>
 );
