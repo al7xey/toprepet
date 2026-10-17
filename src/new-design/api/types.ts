@@ -50,6 +50,8 @@ export interface Tutor {
   reviewsCount: number;
   status: TutorStatus;
   timezone: string;
+  /** Хотя бы один диплом или сертификат проверен администратором. */
+  documentsVerified?: boolean;
 }
 
 export interface TutorFilter {

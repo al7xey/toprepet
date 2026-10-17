@@ -613,7 +613,7 @@
 /* v3.1: flat, bright buttons (no bevel, no gloss), colour stays vivid */
 .tr{--grad:#f26a2e}
 .tr .btn-primary{background:#f26a2e;box-shadow:none}
-.tr .btn-primary:hover{background:#ff7332;box-shadow:none}
+.tr .btn-primary:hover{background:#e65e28;box-shadow:none}
 .tr .btn-soft{background:#ffe9d4;box-shadow:none}
 .tr .btn-fill{background:rgb(32 40 56 / 7%);box-shadow:none}
 .tr .btn-line,.tr .btn-warm{background:rgb(255 255 255 / 80%);box-shadow:inset 0 0 0 1.5px #f0d9c8}

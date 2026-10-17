@@ -15,6 +15,7 @@ def tutor_json(t) -> dict:
         'experience': t.experience, 'intro': t.intro, 'approach': t.approach, 'achievements': t.achievements,
         'price': t.price, 'studentPrice': t.student_price, 'introMinutes': t.intro_minutes,
         'rating': float(t.rating) if t.rating is not None else None, 'reviewsCount': t.reviews_count, 'status': t.status, 'timezone': t.timezone,
+        'documentsVerified': t.documents.filter(status='approved').exists(),
     }
 
 

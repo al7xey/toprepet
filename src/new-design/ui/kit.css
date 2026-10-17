@@ -533,15 +533,8 @@
   /* анкета без «назад» и без своей шапки: шапка общая */
   .tr .trh-pf-backwrap{display:none}
   .tr .trh-pf-back{display:none}
-  .tr .trh-pf-photo{margin:0 -16px;height:400px}
+  .tr .trh-pf-photo{margin:-12px -16px 0;height:412px}
   .tr main:has(.trh-pf-bar){padding-bottom:150px}
-}
-/* шторка анкеты: ручка сверху, закрывается свайпом вниз */
-.tr .trh-pf-grab{display:none}
-@media(max-width:760px){
-  .tr .trh-pf-grab{display:grid;place-items:center;height:28px;margin:-10px -20px -6px;cursor:grab;touch-action:none;user-select:none}
-  .tr .trh-pf-grab span{width:44px;height:5px;border-radius:999px;background:#d8cdc6}
-  .tr .trh-pf-sheet{transition:transform .25s var(--ease)}
 }
 @media(max-width:760px){
   .tr .trh-pf-bar{flex-wrap:wrap;gap:10px;align-items:stretch}
@@ -550,3 +543,16 @@
 }
 /* белый текст на оранжевом: крупный и жирный, чтобы проходил контраст */
 .tr main .btn.btn-primary{font-size:18.7px;font-weight:800}
+
+/* ---- v10: детальный просмотр репетитора ---- */
+.tr .trh-pf-intro-tag{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border-radius:999px;background:#ffe9d4;color:#b23e0c;font-size:14px;font-weight:700}
+.tr .trh-pf-intro-tag .i{width:16px;height:16px}
+.tr .trk-iconbtn.trh-pf-share{display:none}
+@media(max-width:760px){
+  /* фото закреплено сверху: белый лист при прокрутке наезжает на него */
+  .tr .trh-pf-photo{position:sticky;top:0;z-index:0}
+  .tr .trh-pf-sheet{position:relative;z-index:1}
+  .tr .trk-iconbtn.trh-pf-back,.tr .trk-iconbtn.trh-pf-share{display:grid;position:absolute;top:14px;width:44px;min-width:44px;height:44px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:none;padding:0}
+  .tr .trk-iconbtn.trh-pf-back{left:14px}
+  .tr .trk-iconbtn.trh-pf-share{right:14px}
+}
