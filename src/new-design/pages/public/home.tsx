@@ -28,11 +28,6 @@ export default function HomePage() {
         <div className="trh-hero-media" ref={media}>
           <img src="/images/hero-slide-3-1200.webp" alt="Ученица занимается за ноутбуком" width={1200} height={900} fetchPriority="high" />
         </div>
-        <ul className="trh-benefits" aria-label="Преимущества">
-          <li><HeroIcon kind="cap" /><span>Топовые репетиторы</span></li>
-          <li><HeroIcon kind="clock" /><span>Удобный график</span></li>
-          <li><HeroIcon kind="trophy" /><span>Быстрый результат</span></li>
-        </ul>
       </section>
 
       <Section title="Как всё устроено" id="how">
@@ -79,19 +74,5 @@ export default function HomePage() {
         <Faq items={STUDENT_FAQ} />
       </Section>
     </PublicLayout>
-  );
-}
-
-/** Значки преимуществ на главной: тонкая линия, оранжевый цвет сайта. */
-function HeroIcon({ kind }: { kind: 'cap' | 'clock' | 'trophy' }) {
-  const paths = {
-    cap: <><path d="M2.5 9 12 4.5 21.5 9 12 13.5z" /><path d="M6.5 11.2v4.3c0 1.3 2.5 2.7 5.5 2.7s5.5-1.4 5.5-2.7v-4.3" /><path d="M21.5 9v5.5" /></>,
-    clock: <><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>,
-    trophy: <><path d="M8 4.5h8v5a4 4 0 0 1-8 0z" /><path d="M8 6.5H5v1.5a3 3 0 0 0 3 3M16 6.5h3v1.5a3 3 0 0 1-3 3" /><path d="M12 13.5V17M9.5 17h5M8.5 19.5h7" /></>,
-  } as const;
-  return (
-    <span className="trh-benefit-ic" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{paths[kind]}</svg>
-    </span>
   );
 }

@@ -39,6 +39,8 @@ test.describe('ученик', () => {
     await page.goto('/me/chats/new?tutor=english');
     await expect(page).toHaveURL(/\/me\/chats\/[^/]+$/);
     const box = page.getByLabel('Сообщение', { exact: true });
+    await expect(box).toBeVisible();
+    await page.waitForLoadState('networkidle');
     await box.fill('Напишите мне в телеграм: https://t.me/someone или звоните +7 999 123-45-67');
     await page.getByRole('button', { name: 'Отправить', exact: true }).click();
     await expect(page.getByText(/запрещены/)).toBeVisible();
