@@ -496,3 +496,18 @@
 }
 /* анкета внутри кабинета: панель записи стоит над нижней панелью вкладок */
 @media(max-width:760px){.tr .trk-app .trh-pf-bar{bottom:calc(84px + env(safe-area-inset-bottom,0px))}.tr .trk-app .trh-main:has(.trh-pf-bar){padding-bottom:150px}}
+
+/* v7: логотип снова внутри капсулы, шапка крупнее */
+.tr .hdr.surf:not(.m){margin-inline:0;height:68px;padding:0 10px 0 26px}
+.tr .hdr .logo{font-size:26px}
+.tr .hdr .logo-mark{width:34px;height:34px}
+.tr .hdr nav a{font-size:17px}
+.tr .hdr .btn{min-height:48px;padding:0 24px;font-size:17px}
+@media(max-width:760px){
+  .tr .hdr.surf:not(.m){margin-inline:0;top:8px;height:64px;padding:0 10px 0 18px}
+  .tr .hdr .logo{font-size:23px}
+  .tr .hdr .logo-mark{width:30px;height:30px}
+  .tr .hdr.surf:not(.m) .trh-actions .btn{min-height:46px;padding:0 20px;font-size:17px}
+  .tr .hdr.surf:not(.m) .trh-burger{width:46px;min-width:46px;height:46px}
+  .tr .hdr.surf:not(.m) .trh-burger .i{width:26px;height:26px}
+}
