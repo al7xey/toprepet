@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { api, LESSON_MINUTES, staticTutors, type Tutor } from '../../api';
 import { trackGoal } from '../../../shared/lib/analytics';
@@ -34,6 +34,24 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const reviews = useQuery(`reviews-${tutor.id}`, () => api.getTutorReviews(tutor.id));
   const isTutorAccount = user?.role === 'tutor' || user?.role === 'admin';
   const location = useLocation();
+  // «Записаться» закреплена внизу экрана, а у блока со временем встаёт на своё место
+  const ctaSlot = useRef<HTMLDivElement>(null);
+  const [docked, setDocked] = useState(false);
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const node = ctaSlot.current;
+      if (!node) return;
+      const r = node.getBoundingClientRect();
+      setDocked(r.bottom <= window.innerHeight - 12);
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (frame) cancelAnimationFrame(frame); };
+  }, []);
   // назад — по истории, если она есть; иначе к каталогу
   const close = () => { if (location.key !== 'default') void navigate(-1); else void navigate('/teachers'); };
   const share = () => {
@@ -80,11 +98,6 @@ function Profile({ tutor }: { tutor: Tutor }) {
                   {tutor.introMinutes > 0 && <span className="trh-pf-intro-tag"><Icon name="gift" />Бесплатное знакомство</span>}
                 </div>
               </div>
-              {!isTutorAccount && (
-                <div className="trh-pf-cta">
-                  <Button to={start ? bookHref('regular') : undefined} onClick={start ? () => trackGoal('book_start', { kind: 'regular' }) : () => document.querySelector('.trk-slots')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>Записаться</Button>
-                </div>
-              )}
               <p className="trh-pf-intro" {...rv('up', 0.15)}>{tutor.intro}</p>
             </div>
           </section>
@@ -122,6 +135,13 @@ function Profile({ tutor }: { tutor: Tutor }) {
           <Section title="Свободное время">
             {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} />}
           </Section>
+          {!isTutorAccount && (
+            <div className="trh-pf-cta-slot" ref={ctaSlot}>
+              <div className={`trh-pf-cta${docked ? ' docked' : ''}`}>
+                <Button to={start ? bookHref('regular') : undefined} onClick={start ? () => trackGoal('book_start', { kind: 'regular' }) : () => document.querySelector('.trk-slots')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>Записаться</Button>
+              </div>
+            </div>
+          )}
 
           <hr className="rule" />
           <Section title="Отзывы" action={tutor.reviewsCount > 3 ? <Link className="acc sb" to={`/teachers/${tutor.id}/reviews`}>Все отзывы</Link> : undefined}>

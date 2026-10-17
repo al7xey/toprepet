@@ -604,7 +604,11 @@
 .tr .i-gift{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='3.5' y='8.5' width='17' height='4' rx='1.2'/><path d='M5 12.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6.5M12 8.5v12'/><path d='M12 8.5C10.2 8.5 8 7.8 8 6.2 8 4.8 9.2 4 10.4 4.5c1.1.5 1.6 2 1.6 4zM12 8.5c1.8 0 4-.7 4-2.3 0-1.4-1.2-2.2-2.4-1.7-1.1.5-1.6 2-1.6 4z'/></g></svg>")}
 /* кнопка «Записаться» закреплена внизу экрана, без белой подложки */
 @media(max-width:760px){
+  .tr .trh-pf-cta-slot{min-height:52px}
   .tr .trh-pf-cta{position:fixed;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40}
+  .tr .trh-pf-cta.docked{position:static}
   .tr .trk-app .trh-pf-cta{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
-  .tr main:has(.trh-pf-cta){padding-bottom:96px}
 }
+
+.tr .trh-pf-cta-slot{display:none}
+@media(max-width:760px){.tr .trh-pf-cta-slot{display:block}}
