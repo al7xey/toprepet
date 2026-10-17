@@ -57,7 +57,7 @@ function seedTutors(): Tutor[] {
     reviewsCount: 0,
     status: 'published',
     timezone: 'Europe/Moscow',
-    documentsVerified: index % 2 === 0,
+    documentsVerified: true,
   }));
 }
 

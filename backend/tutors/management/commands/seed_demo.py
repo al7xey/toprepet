@@ -70,6 +70,8 @@ class Command(BaseCommand):
             tutor.save(update_fields=['user'])
         TutorDocument.objects.create(id='d-1', tutor=anastasia, title='Диплом бакалавра', status='approved')
         TutorDocument.objects.create(id='d-2', tutor=anastasia, title='Сертификат Cambridge FCE', status='checking')
+        for tutor in tutors[1:]:  # у остальных демо-репетиторов проверен диплом: на анкете видна метка «Документы проверены»
+            TutorDocument.objects.create(id=f'd-{tutor.id}', tutor=tutor, title='Диплом', status='approved')
 
         def lesson(pk, tutor, start, status, **extra):
             payment = {'pending': 'hold', 'confirmed': 'captured', 'completed': 'paid_out'}.get(status, 'refunded')
