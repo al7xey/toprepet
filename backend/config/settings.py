@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.OriginCheckMiddleware',
 ]
 
@@ -92,6 +93,10 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_HSTS_SECONDS = 0 if DEBUG else 31536000
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+SECURE_HSTS_INCLUDE_SUBDOMAINS = env('HSTS_SUBDOMAINS') == '1'
+SECURE_HSTS_PRELOAD = env('HSTS_PRELOAD') == '1'
+# CSRF-токен не нужен: cookie SameSite=Lax + проверка Origin + только JSON/multipart (core.middleware.OriginCheckMiddleware).
+SILENCED_SYSTEM_CHECKS = ['security.W003']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ['core.auth.SessionAuth'],
