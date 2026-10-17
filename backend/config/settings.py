@@ -1,5 +1,6 @@
 """Настройки TopRepet. Всё, что отличается между машинами, берётся из переменных окружения (см. docs/backend.md)."""
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -15,6 +16,7 @@ def env_list(name: str, default: str = '') -> list[str]:
     return [item.strip() for item in env(name, default).split(',') if item.strip()]
 
 
+TESTING = 'pytest' in sys.modules
 DEBUG = env('DEBUG', '1') == '1'
 SECRET_KEY = env('SECRET_KEY', 'dev-only-secret-key-change-me' if DEBUG else '')
 if not SECRET_KEY:
@@ -63,7 +65,7 @@ DATABASES = {'default': dj_database_url.parse(env('DATABASE_URL', f'sqlite:///{B
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.User'
 AUTH_PASSWORD_VALIDATORS = [{'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 8}}]
-PASSWORD_HASHERS = ['django.contrib.auth.hashers.PBKDF2PasswordHasher'] if env('FAST_HASH') != '1' else ['django.contrib.auth.hashers.MD5PasswordHasher']
+PASSWORD_HASHERS = ['django.contrib.auth.hashers.MD5PasswordHasher'] if TESTING else ['django.contrib.auth.hashers.PBKDF2PasswordHasher']
 
 LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'UTC'
@@ -97,7 +99,7 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer'],
     'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser', 'rest_framework.parsers.MultiPartParser'],
     'EXCEPTION_HANDLER': 'core.errors.exception_handler',
-    'DEFAULT_THROTTLE_RATES': {'auth': env('AUTH_THROTTLE', '30/min')},
+    'DEFAULT_THROTTLE_RATES': {'auth': '100000/min' if TESTING else env('AUTH_THROTTLE', '30/min')},
 }
 
 # Почта: в разработке письма печатаются в консоль; в проде задайте EMAIL_URL=smtp://user:pass@host:587 (см. docs/backend.md).

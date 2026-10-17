@@ -11,4 +11,5 @@ def health(_request):
 urlpatterns = [
     path('health', health),
     path('', include('accounts.urls')),
+    path('', include('tutors.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
