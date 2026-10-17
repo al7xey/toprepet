@@ -642,6 +642,6 @@
 @media(max-width:760px){.tr .hdr.surf:not(.m) .trh-nav+.trh-burger{margin-left:auto}}
 
 /* заголовок героя: достаточная высота строки, чтобы нижние части букв не обрезались (в том числе в Safari) */
-.tr .trh-hero-h .trh-ln>span{line-height:1.25;padding-bottom:.2em}
+.tr .trh-hero-h .trh-ln>span{line-height:inherit;padding-bottom:.2em;margin-bottom:-.2em}
 .tr .trh-hero-h .trh-ln{padding:.12em 0 .5em;margin:-.12em 0 -.5em}
-@media(max-width:760px){.tr .trh-hero-h{font-size:38px}}
+@media(max-width:760px){.tr .trh-hero-h{font-size:34px}}
