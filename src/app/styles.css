@@ -3,7 +3,7 @@
   color-scheme: only light;
   font-family: 'Manrope Variable', Arial, sans-serif;
   color: #202838;
-  background: #fff;
+  background:#fff;
   font-synthesis: none;
   font-weight: 450;
   --ink: #202838;
@@ -73,7 +73,7 @@ main:focus {
   outline: 0;
 }
 ::selection {
-  background: #ffe0d2;
+  background:#ffe0d2;
 }
 .container {
   width: min(1184px, calc(100% - 40px));
@@ -84,9 +84,9 @@ main:focus {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgb(255 255 255 / 96%);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
+  background:rgb(255 255 255 / 96%);
+  
+  
 }
 .header {
   height: var(--header-height);
@@ -128,7 +128,7 @@ main:focus {
   justify-content: center;
   align-items: center;
   min-height: 54px;
-  border-radius: 16px;
+  border-radius:16px;
   padding: 15px 24px;
   font-weight: 650;
   font-size: 1rem;
@@ -141,31 +141,31 @@ main:focus {
 }
 .button-primary,
 .button:not(.button-secondary):not(.button-light) {
-  background: var(--accent);
+  background:var(--accent);
   color: #fff;
-  box-shadow: none;
+  box-shadow:none;
 }
 .button-primary:hover,
 .button:not(.button-secondary):not(.button-light):hover {
-  background: var(--accent-hover);
-  box-shadow: none;
+  background:var(--accent-hover);
+  box-shadow:none;
 }
 .button-secondary,
 .button-light {
-  background: var(--accent);
+  background:var(--accent);
   border-color: var(--accent);
   color: #fff;
 }
 .button-secondary:hover,
 .button-light:hover {
-  background: var(--accent-hover);
+  background:var(--accent-hover);
   border-color: var(--accent-hover);
   color: #fff;
 }
 .header-contact {
   min-height: 44px;
   padding: 10px 18px;
-  border-radius: 14px;
+  border-radius:14px;
   font-size: 1rem;
 }
 .hero {
@@ -227,8 +227,8 @@ h1 span {
 .hero-note {
   font-size: 1rem;
   color: var(--ink);
-  background: var(--highlight);
-  border-radius: 12px;
+  background:var(--highlight);
+  border-radius:12px;
   padding: 10px 14px;
   font-weight: 700;
   margin: 14px 0 0;
@@ -320,8 +320,8 @@ h2 {
   align-self: flex-start;
   height: 350px;
   border: 1px solid var(--line);
-  border-radius: 25px;
-  background: #fff;
+  border-radius:16px;
+  background:#fff;
   overflow: hidden;
   display: block;
   padding: 0;
@@ -333,11 +333,11 @@ h2 {
   width: 100%;
   height: 100%;
   min-width: 0;
-  border-radius: 0;
+  border-radius:0;
   place-items: center;
   align-content: start;
   gap: 8px;
-  background: linear-gradient(150deg, #ffd5b0 0%, #f47a3b 54%, #bf3e22 100%);
+  background:#ffd5b0;
   color: #fff;
   overflow: hidden;
   text-align: center;
@@ -348,8 +348,8 @@ h2 {
   position: absolute;
   width: 210px;
   height: 210px;
-  border-radius: 50%;
-  background: #ffffff30;
+  border-radius:50%;
+  background:#ffffff30;
   transform: translate(-42px, -28px);
 }
 .teacher-photo svg,
@@ -363,12 +363,12 @@ h2 {
   line-height: 1.2;
 }
 .teacher-photo-2 {
-  background: linear-gradient(150deg, #ffe39f 0%, #f48a38 54%, #c34b25 100%);
+  background:#ffe39f;
 }
 .teacher-photo-3 {
-  background: linear-gradient(150deg, #ffd28f 0%, #f36f36 54%, #b63f34 100%);
+  background:#ffd28f;
 }
-.teacher-glass {
+.teacher-plate {
   position: absolute;
   right: 16px;
   bottom: 16px;
@@ -378,11 +378,11 @@ h2 {
   margin: 0;
   padding: 18px 19px 20px;
   border: 1px solid #ffffffbb;
-  border-radius: 22px;
-  background: rgb(255 255 255 / 78%);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 12px 28px #7d351f14;
+  border-radius:22px;
+  background:rgb(255 255 255 / 78%);
+  
+  
+  box-shadow:none;
   height: 146px;
   grid-template-rows: minmax(52px, 1fr) auto;
   align-content: start;
@@ -402,7 +402,7 @@ h2 {
   width: max-content;
   min-height: 40px;
   padding: 9px 15px;
-  border-radius: 12px;
+  border-radius:12px;
   color: #fff;
   text-decoration: none;
   align-self: end;
@@ -434,17 +434,17 @@ h2 {
   max-width: 420px;
   aspect-ratio: 4 / 5;
   justify-self: center;
-  border-radius: var(--radius);
-  background: linear-gradient(150deg, #ffd5b0 0%, #f47a3b 54%, #bf3e22 100%);
+  border-radius:var(--radius);
+  background:#ffd5b0;
   color: #fff;
   font-size: 1rem;
   font-weight: 650;
 }
 .teacher-profile-photo.teacher-photo-2 {
-  background: linear-gradient(150deg, #ffe39f 0%, #f48a38 54%, #c34b25 100%);
+  background:#ffe39f;
 }
 .teacher-profile-photo.teacher-photo-3 {
-  background: linear-gradient(150deg, #ffd28f 0%, #f36f36 54%, #b63f34 100%);
+  background:#ffd28f;
 }
 .teacher-profile-copy {
   min-width: 0;
@@ -476,8 +476,8 @@ h2 {
 .teacher-topic-grid span {
   padding: 10px 14px;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  background: #fff;
+  border-radius:16px;
+  background:#fff;
   font-size: .9375rem;
   font-weight: 700;
   line-height: 1.35;
@@ -493,8 +493,8 @@ h2 {
   margin-top: 6px;
   padding: 22px;
   border: 1px solid var(--line);
-  border-radius: 24px;
-  background: #fff;
+  border-radius:16px;
+  background:#fff;
 }
 .teacher-profile-action > div {
   display: grid;
@@ -519,7 +519,7 @@ h2 {
 .teacher-profile-messengers .messenger-button {
   min-height: 48px;
   padding: 11px 10px;
-  border-radius: 16px;
+  border-radius:16px;
   font-size: .9375rem;
 }
 .format-track:active {
@@ -559,9 +559,9 @@ h2 {
   height: 44px;
   min-width: 44px;
   padding: 0;
-  border-radius: 50%;
+  border-radius:50%;
   border: 1px solid var(--accent);
-  background: transparent;
+  background:transparent;
   color: var(--accent);
   touch-action: manipulation;
 }
@@ -573,7 +573,7 @@ h2 {
 .teachers-heading .carousel-arrow:active,
 .teachers-heading .carousel-arrow:focus-visible,
 .teachers-heading .carousel-arrow:disabled {
-  background: transparent !important;
+  background:transparent !important;
   border-color: var(--accent) !important;
   color: var(--accent) !important;
   opacity: 1;
@@ -591,8 +591,8 @@ h2 {
 .format-card {
   width: 100%;
   padding: 25px;
-  border-radius: 26px;
-  background: #fff;
+  border-radius:16px;
+  background:#fff;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -604,7 +604,7 @@ h2 {
 }
 .format-card:hover {
   border-color: var(--line);
-  box-shadow: 0 5px 18px #a94f2c10;
+  box-shadow:none;
 }
 .format-meta {
   display: flex;
@@ -644,8 +644,8 @@ h2 {
   font-weight: 650;
   padding: 12px 22px;
   border: 1px solid var(--accent);
-  border-radius: 13px;
-  background: var(--accent);
+  border-radius:13px;
+  background:var(--accent);
   color: #fff;
   min-width: 104px;
   text-align: center;
@@ -654,16 +654,16 @@ h2 {
     border-color 0.18s;
 }
 .format-card:hover .format-action {
-  background: var(--accent);
+  background:var(--accent);
   border-color: var(--accent);
   color: #fff;
 }
 .price-section {
   margin-top: 64px;
   padding: 32px 26px;
-  background: linear-gradient(135deg, #fff0df 0%, #fff7f1 72%);
+  background:#fff0df;
   color: var(--ink);
-  border-radius: var(--radius);
+  border-radius:var(--radius);
   display: grid;
   gap: 28px;
   scroll-margin-top: calc(var(--header-height) + 24px);
@@ -682,8 +682,8 @@ h2 {
   width: max-content;
   max-width: 100%;
   padding: 10px 13px;
-  border-radius: 12px;
-  background: var(--highlight);
+  border-radius:12px;
+  background:var(--highlight);
   color: var(--ink);
   font-weight: 700;
 }
@@ -716,7 +716,7 @@ h2 {
   margin-top: 28px;
   padding: 28px 26px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius:var(--radius);
   display: grid;
   gap: 24px;
 }
@@ -745,8 +745,8 @@ h2 {
   height: 54px;
   padding: 0 17px;
   border: 1px solid var(--line);
-  border-radius: 16px;
-  background: var(--surface);
+  border-radius:16px;
+  background:var(--surface);
   color: var(--ink);
   font: inherit;
   font-size: 1rem;
@@ -754,7 +754,7 @@ h2 {
 }
 .promo-controls input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px #f26a2e20;
+  box-shadow:none;
 }
 .promo-controls .button {
   width: 100%;
@@ -802,7 +802,7 @@ h2 {
   clip-path: inset(50%);
   left: 15px;
   z-index: 1100;
-  background: #fff;
+  background:#fff;
   padding: 12px;
 }
 .skip-link:focus {
@@ -839,12 +839,12 @@ h2 {
 .error-refresh-button {
   width: min(100%, 180px);
   margin-top: 14px;
-  background: #fff;
+  background:#fff;
   border-color: var(--line);
   color: var(--ink);
 }
 .error-refresh-button:hover {
-  background: var(--accent-soft);
+  background:var(--accent-soft);
   border-color: var(--accent);
   color: var(--ink);
 }

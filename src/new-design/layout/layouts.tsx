@@ -56,7 +56,7 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
   return (
     <>
       <div className={cx('wash trh-page', tight && 'trh-tight', bareMobile && 'trh-bare')}>
-        <header className="hdr glass trh-hdr">
+        <header className="hdr surf trh-hdr">
           <Logo />
           <nav className="trh-nav" aria-label="Основная навигация">
             {PUBLIC_NAV.map(([label, to]) => <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{label}</NavLink>)}
@@ -69,7 +69,7 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
       </div>
       {menu && (
         <dialog open className="wash trh-menu" aria-modal="true" aria-label="Меню">
-          <header className="hdr m glass"><Logo /><button type="button" className="btn btn-icon" aria-label="Закрыть меню" onClick={() => setMenu(false)}><Icon name="x" /></button></header>
+          <header className="hdr m surf"><Logo /><button type="button" className="btn btn-icon" aria-label="Закрыть меню" onClick={() => setMenu(false)}><Icon name="x" /></button></header>
           <nav className="trh-menu-list" aria-label="Меню">
             {[...PUBLIC_NAV, ['Заявки учеников', '/requests'], ['Помощь', '/help']].map(([label, to]) => <Link key={to} to={to}>{label}<Icon name="right" /></Link>)}
           </nav>
@@ -134,7 +134,7 @@ export function AppLayout({ role, children, narrow }: { role: Role; children: Re
   const accountTo = role === 'admin' ? '/admin/disputes' : `${counters.prefix}/account`;
   return (
     <div className={cx('wash trh-page trh-tight trk-app', `tabs-${tabs.length}`)} style={{ '--n': tabs.length } as CSSProperties}>
-      <header className="hdr glass trh-hdr trk-app-hdr">
+      <header className="hdr surf trh-hdr trk-app-hdr">
         <Logo />
         <nav className="trh-nav" aria-label="Разделы кабинета">
           {top.map((item) => <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{item.label}</NavLink>)}
@@ -148,7 +148,7 @@ export function AppLayout({ role, children, narrow }: { role: Role; children: Re
         )}
       </header>
       <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>{children}</main>
-      <nav className={cx('tabbar glass trk-tabbar', tabs.length === 5 && 'five')} aria-label="Разделы">
+      <nav className={cx('tabbar surf trk-tabbar', tabs.length === 5 && 'five')} aria-label="Разделы">
         {tabs.map((t) => (
           <NavLink key={t.to} to={t.to} className={({ isActive }) => cx('tab', isActive && 'cur')}>
             <Icon name={t.icon} />{t.label}{t.badge ? <span className="dot">{t.badge}</span> : null}

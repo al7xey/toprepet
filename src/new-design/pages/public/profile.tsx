@@ -66,7 +66,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
           <section className="trh-pf-top">
             <div className="trh-pf-photo" {...rv('scale')}>
               <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 300px, 100vw" alt={`Фото: ${tutor.name}`} fetchPriority="high" decoding="async" />
-              <IconButton icon="back" label="Назад" to="/teachers" glass className="trh-pf-back" />
+              <IconButton icon="back" label="Назад" to="/teachers" surf className="trh-pf-back" />
             </div>
             <div className="trh-pf-sheet">
               <div className="trh-sec" {...rv('up', 0.05)}>
@@ -133,7 +133,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
       </div>
 
       {!isTutorAccount && (
-        <div className="actionbar glass trh-pf-bar">
+        <div className="actionbar surf trh-pf-bar">
           <div className="meta"><b className="tn">{start ? whenLabel(start) : fromRub(tutor.studentPrice)}</b><span>{start ? `${minutes(LESSON_MINUTES)} · ${rub(tutor.studentPrice)}` : 'Выберите время в календаре'}</span></div>
           <Button to={start ? bookHref('regular') : undefined} onClick={start ? undefined : () => document.querySelector('.trk-slots')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>{start ? 'Записаться' : 'Выбрать время'}</Button>
         </div>

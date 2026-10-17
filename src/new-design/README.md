@@ -38,3 +38,7 @@
 
 ## Мок и данные репетитора
 Данные кабинета репетитора (расписание, исключения, анкета, документы, выплаты) хранятся по id анкеты. Регистрация репетитора создаёт черновик анкеты; в демо-режиме публикация проходит мгновенно, на сервере анкета уйдёт на модерацию (админка, этап 5). Ключ хранилища `toprepet-mock-v2`: при смене формы данных повышаем версию.
+
+## Flat surfaces
+
+No blur (`backdrop-filter`), gradients, glossy highlights or drop shadows anywhere in the project: surfaces are white or a plain tint with a 1–1.5px ring (`box-shadow: inset 0 0 0 1px var(--line)`), buttons are solid colour, hover does not lift elements. The header is a solid white bar. Browser autofill is neutralised in `.trk-input`, letter avatars are centred with grid (`.avatar.trk-avatar-letter`). Class names `surf`, `surf-strong`, `surf-photo` replace the old `glass*` names.

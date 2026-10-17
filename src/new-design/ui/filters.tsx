@@ -18,7 +18,7 @@ export function Dropdown<T extends string | number>({ label, icon, value, option
       <summary className={`chipf${value !== null && allLabel ? ' on' : ''}`} aria-label={label}>
         {icon && <Icon name={icon} />}{current?.label ?? label}<Icon name="down" />
       </summary>
-      <div className={`trh-drop-menu glass-thick${align === 'right' ? ' right' : ''}`}>
+      <div className={`trh-drop-menu surf-strong${align === 'right' ? ' right' : ''}`}>
         {allLabel && <button type="button" className={value === null ? 'on' : undefined} onClick={() => pick(null)}>{allLabel}{value === null && <Icon name="check" />}</button>}
         {options.map((o) => (
           <button type="button" key={String(o.value)} className={o.value === value ? 'on' : undefined} aria-pressed={o.value === value} onClick={() => pick(o.value)}>

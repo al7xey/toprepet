@@ -10,9 +10,9 @@
 }
 
 .site-header {
-  background: rgb(255 255 255 / 78%);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  background:rgb(255 255 255 / 78%);
+  
+  
 }
 
 .header { gap: 12px; }
@@ -22,12 +22,12 @@
 
 .button,
 .format-action {
-  border-radius: 22px;
+  border-radius:22px;
   font-weight: 750;
 }
 
 .button { gap: 10px; }
-.header-contact { border-radius: 18px; }
+.header-contact { border-radius:18px; }
 
 .menu-toggle {
   display: inline-flex;
@@ -36,8 +36,8 @@
   width: 44px;
   height: 44px;
   border: 1px solid var(--accent);
-  border-radius: 14px;
-  background: transparent;
+  border-radius:14px;
+  background:transparent;
   color: var(--accent);
 }
 
@@ -45,10 +45,10 @@
 .menu-toggle:active,
 .menu-toggle:focus-visible {
   border-color: var(--accent) !important;
-  background: transparent !important;
+  background:transparent !important;
   color: var(--accent) !important;
-  box-shadow: none !important;
-  transform: none !important;
+  box-shadow:none;
+  
 }
 
 .mobile-menu {
@@ -60,9 +60,9 @@
   width: min(320px, calc(100vw - 24px));
   padding: 26px;
   overflow-y: auto;
-  border-radius: 30px;
-  background: rgb(255 255 255 / 97%);
-  box-shadow: 0 18px 80px rgb(32 40 56 / 16%);
+  border-radius:20px;
+  background:rgb(255 255 255 / 97%);
+  box-shadow:none;
   transition: transform .22s ease, opacity .22s ease;
 }
 
@@ -70,9 +70,9 @@
   position: fixed;
   inset: 0;
   z-index: 1200;
-  background: rgb(32 40 56 / 20%);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  background:rgb(32 40 56 / 20%);
+  
+  
   transition: opacity .22s ease;
 }
 
@@ -96,7 +96,7 @@
   display: block;
   padding: 17px 18px;
   border-left: 4px solid transparent;
-  border-radius: 16px;
+  border-radius:16px;
   font-size: 1.125rem;
   font-weight: 700;
 }
@@ -104,7 +104,7 @@
 .mobile-menu nav a:hover,
 .mobile-menu nav a.active {
   border-left-color: var(--accent);
-  background: var(--accent-soft);
+  background:var(--accent-soft);
   color: var(--accent-hover);
 }
 
@@ -144,8 +144,8 @@
   margin: 22px 0 0;
   padding: 0;
   border: 0;
-  border-radius: 0;
-  background: transparent;
+  border-radius:0;
+  background:transparent;
   color: var(--ink);
   font-size: 1rem;
   font-weight: 550;
@@ -170,9 +170,9 @@
   min-width: 0;
   padding: 2px;
   overflow: hidden;
-  border-radius: 36px;
+  border-radius:24px;
   border: 1px solid #ffe0cf;
-  background: #fff;
+  background:#fff;
 }
 
 .hero-art picture { display: block; height: 100%; }
@@ -182,7 +182,7 @@
   width: 100%;
   height: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 26px;
+  border-radius:16px;
   object-fit: cover;
   object-position: center 48%;
 }
@@ -206,8 +206,8 @@
 .format-card {
   min-height: 330px;
   padding: 24px;
-  border-radius: 32px;
-  background: #fff;
+  border-radius:20px;
+  background:#fff;
 }
 
 .format-card h3 { font-size: 1.4rem; }
@@ -231,7 +231,7 @@
 .teacher-card {
   width: 256px;
   height: 332px;
-  border-radius: 32px;
+  border-radius:20px;
 }
 
 .teacher-photo,
@@ -240,18 +240,18 @@
 .teacher-profile-photo,
 .teacher-profile-photo.teacher-photo-2,
 .teacher-profile-photo.teacher-photo-3 {
-  background: linear-gradient(155deg, #ffd8ad 0%, #f47b3b 54%, #c94a25 100%);
+  background:#ffd8ad;
 }
 
-.teacher-glass {
+.teacher-plate {
   right: 12px;
   bottom: 12px;
   left: 12px;
   height: 158px;
   min-height: 0;
   padding: 16px;
-  border-radius: 25px;
-  background: rgb(255 249 244 / 86%);
+  border-radius:16px;
+  background:rgb(255 249 244 / 86%);
   grid-template-rows: minmax(65px, 1fr) auto;
   gap: 8px;
 }
@@ -266,7 +266,7 @@
   width: 100%;
   min-height: 38px;
   padding: 7px 10px;
-  border-radius: 14px;
+  border-radius:14px;
   font-weight: 750;
 }
 
@@ -275,7 +275,7 @@
   max-width: 100%;
   height: auto;
   aspect-ratio: 4 / 5;
-  border-radius: 32px;
+  border-radius:20px;
 }
 
 .teacher-profile-placeholder,
@@ -341,9 +341,9 @@
   min-height: 174px;
   padding: 22px;
   border: 1px solid var(--line);
-  border-radius: 30px;
-  background: #fff;
-  box-shadow: 0 16px 44px rgb(32 40 56 / 8%);
+  border-radius:20px;
+  background:#fff;
+  box-shadow:none;
 }
 
 .journey-step-1 { top: 0; left: 0; }
@@ -355,8 +355,8 @@
   place-items: center;
   width: 52px;
   height: 52px;
-  border-radius: 50%;
-  background: var(--accent);
+  border-radius:50%;
+  background:var(--accent);
   color: #fff;
   font-size: 1.25rem;
   font-weight: 800;
@@ -413,8 +413,8 @@
   bottom: 32px;
   left: 28px;
   width: 3px;
-  border-radius: 99px;
-  background: linear-gradient(var(--accent), #ffc5a5);
+  border-radius:24px;
+  background:var(--accent);
   transform: scaleY(0);
   transform-origin: top;
   z-index: 0;
@@ -429,9 +429,9 @@
   width: 12px;
   height: 12px;
   border: 3px solid #fff;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 1px #ffd7c2;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 0 1px #ffd7c2;
   opacity: 0;
 }
 
@@ -456,9 +456,9 @@
   width: 56px;
   height: 56px;
   border: 6px solid #fff;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 1px #ffd7c2;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 0 1px #ffd7c2;
   color: #fff;
   font-size: 1.125rem;
   font-weight: 800;
@@ -488,8 +488,8 @@
   margin-top: 96px;
   padding: 34px 28px;
   gap: 34px;
-  border-radius: 34px;
-  background: linear-gradient(135deg, #fff1e8 0%, #fff9f5 74%);
+  border-radius:20px;
+  background:#fff;
 }
 
 .price-section h2 {
@@ -509,8 +509,8 @@
   padding: 0;
   overflow-wrap: anywhere;
   border: 0;
-  border-radius: 0;
-  background: transparent;
+  border-radius:0;
+  background:transparent;
   color: var(--ink);
   font-size: 1rem;
   font-weight: 550;
@@ -559,8 +559,8 @@
   min-height: 60px;
   padding: 16px 10px;
   border: 1px solid var(--line);
-  border-radius: 22px;
-  background: #fff;
+  border-radius:22px;
+  background:#fff;
   color: #111;
   font-size: 1rem;
   font-weight: 750;
@@ -569,7 +569,7 @@
 
 .messenger-button:hover {
   border-color: var(--accent);
-  background: var(--accent-soft);
+  background:var(--accent-soft);
 }
 
 .messenger-button > svg,
@@ -586,8 +586,8 @@
   margin-top: 20px;
   padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 22px;
-  background: var(--surface);
+  border-radius:22px;
+  background:var(--surface);
 }
 
 .contact-selection p {
@@ -605,8 +605,8 @@
   margin-right: 14px;
   padding: 10px 14px;
   border: 1px solid var(--accent);
-  border-radius: 16px;
-  background: transparent;
+  border-radius:16px;
+  background:transparent;
   color: var(--accent-hover);
   font-weight: 750;
 }
@@ -630,12 +630,12 @@
   padding: 12px;
   resize: vertical;
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius:16px;
   font: inherit;
   font-size: 1rem;
 }
 
-.selection-summary { max-height: none; background: #fff; }
+.selection-summary { max-height: none; background:#fff; }
 .selection-summary .summary-free { color: var(--ink); font-weight: 650; }
 .summary-free { font-size: 1.05rem; }
 
@@ -774,16 +774,16 @@
   min-height: 0;
   padding: 0;
   border: 0;
-  border-radius: 32px;
-  background: transparent;
-  box-shadow: 0 18px 48px rgb(32 40 56 / 8%);
+  border-radius:20px;
+  background:transparent;
+  box-shadow:none;
 }
 
 .hero-art img {
   width: 100%;
   height: 100%;
   aspect-ratio: auto;
-  border-radius: inherit;
+  border-radius:inherit;
   object-fit: cover;
   object-position: center 48%;
 }
@@ -807,14 +807,14 @@
   bottom: 29px;
   left: 28px;
   width: 3px;
-  border-radius: 99px;
+  border-radius:24px;
   display: none;
 }
 
-.process-grid::before { background: #ffe0cf; }
+.process-grid::before { background:#ffe0cf; }
 
 .process-grid::after {
-  background: var(--accent);
+  background:var(--accent);
   transform: scaleY(0);
   transform-origin: top;
 }
@@ -839,8 +839,8 @@
   left: 28px;
   width: 3px;
   height: calc(100% + 34px - 58px);
-  border-radius: 99px;
-  background: var(--accent);
+  border-radius:24px;
+  background:var(--accent);
   transform: scaleY(0);
   transform-origin: top;
 }
@@ -860,8 +860,8 @@
   width: 58px;
   height: 58px;
   border: 0;
-  border-radius: 50%;
-  background: var(--accent);
+  border-radius:50%;
+  background:var(--accent);
   color: #fff;
   font-size: 1.125rem;
   font-weight: 800;
@@ -1019,7 +1019,7 @@
 
 .teacher-photo {
   padding: 0;
-  background: #f7e8dc;
+  background:#f7e8dc;
 }
 
 .teacher-photo::before { display: none; }
@@ -1037,7 +1037,7 @@
   position: relative;
   overflow: hidden;
   padding: 0;
-  background: #f7e8dc;
+  background:#f7e8dc;
 }
 
 .teacher-photo img,
@@ -1078,16 +1078,16 @@
   aspect-ratio: 4 / 5;
 }
 
-.teacher-glass {
+.teacher-plate {
   right: 10px;
   bottom: 10px;
   left: 10px;
   height: 96px;
   padding: 11px 12px;
-  border-radius: 23px;
-  background: rgb(255 249 244 / 78%);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  border-radius:23px;
+  background:rgb(255 249 244 / 78%);
+  
+  
   grid-template-rows: auto auto;
   align-content: center;
   gap: 8px;
@@ -1124,7 +1124,7 @@
   align-self: center;
   min-height: 38px;
   padding: 7px 10px;
-  border-radius: 14px;
+  border-radius:14px;
   font-size: 1rem;
   font-weight: 800;
 }
@@ -1172,8 +1172,8 @@
 .teacher-achievement-card {
   padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 18px;
-  background: #fff;
+  border-radius:18px;
+  background:#fff;
 }
 
 .teacher-achievement-card h3 {
@@ -1195,8 +1195,8 @@
   padding: 24px 0 0;
   border: 0;
   border-top: 1px solid var(--line);
-  border-radius: 0;
-  background: transparent;
+  border-radius:0;
+  background:transparent;
 }
 
 .teacher-profile-messengers {
@@ -1204,7 +1204,7 @@
 }
 
 .teacher-profile-messengers .messenger-button {
-  border-radius: 18px;
+  border-radius:18px;
   color: #000;
 }
 
@@ -1228,11 +1228,11 @@
 .choice-option.is-selected:hover,
 .choice-option.is-selected:active,
 .choice-option.is-selected:focus-visible {
-  background: var(--accent-soft);
+  background:var(--accent-soft);
   border-color: var(--accent);
   color: var(--ink);
   font-weight: 750;
-  box-shadow: none;
+  box-shadow:none;
 }
 
 .lessons-page {

@@ -47,8 +47,8 @@ export function Button({ children, variant = 'primary', size = 'md', block, icon
 }
 
 /** Круглая кнопка со значком (уведомления, назад, закрыть). */
-export function IconButton({ icon, label, to, onClick, glass, badge, className }: { icon: string; label: string; to?: string; onClick?: () => void; glass?: boolean; badge?: number | boolean; className?: string }) {
-  const cls = cx('trk-iconbtn', glass && 'glass', className);
+export function IconButton({ icon, label, to, onClick, surf, badge, className }: { icon: string; label: string; to?: string; onClick?: () => void; surf?: boolean; badge?: number | boolean; className?: string }) {
+  const cls = cx('trk-iconbtn', surf && 'surf', className);
   const dot = badge ? <span className="trk-badge">{typeof badge === 'number' ? badge : ''}</span> : null;
   if (to) return <Link className={cls} to={to} aria-label={label}><Icon name={icon} />{dot}</Link>;
   return <button type="button" className={cls} onClick={onClick} aria-label={label}><Icon name={icon} />{dot}</button>;

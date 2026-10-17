@@ -41,7 +41,7 @@ export function TeacherCard({
           draggable={false}
         />
       </span>
-      <span className="teacher-glass">
+      <span className="teacher-plate">
         <strong className="teacher-card-subjects">{cardSubjects}</strong>
       </span>
     </Link>
