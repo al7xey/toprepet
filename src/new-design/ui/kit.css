@@ -99,7 +99,6 @@
 .tr .trk-choices.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .tr .trk-choices.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .tr .trk-choice{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:14px;text-align:left;padding:24px;border:0;border-radius:32px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);font:inherit;color:inherit;cursor:pointer;transition:transform .3s var(--spring),box-shadow .25s,background .25s}
-.tr .trk-choice:hover{box-shadow:inset 0 0 0 1px rgb(242 106 46 / 35%)}
 .tr .trk-choice.on{background:#fff;box-shadow:inset 0 0 0 2px var(--accent)}
 .tr .trk-choice .ic-sq{width:48px;height:48px;border-radius:16px}
 .tr .trk-choice .ic-sq .i{width:24px;height:24px}
@@ -414,8 +413,6 @@
 /* ---- v6: правки по замечаниям ---- */
 /* карточки при наведении сохраняют рамку и не двигаются */
 .tr .card,.tr .tc,.tr .trh-fmt,.tr .trk-choice,.tr .trk-lesson{transform:none!important}
-.tr a.card:hover,.tr .card.hov:hover,.tr .tc:hover,.tr .trh-fmt:hover,.tr .fmt:hover,.tr .trk-choice:hover,.tr .trk-lesson:hover{box-shadow:0 0 0 1.5px var(--accent)}
-.tr .fmt2:hover{box-shadow:inset 0 0 0 1.5px var(--accent)}
 .tr .btn:active,.tr .opt:active,.tr .chipf:active,.tr .tab:active,.tr .gbtn:active,.tr .icbtn:active{transform:none}
 /* шапка: жирнее, выбранный и наведённый пункт — ярко-оранжевый */
 .tr .hdr nav a{font-weight:700}
@@ -448,7 +445,6 @@
 .tr .tg-pad{padding:12px 16px}
 .tr .tg-rows{overflow-y:auto;display:grid;align-content:start;padding:0 8px 8px}
 .tr .tg-row{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border-radius:22px;min-height:72px}
-.tr .tg-row:hover{box-shadow:inset 0 0 0 1.5px var(--accent)}
 .tr .tg-row.on{background:var(--accent-soft)}
 .tr .tg-row-text{display:grid;min-width:0;gap:2px}
 .tr .tg-row-text b{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -502,12 +498,54 @@
 .tr .hdr .logo{font-size:26px}
 .tr .hdr .logo-mark{width:34px;height:34px}
 .tr .hdr nav a{font-size:17px}
-.tr .hdr .btn{min-height:48px;padding:0 24px;font-size:17px}
+.tr .hdr .btn{min-height:48px;padding:0 24px;font-size:18.7px;font-weight:800}
 @media(max-width:760px){
   .tr .hdr.surf:not(.m){margin-inline:0;top:8px;height:64px;padding:0 10px 0 18px}
   .tr .hdr .logo{font-size:23px}
   .tr .hdr .logo-mark{width:30px;height:30px}
-  .tr .hdr.surf:not(.m) .trh-actions .btn{min-height:46px;padding:0 20px;font-size:17px}
+  .tr .hdr.surf:not(.m) .trh-actions .btn{min-height:46px;padding:0 20px;font-size:18.7px;font-weight:800}
   .tr .hdr.surf:not(.m) .trh-burger{width:46px;min-width:46px;height:46px}
   .tr .hdr.surf:not(.m) .trh-burger .i{width:26px;height:26px}
 }
+
+/* ---- v8: поля входа ----
+   Кольцо рисуется наложением поверх содержимого: автозаполнение браузера закрашивает
+   прямоугольник поля и без этого съедало скруглённые углы кольца. */
+.tr .trk-input-box{position:relative;box-shadow:none;transition:none}
+.tr .trk-input-box::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--line);pointer-events:none;transition:box-shadow .2s}
+.tr .trk-input-box:hover::after{box-shadow:inset 0 0 0 1.5px rgb(242 106 46 / 55%)}
+.tr .trk-input-box:focus-within::after{box-shadow:inset 0 0 0 2px var(--accent)}
+.tr .has-error .trk-input-box::after{box-shadow:inset 0 0 0 2px var(--bad)}
+
+/* ---- v9: телефон — шапка, кнопки, анкета ---- */
+@media(max-width:760px){
+  /* шапка тех же отступов, что и контент: 16 px слева и справа */
+  .tr .hdr.surf:not(.m){margin-inline:0;top:8px;height:64px;padding:0 6px 0 18px;width:auto}
+  .tr .hdr.surf:not(.m) .trh-burger{order:2;margin-left:auto;width:46px;min-width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;box-shadow:none;padding:0}
+  .tr .hdr.surf:not(.m) .trh-burger:hover{background:var(--accent-press)}
+  .tr .hdr.surf:not(.m) .trh-burger .i{width:24px;height:24px;color:#fff}
+  .tr .hdr.surf:not(.m) .trh-actions{order:3;margin-left:8px;flex-shrink:0}
+  /* самостоятельные кнопки одинаково широкие, высота 52 px */
+  .tr main .btn:not(.btn-icon):not(.search .btn){width:100%;min-height:52px;justify-content:center}
+  .tr main .btn.btn-s:not(.btn-icon){min-height:44px}
+  .tr main .trk-actions{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
+  /* анкета без «назад» и без своей шапки: шапка общая */
+  .tr .trh-pf-backwrap{display:none}
+  .tr .trh-pf-back{display:none}
+  .tr .trh-pf-photo{margin:0 -16px;height:400px}
+  .tr main:has(.trh-pf-bar){padding-bottom:150px}
+}
+/* шторка анкеты: ручка сверху, закрывается свайпом вниз */
+.tr .trh-pf-grab{display:none}
+@media(max-width:760px){
+  .tr .trh-pf-grab{display:grid;place-items:center;height:28px;margin:-10px -20px -6px;cursor:grab;touch-action:none;user-select:none}
+  .tr .trh-pf-grab span{width:44px;height:5px;border-radius:999px;background:#d8cdc6}
+  .tr .trh-pf-sheet{transition:transform .25s var(--ease)}
+}
+@media(max-width:760px){
+  .tr .trh-pf-bar{flex-wrap:wrap;gap:10px;align-items:stretch}
+  .tr .trh-pf-bar .meta{width:100%}
+  .tr main:has(.trh-pf-bar){padding-bottom:170px}
+}
+/* белый текст на оранжевом: крупный и жирный, чтобы проходил контраст */
+.tr main .btn.btn-primary{font-size:18.7px;font-weight:800}

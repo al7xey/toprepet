@@ -130,20 +130,16 @@ function Thread({ conversation, list, loading, onSent }: { conversation: Convers
     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); void submit(); }
   };
 
-  let lastDay = '';
-  let lastAuthor: string | null | undefined;
   return (
     <>
       <div className="tg-thread" ref={scroller} aria-live="polite">
         {loading && <p className="muted tg-note">Загружаем сообщения…</p>}
         {!loading && list.length === 0 && <p className="tg-note">Напишите первое сообщение: представьтесь и расскажите, чем нужна помощь.</p>}
-        {list.map((m) => {
-          const day = dayKey(m.at);
-          const newDay = day !== lastDay;
-          lastDay = day;
+        {list.map((m, i) => {
+          const prev = list[i - 1];
+          const newDay = !prev || dayKey(prev.at) !== dayKey(m.at);
           const mine = m.authorId === user?.id;
-          const joined = !newDay && m.kind !== 'event' && lastAuthor === m.authorId;
-          lastAuthor = m.kind === 'event' ? undefined : m.authorId;
+          const joined = !newDay && m.kind !== 'event' && prev?.kind !== 'event' && prev?.authorId === m.authorId;
           return (
             <div key={m.id} className="tg-fragment">
               {newDay && <div className="tg-day"><span>{dayLabel(m.at)}</span></div>}

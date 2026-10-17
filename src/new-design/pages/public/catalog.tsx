@@ -66,7 +66,7 @@ export default function CatalogPage() {
         (page) => dispatch({ type: 'more', items: page.items, cursor: page.nextCursor }),
         (e: Error) => dispatch({ type: 'more-fail', message: e.message }),
       );
-    }, { rootMargin: '600px 0px' });
+    }, { rootMargin: '1600px 0px' });
     io.observe(node);
     return () => io.disconnect();
   }, [cursor, fresh, list.more, filter]);

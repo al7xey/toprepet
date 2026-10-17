@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { api, LESSON_MINUTES, staticTutors, type Tutor } from '../../api';
 import { trackGoal } from '../../../shared/lib/analytics';
 import { useQuery } from '../../api/hooks';
@@ -33,6 +33,32 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const slots = useQuery(`slots-${tutor.id}`, () => api.getTutorSlots(tutor.id, from, 14));
   const reviews = useQuery(`reviews-${tutor.id}`, () => api.getTutorReviews(tutor.id));
   const isTutorAccount = user?.role === 'tutor' || user?.role === 'admin';
+  const location = useLocation();
+  const sheet = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ y: number; dy: number } | null>(null);
+  // шторку закрываем назад по истории, если она есть; иначе — к каталогу
+  const close = () => { if (location.key !== 'default') void navigate(-1); else void navigate('/teachers'); };
+  const onDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (window.scrollY > 4 || !window.matchMedia('(max-width: 760px)').matches) return;
+    drag.current = { y: e.clientY, dy: 0 };
+    // палец уходит с ручки при движении вниз: захватываем указатель, чтобы события шли сюда
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const onMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!drag.current || !sheet.current) return;
+    const dy = Math.max(0, e.clientY - drag.current.y);
+    drag.current.dy = dy;
+    sheet.current.style.transition = 'none';
+    sheet.current.style.transform = `translateY(${dy}px)`;
+  };
+  const onUp = () => {
+    const state = drag.current;
+    drag.current = null;
+    if (!sheet.current || !state) return;
+    if (state.dy > 90) { close(); return; }
+    sheet.current.style.transition = '';
+    sheet.current.style.transform = '';
+  };
 
   const bookHref = (kind: 'regular' | 'intro') => `/book/${tutor.id}?kind=${kind}${start ? `&start=${encodeURIComponent(start)}` : ''}`;
   const write = () => navigate(`/me/chats/new?tutor=${tutor.id}`);
@@ -60,8 +86,8 @@ function Profile({ tutor }: { tutor: Tutor }) {
   );
 
   return (
-    <PublicLayout tight bareMobile>
-      <BackLink to="/teachers">Все преподаватели</BackLink>
+    <PublicLayout tight>
+      <div className="trh-pf-backwrap"><BackLink to="/teachers">Все преподаватели</BackLink></div>
       <div className="trh-pf">
         <div className="trh-pf-main">
           <section className="trh-pf-top">
@@ -69,7 +95,8 @@ function Profile({ tutor }: { tutor: Tutor }) {
               <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 300px, 100vw" alt={`Фото: ${tutor.name}`} fetchPriority="high" decoding="async" />
               <IconButton icon="back" label="Назад" to="/teachers" surf className="trh-pf-back" />
             </div>
-            <div className="trh-pf-sheet">
+            <div className="trh-pf-sheet" ref={sheet}>
+              <div className="trh-pf-grab" aria-hidden="true" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}><span /></div>
               <div className="trh-sec" {...rv('up', 0.05)}>
                 <h1 className="trh-h1">{tutor.name}</h1>
                 <p className="muted trh-pf-role">{tutor.headline}</p>

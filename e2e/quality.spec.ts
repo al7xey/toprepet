@@ -93,3 +93,36 @@ test.describe('ссылки', () => {
     expect(seen.size).toBeGreaterThan(30);
   });
 });
+
+test.describe('телефон: шапка, кнопки, анкета', () => {
+  test('отступы шапки равны отступам контента, кнопки одной ширины, ховер без обводки', async ({ page }) => {
+    test.skip(!isPhone(page), 'только телефон');
+    for (const url of ['/teachers/', '/help/', '/for-repetitor/']) {
+      await page.goto(url);
+      await page.waitForTimeout(900);
+      const header = await page.locator('header.hdr').first().boundingBox();
+      const title = await page.locator('main h1').first().boundingBox();
+      expect(Math.round(header!.x), `${url}: левый отступ шапки`).toBe(Math.round(title!.x));
+      expect(Math.round(390 - header!.x - header!.width), `${url}: правый отступ шапки`).toBe(Math.round(title!.x));
+    }
+    await page.goto('/for-repetitor/');
+    const widths = await page.locator('main .btn:not(.btn-icon)').evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().width > 0).map((e) => Math.round(e.getBoundingClientRect().width)));
+    expect(new Set(widths.filter((w) => w > 100)).size, `ширина кнопок: ${widths}`).toBeLessThanOrEqual(2);
+  });
+
+  test('анкета: шторка закрывается свайпом вниз', async ({ page }) => {
+    test.skip(!isPhone(page), 'только телефон');
+    await page.goto('/teachers/');
+    await page.locator('a.tc').first().click();
+    await expect(page).toHaveURL(/\/teachers\/[^/]+\/?$/);
+    const grab = await page.locator('.trh-pf-grab').boundingBox();
+    expect(grab, 'ручка шторки видна').not.toBeNull();
+    const x = grab!.x + grab!.width / 2;
+    const y = grab!.y + grab!.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    for (let i = 1; i <= 12; i++) await page.mouse.move(x, y + i * 15);
+    await page.mouse.up();
+    await expect(page).toHaveURL(/\/teachers\/?$/);
+  });
+});

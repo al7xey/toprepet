@@ -510,7 +510,6 @@
 
 /* surfaces */
 .tr .card{border:0;border-radius:40px;background:#fff;box-shadow:0 0 0 1px rgb(240 226 216 / 85%);transition:transform .4s var(--spring),box-shadow .4s var(--ease)}
-.tr a.card:hover,.tr .card.hov:hover{box-shadow:0 0 0 1px rgb(242 106 46 / 25%)}
 .tr .panel{border-radius:48px;background:#fff0e2;box-shadow:inset 0 0 0 1px rgb(255 255 255 / 70%)}
 .tr .lesson{border:0;border-radius:40px;background:#fff;box-shadow:0 0 0 1px rgb(240 226 216 / 85%)}
 .tr .sum{border-radius:48px}
@@ -532,7 +531,6 @@
 .tr .arrow-btn{background:rgb(255 255 255 / 75%);box-shadow:inset 0 0 0 1.5px var(--accent);border:0;transition:transform .3s var(--spring)}
 
 .tr .fmt{border:0;border-radius:40px;background:#fff;box-shadow:0 0 0 1px rgb(240 226 216 / 85%);transition:transform .4s var(--spring),box-shadow .4s}
-.tr .fmt:hover{box-shadow:0 0 0 1px rgb(242 106 46 / 25%)}
 
 /* choices */
 .tr .opt,.tr .chipf{border:0;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);transition:transform .3s var(--spring),box-shadow .25s,background .25s}
@@ -598,7 +596,6 @@
 /* teacher card */
 .tr .tc{border-radius:40px;box-shadow:0 0 0 1px rgb(242 106 46 / 14%);transition:transform .5s var(--spring),box-shadow .4s}
 .tr .tc img{transition:transform .8s var(--spring)}
-.tr .tc:hover{box-shadow:0 0 0 1px rgb(242 106 46 / 30%)}
 
 .tr .tc .pl{border-radius:28px}
 .tr .tcg>*{animation:tr-rise .7s var(--spring) both}
@@ -647,7 +644,6 @@
 .tr .tc .pl b{font-size:19px}
 .tr .tc .pl span{font-size:14px}
 .tr .fmt2{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:28px;background:#fff;box-shadow:inset 0 0 0 1px rgb(240 226 216 / 90%);transition:transform .35s var(--spring),box-shadow .3s}
-.tr .fmt2:hover{box-shadow:inset 0 0 0 1px rgb(242 106 46 / 30%)}
 .tr .fmt2 .ic-sq{width:46px;height:46px;border-radius:16px}
 .tr .fmt2 .ic-sq .i{width:22px;height:22px}
 .tr .fmt2 b{font-size:16px;line-height:1.25;font-weight:700}
