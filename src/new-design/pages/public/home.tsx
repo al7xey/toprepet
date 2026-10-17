@@ -51,7 +51,7 @@ export default function HomePage() {
             </li>
           ))}
         </ol>
-        <div {...rv('up', 0.1)}><Button to="/teachers" size="lg" icon="gift">Выбрать репетитора</Button></div>
+        <div {...rv('up', 0.1)}><Button to="/teachers" size="lg" icon="gift">Бесплатное знакомство</Button></div>
       </Section>
 
       <section className="trh-trust" aria-labelledby="trust-title">

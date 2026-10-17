@@ -406,3 +406,7 @@
   .tr .trh-actions{margin-right:0}
 }
 @media(max-width:760px){.tr .chipf{min-height:40px}}
+
+/* Наведение в шапке — яркий оранжевый, как остальные акценты */
+.tr .hdr .trh-nav a:hover,.tr .hdr .trh-nav a:focus-visible{color:var(--accent)}
+@media(max-width:760px){.tr .trh-chips{flex-wrap:wrap}}
