@@ -1,0 +1,8 @@
+Django>=5.2,<6.2
+djangorestframework>=3.16
+django-cors-headers>=4.7
+dj-database-url>=3.0
+Pillow>=11
+psycopg[binary]>=3.2
+django-storages>=1.14
+gunicorn>=23

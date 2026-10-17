@@ -37,3 +37,11 @@ next-env.d.ts
 /.wrangler/
 /outputs/
 /work/
+
+# backend
+/backend/.venv
+/backend/db.sqlite3
+/backend/media
+/backend/staticfiles
+__pycache__/
+*.pyc
