@@ -33,6 +33,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     signup: (input) => post('/auth/signup', input),
     logout: () => post('/auth/logout'),
     requestPasswordReset: (email) => post('/auth/password-reset', { email }),
+    confirmPasswordReset: (token, password) => post('/auth/password-reset/confirm', { token, password }),
     resendVerification: () => post('/auth/verify/resend'),
     verifyEmail: (token) => post('/auth/verify', { token }),
     completeOnboarding: (input) => post('/me/onboarding', input),

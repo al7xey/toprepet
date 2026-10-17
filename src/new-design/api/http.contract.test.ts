@@ -28,15 +28,18 @@ function cookieFetch(): typeof fetch {
   };
 }
 
+async function tokenFor(http: typeof fetch, email: string, kind: 'verify' | 'reset') {
+  const response = await http(`${base}/_test/email-token?email=${encodeURIComponent(email)}&kind=${kind}`);
+  return ((await response.json()) as { token: string }).token;
+}
+
 describe.skipIf(!base)('сервер (CONTRACT_API_URL)', () => {
   defineScenarios('правила сервера совпадают с моком', () => {
     const http = cookieFetch();
     return {
       api: createHttpApi(base as string, http),
-      verifyToken: async (email) => {
-        const response = await http(`${base}/_test/email-token?email=${encodeURIComponent(email)}&kind=verify`);
-        return ((await response.json()) as { token: string }).token;
-      },
+      verifyToken: async (email) => tokenFor(http, email, 'verify'),
+      resetToken: async (email) => tokenFor(http, email, 'reset'),
     };
   });
 });

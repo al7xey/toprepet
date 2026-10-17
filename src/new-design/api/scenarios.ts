@@ -9,6 +9,8 @@ export interface ScenarioContext {
   api: Api;
   /** Токен из письма с подтверждением почты: мок отдаёт любой, настоящий сервер — выданный в письме. */
   verifyToken: (email: string) => Promise<string>;
+  /** Токен из письма со сбросом пароля (мок отдаёт любой). */
+  resetToken: (email: string) => Promise<string>;
 }
 
 /**
@@ -25,7 +27,7 @@ export function defineScenarios(title: string, make: () => ScenarioContext) {
   };
 
   describe(title, () => {
-    const { api, verifyToken } = make();
+    const { api, verifyToken, resetToken } = make();
     const freeSlot = freeSlotOf(api);
     let tutor: Tutor;
     beforeAll(async () => {
@@ -210,6 +212,19 @@ export function defineScenarios(title: string, make: () => ScenarioContext) {
       await api.login('olga@mail.ru', 'demo');
       expect((await api.getLesson('l-7')).payment).toBe('refunded');
       expect((await api.listNotifications()).some((n) => n.title === 'Спор решён')).toBe(true);
+    });
+
+    it('сброс пароля: письмо, новый пароль, вход только с новым', async () => {
+      await api.signup({ role: 'student', name: 'Дарья', email: 'reset.test@mail.ru', password: 'password1' });
+      await api.logout();
+      await api.requestPasswordReset('reset.test@mail.ru');
+      const token = await resetToken('reset.test@mail.ru');
+      await expect(api.confirmPasswordReset(token, 'short')).rejects.toBeInstanceOf(ApiError);
+      await api.confirmPasswordReset(token, 'newpassword1');
+      await expect(api.login('reset.test@mail.ru', 'password1')).rejects.toThrow(/Неверная/);
+      expect((await api.login('reset.test@mail.ru', 'newpassword1')).email).toBe('reset.test@mail.ru');
+      await api.logout();
+      await expect(api.confirmPasswordReset(token, 'another12345')).rejects.toThrow(/устарела/);
     });
   });
 }

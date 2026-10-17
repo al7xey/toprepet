@@ -18,6 +18,7 @@ export interface Api {
   signup(input: { role: Exclude<Role, 'admin'>; name: string; email: string; password: string }): Promise<User>; // POST /auth/signup
   logout(): Promise<void>; // POST /auth/logout
   requestPasswordReset(email: string): Promise<void>; // POST /auth/password-reset
+  confirmPasswordReset(token: string, password: string): Promise<void>; // POST /auth/password-reset/confirm (токен из письма)
   resendVerification(): Promise<void>; // POST /auth/verify/resend
   verifyEmail(token: string): Promise<User>; // POST /auth/verify (токен из письма)
   completeOnboarding(input: { forWhom: string; subjects: string[]; goal: string }): Promise<User>; // POST /me/onboarding

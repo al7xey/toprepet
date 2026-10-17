@@ -81,6 +81,8 @@ interface State {
   profiles: Record<Id, TutorProfileDraft>;
   payouts: Record<Id, PayoutSettings>;
   seq: number;
+  /** Для какой почты запрошено письмо со сбросом пароля (в моке письма нет). */
+  resetFor?: string | null;
 }
 
 const iso = (ms: number) => new Date(ms).toISOString();
@@ -314,7 +316,19 @@ export function createMockApi(): Api {
       return delay(publicUser(user));
     },
     async logout() { load().sessionUserId = null; save(); return delay(undefined); },
-    async requestPasswordReset(email) { if (!email.includes('@')) fail('Проверьте адрес почты'); return delay(undefined, 400); },
+    async requestPasswordReset(email) {
+      if (!email.includes('@')) fail('Проверьте адрес почты');
+      const s = load(); const known = s.users.some((u) => u.email === email.trim().toLowerCase());
+      s.resetFor = known ? email.trim().toLowerCase() : null; save(); // как у сервера: ответ одинаковый, есть ли такая почта или нет
+      return delay(undefined, 400);
+    },
+    async confirmPasswordReset(token, password) {
+      // в моке подходит любой непустой токен после запроса письма; на сервере токен одноразовый, живёт два часа
+      const s = load(); const user = s.users.find((u) => u.email === s.resetFor);
+      if (!token.trim() || !user) fail('Ссылка устарела. Запросите письмо ещё раз.');
+      if (password.length < 8) fail('Пароль должен быть не короче 8 символов');
+      (user as User & { password: string }).password = password; s.resetFor = null; save(); return delay(undefined, 300);
+    },
     async resendVerification() { me(); return delay(undefined); },
     async verifyEmail(token) {
       // в моке подходит любой непустой токен; на сервере токен одноразовый и привязан к пользователю
