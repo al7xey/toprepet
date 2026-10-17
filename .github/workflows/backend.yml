@@ -1,0 +1,81 @@
+name: Backend
+
+on:
+  pull_request:
+    paths:
+      - backend/**
+      - src/new-design/api/**
+      - .github/workflows/backend.yml
+  push:
+    branches:
+      - design/**
+      - main
+    paths:
+      - backend/**
+      - src/new-design/api/**
+      - .github/workflows/backend.yml
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: toprepet
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/toprepet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - run: pip install -r backend/requirements-dev.txt
+      - name: Migrations are up to date
+        working-directory: backend
+        run: python manage.py makemigrations --check --dry-run
+      - name: Tests (Postgres)
+        working-directory: backend
+        run: python -m pytest
+      - name: Deploy checks
+        working-directory: backend
+        env:
+          DEBUG: '0'
+          SECRET_KEY: ci-only-not-a-secret-ci-only-not-a-secret-ci-only
+          ALLOWED_HOSTS: api.toprepet.ru
+          ALLOWED_ORIGINS: https://toprepet.ru
+        run: python manage.py check --deploy --fail-level ERROR
+
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: backend/requirements-dev.txt
+      - run: pnpm install --frozen-lockfile
+      - run: pip install -r backend/requirements-dev.txt
+      - name: Shared scenarios against the real server
+        run: bash backend/scripts/contract.sh

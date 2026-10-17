@@ -44,7 +44,7 @@
 /* Surfaces: white with a hairline ring */
 .tr .surf{background:rgb(255 255 255 / 66%);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 55%), 0 0 0 1px rgb(32 40 56 / 7%)}
 .tr .surf-photo{background:rgb(255 249 244 / 72%);box-shadow:inset 0 0 0 1px rgb(255 255 255 / 45%)}
-.tr .hdr{display:flex;align-items:center;gap:20px;height:52px;padding:0 6px 0 20px;border-radius:999px}
+.tr .hdr{display:flex;align-items:center;gap:20px;height:60px;padding:0;border-radius:0}
 .tr .hdr nav{display:flex;gap:4px;flex:1;min-width:0;justify-content:center}
 .tr .hdr nav a{padding:8px 14px;border-radius:999px;font-weight:600;font-size:15px;color:var(--muted);white-space:nowrap}
 .tr .hdr nav a.cur{color:var(--accent)}
@@ -489,7 +489,8 @@
 .tr .surf{position:relative;isolation:isolate;background:#fff;box-shadow:none}
 .tr .surf-strong{background:#fff;box-shadow:none}
 .tr .surf-photo{background:#fff;box-shadow:none}
-.tr .hdr.surf:not(.m){top:12px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.tr .hdr.surf:not(.m){top:0;height:60px;padding:0;border-radius:0;background:#fff;box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
+.tr .hdr.surf:not(.m)::before{content:'';position:absolute;left:50%;bottom:0;width:100vw;height:1px;transform:translateX(-50%);background:var(--line);pointer-events:none}
 .tr .hdr nav a{transition:background .25s var(--ease),color .25s}
 .tr .hdr nav a:hover{background:rgb(32 40 56 / 5%);color:var(--ink)}
 .tr .hdr nav a.cur{background:#ffeee6;color:#b23e0c}
