@@ -46,7 +46,7 @@
 .blog-root .empty-state strong { display:block; font-size:.92rem; }
 .blog-root .empty-state p { margin:5px 0 0; color:var(--muted); font-size:.8rem; line-height:1.55; }
 .blog-root .empty-state-compact { align-items:flex-start; }
-.blog-root .blog-cta { display:flex; align-items:center; justify-content:space-between; gap:32px; margin-top:46px; padding:34px 38px; border-radius:20px; background:var(--surface); }
+.blog-root .blog-cta { display:flex; align-items:center; justify-content:space-between; gap:32px; margin-top:46px; padding:34px 38px; border-radius:28px; background:var(--surface); }
 .blog-root .blog-cta h2 { margin:0; font-size:clamp(1.7rem,3vw,2.25rem); line-height:1.2; font-weight:680; letter-spacing:-.045em; }
 .blog-root .blog-cta p { margin:10px 0 0; color:var(--muted); }
 

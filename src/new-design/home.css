@@ -11,7 +11,7 @@
 .tr .trh-hero-h{font-size:40px}
 .tr .trh-hero-btns{display:flex;flex-wrap:wrap;gap:14px}
 .tr .trh-hero-media{position:relative;flex:1 1 520px;min-width:0}
-.tr .trh-hero-media>img{width:100%;height:auto;display:block;border-radius:24px}
+.tr .trh-hero-media>img{width:100%;height:auto;display:block;border-radius:40px}
 .tr .trh-badge{position:absolute;border-radius:999px;display:flex;align-items:center;font-weight:700;font-size:15px}
 .tr .trh-badge-a{left:4%;top:10%;padding:9px 16px 9px 10px;gap:10px}
 .tr .trh-badge-a .avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;object-position:top}
@@ -27,7 +27,7 @@
 
 .tr .trh-intro{max-width:760px}
 .tr .trh-trust{display:flex;flex-wrap:wrap;gap:64px;align-items:center}
-.tr .trh-trust>img{flex:1 1 480px;min-width:0;max-width:560px;height:auto;border-radius:24px}
+.tr .trh-trust>img{flex:1 1 480px;min-width:0;max-width:560px;height:auto;border-radius:36px}
 .tr .trh-trust>div{flex:1 1 440px}
 .tr .trh-panel{padding:44px}
 .tr .trh-panel-h{font-size:30px;letter-spacing:-0.035em}
@@ -47,7 +47,8 @@
 
 @media (max-width:760px){
   .tr .trh-page{padding:12px 16px 24px;gap:48px}
-  .tr .hdr.trh-hdr{height:56px;padding:0 6px 0 16px;justify-content:space-between}
+  .tr .hdr.trh-hdr{height:48px;padding:0 4px 0 16px;justify-content:space-between}
+  .tr .hdr.surf:not(.m){top:8px}
   .tr .hdr .trh-nav,.tr .hdr .trh-actions{display:none}
   .tr .trh-burger{display:inline-flex}
   .tr .trh-foot-cap{font-size:15px}
@@ -59,7 +60,7 @@
   .tr .trh-hero-text .benefits{order:3}
   .tr .trh-hero-btns{order:4;display:grid;gap:12px}
   .tr .trh-hero-btns .btn{width:100%;white-space:normal;text-align:center}
-  .tr .trh-hero-media>img{border-radius:20px}
+  .tr .trh-hero-media>img{border-radius:28px}
   .tr .trh-badge{font-size:13px}
   .tr .trh-badge-a{left:6%;top:8%}
   .tr .trh-badge-a .avatar{width:30px;height:30px}
@@ -90,7 +91,7 @@
 .tr .wash.trh-page::before,.tr .wash.trh-page::after{display:none}
 
 /* Плитки «Выберите занятия»: одинаковый размер, значок, класс, название, короткое пояснение */
-.tr .trh-fmt{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:196px;padding:22px;border-radius:20px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);transition:transform .35s var(--spring),box-shadow .3s}
+.tr .trh-fmt{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:196px;padding:22px;border-radius:28px;background:#fff;box-shadow:inset 0 0 0 1px var(--line);transition:transform .35s var(--spring),box-shadow .3s}
 .tr .trh-fmt:hover{box-shadow:inset 0 0 0 1px rgb(242 106 46 / 35%)}
 .tr .trh-fmt .ic-sq{width:46px;height:46px;border-radius:16px;margin-bottom:10px}
 .tr .trh-fmt .ic-sq .i{width:22px;height:22px}
@@ -144,7 +145,7 @@
 .tr .trh-drop{position:relative}
 .tr .trh-drop summary{list-style:none;cursor:pointer}
 .tr .trh-drop summary::-webkit-details-marker{display:none}
-.tr .trh-drop-menu{position:absolute;left:0;top:calc(100% + 8px);z-index:20;width:280px;max-height:360px;overflow:auto;border-radius:20px;padding:8px;display:grid;gap:2px;animation:tr-drop .4s var(--spring) both}
+.tr .trh-drop-menu{position:absolute;left:0;top:calc(100% + 8px);z-index:20;width:280px;max-height:360px;overflow:auto;border-radius:28px;padding:8px;display:grid;gap:2px;animation:tr-drop .4s var(--spring) both}
 .tr .trh-drop-menu button{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:44px;padding:0 16px;border:0;border-radius:18px;background:transparent;font-weight:550;font-size:16px;text-align:left;cursor:pointer}
 .tr .trh-drop-menu button:hover{background:var(--fill)}
 .tr .trh-drop-menu button.on{background:var(--accent-soft);font-weight:700}
@@ -156,10 +157,10 @@
   .tr .trh-h1{font-size:30px}
   .tr .trh-chips{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:0 16px 4px;scrollbar-width:none}
   .tr .trh-chips::-webkit-scrollbar{display:none}
-  .tr .trh-drop-menu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:60vh;border-radius:20px}
+  .tr .trh-drop-menu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:60vh;border-radius:32px}
   .tr .trh-sort-t{display:none}
   .tr .trh-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  .tr .trh-grid>.tc{aspect-ratio:3/4;border-radius:20px}
+  .tr .trh-grid>.tc{aspect-ratio:3/4;border-radius:32px}
   .tr .trh-grid .tc.s .pl{left:8px;right:8px;bottom:8px;padding:8px 12px 9px;border-radius:22px}
   .tr .trh-grid .tc.s .pl b{font-size:15px;gap:6px}
   .tr .trh-grid .tc.s .pl b .rt{font-size:12px}
@@ -174,7 +175,7 @@
 .tr .trh-pf-main{flex:1 1 640px;min-width:0;display:grid;gap:32px;align-content:start}
 .tr .trh-pf-aside{flex:0 0 380px;max-width:100%;min-width:0;position:sticky;top:96px}
 .tr .trh-pf-top{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
-.tr .trh-pf-photo{position:relative;flex:0 0 300px;aspect-ratio:4/5;border-radius:24px;overflow:hidden;background:var(--surface)}
+.tr .trh-pf-photo{position:relative;flex:0 0 300px;aspect-ratio:4/5;border-radius:40px;overflow:hidden;background:var(--surface)}
 .tr .trh-pf-photo img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
 .tr .trh-pf-back{display:none}
 .tr .trh-pf-sheet{flex:1 1 360px;min-width:0;display:grid;gap:20px}
@@ -183,8 +184,8 @@
 .tr .trh-pf-two{display:grid;grid-template-columns:200px minmax(0,1fr);gap:32px;align-items:start}
 .tr .trh-pf-text{font-size:17px;line-height:1.7;max-width:70ch}
 .tr .trh-pf-bar{display:none}
-.tr .sum{display:grid;gap:16px;padding:28px;border-radius:24px}
-.tr .trh-sum-rows{border-radius:16px;background:var(--surface);padding:4px 18px;box-shadow:inset 0 0 0 1px var(--line)}
+.tr .sum{display:grid;gap:16px;padding:28px;border-radius:44px}
+.tr .trh-sum-rows{border-radius:26px;background:var(--surface);padding:4px 18px;box-shadow:inset 0 0 0 1px var(--line)}
 .tr .trh-sum-rows .rowline{padding:12px 0}
 .tr .trh-notfound{justify-items:start;padding:40px 0}
 .tr .trh-404{font-size:120px;letter-spacing:-0.06em;line-height:1;color:var(--accent)}
@@ -201,7 +202,7 @@
   .tr .trh-pf-photo{margin:-12px -16px 0;width:auto;height:430px;aspect-ratio:auto;border-radius:0}
   .tr .trh-pf-photo img{object-position:50% 8%}
   .tr .trh-pf-back{display:grid;position:absolute;top:14px;left:14px}
-  .tr .trh-pf-sheet{position:relative;margin:-44px -16px 0;padding:22px 20px 0;gap:20px;background:#fff;border-radius:24px 24px 0 0;box-shadow:none}
+  .tr .trh-pf-sheet{position:relative;margin:-44px -16px 0;padding:22px 20px 0;gap:20px;background:#fff;border-radius:44px 44px 0 0;box-shadow:none}
   .tr .trh-pf-two{grid-template-columns:1fr;gap:22px}
   .tr .trh-pf-bar{display:flex;position:fixed;left:16px;right:16px;bottom:12px;z-index:40;width:auto}
   .tr .trh-notfound{padding:24px 0}
@@ -233,12 +234,6 @@
 .tr .trh-cta::after{content:'';position:absolute;top:0;bottom:0;left:0;width:36%;background:transparent;transform:translateX(-140%) skewX(-18deg);animation:tr-sweep 4.5s ease-in-out 2s infinite;pointer-events:none}
 .tr .btn-primary.trh-cta::after{display:block}
 
-/* Полоса прокрутки */
-.tr .trh-progress{position:fixed;left:0;top:0;height:3px;width:100%;z-index:70;background:var(--accent);transform-origin:0 50%;transform:scaleX(0);pointer-events:none}
-@supports (animation-timeline:scroll()){
-  .tr .trh-progress{animation:tr-progress linear both;animation-timeline:scroll(root)}
-  @keyframes tr-progress{to{transform:scaleX(1)}}
-}
 
 /* Шаги «Как всё устроено»: как на основном сайте, снизу вверх, линия прорисовывается */
 .tr .trh-steps li::before{transform-origin:top}
@@ -257,7 +252,7 @@
 .tr .trh-chips .chipf.on{box-shadow:inset 0 0 0 1.5px var(--accent)}
 .tr .trh-chips .chipf.gray{background:#fff;box-shadow:inset 0 0 0 1.5px var(--line)}
 .tr .trh-tools{display:grid;width:max-content;max-width:100%}
-.tr .trh-tools .search{min-height:52px}
+.tr .trh-tools .search{min-height:48px}
 .tr .trh-sentinel{height:1px}
 @media (max-width:760px){
   .tr .trh-hero-lead{display:none}

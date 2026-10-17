@@ -31,7 +31,6 @@ export function NewApp() {
   return (
     <SessionProvider>
       <div className="tr" ref={root}>
-        <div className="trh-progress" aria-hidden="true" />
         <ToastProvider>
           <Suspense fallback={<div className="trk-route-loading" aria-busy="true" />}>
             <Routes>

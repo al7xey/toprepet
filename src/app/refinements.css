@@ -11,7 +11,7 @@
 .hero-price { margin-bottom: 34px; }
 .section, .teachers-section { padding-top: 96px; }
 .section-heading { margin-bottom: 32px; }
-.price-section { margin-top: 96px; border-radius:20px; gap: 36px; }
+.price-section { margin-top: 96px; border-radius:34px; gap: 36px; }
 .hero-note, .price-section .price-free, .summary-free {
   background:transparent; border: 0; border-radius:0; padding: 0;
   color: var(--ink); font-weight: 550; line-height: 1.6;
@@ -22,15 +22,15 @@
 .price-section .price-free, .summary-free { color: var(--accent-hover); font-weight: 700; }
 @keyframes arrow-hint { 50% { transform: translate(-3px, -5px) rotate(-6deg); } }
 .teacher-slide { flex: 0 0 272px; }
-.teacher-card { width: 256px; height: 344px; border-radius:20px; }
+.teacher-card { width: 256px; height: 344px; border-radius:32px; }
 .teacher-photo { width: 100%; height: 100%; padding-top: 56px; }
-.teacher-plate { left: 12px; right: 12px; bottom: 12px; height: 158px; border-radius:16px; padding: 16px; grid-template-rows: minmax(65px, 1fr) auto; }
+.teacher-plate { left: 12px; right: 12px; bottom: 12px; height: 158px; border-radius:25px; padding: 16px; grid-template-rows: minmax(65px, 1fr) auto; }
 .teacher-card strong { font-size: 1.125rem; line-height: 1.3; }
 .teacher-open.button { width: 100%; min-height: 44px; padding: 10px; border-radius:18px; font-weight: 750; }
-.teacher-profile-photo { width: 256px; max-width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius:20px; }
+.teacher-profile-photo { width: 256px; max-width: 100%; height: auto; aspect-ratio: 4 / 5; border-radius:32px; }
 .teacher-profile-grid { grid-template-columns: minmax(0, 1fr); }
 .format-slide { flex: 0 0 272px; }
-.format-card { border-radius:20px; padding: 24px; min-height: 330px; }
+.format-card { border-radius:32px; padding: 24px; min-height: 330px; }
 .format-card h3 { font-size: 1.4rem; }
 .format-meta { margin-bottom: 24px; gap: 8px; }
 .format-meta > span:not(.format-icon) { font-size: .9375rem; }
@@ -42,7 +42,7 @@
 }
 .option-section { margin-bottom: 40px; }
 .option-section h2 { font-size: 1.4rem; margin-bottom: 20px; font-weight: 700; }
-.selection-summary { padding: 26px; border-radius:20px; background:#fff; }
+.selection-summary { padding: 26px; border-radius:32px; background:#fff; }
 .selection-summary h2 { font-size: 1.5rem; font-weight: 750; margin-bottom: 24px; }
 .selection-facts { display: grid; gap: 20px; margin: 0 0 26px; min-height: 0; }
 .selection-facts > div { border-bottom: 1px solid var(--line); padding-bottom: 16px; }
@@ -64,7 +64,7 @@
 .discount-price strong { color: var(--accent-hover); font-size: 2.35rem; font-weight: 650; letter-spacing: -.06em; line-height: 1; white-space: nowrap; }
 .summary-free { margin: 18px 0 26px; }
 .menu-toggle { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius:16px; background:#fff0df; color: var(--ink); }
-.mobile-menu { position: fixed; z-index: 1201; right: 12px; top: 12px; bottom: 12px; width: min(320px, calc(100vw - 24px)); padding: 26px; background:rgb(255 255 255 / 97%); border-radius:20px; box-shadow:none; overflow-y: auto; transition: transform .22s ease, opacity .22s ease; }
+.mobile-menu { position: fixed; z-index: 1201; right: 12px; top: 12px; bottom: 12px; width: min(320px, calc(100vw - 24px)); padding: 26px; background:rgb(255 255 255 / 97%); border-radius:30px; box-shadow:none; overflow-y: auto; transition: transform .22s ease, opacity .22s ease; }
 [data-slot='sheet-overlay'] { position: fixed; inset: 0; z-index: 1200; background:#30211833;  transition: opacity .22s ease; }
 .mobile-menu[data-starting-style], .mobile-menu[data-ending-style] { transform: translateX(30px); opacity: 0; }
 [data-slot='sheet-overlay'][data-starting-style], [data-slot='sheet-overlay'][data-ending-style] { opacity: 0; }
