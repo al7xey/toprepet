@@ -81,7 +81,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
                 </div>
               </div>
               {!isTutorAccount && (
-                <div className="trh-pf-cta" {...rv('up', 0.1)}>
+                <div className="trh-pf-cta">
                   <Button to={start ? bookHref('regular') : undefined} onClick={start ? () => trackGoal('book_start', { kind: 'regular' }) : () => document.querySelector('.trk-slots')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>Записаться</Button>
                 </div>
               )}
