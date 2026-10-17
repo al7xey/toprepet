@@ -563,3 +563,7 @@
 .tr .hdr.surf.trh-hdr-open{z-index:70}
 /* после входа контент кабинета ниже: на телефоне шапки нет, заголовок не должен прилипать к краю */
 @media(max-width:760px){.tr .trk-app{padding-top:32px}}
+
+/* ---- v12: сортировка — белая пилюля с тёмным значком ---- */
+.tr .trh-sort .chipf.ico{width:52px;min-height:44px;height:44px;padding:0;border-radius:999px;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.tr .trh-sort .chipf.ico .i{color:var(--ink)}

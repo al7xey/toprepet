@@ -183,7 +183,8 @@
 .tr .amount{white-space:nowrap}
 
 /* footer */
-.tr .foot{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:24px;padding-top:32px;border-top:1px solid var(--line);color:var(--muted)}
+.tr .foot{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:24px;padding-top:32px;border-top:1px solid var(--line);color:var(--ink)}
+.tr .foot .logo,.tr .foot .cap,.tr .foot .muted{color:var(--ink)}
 .tr .foot nav{display:grid;gap:10px;justify-items:end}
 .tr .foot nav a{color:var(--ink);font-size:17px;border-bottom:1px solid #f4cdb8;line-height:1.5}
 .tr .foot .sm{font-size:14px}

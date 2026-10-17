@@ -30,7 +30,7 @@ export function TutorCard({ tutor, delay = 0, priority }: { priority?: boolean; 
 export function TutorGrid({ tutors, layout = 'grid', children }: { tutors: Parameters<typeof TutorCard>[0]['tutor'][]; layout?: 'grid' | 'row'; children?: ReactNode }) {
   return (
     <div className={layout === 'row' ? 'tcg trh-teachers' : 'tcg trh-grid'}>
-      {tutors.map((t, index) => <TutorCard key={t.id} tutor={t} delay={(index % 4) * 0.07} priority={index < 2} />)}
+      {tutors.map((t, index) => <TutorCard key={t.id} tutor={t} delay={(index % 4) * 0.07} priority={index < 5} />)}
       {children}
     </div>
   );

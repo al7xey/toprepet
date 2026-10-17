@@ -3,14 +3,13 @@ import { api, staticTutors } from '../../api';
 import { useSession } from '../../api/session';
 import { useQuery } from '../../api/hooks';
 import { PublicLayout } from '../../layout/layouts';
-import { rv, useParallax } from '../../reveal';
+import { rv } from '../../reveal';
 import { Button, Faq, Icon, IconButton, Panel, Section, Steps, TutorGrid } from '../../ui';
 import { HOW_STEPS, STUDENT_FAQ } from './content';
 
 export default function HomePage() {
   const { user } = useSession();
   const media = useRef<HTMLDivElement>(null);
-  useParallax(media);
   const first = staticTutors().slice(0, 6);
   const tutors = useQuery('home-tutors', () => api.listTutors({ limit: 6 }).then((p) => p.items), first);
 
@@ -53,7 +52,7 @@ export default function HomePage() {
             </li>
           ))}
         </ol>
-        <div {...rv('up', 0.1)}><Button to="/teachers" size="lg" icon="gift">Бесплатное знакомство</Button></div>
+        <div {...rv('up', 0.1)}><Button to="/teachers" size="lg">Бесплатное знакомство</Button></div>
       </Section>
 
       <section className="trh-trust" aria-labelledby="trust-title">

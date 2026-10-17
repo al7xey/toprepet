@@ -60,7 +60,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
         <>
           <Button to={bookHref('regular')} size="lg" block disabled={!start} onClick={() => trackGoal('book_start', { kind: 'regular' })}>{start ? 'Записаться' : 'Выберите время'}</Button>
-          {tutor.introMinutes > 0 && <Button to={bookHref('intro')} variant="soft" block icon="gift" onClick={() => trackGoal('book_start', { kind: 'intro' })}>Бесплатное знакомство</Button>}
+          {tutor.introMinutes > 0 && <Button to={bookHref('intro')} variant="soft" block onClick={() => trackGoal('book_start', { kind: 'intro' })}>Бесплатное знакомство</Button>}
           <Button variant="fill" block icon="chat" onClick={write}>Написать репетитору</Button>
         </>
       )}
