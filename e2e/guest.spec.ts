@@ -28,7 +28,9 @@ test.describe('гость', () => {
 
   test('заявки учеников скрыты от гостя, /requests ведёт на вход', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('link', { name: 'Создать заявку' })).toHaveCount(0);
+    // кнопка на главной есть, но гостя ведёт на вход
+    await page.getByRole('link', { name: 'Создать заявку' }).click();
+    await expect(page).toHaveURL(/\/login/);
     await page.goto('/requests');
     await expect(page).toHaveURL(/\/login/);
   });
