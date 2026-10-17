@@ -387,7 +387,6 @@ export function ChoiceCards<T extends string>({ options, value, onChange, column
           <input type="radio" className="trk-sr" name={name} value={o.value} checked={value === o.value} onChange={() => onChange(o.value)} />
           {o.icon && <span className="ic-sq"><Icon name={o.icon} /></span>}
           <span className="trk-choice-text"><b>{o.title}</b>{o.text && <span>{o.text}</span>}</span>
-          <span className="trk-choice-mark" aria-hidden="true" />
         </label>
       ))}
     </fieldset>

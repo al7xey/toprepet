@@ -39,7 +39,7 @@ export default function LoginPage() {
   const query = next ? `?next=${encodeURIComponent(next)}` : '';
   return (
     <AuthLayout>
-      <PageHeader title="Вход" lead="Войдите, чтобы записаться на занятие, написать репетитору или вести расписание." center />
+      <PageHeader title="Вход" center />
       <AuthCard>
         <form className="trk-form" onSubmit={submit} noValidate>
           <TextField label="Почта" type="email" name="email" autoComplete="username" inputMode="email" placeholder="name@mail.ru" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />

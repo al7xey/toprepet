@@ -1,5 +1,5 @@
 import { PublicLayout } from '../../layout/layouts';
-import { Button, Faq, Note, PageHeader, Section } from '../../ui';
+import { Faq, PageHeader, Section } from '../../ui';
 import { STUDENT_FAQ } from './content';
 
 const MORE_FAQ: [string, string][] = [
@@ -12,9 +12,8 @@ const MORE_FAQ: [string, string][] = [
 export default function HelpPage() {
   return (
     <PublicLayout tight>
-      <PageHeader title="Помощь" lead="Оплата, переносы и возвраты. Здесь ответы на частые вопросы." />
+      <PageHeader title="Помощь" />
       <Section title="Вопросы и ответы"><Faq items={[...STUDENT_FAQ, ...MORE_FAQ]} /></Section>
-      <Note tone="plain" icon="info" action={<Button to="/me/lessons" variant="line" size="s">Мои уроки</Button>}>Вопрос по конкретному уроку? Откройте его в разделе «Мои уроки»: там можно перенести или отменить урок.</Note>
     </PublicLayout>
   );
 }

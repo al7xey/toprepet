@@ -741,3 +741,46 @@
 
 @media (max-width:760px){.tr .tl h3{font-size:20px}}
 .tr .tab.cur{background:#ffeee6;color:#b23e0c}
+
+/* ===== v4: pill header without border, text-only highlights, no grey fills, compact ===== */
+.tr{--fill:#fff3ea;--fill-strong:#f6e3d6}
+.tr .hdr.surf:not(.m){position:sticky;top:10px;z-index:30;height:56px;padding:0 8px 0 22px;border-radius:999px;background:#fff;box-shadow:none;clip-path:none}
+.tr .hdr .logo{font-size:23px;gap:9px}
+.tr .hdr .logo-mark{width:30px;height:30px}
+.tr .hdr nav{gap:2px}
+.tr .hdr nav a,.tr .hdr nav a:hover,.tr .hdr nav a.cur{background:none;border-radius:0;padding:8px 14px}
+.tr .hdr nav a{color:var(--ink);font-weight:600;font-size:15px}
+.tr .hdr nav a:hover,.tr .hdr nav a.cur{color:#c8460f}
+.tr .hdr .trh-actions{display:flex;align-items:center;gap:8px}
+.tr .btn-fill,.tr .btn-warm{background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink)}
+.tr .btn-icon,.tr .trk-iconbtn,.tr .trk-app .trk-hdr-ic{background:transparent;box-shadow:none}
+.tr .btn-icon:hover,.tr .trk-iconbtn:hover{background:var(--fill)}
+.tr .note.plain{background:var(--accent-tint)}
+.tr .chipf.gray{background:#fff;box-shadow:inset 0 0 0 1.5px var(--line)}
+.tr .seg,.tr .trk-tabs{background:none;padding:0;gap:6px;border-radius:0;box-shadow:inset 0 -1px 0 var(--line)}
+.tr .seg a,.tr .trk-tabs button{border-radius:0;padding:0 14px;min-height:44px;color:var(--muted);background:none;box-shadow:none}
+.tr .seg a.on,.tr .trk-tabs button.on{background:none;color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+.tr .tab,.tr .tab.cur{background:none;border-radius:16px}
+.tr .tab.cur{color:#c8460f}
+.tr .trk-choice-mark{display:none}
+.tr .trk-choice-text{padding-right:0}
+@media (max-width:760px){
+  .tr .hdr.surf:not(.m){top:8px;height:50px;padding:0 6px 0 16px}
+  .tr .hdr .logo{font-size:19px;gap:7px}
+  .tr .hdr .logo-mark{width:25px;height:25px}
+}
+@media (max-width:760px){
+  .tr .hdr .trh-actions{margin-left:auto}
+  .tr .btn{min-height:44px;padding:0 18px}
+  .tr .btn-lg{min-height:46px}
+  .tr .btn-s{min-height:36px;padding:0 14px}
+  .tr .btn-icon{width:40px;min-height:40px}
+  .tr .trh-hero-btns{gap:8px}
+}
+
+@media (prefers-reduced-motion:reduce){.tr .trh-hero-h .trh-ln>span{transform:none}}
+/* tap targets: at least 40px high without making the page look bigger */
+.tr .foot nav{display:grid;justify-items:end;gap:0}
+.tr .foot nav a{display:inline-flex;align-items:center;min-height:40px}
+.tr .hdr .logo{min-height:40px}
+.tr .trk-eye{width:40px;height:40px;margin-right:-10px;place-items:center}

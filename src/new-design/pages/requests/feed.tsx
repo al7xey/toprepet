@@ -4,7 +4,7 @@ import { api } from '../../api';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
-import { Button, Dropdown, EmptyState, LoadingList, Note, PageHeader, QueryView } from '../../ui';
+import { Button, Dropdown, EmptyState, LoadingList, PageHeader, QueryView } from '../../ui';
 import { RequestCard } from './parts';
 
 const SUBJECTS = subjects.filter((s) => s !== 'Другой предмет');
@@ -19,8 +19,7 @@ export default function RequestsFeedPage() {
     : !user ? <Button size="s" to={`/login?next=${encodeURIComponent('/tutor/requests')}`}>Войти и откликнуться</Button> : null;
   return (
     <PublicLayout tight>
-      <PageHeader title="Заявки учеников" lead="Ученики описывают, какая помощь нужна. Репетиторы откликаются с ценой и свободным временем." />
-      {user?.role === 'student' && <Note tone="plain" icon="info" action={<Button size="s" to="/me/requests/new">Создать заявку</Button>}>Это заявки других учеников. Нужен репетитор? Создайте свою заявку.</Note>}
+      <PageHeader title="Заявки учеников" />
       <div><Dropdown label="Предмет" icon="book" value={subject} allLabel="Все предметы" options={SUBJECTS.map((s) => ({ value: s, label: s }))} onChange={setSubject} /></div>
       <QueryView query={feed} loading={<LoadingList rows={3} height={200} />} empty={(list) => (list.length ? null : <EmptyState icon="list" title="Заявок по этому предмету нет" text="Загляните позже или выберите другой предмет." />)}>
         {(list) => <div className="trk-list">{list.map((r) => <RequestCard key={r.id} request={r} showStatus={false} actions={respond} />)}</div>}

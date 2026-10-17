@@ -3,7 +3,7 @@ import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
 import { dateLong, rub } from '../../lib/format';
-import { Button, Card, EmptyState, FormError, Note, PageHeader, QueryView, Section, Stats, Status, TextField, useToast } from '../../ui';
+import { Button, Card, EmptyState, FormError, PageHeader, QueryView, Section, Stats, Status, TextField, useToast } from '../../ui';
 
 const ENTRY: Record<'pending' | 'paid' | 'held', { tone: 'wait' | 'ok' | 'neutral'; text: string }> = {
   pending: { tone: 'wait', text: 'К выплате' },
@@ -16,7 +16,7 @@ export default function FinancePage() {
   const finance = useQuery('my-finance', () => api.getFinance());
   return (
     <AppLayout role="tutor" narrow>
-      <PageHeader title="Финансы" lead="Вы получаете ровно ту цену, которую указали в анкете." />
+      <PageHeader title="Финансы" />
       <QueryView query={finance}>
         {(f) => (
           <>
@@ -58,7 +58,6 @@ function PayoutForm() {
   return (
     <Card>
       <form className="trk-form" onSubmit={submit} noValidate>
-        <Note tone="plain" icon="info">Выплаты получают самозанятые и ИП. Чеки формируются в приложении «Мой налог».</Note>
         <TextField label="ИНН" inputMode="numeric" maxLength={12} value={innValue} onChange={(e) => { setTouched(true); setInn(e.target.value.replace(/\D/g, '')); }} error={innBad ? 'ИНН самозанятого — 12 цифр' : undefined} hint="12 цифр" />
         <TextField label="Карта для выплат" inputMode="numeric" autoComplete="cc-number" placeholder={current?.cardLast4 ? `···· ${current.cardLast4}` : '0000 0000 0000 0000'} value={card} onChange={(e) => setCard(e.target.value)} hint={current?.cardLast4 ? `Сейчас: карта ···· ${current.cardLast4}. Введите новую, чтобы заменить.` : 'Демо-режим: карта не списывается'} />
         <FormError error={save.error} />

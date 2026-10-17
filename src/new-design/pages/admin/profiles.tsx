@@ -11,7 +11,7 @@ export default function AdminProfilesPage() {
   const queue = useQuery('admin-profiles', () => api.adminProfileQueue());
   return (
     <AppLayout role="admin">
-      <PageHeader title="Анкеты на проверке" lead="Проверьте фото, описание, предметы и цену. Если что-то нужно исправить, напишите репетитору." />
+      <PageHeader title="Анкеты на проверке" />
       <QueryView query={queue} empty={(items) => items.length === 0 ? <EmptyState icon="school" title="Очередь пуста" text="Новые анкеты появятся здесь после отправки репетитором." /> : null}>
         {(items) => <div className="trk-list">{items.map((q) => <Item key={q.tutorId} item={q} onDone={() => queue.setData((prev) => (prev ?? []).filter((x) => x.tutorId !== q.tutorId))} />)}</div>}
       </QueryView>

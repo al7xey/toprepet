@@ -23,7 +23,6 @@ export function DeclineModal({ lesson, open, onClose, onDone }: { lesson: Lesson
   const ready = reason !== null && (reason !== 'Другое' || other.trim().length > 0);
   return (
     <Modal open={open} onClose={onClose} title="Отклонить запись?" footer={<><Button variant="fill" onClick={onClose}>Не отклонять</Button><Button variant="danger" onClick={submit} disabled={!ready} loading={decline.pending}>Отклонить</Button></>}>
-      <Note tone="plain" icon="info">Ученик увидит причину, а деньги сразу вернутся ему на карту.</Note>
       <OptionChips options={DECLINE_REASONS} value={reason} onChange={setReason} label="Причина" />
       {reason === 'Другое' && <TextArea label="Что написать ученику" value={other} onChange={(e) => setOther(e.target.value)} rows={3} />}
       <FormError error={decline.error} />

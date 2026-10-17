@@ -22,7 +22,7 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthLayout>
-      <PageHeader title="Сброс пароля" lead="Укажите почту, и мы пришлём ссылку для нового пароля." center />
+      <PageHeader title="Сброс пароля" center />
       <AuthCard>
         {sent ? (
           <EmptyState icon="send" title="Письмо отправлено" text={<>Если аккаунт с адресом <b>{email.trim()}</b> есть, в письме будет ссылка для нового пароля. Проверьте и папку «Спам».</>}

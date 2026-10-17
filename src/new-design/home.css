@@ -47,8 +47,7 @@
 
 @media (max-width:760px){
   .tr .trh-page{padding:12px 16px 24px;gap:48px}
-  .tr .hdr.trh-hdr{height:56px;padding:0;justify-content:space-between}
-  .tr .hdr .trh-nav,.tr .hdr .trh-actions{display:none}
+  .tr .hdr .trh-nav{display:none}
   .tr .trh-burger{display:inline-flex}
   .tr .trh-foot-cap{font-size:15px}
 

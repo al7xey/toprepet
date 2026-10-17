@@ -9,7 +9,7 @@ export default function AdminCancellationsPage() {
   const list = useQuery('admin-cancellations', () => api.adminCancellations());
   return (
     <AppLayout role="admin">
-      <PageHeader title="Отмены" lead="Поздние отмены ученика (меньше чем за 4 часа) оплачиваются репетитору. Отмены репетитора всегда возвращают деньги." />
+      <PageHeader title="Отмены" />
       <QueryView query={list} empty={(items) => items.length === 0 ? <EmptyState icon="x" title="Отмен пока нет" /> : null}>
         {(items) => (
           <div className="trk-list">

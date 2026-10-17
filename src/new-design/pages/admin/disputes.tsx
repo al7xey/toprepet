@@ -22,7 +22,7 @@ export default function AdminDisputesPage() {
   const count = list.data?.filter(OPEN).length ?? 0;
   return (
     <AppLayout role="admin">
-      <PageHeader title="Споры" lead="Решение принимается после ответа репетитора. Деньги за урок остаются на удержании, пока спор открыт." />
+      <PageHeader title="Споры" />
       <Tabs items={[{ value: 'open', label: 'Открытые', count }, { value: 'done', label: 'Решённые' }]} value={tab} onChange={setTab} />
       <QueryView query={list} empty={() => null}>
         {(items) => {

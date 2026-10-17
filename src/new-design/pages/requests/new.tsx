@@ -4,7 +4,7 @@ import { subjects as allSubjects } from '../../../entities/lesson';
 import { api } from '../../api';
 import { useMutation } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
-import { Button, Card, FormError, Note, OptionChips, PageHeader, SelectField, TextArea, WizardProgress, useToast } from '../../ui';
+import { Button, Card, FormError, OptionChips, PageHeader, SelectField, TextArea, WizardProgress, useToast } from '../../ui';
 
 const SUBJECTS = allSubjects.filter((s) => s !== 'Другой предмет');
 const LEVELS = ['Дошкольник', '1–4 класс', '5–9 класс', '10–11 класс', 'Студент', 'Взрослый'];
@@ -49,7 +49,7 @@ export default function NewRequestPage() {
   return (
     <AppLayout role="student" narrow>
       <WizardProgress step={step} total={2} label={`Шаг ${step} из 2 · ${step === 1 ? 'Какая помощь нужна' : 'Подробности'}`} />
-      <PageHeader title={step === 1 ? 'Какая помощь нужна' : 'Расскажите подробнее'} lead="Репетиторы увидят заявку и откликнутся сами: с ценой и свободным временем." />
+      <PageHeader title={step === 1 ? 'Какая помощь нужна' : 'Расскажите подробнее'} />
       <Card>
         <div className="trk-form">
           {step === 1 ? (
@@ -65,7 +65,6 @@ export default function NewRequestPage() {
               {errors.schedule && <span className="trk-error">{errors.schedule}</span>}
               <OptionChips options={BUDGETS} value={budget} onChange={setBudget} label="Бюджет за урок" />
               <TextArea label="Что нужно" rows={5} value={description} onChange={(e) => setDescription(e.target.value)} error={errors.description} hint="Тема, сроки, что не получается. Телефоны и ссылки писать нельзя." />
-              <Note tone="plain" icon="info">Заявка активна 14 дней. Закрыть её можно в любой момент.</Note>
             </>
           )}
           <FormError error={create.error} />

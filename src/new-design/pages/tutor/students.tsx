@@ -9,7 +9,7 @@ export default function TutorStudentsPage() {
   const students = useQuery('my-students', () => api.listMyStudents());
   return (
     <AppLayout role="tutor">
-      <PageHeader title="Ученики" lead="Те, кто записывался к вам на уроки." />
+      <PageHeader title="Ученики" />
       <QueryView query={students} empty={(items) => (items.length ? null : <EmptyState icon="person-plus" title="Учеников пока нет" text="Когда кто-то запишется на урок или знакомство, он появится здесь." />)}>
         {(items) => (
           <div className="trk-list">

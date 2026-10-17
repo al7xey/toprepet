@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import type { Lesson } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { useNow } from '../../lib/useNow';
 import { minutes, rub, until, whenLabel } from '../../lib/format';
-import { Button, Card, FormError, LessonStatus, Modal, Note, OptionChips, PageHeader, Person, QueryView, Rows, Section, SlotPicker, TextArea, lessonTitle, useToast } from '../../ui';
+import { Button, Card, FormError, LessonStatus, Modal, Note, OptionChips, PageHeader, Person, QueryView, Rows, SlotPicker, TextArea, lessonTitle, useToast } from '../../ui';
 
 const HOUR = 3_600_000;
 const REASONS = ['Изменились планы', 'Заболел(а)', 'Нашёл(ла) другого репетитора', 'Другое'];
@@ -85,11 +85,6 @@ function LessonView({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson
       {lesson.disputeId
         ? <Note tone="plain" icon="flag" action={<Button size="s" variant="line" to={`/me/disputes/${lesson.disputeId}`}>Открыть спор</Button>}>По этому уроку открыт спор с поддержкой.</Note>
         : problemOpen && <Note tone="plain" icon="flag" action={<Button size="s" variant="line" to={`/me/lessons/${lesson.id}/problem`}>Сообщить о проблеме</Button>}>Что-то пошло не так? Расскажите, и поддержка разберётся.</Note>}
-
-      <Section title="Отмена и перенос">
-        <Card><p className="cap">Отмена бесплатна за 4 часа и раньше до начала. Позже деньги получает репетитор. Для переноса предложите другое время: репетитор подтвердит его.</p></Card>
-      </Section>
-      <p className="muted"><Link className="acc" to="/help">Нужна помощь?</Link></p>
 
       <CancelModal lesson={lesson} late={late} open={cancelOpen} onClose={() => setCancelOpen(false)} onDone={(l) => { onChange(l); setCancelOpen(false); toast('Урок отменён'); }} />
       <MoveModal lesson={lesson} open={moveOpen} onClose={() => setMoveOpen(false)} onDone={(l) => { onChange(l); setMoveOpen(false); toast('Предложение отправлено репетитору'); }} />

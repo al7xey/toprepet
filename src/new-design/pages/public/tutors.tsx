@@ -40,7 +40,7 @@ export default function TutorsLandingPage() {
           </h1>
           <p className="trh-hero-lead">TopRepet показывает вашу анкету ученикам, принимает записи и оплату, напоминает об уроках и переводит выплаты.</p>
           <div className="trh-hero-btns">
-            <Button to="/signup?role=tutor" size="lg" iconAfter="arrow" className="trh-cta">Создать анкету</Button>
+            <Button to="/signup?role=tutor" size="lg" className="trh-cta">Создать анкету</Button>
             <Button to="/requests" variant="warm" size="lg">Заявки учеников</Button>
           </div>
         </div>

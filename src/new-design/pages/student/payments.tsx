@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { Card as PayCard, PaymentKind } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { dateLong, rub } from '../../lib/format';
-import { AddCardModal, Button, Card, ConfirmDialog, EmptyState, FormError, Note, PageHeader, QueryView, Section, Status, Tabs, useToast, type Tone } from '../../ui';
+import { AddCardModal, Button, Card, ConfirmDialog, EmptyState, FormError, PageHeader, QueryView, Section, Status, Tabs, useToast, type Tone } from '../../ui';
 
 const KIND: Record<PaymentKind, { tone: Tone; text: string; sign: string }> = {
   hold: { tone: 'wait', text: 'Заморожено', sign: '' },
@@ -18,7 +18,7 @@ export default function PaymentsPage() {
   const [tab, setTab] = useState<'history' | 'cards'>('history');
   return (
     <AppLayout role="student" narrow>
-      <PageHeader title="Платежи" lead="Деньги замораживаются при записи и списываются после подтверждения репетитором." />
+      <PageHeader title="Платежи" />
       <Tabs items={[{ value: 'history', label: 'История' }, { value: 'cards', label: 'Карты' }]} value={tab} onChange={setTab} />
       {tab === 'history' ? <History /> : <Cards />}
     </AppLayout>
@@ -71,7 +71,6 @@ function Cards() {
           </div>
         )}
       </QueryView>
-      <Note tone="plain" icon="lock">Данные карты хранит платёжный провайдер, мы видим только последние четыре цифры.</Note>
       <FormError error={remove.error} />
       <AddCardModal open={open} onClose={() => setOpen(false)} onAdded={() => { setOpen(false); cards.reload(); toast('Карта добавлена'); }} />
       <ConfirmDialog open={!!removing} onClose={() => setRemoving(null)} onConfirm={() => void confirmRemove()} title="Удалить карту?" text={removing ? `Карта ${removing.brand} ···· ${removing.last4} будет удалена. Уроки, за которые деньги уже заморожены, не изменятся.` : undefined} confirmLabel="Удалить" variant="danger" pending={remove.pending} />

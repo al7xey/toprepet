@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { ScheduleException, WeekSchedule } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { dateLong } from '../../lib/format';
-import { Button, Card, ChoiceCards, FormError, Note, PageHeader, QueryView, Section, SelectField, TextField, WeekEditor, weekProblem, useToast } from '../../ui';
+import { Button, Card, ChoiceCards, FormError, PageHeader, QueryView, Section, SelectField, TextField, WeekEditor, weekProblem, useToast } from '../../ui';
 
 const HOURS = Array.from({ length: 19 }, (_, i) => `${String(i + 5).padStart(2, '0')}:00`);
 type Kind = ScheduleException['kind'];
@@ -15,7 +15,7 @@ export default function SchedulePage() {
   const exceptions = useQuery('my-exceptions', () => api.listExceptions());
   return (
     <AppLayout role="tutor" narrow>
-      <PageHeader title="Расписание" lead="В эти часы ученики видят свободное время в вашей анкете. Шаг — час, время московское." />
+      <PageHeader title="Расписание" lead="Время московское" />
       <QueryView query={week}>
         {(saved) => <WeekPanel saved={saved} onSaved={week.setData} />}
       </QueryView>
@@ -54,7 +54,6 @@ function WeekPanel({ saved, onSaved }: { saved: WeekSchedule; onSaved: (w: WeekS
         <Button onClick={submit} disabled={!dirty || Boolean(problem)} loading={save.pending}>Сохранить расписание</Button>
         {dirty && <Button variant="fill" onClick={() => setDraft(saved)}>Сбросить изменения</Button>}
       </div>
-      <Note tone="plain" icon="info">Изменения не затрагивают уже подтверждённые уроки.</Note>
     </Card>
   );
 }

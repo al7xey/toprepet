@@ -41,7 +41,6 @@ export default function ReviewPage() {
                 <form className="trk-form" onSubmit={(e) => { e.preventDefault(); void submit(); }} noValidate>
                   <RatingInput value={rating} onChange={setRating} label="Как прошёл урок?" error={touched && !rating ? 'Поставьте оценку' : undefined} />
                   <TextArea label="Ваш отзыв" rows={6} maxLength={1000} placeholder="Что понравилось, чему научились, что можно улучшить" value={text} onChange={(e) => setText(e.target.value)} hint={`${text.trim().length} из ${MIN} символов минимум`} error={textError} />
-                  <Note tone="plain" icon="shield">Отзыв проверит поддержка, затем он появится в анкете репетитора. Контакты и ссылки в отзывах не публикуются.</Note>
                   <FormError error={send.error} />
                   <div className="trk-actions">
                     <Button type="submit" size="lg" loading={send.pending}>Отправить отзыв</Button>

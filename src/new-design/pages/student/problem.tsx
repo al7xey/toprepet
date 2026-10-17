@@ -29,7 +29,7 @@ export default function ProblemPage() {
       <QueryView query={lesson} empty={() => null}>
         {(l) => (
           <>
-            <PageHeader title="Сообщить о проблеме" back={{ to: `/me/lessons/${l.id}`, label: lessonTitle(l) }} lead="Расскажите, что случилось. Поддержка разберётся и вернёт деньги, если урок не состоялся." />
+            <PageHeader title="Сообщить о проблеме" back={{ to: `/me/lessons/${l.id}`, label: lessonTitle(l) }} />
             {l.disputeId ? (
               <Note tone="plain" icon="info" action={<Button size="s" to={`/me/disputes/${l.disputeId}`}>Открыть спор</Button>}>По этому уроку уже есть обращение.</Note>
             ) : (
@@ -40,7 +40,6 @@ export default function ProblemPage() {
                   <OptionChips options={REASONS} value={reason} onChange={setReason} label="Что произошло" />
                   {touched && !reason && <span className="trk-error" role="alert">Выберите причину</span>}
                   <TextArea label="Подробности" rows={5} maxLength={1500} placeholder="Опишите, что случилось и когда" value={text} onChange={(e) => setText(e.target.value)} hint={`${text.trim().length} из ${MIN} символов минимум`} error={touched && text.trim().length < MIN ? `Напишите хотя бы ${MIN} символов` : undefined} />
-                  <Note tone="plain" icon="shield">Сообщить о проблеме можно в течение 24 часов после начала урока. Пока идёт разбор, деньги за урок остаются на удержании.</Note>
                   <FormError error={send.error} />
                   <div className="trk-actions">
                     <Button type="submit" size="lg" loading={send.pending}>Отправить обращение</Button>

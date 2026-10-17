@@ -6,7 +6,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { Achievement, TutorProfileDraft, WeekSchedule } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
-import { Avatar, Button, Card, CardTitle, FilePick, FormError, Note, OptionChips, PageHeader, QueryView, SelectField, Status, Switch, TextArea, TextField, WeekEditor, WizardProgress, weekIsEmpty, weekProblem, useToast } from '../../ui';
+import { Avatar, Button, Card, CardTitle, FilePick, FormError, OptionChips, PageHeader, QueryView, SelectField, Status, Switch, TextArea, TextField, WeekEditor, WizardProgress, weekIsEmpty, weekProblem, useToast } from '../../ui';
 
 const SUBJECTS = allSubjects.filter((s) => s !== 'Другой предмет');
 const LEVELS = ['Дошкольники', '1–4 класс', '5–9 класс', '10–11 класс', 'Взрослые'];
@@ -135,7 +135,7 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
           <div className="trk-actions">
             {step > 1 && <Button variant="fill" onClick={() => setStep(step - 1)}>Назад</Button>}
             {step < STEPS.length
-              ? <Button onClick={next} loading={busy} iconAfter="arrow">Дальше</Button>
+              ? <Button onClick={next} loading={busy}>Дальше</Button>
               : <Button onClick={submit} loading={publish.pending} icon="check">Отправить на проверку</Button>}
           </div>
         </div>
@@ -184,7 +184,6 @@ function Finish({ draft, week }: { draft: TutorProfileDraft; week: WeekSchedule 
       <div className="g8">
         <CardTitle>Перед публикацией</CardTitle>
         {checks.map(([label, ok]) => <div className="trk-exrow" key={label}><span>{label}</span><Status tone={ok ? 'ok' : 'neutral'} icon={ok ? 'check' : 'clock'}>{ok ? 'Готово' : 'Желательно'}</Status></div>)}
-        <Note tone="plain" icon="info">После публикации анкета появится в каталоге. Править её можно в любой момент.</Note>
       </div>
     </>
   );

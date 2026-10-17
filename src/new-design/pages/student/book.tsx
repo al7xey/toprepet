@@ -85,7 +85,6 @@ function BookForm({ tutor }: { tutor: Tutor }) {
               <Note tone="plain" icon="info">Деньги заморозим при записи и спишем, когда репетитор подтвердит урок. Бесплатная отмена за 4 часа до начала.</Note>
             </>
           )}
-          {kind === 'intro' && <Note tone="plain" icon="gift">Знакомство бесплатное, карта не нужна. Оно доступно один раз для каждого репетитора.</Note>}
           <div>
             <Checkbox checked={agree} onChange={setAgree}>Согласен(на) с правилами отмены и переноса</Checkbox>
             {showErrors && problems.agree && <span className="trk-error">Подтвердите согласие</span>}

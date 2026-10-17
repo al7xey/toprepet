@@ -38,17 +38,13 @@ function SessionActions({ block }: { block?: boolean }) {
   if (user) {
     return <Button to={homeFor(user.role)} size={block ? 'lg' : 's'} block={block} icon="user">{user.role === 'tutor' ? 'Кабинет репетитора' : user.role === 'admin' ? 'Админка' : 'Мои уроки'}</Button>;
   }
-  return (
-    <>
-      <Button variant="fill" size={block ? 'lg' : 's'} block={block} to="/login">Войти</Button>
-      <Button size={block ? 'lg' : 's'} block={block} to="/signup">Регистрация</Button>
-    </>
-  );
+  return <Button size={block ? 'lg' : 's'} block={block} to="/login">Войти</Button>;
 }
 
 /** Публичные страницы: стеклянная шапка, контент, подвал; на телефоне меню открывается отдельным экраном. */
 export function PublicLayout({ children, tight, bareMobile, narrow }: { children: ReactNode; tight?: boolean; bareMobile?: boolean; narrow?: boolean }) {
   const { pathname } = useLocation();
+  const { user } = useSession();
   // меню закрывается само при переходе: открытым оно считается только на той странице, где его открыли
   const [menuAt, setMenuAt] = useState<string | null>(null);
   const menu = menuAt === pathname;
@@ -71,7 +67,7 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
         <dialog open className="wash trh-menu" aria-modal="true" aria-label="Меню">
           <header className="hdr m surf"><Logo /><button type="button" className="btn btn-icon" aria-label="Закрыть меню" onClick={() => setMenu(false)}><Icon name="x" /></button></header>
           <nav className="trh-menu-list" aria-label="Меню">
-            {[...PUBLIC_NAV, ['Заявки учеников', '/requests'], ['Помощь', '/help']].map(([label, to]) => <Link key={to} to={to}>{label}<Icon name="right" /></Link>)}
+            {[...PUBLIC_NAV, ['Заявки учеников', '/requests'], ['Помощь', '/help'], ...(user ? [] : [['Регистрация', '/signup']])].map(([label, to]) => <Link key={to} to={to}>{label}<Icon name="right" /></Link>)}
           </nav>
           <div className="g10 u-mt-auto"><SessionActions block /></div>
         </dialog>

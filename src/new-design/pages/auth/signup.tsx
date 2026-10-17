@@ -42,7 +42,7 @@ export default function SignupPage() {
 
   return (
     <AuthLayout>
-      <PageHeader title="Регистрация" lead="Это займёт минуту. Роль выбирается один раз." center />
+      <PageHeader title="Регистрация" center />
       <AuthCard>
         <form className="trk-form" onSubmit={submit} noValidate>
           <ChoiceCards<SignupRole> label="Кто вы" value={role} onChange={setRole} options={[

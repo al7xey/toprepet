@@ -32,7 +32,6 @@ function View({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson) => v
   const [moveOpen, setMoveOpen] = useState(false);
   const startMs = new Date(lesson.start).getTime();
   const endMs = startMs + lesson.durationMin * 60_000;
-  const active = lesson.status === 'pending' || lesson.status === 'confirmed';
   const joinOpen = lesson.status === 'confirmed' && now >= startMs - 10 * 60_000 && now < endMs;
   const ended = lesson.status === 'confirmed' && now >= endMs;
   const confirm = useMutation(() => api.confirmLesson(lesson.id));
@@ -69,7 +68,6 @@ function View({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson) => v
         {ended && <><Button size="lg" onClick={() => run(mark.run('happened'), 'Урок отмечен как состоявшийся')} loading={mark.pending}>Урок состоялся</Button><Button size="lg" variant="fill" onClick={() => run(mark.run('no_show_student'), 'Отметили: ученик не пришёл')}>Ученик не пришёл</Button></>}
         {lesson.status === 'confirmed' && !ended && <><Button size="lg" variant="line" icon="repeat" onClick={() => setMoveOpen(true)}>Предложить перенос</Button><Button size="lg" variant="fill" onClick={() => setCancelOpen(true)}>Отменить урок</Button></>}
       </div>
-      {active && <Note tone="plain" icon="info">Отмена со стороны репетитора всегда возвращает деньги ученику.</Note>}
       <DeclineModal lesson={lesson} open={declineOpen} onClose={() => setDeclineOpen(false)} onDone={(l) => { onChange(l); setDeclineOpen(false); toast('Запись отклонена'); }} />
       <CancelModal lesson={lesson} open={cancelOpen} onClose={() => setCancelOpen(false)} onDone={(l) => { onChange(l); setCancelOpen(false); toast('Урок отменён, ученику вернутся деньги'); }} />
       <MoveModal lesson={lesson} open={moveOpen} onClose={() => setMoveOpen(false)} onDone={(l) => { onChange(l); setMoveOpen(false); toast('Предложение отправлено ученику'); }} />

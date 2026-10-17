@@ -3,7 +3,7 @@ import { api, staticTutors } from '../../api';
 import { useQuery } from '../../api/hooks';
 import { PublicLayout } from '../../layout/layouts';
 import { rv, useParallax } from '../../reveal';
-import { ArrowLink, Button, Faq, Icon, Panel, Section, Steps, Ticks, TutorGrid } from '../../ui';
+import { Button, Faq, Icon, Panel, Section, Steps, TutorGrid } from '../../ui';
 import { HOW_STEPS, STUDENT_FAQ } from './content';
 
 export default function HomePage() {
@@ -21,13 +21,8 @@ export default function HomePage() {
             <span className="trh-ln trh-ln2"><span className="trh-shine">топ результат</span></span>
           </h1>
           <p className="trh-hero-lead">Индивидуальные занятия с репетиторами онлайн: удобный график и быстрый результат.</p>
-          <ul className="benefits trh-benefits">
-            <li><span className="ic-sq"><Icon name="user" /></span><span>Индивидуальные<br />занятия</span></li>
-            <li><span className="ic-sq"><Icon name="cal" /></span><span>Удобный<br />график</span></li>
-            <li><span className="ic-sq"><Icon name="chart" /></span><span>Быстрый<br />результат</span></li>
-          </ul>
           <div className="trh-hero-btns">
-            <Button to="/teachers" size="lg" iconAfter="arrow" className="trh-cta">Найти репетитора</Button>
+            <Button to="/teachers" size="lg" className="trh-cta">Найти репетитора</Button>
             <Button to="/me/requests/new" variant="warm" size="lg">Создать заявку</Button>
           </div>
         </div>
@@ -42,13 +37,12 @@ export default function HomePage() {
 
       <Section
         title="Топ репеты"
-        lead="Найдите преподавателя, с которым будет комфортно учиться и двигаться к цели."
-        action={<ArrowLink to="/teachers" label="Все репетиторы" />}
+        action={<Button to="/teachers" variant="line" size="s">Все репетиторы</Button>}
       >
         <TutorGrid tutors={tutors.data ?? first} layout="row" />
       </Section>
 
-      <Section title="Познакомьтесь до первого занятия" className="trh-intro" lead="Бесплатное знакомство, чтобы обсудить цель, познакомиться с репетитором и понять, как лучше выстроить занятия. Его длительность выбирает сам репетитор.">
+      <Section title="Познакомьтесь до первого занятия" className="trh-intro">
         <ol className="g16">
           {([['target', 'Определим цель', 'Разберёмся, с чем нужна помощь.'], ['cal', 'Согласуем формат', 'Обсудим график и удобный темп.'], ['checks', 'Составим план', 'Определим, с чего начать занятия.']] as const).map(([icon, title, text], index) => (
             <li key={title} className="fr" {...rv('up', index * 0.08, { gap: 16 })}>
@@ -57,7 +51,7 @@ export default function HomePage() {
             </li>
           ))}
         </ol>
-        <div {...rv('up', 0.1)}><Button to="/teachers" size="lg" icon="gift" iconAfter="arrow">Выбрать репетитора</Button></div>
+        <div {...rv('up', 0.1)}><Button to="/teachers" size="lg" icon="gift">Выбрать репетитора</Button></div>
       </Section>
 
       <section className="trh-trust" aria-labelledby="trust-title">
@@ -68,22 +62,6 @@ export default function HomePage() {
           <p className="cap">Деньги не переводятся репетитору сразу: их списывают, когда репетитор подтвердит запись, и выплачивают после проведённого занятия. В других спорных ситуациях поддержка поможет разобраться.</p>
           <div><Button to="/legal/payment-refund/" variant="line">Оплата и возвраты</Button></div>
         </div>
-      </section>
-
-      <Panel>
-        <div className="trh-sec trh-panel-in">
-          <h2 className="trh-panel-h">Записывайтесь сами</h2>
-          <Ticks items={['Выбирайте время в расписании репетитора', 'Цена занятия указана в анкете репетитора', 'Деньги заморожены и спишутся после подтверждения', 'Бесплатная отмена за 4 часа до начала']} />
-          <div><Button to="/teachers" size="lg">Найти репетитора</Button></div>
-        </div>
-      </Panel>
-
-      <section className="trk-split" aria-labelledby="help-title" {...rv('up')}>
-        <div className="trh-sec u-mw560">
-          <h2 id="help-title" className="h2 trh-h2">Нужна помощь?</h2>
-          <p className="cap">Ответим на вопросы об оплате, переносах и возвратах в чате поддержки.</p>
-        </div>
-        <Button to="/help" variant="line" size="lg" icon="chat">Помощь</Button>
       </section>
 
       <Panel>

@@ -77,7 +77,7 @@ export default function CatalogPage() {
 
   return (
     <PublicLayout tight>
-      <PageHeader title="Топ репеты" lead="Найдите преподавателя, с которым будет комфортно учиться и двигаться к цели." />
+      <PageHeader title="Топ репеты" />
 
       <search className="trh-sec trh-tools" {...rv('up', 0.05)}>
         <form className="search" onSubmit={(e) => { e.preventDefault(); set({ query: input.trim() || undefined }); trackGoal('teacher_search', { has_query: Boolean(input.trim()) }); }}>

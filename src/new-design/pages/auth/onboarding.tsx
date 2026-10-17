@@ -36,7 +36,7 @@ export default function OnboardingPage() {
   return (
     <AuthLayout>
       <WizardProgress step={step} total={3} />
-      <PageHeader title={titles[step - 1]} lead="Это поможет показать подходящих репетиторов. Ответы можно изменить позже." center />
+      <PageHeader title={titles[step - 1]} center />
       <AuthCard>
         <div className="trk-form">
           {step === 1 && <ChoiceCards value={forWhom} onChange={setForWhom} label="Для кого занятия" options={FOR_WHOM.map((v) => ({ value: v, title: v, icon: v === 'Для себя' ? 'user' : 'school' }))} />}
@@ -45,7 +45,7 @@ export default function OnboardingPage() {
           <FormError error={save.error} />
           <div className="trk-actions">
             {step > 1 && <Button variant="fill" onClick={() => setStep(step - 1)}>Назад</Button>}
-            <Button onClick={next} disabled={!ready} loading={save.pending && step === 3} iconAfter="arrow">{step < 3 ? 'Дальше' : 'Готово'}</Button>
+            <Button onClick={next} disabled={!ready} loading={save.pending && step === 3}>{step < 3 ? 'Дальше' : 'Готово'}</Button>
             <Button variant="line" onClick={() => finish(true)} loading={save.pending && step < 3}>Пропустить</Button>
           </div>
         </div>

@@ -25,7 +25,7 @@ export default function TutorRequestsPage() {
 
   return (
     <AppLayout role="tutor">
-      <PageHeader title="Заявки" lead="Ученики описывают, какая помощь нужна. Откликнитесь с ценой и временем, и ученик сможет записаться." />
+      <PageHeader title="Заявки" />
       {profile.data && !published && <Note tone="info" icon="edit" action={<Button size="s" to="/tutor/profile/edit">Заполнить анкету</Button>}>Откликаться можно после публикации анкеты.</Note>}
       <Tabs<Scope> items={[{ value: 'feed', label: 'Новые заявки' }, { value: 'mine', label: 'Мои отклики', count: mine.data?.length }]} value={scope} onChange={setScope} />
       {scope === 'feed' ? (

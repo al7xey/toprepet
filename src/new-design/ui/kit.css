@@ -281,3 +281,16 @@
 .tr .trk-note-text small{color:var(--muted);font-size:13px}
 .tr .trk-note-dot{flex:none;width:10px;height:10px;margin-top:6px;border-radius:50%;background:var(--accent)}
 .tr .trk-reply{display:grid;gap:4px;padding:14px 16px;border-radius:16px;background:var(--surface)}
+
+/* v4: no grey fills, text-only highlights (kit.css loads after tr.css) */
+.tr .trk-iconbtn,.tr .trk-iconbtn.surf,.tr .trk-app .trk-hdr-ic{background:transparent;box-shadow:none}
+.tr .trk-iconbtn:hover{background:var(--fill)}
+.tr .btn-soft{background:none;box-shadow:none;color:#b23e0c}
+.tr .btn-soft:hover{background:var(--accent-tint)}
+.tr .trk-tabs{background:none;padding:0;gap:6px;border-radius:0;box-shadow:inset 0 -1px 0 var(--line)}
+.tr .trk-tabs button{border-radius:0;padding:0 14px;color:var(--muted);background:none;box-shadow:none}
+.tr .trk-tabs button.on{background:none;color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
+.tr .trk-choice-mark{display:none}
+.tr .trh-tools{grid-template-columns:minmax(0,1fr)}
+.tr .trh-tools .search{min-width:0;max-width:100%}
+.tr .trh-tools .search .trh-search-input{min-width:0;width:100%}
