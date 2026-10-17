@@ -74,7 +74,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
             <div className="trh-pf-sheet">
               <div className="trh-sec" {...rv('up', 0.05)}>
                 <h1 className="trh-h1">{tutor.name}</h1>
-                <p className="muted trh-pf-role">{tutor.cardSubjects}</p>
+                <p className="muted trh-pf-role">{tutor.headline}</p>
                 <div className="fr fw u-gap8">
                   {tutor.documentsVerified && <Status tone="ok" icon="shield">Документы проверены</Status>}
                   {tutor.introMinutes > 0 && <span className="trh-pf-intro-tag"><Icon name="gift" />Бесплатное знакомство</span>}

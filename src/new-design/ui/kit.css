@@ -605,7 +605,6 @@
 /* кнопка «Записаться» закреплена внизу экрана, без белой подложки */
 @media(max-width:760px){
   .tr .trh-pf-cta{position:fixed;left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40}
-  .tr .trh-pf-cta .btn{box-shadow:0 8px 20px rgb(242 106 46 / 35%)}
   .tr .trk-app .trh-pf-cta{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .tr main:has(.trh-pf-cta){padding-bottom:96px}
 }
