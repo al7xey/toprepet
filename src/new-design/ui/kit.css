@@ -424,9 +424,9 @@
 .tr .trk-app .trk-hdr-ic .i{width:22px;height:22px}
 .tr .trk-app .trk-badge{top:-2px;right:-2px}
 /* список в рамке тёмного цвета */
-.tr .trh-drop-menu{box-shadow:inset 0 0 0 1.5px var(--ink),0 12px 28px rgb(32 40 56 / 10%)}
+.tr .trh-drop-menu{box-shadow:inset 0 0 0 1.5px #f0d9c8,0 12px 28px rgb(32 40 56 / 10%)}
 /* поиск крупнее */
-.tr .trh-tools .search{min-height:64px;padding-left:24px}
+.tr .trh-tools .search{min-height:58px;padding-left:22px}
 .tr .search .trh-search-input{font-size:18px;min-height:56px}
 .tr .trh-tools .search .btn{min-height:48px;padding:0 24px;font-size:18.7px;font-weight:800}
 .tr .trh-sort{margin-left:auto}
@@ -524,8 +524,8 @@
   /* справа от «Войти»: круг с тёмной обводкой, без заливки */
   .tr .hdr.surf:not(.m) .trh-actions{order:2;margin-left:auto;flex-shrink:0}
   .tr .hdr.surf:not(.m){gap:0}
-  .tr .hdr.surf:not(.m) .trh-burger{order:3;margin-left:6px;width:46px;min-width:46px;height:46px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink);padding:0}
-  .tr .hdr.surf:not(.m) .trh-burger:hover{background:#fff;box-shadow:inset 0 0 0 2px var(--ink)}
+  .tr .hdr.surf:not(.m) .trh-burger{order:3;margin-left:6px;width:46px;min-width:46px;height:46px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px #f0d9c8;padding:0}
+  .tr .hdr.surf:not(.m) .trh-burger:hover{background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8}
   .tr .hdr.surf:not(.m) .trh-burger .i{width:24px;height:24px;color:var(--ink)}
   /* самостоятельные кнопки одинаково широкие, высота 52 px */
   .tr main .btn:not(.btn-icon):not(.search .btn){width:100%;min-height:52px;justify-content:center}
@@ -569,9 +569,9 @@
 .tr .trh-sort .chipf.ico .i{color:var(--ink)}
 
 /* ---- v13: круглая стрелка у блока, отступы шапки ---- */
-.tr .trh-more.trk-iconbtn{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.tr .trh-more.trk-iconbtn{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px #f0d9c8}
 .tr .trh-more.trk-iconbtn .i{width:22px;height:22px;color:var(--ink)}
-.tr .trh-more.trk-iconbtn:hover{background:#fff;box-shadow:inset 0 0 0 2px var(--ink)}
+.tr .trh-more.trk-iconbtn:hover{background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8}
 @media(max-width:760px){
   .tr .hdr.surf:not(.m){padding:0 6px 0 18px}
   .tr .hdr.surf:not(.m) .trh-burger{margin-left:12px}
@@ -612,3 +612,7 @@
 
 .tr .trh-pf-cta-slot{display:none}
 @media(max-width:760px){.tr .trh-pf-cta-slot{display:block}}
+
+/* заголовок героя: хвосты букв («р», «у») не обрезаются */
+.tr .trh-hero-h .trh-ln{padding-bottom:.25em;margin-bottom:-.25em}
+@media (prefers-reduced-motion:reduce){.tr .trh-hero-h .trh-ln>span{transform:none;animation:none}}
