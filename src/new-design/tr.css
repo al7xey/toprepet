@@ -490,7 +490,6 @@
 .tr .surf-strong{background:#fff;box-shadow:none}
 .tr .surf-photo{background:#fff;box-shadow:none}
 .tr .hdr.surf:not(.m){top:0;height:60px;padding:0;border-radius:0;background:#fff;box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
-.tr .hdr.surf:not(.m)::before{content:'';position:absolute;left:50%;bottom:0;width:100vw;height:1px;transform:translateX(-50%);background:var(--line);pointer-events:none}
 .tr .hdr nav a{transition:background .25s var(--ease),color .25s}
 .tr .hdr nav a:hover{background:rgb(32 40 56 / 5%);color:var(--ink)}
 .tr .hdr nav a.cur{background:#ffeee6;color:#b23e0c}
