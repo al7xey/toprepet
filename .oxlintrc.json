@@ -31,6 +31,7 @@
     "next-env.d.ts"
   ],
   "rules": {
+    "jsx-a11y/aria-role": ["error", { "ignoreNonDOM": true }],
     "no-array-constructor": "error",
     "no-var": "error",
     "prefer-const": "error",

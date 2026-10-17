@@ -33,6 +33,7 @@ export function createHttpApi(base: string): Api {
     logout: () => post('/auth/logout'),
     requestPasswordReset: (email) => post('/auth/password-reset', { email }),
     resendVerification: () => post('/auth/verify/resend'),
+    verifyEmail: (token) => post('/auth/verify', { token }),
     completeOnboarding: (input) => post('/me/onboarding', input),
     updateMe: (input) => request('PATCH', '/me', input),
 

@@ -80,4 +80,20 @@ describe('правила мока (их же обязан повторить с�
     expect(confirmed.status).toBe('confirmed');
     expect(confirmed.payment).toBe('captured');
   });
+
+  it('новый ученик: регистрация, подтверждение почты, онбординг, запись на знакомство и отмена', async () => {
+    const created = await api.signup({ role: 'student', name: 'Мария', email: 'maria.test@mail.ru', password: 'password1' });
+    expect(created.emailVerified).toBe(false);
+    expect(created.onboarded).toBe(false);
+    expect((await api.verifyEmail('token')).emailVerified).toBe(true);
+    expect((await api.completeOnboarding({ forWhom: 'Для себя', subjects: ['Математика'], goal: 'Экзамен' })).onboarded).toBe(true);
+    await expect(api.signup({ role: 'student', name: 'Мария', email: 'MARIA.test@mail.ru', password: 'password1' })).rejects.toThrow(/уже есть/);
+    const candidates = (await api.listTutors({ limit: 20 })).items.filter((t) => t.introMinutes > 0);
+    const t = candidates[0];
+    const slot = await freeSlot(t, 9);
+    const intro = await api.createBooking({ tutorId: t.id, kind: 'intro', subject: t.subjects[0], start: slot.start, durationMin: 20 });
+    expect(intro.status).toBe('pending');
+    expect((await api.cancelLesson(intro.id, 'Изменились планы')).status).toBe('cancelled');
+    await expect(api.verifyEmail('  ')).rejects.toBeInstanceOf(ApiError);
+  });
 });

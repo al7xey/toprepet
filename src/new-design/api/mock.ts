@@ -270,6 +270,11 @@ export function createMockApi(): Api {
     async logout() { load().sessionUserId = null; save(); return delay(undefined); },
     async requestPasswordReset(email) { if (!email.includes('@')) fail('Проверьте адрес почты'); return delay(undefined, 400); },
     async resendVerification() { me(); return delay(undefined); },
+    async verifyEmail(token) {
+      // в моке подходит любой непустой токен; на сервере токен одноразовый и привязан к пользователю
+      if (!token.trim()) fail('Ссылка устарела. Запросите письмо ещё раз.');
+      const u = me(); u.emailVerified = true; save(); return delay(publicUser(u));
+    },
     async completeOnboarding() { const u = me(); u.onboarded = true; save(); return delay(publicUser(u)); },
     async updateMe(input) { const u = me(); Object.assign(u, input); save(); return delay(publicUser(u)); },
 

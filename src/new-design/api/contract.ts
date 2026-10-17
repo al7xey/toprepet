@@ -19,6 +19,7 @@ export interface Api {
   logout(): Promise<void>; // POST /auth/logout
   requestPasswordReset(email: string): Promise<void>; // POST /auth/password-reset
   resendVerification(): Promise<void>; // POST /auth/verify/resend
+  verifyEmail(token: string): Promise<User>; // POST /auth/verify (токен из письма)
   completeOnboarding(input: { forWhom: string; subjects: string[]; goal: string }): Promise<User>; // POST /me/onboarding
   updateMe(input: Partial<Pick<User, 'name' | 'timezone'>>): Promise<User>; // PATCH /me
 
