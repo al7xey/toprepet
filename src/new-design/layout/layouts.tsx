@@ -103,7 +103,7 @@ function useCounters(role: Role) {
  * Разделы кабинета, у которых уже есть страницы. Остальных в меню нет, чтобы ни одна кнопка не вела на 404.
  * По мере сборки страниц сюда добавляются адреса (заявки, чаты, платежи, уведомления, админка).
  */
-const READY = ['/teachers', '/me/lessons', '/me/account', '/tutor/lessons', '/tutor/schedule', '/tutor/finance', '/tutor/profile', '/tutor/students', '/tutor/account'];
+const READY = ['/teachers', '/me/lessons', '/me/account', '/me/requests', '/me/chats', '/tutor/requests', '/tutor/chats', '/tutor/lessons', '/tutor/schedule', '/tutor/finance', '/tutor/profile', '/tutor/students', '/tutor/account'];
 const ready = (to: string) => READY.some((p) => to === p || to.startsWith(`${p}/`));
 
 const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {

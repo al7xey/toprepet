@@ -3,7 +3,7 @@ import { PRICE } from '../../shared/config/site';
 import teacherPhotos from '../../shared/config/teacher-photos.json';
 import { ApiError, type Api } from './contract';
 import type {
-  Card, Conversation, Dispute, Id, Lesson, Message, Notification, PaymentRecord, PayoutSettings, Review, Role,
+  Card, Conversation, Dispute, Id, Lesson, Message, Notification, PaymentRecord, PayoutSettings, Review,
   ScheduleException, StudyRequest, RequestResponse, Tutor, TutorDocument, TutorProfileDraft, User, WeekSchedule,
 } from './types';
 import { LESSON_MINUTES } from './types';
@@ -225,6 +225,21 @@ const systemMessage = (tutorId: Id, studentId: Id, text: string) => {
   s.messages.push({ id: nextId('m'), conversationId: c.id, authorId: null, kind: 'event', text, at: iso(Date.now()) });
   c.lastMessage = text; c.updatedAt = iso(Date.now());
 };
+const CONTACTS_MESSAGE = 'Телефоны, ссылки и мессенджеры в сообщениях запрещены: общайтесь и платите внутри TopRepet, так мы сможем помочь, если что-то пойдёт не так.';
+/** Мягкая проверка на обмен контактами. Жёсткую проверку делает сервер. */
+const hasContacts = (text: string) => /(?:\+?\d[\s().-]*){10,}/.test(text) || /https?:\/\/|\bt\.me\/|\bwa\.me\/|(?:^|\s)@[a-z0-9_]{3,}|\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b/i.test(text);
+const withExpiry = (r: StudyRequest): StudyRequest => (r.status === 'open' && new Date(r.expiresAt).getTime() < Date.now() ? { ...r, status: 'expired' } : r);
+/** Диалог глазами текущего пользователя: репетитор видит имя ученика, ученик — репетитора. */
+const peerView = (c: Conversation): Conversation => {
+  const u = me();
+  return u.role === 'tutor' ? { ...c, peerName: load().users.find((x) => x.id === c.studentId)?.name ?? 'Ученик', peerPhoto: null, peerRole: 'student' } : c;
+};
+const myConversation = (id: Id): Conversation => {
+  const u = me(); const c = load().conversations.find((x) => x.id === id);
+  const mine = c && (u.role === 'student' ? c.studentId === u.id : u.role === 'tutor' ? c.tutorId === u.tutorId : true);
+  if (!c || !mine) fail('Диалог не найден', 404);
+  return c as Conversation;
+};
 const norm = (v: string) => v.trim().toLocaleLowerCase('ru').replaceAll('ё', 'е');
 
 function slotsFor(tutor: Tutor, fromMs: number, days: number) {
@@ -340,6 +355,13 @@ export function createMockApi(): Api {
       };
       s.lessons.push(lesson);
       chargeOrRefund(lesson, 'hold');
+      if (input.requestId) {
+        const request = s.requests.find((x) => x.id === input.requestId && x.studentId === u.id);
+        if (request && request.status === 'open') {
+          request.status = 'booked';
+          s.responses.filter((x) => x.requestId === request.id).forEach((x) => { x.status = x.tutorId === tutor.id ? 'accepted' : 'closed'; });
+        }
+      }
       let c = s.conversations.find((x) => x.tutorId === tutor.id && x.studentId === u.id);
       if (!c) { c = { id: nextId('c'), peerName: tutor.name, peerPhoto: tutor.photo, peerRole: 'tutor', lastMessage: '', updatedAt: iso(Date.now()), unread: 0, tutorId: tutor.id, studentId: u.id }; s.conversations.unshift(c); }
       systemMessage(tutor.id, u.id, `${u.name} записалась на ${lesson.kind === 'intro' ? 'бесплатное знакомство' : 'урок'}`);
@@ -425,20 +447,41 @@ export function createMockApi(): Api {
     async listMyReviews() { const u = me(); return delay(load().reviews.filter((r) => r.tutorId === u.tutorId)); },
     async replyReview(id, text) { const r = load().reviews.find((x) => x.id === id); if (!r) fail('Отзыв не найден', 404); (r as Review).reply = text; save(); return delay(r as Review); },
 
-    async listMyRequests() { const u = me(); return delay(load().requests.filter((r) => r.studentId === u.id)); },
+    async listMyRequests() { const u = me(); return delay(load().requests.filter((r) => r.studentId === u.id).map(withExpiry)); },
     async createRequest(input) {
       const u = me();
       if (!input.subject || input.description.trim().length < 20) fail('Опишите задачу подробнее: хотя бы пару предложений');
       const r: StudyRequest = { ...input, id: nextId('r'), studentId: u.id, studentName: u.name, status: 'open', createdAt: iso(Date.now()), expiresAt: iso(Date.now() + 14 * DAY), responsesCount: 0 };
       load().requests.unshift(r); save(); return delay(r, 400);
     },
-    async getRequest(id) { const r = load().requests.find((x) => x.id === id); if (!r) fail('Заявка не найдена', 404); return delay(r as StudyRequest); },
-    async closeRequest(id) { const r = load().requests.find((x) => x.id === id); if (!r) fail('Заявка не найдена', 404); (r as StudyRequest).status = 'closed'; save(); return delay(r as StudyRequest); },
-    async listResponses(requestId) { return delay(load().responses.filter((x) => x.requestId === requestId)); },
-    async listOpenRequests(subject) { return delay(load().requests.filter((r) => r.status === 'open' && (!subject || r.subject === subject))); },
+    async getRequest(id) {
+      const u = me(); const r = load().requests.find((x) => x.id === id);
+      if (!r || (u.role === 'student' && r.studentId !== u.id)) fail('Заявка не найдена', 404);
+      return delay(withExpiry(r as StudyRequest));
+    },
+    async closeRequest(id) {
+      const u = me(); const r = load().requests.find((x) => x.id === id);
+      if (!r || r.studentId !== u.id) fail('Заявка не найдена', 404);
+      if ((r as StudyRequest).status !== 'open') fail('Заявка уже закрыта');
+      (r as StudyRequest).status = 'closed'; save(); return delay(r as StudyRequest);
+    },
+    async listResponses(requestId) {
+      const u = me(); const r = load().requests.find((x) => x.id === requestId);
+      if (!r || r.studentId !== u.id) fail('Заявка не найдена', 404);
+      return delay(load().responses.filter((x) => x.requestId === requestId));
+    },
+    async listOpenRequests(subject) {
+      // лента видна и гостям; имя ученика в ней сокращено до имени без фамилии
+      return delay(load().requests.map(withExpiry).filter((r) => r.status === 'open' && (!subject || r.subject === subject)).map((r) => ({ ...r, studentName: r.studentName.split(' ')[0] })));
+    },
     async respondToRequest(requestId, input) {
       const t = myTutor(); const s = load();
       const r = s.requests.find((x) => x.id === requestId); if (!r) fail('Заявка не найдена', 404);
+      if (t.status !== 'published') fail('Опубликуйте анкету, чтобы откликаться на заявки');
+      if (withExpiry(r as StudyRequest).status !== 'open') fail('Заявка уже закрыта');
+      if (input.message.trim().length < 20) fail('Напишите ученику хотя бы пару предложений');
+      if (hasContacts(input.message)) fail(CONTACTS_MESSAGE);
+      if (!Number.isInteger(input.price) || input.price < 300) fail('Укажите цену от 300 ₽');
       if (s.responses.some((x) => x.requestId === requestId && x.tutorId === t.id)) fail('Вы уже откликнулись на эту заявку');
       const resp: RequestResponse = { id: nextId('rr'), requestId, tutorId: t.id, tutorName: t.name, tutorPhoto: t.photo, tutorRating: t.rating, price: studentPriceOf(input.price), message: input.message, slots: input.slots, status: 'sent', createdAt: iso(Date.now()) };
       s.responses.push(resp); (r as StudyRequest).responsesCount += 1;
@@ -450,24 +493,30 @@ export function createMockApi(): Api {
       return delay(s.responses.filter((x) => x.tutorId === t.id).map((x) => ({ ...x, request: s.requests.find((r) => r.id === x.requestId) as StudyRequest })));
     },
 
-    async listConversations() { const u = me(); return delay(load().conversations.filter((c) => (u.role === 'student' ? c.studentId === u.id : c.tutorId === u.tutorId)).map((c) => (u.role === 'tutor' ? { ...c, peerName: load().users.find((x) => x.id === c.studentId)?.name ?? 'Ученик', peerPhoto: null, peerRole: 'student' as Role } : c))); },
+    async listConversations() { const u = me(); return delay(load().conversations.filter((c) => (u.role === 'student' ? c.studentId === u.id : c.tutorId === u.tutorId)).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt)).map(peerView)); },
     async openConversation(tutorId) {
       const u = me(); const s = load();
       let c = s.conversations.find((x) => x.tutorId === tutorId && x.studentId === u.id);
       if (!c) { const t = s.tutors.find((x) => x.id === tutorId); if (!t) fail('Анкета не найдена', 404); c = { id: nextId('c'), peerName: (t as Tutor).name, peerPhoto: (t as Tutor).photo, peerRole: 'tutor', lastMessage: '', updatedAt: iso(Date.now()), unread: 0, tutorId, studentId: u.id }; s.conversations.unshift(c); save(); }
       return delay(c);
     },
-    async getConversation(id) { const c = load().conversations.find((x) => x.id === id); if (!c) fail('Диалог не найден', 404); return delay(c as Conversation); },
-    async listMessages(id) { const s = load(); const c = s.conversations.find((x) => x.id === id); if (c) { c.unread = 0; save(); } return delay(s.messages.filter((m) => m.conversationId === id)); },
+    async getConversation(id) { return delay(peerView(myConversation(id))); },
+    async listMessages(id) { const s = load(); const c = myConversation(id); c.unread = 0; save(); return delay(s.messages.filter((m) => m.conversationId === id)); },
     async sendMessage(id, text) {
       const u = me(); const s = load();
-      const c = s.conversations.find((x) => x.id === id); if (!c) fail('Диалог не найден', 404);
+      const c = myConversation(id);
+      if (c.blocked) fail('Диалог заблокирован: писать в него нельзя');
       if (!text.trim()) fail('Напишите сообщение');
+      if (hasContacts(text)) fail(CONTACTS_MESSAGE);
       const m: Message = { id: nextId('m'), conversationId: id, authorId: u.id, kind: 'text', text: text.trim(), at: iso(Date.now()) };
       s.messages.push(m); (c as Conversation).lastMessage = m.text; (c as Conversation).updatedAt = m.at; save();
       return delay(m, 150);
     },
-    async reportConversation() { me(); return delay(undefined); },
+    async reportConversation(id, reason, block) {
+      const c = myConversation(id); if (!reason.trim()) fail('Выберите причину жалобы');
+      if (block) c.blocked = true;
+      save(); return delay(undefined);
+    },
 
     async listPayments() { const u = me(); return delay(load().payments.filter((p) => p.userId === u.id)); },
     async listCards() { const u = me(); return delay(load().cards.filter((c) => c.userId === u.id)); },

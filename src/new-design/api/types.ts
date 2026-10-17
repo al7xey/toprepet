@@ -117,6 +117,8 @@ export interface CreateBookingInput {
   durationMin: number;
   subject: string;
   cardId?: Id;
+  /** Если запись создана из отклика на заявку. */
+  requestId?: Id;
 }
 
 export type RequestStatus = 'open' | 'booked' | 'expired' | 'closed';
@@ -172,6 +174,8 @@ export interface Conversation {
   unread: number;
   tutorId: Id;
   studentId: Id;
+  /** Один из собеседников заблокировал диалог после жалобы. */
+  blocked?: boolean;
 }
 
 export type MessageKind = 'text' | 'event' | 'proposal';

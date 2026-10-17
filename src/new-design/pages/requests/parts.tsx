@@ -1,0 +1,51 @@
+import type { ReactNode } from 'react';
+import type { RequestResponse, RequestStatus, StudyRequest } from '../../api/types';
+import { ago, count, fromRub, rub, whenLabel } from '../../lib/format';
+import { Button, Card, Person, Status, Tags } from '../../ui';
+
+export const REQUEST_STATUS: Record<RequestStatus, { tone: 'wait' | 'ok' | 'neutral'; icon: string; text: string }> = {
+  open: { tone: 'wait', icon: 'clock', text: 'Ищем репетитора' },
+  booked: { tone: 'ok', icon: 'check', text: 'Записались' },
+  expired: { tone: 'neutral', icon: 'clock', text: 'Срок истёк' },
+  closed: { tone: 'neutral', icon: 'x', text: 'Закрыта' },
+};
+
+/** Карточка заявки: одна на странице ученика, ленте заявок и кабинете репетитора. */
+export function RequestCard({ request, actions, showStatus = true }: { request: StudyRequest; actions?: ReactNode; showStatus?: boolean }) {
+  const s = REQUEST_STATUS[request.status];
+  return (
+    <Card as="article" className="trk-request">
+      <div className="trk-exrow">
+        <div><b className="trk-request-title">{request.subject}</b><br /><span className="muted">{request.level} · {request.goal}</span></div>
+        {showStatus && <Status tone={s.tone} icon={s.icon}>{s.text}</Status>}
+      </div>
+      <p className="trk-request-text">{request.description}</p>
+      <Tags items={[...request.schedule, request.budgetMax ? `до ${rub(request.budgetMax)}` : 'Бюджет не указан']} />
+      <div className="trk-exrow">
+        <span className="muted sm">{request.studentName} · {ago(request.createdAt)} · {count(request.responsesCount, 'отклик', 'отклика', 'откликов')}</span>
+        {actions && <div className="trk-actions">{actions}</div>}
+      </div>
+    </Card>
+  );
+}
+
+/** Отклик репетитора на заявку: цена, сообщение и время, на которое можно записаться сразу. */
+export function ResponseCard({ response, bookable, bookHref, chatHref }: { response: RequestResponse; bookable: boolean; bookHref: (start: string) => string; chatHref: string }) {
+  return (
+    <Card as="article" className="trk-request">
+      <Person name={response.tutorName} photo={response.tutorPhoto} sub={response.tutorRating ? `★ ${String(response.tutorRating).replace('.', ',')}` : 'Новый репетитор'} right={<b className="tn">{fromRub(response.price)}</b>} />
+      <p className="trk-request-text">{response.message}</p>
+      {response.status === 'accepted' && <Status tone="ok" icon="check">Вы записались к этому репетитору</Status>}
+      {response.slots.length > 0 && bookable && (
+        <div className="g8">
+          <span className="muted sm">Репетитор предлагает время:</span>
+          <div className="trk-actions">{response.slots.map((slot) => <Button key={slot} size="s" to={bookHref(slot)}>{whenLabel(slot)}</Button>)}</div>
+        </div>
+      )}
+      <div className="trk-actions">
+        <Button size="s" variant="line" to={`/teachers/${response.tutorId}/`}>Анкета</Button>
+        <Button size="s" variant="fill" icon="chat" to={chatHref}>Написать</Button>
+      </div>
+    </Card>
+  );
+}

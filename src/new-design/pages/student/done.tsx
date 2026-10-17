@@ -35,7 +35,7 @@ export default function BookDonePage() {
             <div className="trk-actions">
               <Button to="/me/lessons" size="lg">Мои уроки</Button>
               <Button to={`/me/lessons/${l.id}`} variant="line" size="lg">Открыть запись</Button>
-              <Button to={`/teachers/${id}/`} variant="fill" size="lg">К анкете</Button>
+              <Button to={`/me/chats/new?tutor=${id}`} variant="fill" size="lg" icon="chat">Написать репетитору</Button>
             </div>
           </>
         )}

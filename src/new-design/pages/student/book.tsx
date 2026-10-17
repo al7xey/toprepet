@@ -25,6 +25,7 @@ function BookForm({ tutor }: { tutor: Tutor }) {
   const [params] = useSearchParams();
   const wantIntro = params.get('kind') === 'intro' && tutor.introMinutes > 0;
   const kind = wantIntro ? 'intro' : 'regular';
+  const requestId = params.get('request') ?? undefined;
   const [start, setStart] = useState<string | null>(params.get('start'));
   const [subject, setSubject] = useState(tutor.subjects[0] ?? '');
   const [agree, setAgree] = useState(false);
@@ -46,7 +47,7 @@ function BookForm({ tutor }: { tutor: Tutor }) {
   const submit = async () => {
     setShowErrors(true);
     if (problems.start || problems.card || problems.agree || !start) return;
-    const lesson = await book.run({ tutorId: tutor.id, kind, start, durationMin: duration, subject, cardId: card?.id });
+    const lesson = await book.run({ tutorId: tutor.id, kind, start, durationMin: duration, subject, cardId: card?.id, requestId });
     if (lesson) void navigate(`/book/${tutor.id}/done?lesson=${lesson.id}`, { replace: true });
   };
 

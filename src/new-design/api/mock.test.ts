@@ -126,4 +126,40 @@ describe('правила мока (их же обязан повторить с�
     await api.deleteException(key);
     expect((await api.getTutorSlots(tutorId, from.toISOString(), 1)).length).toBe(slots.length);
   });
+
+  it('заявка: описание обязательно, отклик репетитора, запись из отклика закрывает заявку', async () => {
+    await api.login('olga@mail.ru', 'demo');
+    await expect(api.createRequest({ subject: 'Математика', goal: 'ОГЭ', level: '9 класс', budgetMax: null, schedule: ['Будни вечером'], description: 'коротко' })).rejects.toThrow(/подробнее/);
+    const request = await api.createRequest({ subject: 'Математика', goal: 'ОГЭ', level: '9 класс', budgetMax: 2000, schedule: ['Будни вечером'], description: 'Нужно подтянуть геометрию и вторую часть ОГЭ.' });
+    expect(request.status).toBe('open');
+    await api.login('anastasia@toprepet.ru', 'demo');
+    expect((await api.listOpenRequests()).some((r) => r.id === request.id)).toBe(true);
+    await expect(api.respondToRequest(request.id, { price: 1500, message: 'Позвоните мне +7 912 345 67 89, всё обсудим', slots: [] })).rejects.toThrow(/запрещены/);
+    const slotTime = (await api.getTutorSlots((await api.me())?.tutorId as string, new Date().toISOString(), 14)).find((x) => x.available)?.start as string;
+    const response = await api.respondToRequest(request.id, { price: 1500, message: 'Здравствуйте! Начнём с диагностики и составим план занятий.', slots: [slotTime] });
+    expect(response.price).toBe(studentPriceOf(1500));
+    await expect(api.respondToRequest(request.id, { price: 1500, message: 'Здравствуйте! Ещё один отклик от меня на заявку.', slots: [] })).rejects.toThrow(/уже откликнулись/);
+    await api.login('olga@mail.ru', 'demo');
+    expect(await api.listResponses(request.id)).toHaveLength(1);
+    const tutorId = response.tutorId;
+    const t = await api.getTutor(tutorId);
+    await api.createBooking({ tutorId, kind: 'regular', subject: t.subjects[0], start: slotTime, durationMin: 60, requestId: request.id });
+    expect((await api.getRequest(request.id)).status).toBe('booked');
+    expect((await api.listResponses(request.id))[0].status).toBe('accepted');
+  });
+
+  it('чужую заявку и чужой диалог открыть нельзя; контакты в чате запрещены; блок закрывает диалог', async () => {
+    await api.login('olga@mail.ru', 'demo');
+    const chat = await api.openConversation('english');
+    await expect(api.sendMessage(chat.id, 'Мой телефон 8 (912) 345-67-89')).rejects.toThrow(/запрещены/);
+    await expect(api.sendMessage(chat.id, 'Пишите в t.me/someone')).rejects.toThrow(/запрещены/);
+    const sent = await api.sendMessage(chat.id, 'Здравствуйте! Есть время в среду?');
+    expect(sent.kind).toBe('text');
+    await api.signup({ role: 'student', name: 'Пётр', email: 'petr.test@mail.ru', password: 'password1' });
+    await expect(api.getConversation(chat.id)).rejects.toThrow(/не найден/);
+    await expect(api.getRequest('r-1')).rejects.toThrow(/не найдена/);
+    await api.login('olga@mail.ru', 'demo');
+    await api.reportConversation(chat.id, 'Спам', true);
+    await expect(api.sendMessage(chat.id, 'Ещё одно сообщение')).rejects.toThrow(/заблокирован/);
+  });
 });
