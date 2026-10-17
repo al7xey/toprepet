@@ -42,7 +42,7 @@ function SessionActions({ block }: { block?: boolean }) {
 }
 
 /** Публичные страницы: стеклянная шапка, контент, подвал; на телефоне меню открывается отдельным экраном. */
-export function PublicLayout({ children, tight, bareMobile, narrow }: { children: ReactNode; tight?: boolean; bareMobile?: boolean; narrow?: boolean }) {
+export function PublicLayout({ children, tight, bareMobile, narrow, hideSignIn }: { children: ReactNode; tight?: boolean; bareMobile?: boolean; narrow?: boolean; hideSignIn?: boolean }) {
   const { pathname } = useLocation();
   const { user } = useSession();
   // меню закрывается само при переходе: открытым оно считается только на той странице, где его открыли
@@ -60,7 +60,7 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
           <nav className="trh-nav" aria-label="Основная навигация">
             {PUBLIC_NAV.map(([label, to]) => <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{label}</NavLink>)}
           </nav>
-          <span className="fr trh-actions"><SessionActions /></span>
+          {!hideSignIn && <span className="fr trh-actions"><SessionActions /></span>}
           <button type="button" className="btn btn-icon trh-burger" aria-label={menu ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={menu} onClick={() => setMenu(!menu)}><Icon name={menu ? 'x' : 'menu'} /></button>
         </header>
         {menu && (
@@ -80,7 +80,8 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
 
 /** Вход, регистрация, восстановление: публичная шапка и узкая колонка по центру. */
 export function AuthLayout({ children }: { children: ReactNode }) {
-  return <PublicLayout tight narrow>{children}</PublicLayout>;
+  // на экранах входа и регистрации кнопка «Войти» в шапке не нужна
+  return <PublicLayout tight narrow hideSignIn>{children}</PublicLayout>;
 }
 
 interface NavItem { label: string; to: string; icon: string; badge?: number }
