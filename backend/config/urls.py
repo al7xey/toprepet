@@ -16,5 +16,7 @@ urlpatterns = [
     path('', include('payments.urls')),
     path('', include('notifications.urls')),
     path('', include('reviews.urls')),
+    path('', include('requests_board.urls')),
+    path('', include('chats.urls')),
     path('', include('adminpanel.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
