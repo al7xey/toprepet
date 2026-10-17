@@ -49,6 +49,8 @@ export function PublicLayout({ children, tight, bareMobile, narrow }: { children
   const [menuAt, setMenuAt] = useState<string | null>(null);
   const menu = menuAt === pathname;
   const setMenu = (open: boolean) => setMenuAt(open ? pathname : null);
+  // вошедшие ученик и репетитор остаются в своей оболочке: «Найти репетитора» не выбрасывает на экран до входа
+  if (user && user.role !== 'admin' && /^\/(teachers|help|requests)(\/|$)/.test(pathname)) return <AppLayout role={user.role}>{children}</AppLayout>;
   return (
     <>
       <div className={cx('wash trh-page', tight && 'trh-tight', bareMobile && 'trh-bare')}>
@@ -126,7 +128,7 @@ const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
  * Кабинет ученика, репетитора или администратора.
  * Компьютер: стеклянная шапка с разделами и значками. Телефон: без закреплённой шапки, снизу стеклянная панель вкладок.
  */
-export function AppLayout({ role, children, narrow }: { role: Role; children: ReactNode; narrow?: boolean }) {
+export function AppLayout({ role, children, narrow, chat }: { role: Role; children: ReactNode; narrow?: boolean; chat?: 'list' | 'thread' }) {
   const { user, logout } = useSession();
   const navigate = useNavigate();
   const counters = useCounters(role);
@@ -135,7 +137,7 @@ export function AppLayout({ role, children, narrow }: { role: Role; children: Re
   const tabs = nav.tabs.filter((t) => ready(t.to)).map((t) => (t.icon === 'chat' ? { ...t, badge: counters.chats } : t));
   const accountTo = role === 'admin' ? '/admin/disputes' : `${counters.prefix}/account`;
   return (
-    <div className={cx('wash trh-page trh-tight trk-app', `tabs-${tabs.length}`)} style={{ '--n': tabs.length } as CSSProperties}>
+    <div className={cx('wash trh-page trh-tight trk-app', `tabs-${tabs.length}`, chat && `trk-chat-${chat}`)} style={{ '--n': tabs.length } as CSSProperties}>
       <header className="hdr surf trh-hdr trk-app-hdr">
         <Logo />
         <nav className="trh-nav" aria-label="Разделы кабинета">

@@ -15,7 +15,10 @@ async function check(page: import('@playwright/test').Page, url: string) {
   await page.waitForLoadState('networkidle');
   // блоки плавно проявляются при появлении: пока идёт проявление, axe видит полупрозрачный текст
   await page.waitForTimeout(1200);
-  const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
+  const result = await new AxeBuilder({ page })
+    // выбранный пункт шапки — фирменный ярко-оранжевый по решению владельца (контраст ниже AA), остальное проверяем
+    .exclude('.hdr nav a.cur')
+    .withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(result.violations.map((v) => `${v.id}: ${v.nodes[0]?.target.join(' ')}`), `${url}: нарушения доступности`).toEqual([]);
   await expectNoHorizontalScroll(page);
 }

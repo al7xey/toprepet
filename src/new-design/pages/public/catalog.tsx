@@ -89,6 +89,7 @@ export default function CatalogPage() {
           <Dropdown label="Предмет" icon="book" value={filter.subject ?? null} allLabel="Все предметы" options={SUBJECTS.map((s) => ({ value: s, label: s }))} onChange={(v) => { set({ subject: v }); trackGoal('teacher_filter', { subject: v ? safeChoice(v) : 'all' }); }} />
           <Dropdown label="Цена" value={filter.priceMax ?? null} allLabel="Любая цена" options={PRICES} onChange={(v) => set({ priceMax: v })} />
           <Chip on={Boolean(filter.hasIntro)} onClick={() => set({ hasIntro: !filter.hasIntro || undefined })}><Icon name="gift" />Бесплатное знакомство</Chip>
+          <span className="trh-sort"><Dropdown label="Сортировка" icon="sort" value={filter.sort ?? 'recommended'} options={SORTS.map((s) => ({ ...s }))} onChange={(v) => set({ sort: (v ?? 'recommended') as TutorFilter['sort'] })} align="right" iconOnly /></span>
           {active && <button type="button" className="chipf gray" onClick={reset}>Сбросить</button>}
         </div>
       </search>
@@ -96,7 +97,6 @@ export default function CatalogPage() {
       <section className="trh-sec" aria-label="Преподаватели">
         <div className="fr fb" {...rv('up', 0.1)}>
           <p className="muted sm" aria-live="polite">{total === null ? ' ' : <>Найдено: <b className="u-ink">{count(total, 'преподаватель', 'преподавателя', 'преподавателей')}</b></>}</p>
-          <Dropdown label="Сортировка" icon="sort" value={filter.sort ?? 'recommended'} options={SORTS.map((s) => ({ ...s }))} onChange={(v) => set({ sort: (v ?? 'recommended') as TutorFilter['sort'] })} align="right" iconOnly />
         </div>
         {error && !items.length ? <ErrorState text={error} onRetry={() => setFilter((f) => ({ ...f }))} /> : null}
         {!loading && total === 0 ? (

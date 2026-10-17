@@ -19,7 +19,7 @@ export function DemoHint({ onPick }: { onPick: (email: string, password: string)
   if (!open) return null;
   return (
     <Note tone="plain" icon="info">
-      <b>Демо-режим.</b> Данные хранятся в вашем браузере. Войти можно любым демо-аккаунтом, пароль <b>demo</b>:
+      <span><b>Демо-режим.</b> Данные хранятся в вашем браузере. Войти можно любым демо-аккаунтом, пароль — <b>demo</b>.</span>
       <span className="trk-demo-list">
         {DEMO_ACCOUNTS.map((a) => <button key={a.email} type="button" className="trk-demo" onClick={() => onPick(a.email, 'demo')}>{a.label}</button>)}
       </span>
