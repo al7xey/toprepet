@@ -81,9 +81,6 @@ def create_booking(user, data: dict, idempotency_key: str = '') -> Lesson:
         duration = data['durationMin']
         if duration not in (tutor.durations or [60]):
             raise ApiError('Такой длительности урока у репетитора нет')
-    end = start + timedelta(minutes=duration)
-    if any(l.start < end and start < l.end for l in Lesson.objects.filter(student=user, status__in=Lesson.ACTIVE)):
-        raise ApiError('У вас уже есть урок в это время', 409, 'student_busy')
     price = 0 if intro else round_half_up(tutor.student_price * duration / 60)
     tutor_price = 0 if intro else round_half_up(tutor.price * duration / 60)
     card = None

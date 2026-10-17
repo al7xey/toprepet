@@ -217,6 +217,13 @@ function me(): User & { password: string } {
 const publicUser = (u: User & { password?: string }): User => { const { password: _p, ...rest } = u; return rest; };
 const myTutor = () => { const u = me(); const t = load().tutors.find((x) => x.id === u.tutorId); if (!t) fail('Анкета не найдена', 404); return t as Tutor; };
 const findLesson = (id: Id) => { const l = load().lessons.find((x) => x.id === id); if (!l) fail('Урок не найден', 404); return l as Lesson; };
+/** Урок глазами текущего пользователя: ученик не видит цену репетитора, репетитор — цену ученика (как у сервера). */
+const viewOf = (l: Lesson): Lesson => {
+  const s = load(); const u = s.users.find((x) => x.id === s.sessionUserId);
+  if (u?.role === 'student') return { ...l, tutorPrice: l.price };
+  if (u?.role === 'tutor') return { ...l, price: l.tutorPrice };
+  return l;
+};
 const canSee = (l: Lesson) => { const u = me(); if (u.role === 'admin') return; if (l.studentId !== u.id && l.tutorId !== u.tutorId) fail('Нет доступа', 403); };
 const notify = (userId: Id, n: Omit<Notification, 'id' | 'at' | 'read'>) => { load().notifications.unshift({ ...n, id: nextId('n'), at: iso(Date.now()), read: false, userId }); };
 /** Короткая запись уведомления; пустой адресат (репетитора нет в демо) пропускаем. */
@@ -372,7 +379,7 @@ export function createMockApi(): Api {
       const tuid = tutorUserId(tutor.id);
       if (tuid) notify(tuid, { kind: 'lesson', title: 'Новая запись', text: `${u.name} записалась. Подтвердите запись.`, link: `/tutor/lessons/${lesson.id}` });
       save();
-      return delay(lesson, 500);
+      return delay(viewOf(lesson), 500);
     },
     async listLessons(scope) {
       const u = me(); const now = Date.now();
@@ -380,9 +387,9 @@ export function createMockApi(): Api {
       const active = (l: Lesson) => ['pending', 'confirmed'].includes(l.status) && new Date(l.start).getTime() + l.durationMin * 60_000 > now;
       const list = mine.filter((l) => (scope === 'upcoming' ? active(l) : !active(l)));
       list.sort((a, b) => (scope === 'upcoming' ? 1 : -1) * (new Date(a.start).getTime() - new Date(b.start).getTime()));
-      return delay(list);
+      return delay(list.map(viewOf));
     },
-    async getLesson(id) { const l = findLesson(id); canSee(l); return delay(l); },
+    async getLesson(id) { const l = findLesson(id); canSee(l); return delay(viewOf(l)); },
     async cancelLesson(id, reason) {
       const l = findLesson(id); canSee(l); const u = me();
       if (!['pending', 'confirmed'].includes(l.status)) fail('Этот урок уже нельзя отменить');
@@ -394,18 +401,18 @@ export function createMockApi(): Api {
       systemMessage(l.tutorId, l.studentId, `${u.name} отменил${u.role === 'student' ? 'а' : 'а'} урок`);
       const other = u.role === 'student' ? tutorUserId(l.tutorId) : l.studentId;
       if (other) notify(other, { kind: 'lesson', title: 'Урок отменён', text: reason, link: u.role === 'student' ? `/tutor/lessons/${l.id}` : `/me/lessons/${l.id}` });
-      save(); return delay(l);
+      save(); return delay(viewOf(l));
     },
     async proposeMove(id, start) {
       const l = findLesson(id); canSee(l); const u = me();
       if (l.status !== 'confirmed' && l.status !== 'pending') fail('Перенести можно только предстоящий урок');
-      l.moveProposal = { start, by: u.role }; save(); return delay(l);
+      l.moveProposal = { start, by: u.role }; save(); return delay(viewOf(l));
     },
     async answerMove(id, accept) {
       const l = findLesson(id); canSee(l);
       if (!l.moveProposal) fail('Нет предложения о переносе');
       if (accept) l.start = (l.moveProposal as { start: string }).start;
-      l.moveProposal = null; save(); return delay(l);
+      l.moveProposal = null; save(); return delay(viewOf(l));
     },
     async confirmLesson(id) {
       const l = findLesson(id); canSee(l); const u = me();
@@ -415,20 +422,20 @@ export function createMockApi(): Api {
       l.meetingUrl = 'https://telemost.yandex.ru/';
       systemMessage(l.tutorId, l.studentId, `${l.tutorName} подтвердила ${l.kind === 'intro' ? 'знакомство' : 'урок'}`);
       notify(l.studentId, { kind: 'lesson', title: 'Запись подтверждена', text: `${l.tutorName} подтвердила запись`, link: `/me/lessons/${l.id}` });
-      save(); return delay(l);
+      save(); return delay(viewOf(l));
     },
     async declineLesson(id, reason) {
       const l = findLesson(id); canSee(l);
       if (l.status !== 'pending') fail('Запись уже обработана');
       l.status = 'declined'; l.declineReason = reason; if (l.price) { l.payment = 'refunded'; chargeOrRefund(l, 'release'); }
       notify(l.studentId, { kind: 'lesson', title: 'Запись отклонена', text: reason, link: `/me/lessons/${l.id}` });
-      save(); return delay(l);
+      save(); return delay(viewOf(l));
     },
     async markLessonResult(id, result) {
       const l = findLesson(id); canSee(l);
       l.status = result === 'happened' ? 'completed' : result;
       if (result === 'no_show_tutor' && l.price) { l.payment = 'refunded'; chargeOrRefund(l, 'refund'); }
-      save(); return delay(l);
+      save(); return delay(viewOf(l));
     },
     async reportProblem({ lessonId, reason, text }) {
       const l = findLesson(lessonId); canSee(l);

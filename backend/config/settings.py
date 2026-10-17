@@ -117,6 +117,8 @@ if _email:
     EMAIL_HOST_USER, EMAIL_HOST_PASSWORD = unquote(_u.username or ''), unquote(_u.password or '')
     EMAIL_USE_TLS = _u.scheme == 'smtp'
     EMAIL_USE_SSL = _u.scheme == 'smtps'
+elif env('CONTRACT_TESTS') == '1':
+    EMAIL_BACKEND = 'core.testmail.CaptureBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', 'TopRepet <noreply@toprepet.ru>')
@@ -127,6 +129,8 @@ PAYMENT_PROVIDER = env('PAYMENT_PROVIDER', 'fake')
 SERVICE_FEE = 0.10
 # Видеосвязь: пока одна общая ссылка-заглушка, на этапе подключения Телемоста/Zoom здесь будет создание комнаты на урок.
 MEETING_URL = env('MEETING_URL', 'https://telemost.yandex.ru/')
+# Только для контрактных тестов фронтенда (CONTRACT_TESTS=1, только при DEBUG): отдаёт токен из последнего письма.
+EXPOSE_TEST_ENDPOINTS = env('CONTRACT_TESTS') == '1' and DEBUG
 YANDEX_CLIENT_ID = env('YANDEX_CLIENT_ID')
 YANDEX_CLIENT_SECRET = env('YANDEX_CLIENT_SECRET')
 

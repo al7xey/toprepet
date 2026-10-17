@@ -1,10 +1,11 @@
 import { ApiError, type Api } from './contract';
 
 /** Реальный клиент: включается, когда задан VITE_API_URL. Сессия — в httpOnly cookie, поэтому credentials: 'include'. */
-export function createHttpApi(base: string): Api {
+/** `fetchImpl` нужен тестам в Node (там нет cookie-хранилища браузера); в приложении используется обычный fetch. */
+export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) => fetch(...args)): Api {
   const request = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
     const isForm = body instanceof FormData;
-    const response = await fetch(`${base}${path}`, {
+    const response = await fetchImpl(`${base}${path}`, {
       method,
       credentials: 'include',
       headers: body && !isForm ? { 'Content-Type': 'application/json' } : undefined,

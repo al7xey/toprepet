@@ -8,6 +8,12 @@ def health(_request):
     return JsonResponse({'ok': True})
 
 
+def email_token(request):
+    from core.testmail import last_token
+
+    return JsonResponse({'token': last_token(request.GET.get('email', ''), request.GET.get('kind', 'verify'))})
+
+
 urlpatterns = [
     path('health', health),
     path('', include('accounts.urls')),
@@ -19,4 +25,4 @@ urlpatterns = [
     path('', include('requests_board.urls')),
     path('', include('chats.urls')),
     path('', include('adminpanel.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + ([path('_test/email-token', email_token)] if settings.EXPOSE_TEST_ENDPOINTS else []) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
