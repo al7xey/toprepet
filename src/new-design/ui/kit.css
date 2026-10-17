@@ -521,10 +521,11 @@
 @media(max-width:760px){
   /* шапка тех же отступов, что и контент: 16 px слева и справа */
   .tr .hdr.surf:not(.m){margin-inline:0;top:8px;height:64px;padding:0 6px 0 18px;width:auto}
-  .tr .hdr.surf:not(.m) .trh-burger{order:2;margin-left:auto;width:46px;min-width:46px;height:46px;border-radius:50%;background:var(--accent);color:#fff;box-shadow:none;padding:0}
-  .tr .hdr.surf:not(.m) .trh-burger:hover{background:var(--accent-press)}
-  .tr .hdr.surf:not(.m) .trh-burger .i{width:24px;height:24px;color:#fff}
-  .tr .hdr.surf:not(.m) .trh-actions{order:3;margin-left:8px;flex-shrink:0}
+  /* справа от «Войти»: круг с тёмной обводкой, без заливки */
+  .tr .hdr.surf:not(.m) .trh-actions{order:2;margin-left:auto;flex-shrink:0}
+  .tr .hdr.surf:not(.m) .trh-burger{order:3;margin-left:8px;width:46px;min-width:46px;height:46px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink);padding:0}
+  .tr .hdr.surf:not(.m) .trh-burger:hover{background:#fff;box-shadow:inset 0 0 0 2px var(--ink)}
+  .tr .hdr.surf:not(.m) .trh-burger .i{width:24px;height:24px;color:var(--ink)}
   /* самостоятельные кнопки одинаково широкие, высота 52 px */
   .tr main .btn:not(.btn-icon):not(.search .btn){width:100%;min-height:52px;justify-content:center}
   .tr main .btn.btn-s:not(.btn-icon){min-height:44px}
