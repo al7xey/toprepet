@@ -38,7 +38,7 @@ export default function HomePage() {
 
       <Section
         title="Топ репеты"
-        action={<IconButton icon="right" label="Все репетиторы" to="/teachers" />}
+        action={<IconButton icon="arrow" label="Все репетиторы" to="/teachers" className="trh-more" />}
       >
         <TutorGrid tutors={tutors.data ?? first} layout="row" />
       </Section>

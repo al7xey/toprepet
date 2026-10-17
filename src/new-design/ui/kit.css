@@ -567,3 +567,12 @@
 /* ---- v12: сортировка — белая пилюля с тёмным значком ---- */
 .tr .trh-sort .chipf.ico{width:52px;min-height:44px;height:44px;padding:0;border-radius:999px;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
 .tr .trh-sort .chipf.ico .i{color:var(--ink)}
+
+/* ---- v13: круглая стрелка у блока, отступы шапки ---- */
+.tr .trh-more.trk-iconbtn{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.tr .trh-more.trk-iconbtn .i{width:22px;height:22px;color:var(--ink)}
+.tr .trh-more.trk-iconbtn:hover{background:#fff;box-shadow:inset 0 0 0 2px var(--ink)}
+@media(max-width:760px){
+  .tr .hdr.surf:not(.m){padding:0 18px}
+  .tr .hdr.surf:not(.m) .trh-burger{margin-left:12px}
+}
