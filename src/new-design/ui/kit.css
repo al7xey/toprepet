@@ -656,8 +656,8 @@
 .tr .trk-tabbar .tab:active{transform:none}
 .tr .trk-tabbar .tab .i{width:24px;height:24px;transition:none}
 .tr .trk-tabbar .tab-label{display:block}
-.tr .trk-tabbar .tab.cur{background:var(--soft);color:#9a3412}
-.tr .trk-tabbar .tab.cur .i{background:#9a3412}
+.tr .trk-tabbar .tab.cur{background:#f8a06a;color:#fff}
+.tr .trk-tabbar .tab.cur .i{background:#fff}
 
 /* v20: анкета репетитора и фото в мастере — в том же виде, что у ученика */
 .tr .trk-profile-card{display:grid;background:#fff;border-radius:28px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
