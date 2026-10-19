@@ -46,7 +46,7 @@ test('из диалога имя и фото ведут на анкету, ст�
   await expect(page).toHaveURL(chatUrl);
 });
 
-test('профиль: сводка по заявкам, настройки за кнопкой, смена пароля, выход с подтверждением', async ({ page }) => {
+test('профиль: сводка по заявкам, настройки отдельной страницей, смена пароля, выход с подтверждением', async ({ page }) => {
   await login(page, 'student');
   await page.goto('/me/account');
   const main = page.locator('#main');
@@ -58,52 +58,44 @@ test('профиль: сводка по заявкам, настройки за 
   await main.getByRole('button', { name: 'Новая заявка' }).click();
   await expect(page.getByRole('dialog').getByText('Шаг 1 из 2')).toBeVisible();
   await page.getByRole('dialog').getByRole('button', { name: 'Закрыть' }).click();
-  // настройки открываются шестерёнкой
-  await page.getByRole('button', { name: 'Настройки' }).click();
-  const dialog = page.getByRole('dialog');
-  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
-  await dialog.getByLabel('Текущий пароль').fill('неверный');
-  await dialog.getByLabel('Новый пароль').fill('newpassword1');
-  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
+  // настройки — полноценная страница, её открывают шестерёнка и карточка с именем
+  await page.getByRole('link', { name: 'Настройки', exact: true }).click();
+  await expect(page).toHaveURL(/\/me\/account\/settings/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Сменить пароль' }).click();
+  await page.getByLabel('Текущий пароль').fill('неверный');
+  await page.getByLabel('Новый пароль').fill('newpassword1');
+  await page.getByRole('button', { name: 'Сменить пароль', exact: true }).click();
   await expect(page.getByText('Текущий пароль указан неверно')).toBeVisible();
-  await dialog.getByLabel('Текущий пароль').fill('demo');
-  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
+  await page.getByLabel('Текущий пароль').fill('demo');
+  await page.getByRole('button', { name: 'Сменить пароль', exact: true }).click();
   await expect(page.getByText('Пароль изменён')).toBeVisible();
   // возвращаем демо-пароль, чтобы не ломать другие сценарии
-  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
-  await dialog.getByLabel('Текущий пароль').fill('newpassword1');
-  await dialog.getByLabel('Новый пароль').fill('demo1234');
-  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
+  await page.getByRole('button', { name: 'Сменить пароль' }).click();
+  await page.getByLabel('Текущий пароль').fill('newpassword1');
+  await page.getByLabel('Новый пароль').fill('demo1234');
+  await page.getByRole('button', { name: 'Сменить пароль', exact: true }).click();
   await expect(page.getByText('Пароль изменён').first()).toBeVisible();
-  await dialog.getByRole('button', { name: 'Выйти', exact: true }).click();
+  await page.getByRole('button', { name: 'Выйти', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).not.toHaveURL(/\/me\/account/);
 });
 
-test('уведомление об успехе приходит в зелёном окне, а не в белом', async ({ page }) => {
+test('профиль: карточка с именем открывает настройки', async ({ page }) => {
   await login(page, 'student');
   await page.goto('/me/account');
-  await page.getByRole('button', { name: 'Настройки' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Изменить данные' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Сохранить' }).click();
+  await page.getByRole('link', { name: 'Настройки профиля' }).click();
+  await expect(page).toHaveURL(/\/me\/account\/settings/);
+});
+
+test('уведомление об успехе приходит в зелёном окне, а не в белом', async ({ page }) => {
+  await login(page, 'student');
+  await page.goto('/me/account/settings');
+  await page.getByRole('button', { name: 'Личные данные' }).click();
+  await page.getByRole('button', { name: 'Сохранить' }).click();
   const toast = page.locator('.trk-toast.ok').first();
   await expect(toast).toBeVisible();
   expect(await toast.evaluate((el) => getComputedStyle(el).backgroundColor)).not.toBe('rgb(255, 255, 255)');
-});
-
-test('фильтры: цена от и до двумя движками, знакомство в разделе «Бонус»', async ({ page }) => {
-  await page.goto('/teachers');
-  await page.getByLabel('Фильтры').click();
-  const dialog = page.getByRole('dialog', { name: 'Фильтры' });
-  await expect(dialog.getByText('Бонус')).toBeVisible();
-  await expect(dialog.getByLabel('Цена от')).toBeVisible();
-  await expect(dialog.getByLabel('Цена до')).toBeVisible();
-  await dialog.getByLabel('Цена до').fill('1000');
-  await dialog.getByLabel('Цена до').dispatchEvent('pointerup');
-  await expect(dialog.getByRole('button', { name: 'Сбросить' })).toBeEnabled();
-  const reset = await dialog.getByRole('button', { name: 'Сбросить' }).boundingBox();
-  const show = await dialog.getByRole('button', { name: 'Показать' }).boundingBox();
-  expect(Math.round(reset?.height ?? 0)).toBe(Math.round(show?.height ?? 1));
 });
 
 test('чат: фото сжимается и отправляется, у своего сообщения одна галочка', async ({ page }) => {

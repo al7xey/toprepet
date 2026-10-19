@@ -8,6 +8,7 @@ const SchedulePage = lazy(() => import('../pages/tutor/schedule'));
 const FinancePage = lazy(() => import('../pages/tutor/finance'));
 const TutorStudentsPage = lazy(() => import('../pages/tutor/students'));
 const TutorAccountPage = lazy(() => import('../pages/tutor/account'));
+const TutorSettingsPage = lazy(() => import('../pages/tutor/settings'));
 const TutorRequestsPage = lazy(() => import('../pages/requests/tutor'));
 const TutorChatsPage = lazy(() => import('../pages/chats/tutor-list'));
 const TutorChatPage = lazy(() => import('../pages/chats/tutor-view'));
@@ -26,6 +27,7 @@ export const tutorRoutes = (
     <Route path="/tutor/finance" element={tutor(<FinancePage />)} />
     <Route path="/tutor/students" element={tutor(<TutorStudentsPage />)} />
     <Route path="/tutor/account" element={tutor(<TutorAccountPage />)} />
+    <Route path="/tutor/account/settings" element={tutor(<TutorSettingsPage />)} />
     <Route path="/tutor/requests" element={tutor(<TutorRequestsPage />)} />
     <Route path="/tutor/chats" element={tutor(<TutorChatsPage />)} />
     <Route path="/tutor/chats/:id" element={tutor(<TutorChatPage />)} />

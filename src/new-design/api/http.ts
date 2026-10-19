@@ -1,3 +1,4 @@
+import { optimizeImage } from '../lib/images';
 import { ApiError, type Api } from './contract';
 
 /** Реальный клиент: включается, когда задан VITE_API_URL. Сессия — в httpOnly cookie, поэтому credentials: 'include'. */
@@ -38,7 +39,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     verifyEmail: (token) => post('/auth/verify', { token }),
     completeOnboarding: (input) => post('/me/onboarding', input),
     updateMe: (input) => request('PATCH', '/me', input),
-    uploadMyPhoto: (file) => { const form = new FormData(); form.set('file', file); return post('/me/photo', form); },
+    uploadMyPhoto: async (file) => { const form = new FormData(); form.set('file', await optimizeImage(file)); return post('/me/photo', form); },
     changePassword: async (input) => { await post('/me/password', input); },
 
     listTutors: (filter) => get(`/tutors${q({ ...filter })}`),
@@ -78,7 +79,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     getConversation: (id) => get(`/conversations/${id}`),
     listMessages: (id) => get(`/conversations/${id}/messages`),
     sendMessage: (id, text) => post(`/conversations/${id}/messages`, { text }),
-    sendPhoto: (id, file, caption) => { const form = new FormData(); form.set('file', file); if (caption) form.set('text', caption); return post(`/conversations/${id}/messages`, form); },
+    sendPhoto: async (id, file, caption) => { const form = new FormData(); form.set('file', await optimizeImage(file)); if (caption) form.set('text', caption); return post(`/conversations/${id}/messages`, form); },
     reportConversation: (id, reason, block) => post(`/conversations/${id}/report`, { reason, block }),
 
     listPayments: () => get('/me/payments'),
@@ -100,7 +101,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     listExceptions: () => get('/tutor/schedule/exceptions'),
     saveException: (item) => request('PUT', `/tutor/schedule/exceptions/${item.date}`, item),
     deleteException: (date) => request('DELETE', `/tutor/schedule/exceptions/${date}`),
-    uploadPhoto: (file) => { const form = new FormData(); form.set('file', file); return post('/tutor/photo', form); },
+    uploadPhoto: async (file) => { const form = new FormData(); form.set('file', await optimizeImage(file)); return post('/tutor/photo', form); },
     listDocuments: () => get('/tutor/documents'),
     uploadDocument: (title, file) => { const form = new FormData(); form.set('title', title); form.set('file', file); return post('/tutor/documents', form); },
     listMyStudents: () => get('/tutor/students'),

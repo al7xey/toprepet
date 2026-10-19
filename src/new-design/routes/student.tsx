@@ -7,6 +7,7 @@ const BookDonePage = lazy(() => import('../pages/student/done'));
 const LessonsPage = lazy(() => import('../pages/student/lessons'));
 const LessonPage = lazy(() => import('../pages/student/lesson'));
 const AccountPage = lazy(() => import('../pages/student/account'));
+const SettingsPage = lazy(() => import('../pages/student/settings'));
 const ChatsPage = lazy(() => import('../pages/chats/list'));
 const ChatPage = lazy(() => import('../pages/chats/view'));
 const NewChatPage = lazy(() => import('../pages/chats/new'));
@@ -31,6 +32,7 @@ export const studentRoutes = (
     <Route path="/me/payments" element={student(<PaymentsPage />)} />
     <Route path="/me/notifications" element={student(<NotificationsPage />)} />
     <Route path="/me/account" element={student(<AccountPage />)} />
+    <Route path="/me/account/settings" element={student(<SettingsPage />)} />
     <Route path="/me/chats" element={student(<ChatsPage />)} />
     <Route path="/me/chats/new" element={student(<NewChatPage />)} />
     <Route path="/me/chats/:id" element={student(<ChatPage />)} />

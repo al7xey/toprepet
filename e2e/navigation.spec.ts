@@ -45,8 +45,9 @@ test('репетитор: в нижней панели есть «Профиль
 test('репетитор выходит из аккаунта через настройки профиля', async ({ page }) => {
   await login(page, 'tutor');
   await page.goto('/tutor/account');
-  await page.getByRole('button', { name: 'Настройки' }).click();
-  await page.getByRole('dialog').getByRole('button', { name: 'Выйти', exact: true }).click();
+  await page.getByRole('link', { name: 'Настройки', exact: true }).click();
+  await expect(page).toHaveURL(/\/tutor\/account\/settings/);
+  await page.getByRole('button', { name: 'Выйти', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).not.toHaveURL(/\/tutor\/account/);
   await page.goto('/tutor/account');

@@ -648,21 +648,20 @@
 .tr .trk-note-title{display:block;font-size:16px}
 .tr .trk-note-line{display:block;margin-top:2px}
 
-/* v35: нижняя панель — узкое «жидкое стекло»; прозрачная пилюля выбранного раздела растягивается на ходу и приподнимается под пальцем */
-.tr .trk-tabbar,.tr .trk-tabbar.five{background:rgb(255 255 255 / 48%);backdrop-filter:blur(26px) saturate(190%);-webkit-backdrop-filter:blur(26px) saturate(190%);border:1px solid rgb(255 255 255 / 78%);border-radius:999px;box-shadow:0 12px 30px rgb(32 40 56 / 14%),0 1px 3px rgb(32 40 56 / 8%),inset 0 1px 0 rgb(255 255 255 / 95%),inset 0 -1px 0 rgb(255 255 255 / 45%),inset 0 0 18px rgb(255 255 255 / 30%);padding:5px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .35s var(--spring)}
+/* v36: нижняя панель — «жидкое стекло»: задняя плашка темнее, подвижная пилюля светлее, значок под пилюлей оранжевый */
+.tr .trk-tabbar,.tr .trk-tabbar.five{background:rgb(32 40 56 / 11%);backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);border:1px solid rgb(255 255 255 / 55%);border-radius:999px;box-shadow:0 12px 30px rgb(32 40 56 / 14%),inset 0 1px 0 rgb(255 255 255 / 70%),inset 0 -1px 0 rgb(32 40 56 / 6%);padding:5px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .35s var(--spring)}
 .tr .trk-tabbar.press{transform:scale(1.03)}
-.tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:46px;padding:0;border-radius:999px;background:transparent;color:var(--ink);transition:none}
+.tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:46px;padding:0;border-radius:999px;background:transparent;color:var(--ink);transition:color .25s}
 .tr .trk-tabbar .tab .i{width:26px;height:26px;transition:none}
-.tr .trk-tabbar .tab.cur{background:transparent;color:var(--ink)}
-.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px) / var(--n));border-radius:999px;background:linear-gradient(180deg,rgb(32 40 56 / 9%),rgb(32 40 56 / 5%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 85%),inset 0 -1px 0 rgb(255 255 255 / 30%),0 2px 8px rgb(32 40 56 / 8%);backdrop-filter:blur(6px) saturate(160%);-webkit-backdrop-filter:blur(6px) saturate(160%);transition:transform .3s var(--spring),box-shadow .3s;pointer-events:none;z-index:0}
-.tr .trk-tabbar.press .tabpill{transform:scale(1.1,1.08);background:linear-gradient(180deg,rgb(32 40 56 / 13%),rgb(32 40 56 / 8%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 90%),0 6px 16px rgb(32 40 56 / 14%)}
+.tr .trk-tabbar .tab.cur{background:transparent;color:var(--accent)}
+.tr .trk-tabbar .tab.cur .i{background:var(--accent)}
+.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px) / var(--n));border-radius:999px;background:linear-gradient(180deg,rgb(255 255 255 / 92%),rgb(255 255 255 / 78%));box-shadow:0 2px 8px rgb(32 40 56 / 12%),inset 0 1px 0 rgb(255 255 255 / 100%);transition:transform .3s var(--spring),box-shadow .3s;pointer-events:none;z-index:0}
+.tr .trk-tabbar.press .tabpill{transform:scale(1.1,1.08);box-shadow:0 8px 18px rgb(32 40 56 / 18%),inset 0 1px 0 rgb(255 255 255 / 100%)}
 @media (prefers-reduced-motion:reduce){.tr .trk-tabbar,.tr .trk-tabbar .tabpill{transition:none}}
 @media (max-width:760px){.tr .trk-app .trk-tabbar{left:0;right:0;margin-inline:auto;width:min(300px,calc(100% - 48px))}}
 @media (max-width:760px){
-  .tr .trk-chat-list .trh-main{padding-left:8px;padding-right:8px}
-  .tr .tg-title{padding:16px 8px 10px}
   .tr .tg-rows{padding:0}
-  .tr .tg-row{padding:10px 8px}
+  .tr .tg-row{padding:10px 0}
 }
 
 /* v20: анкета репетитора и фото в мастере — в том же виде, что у ученика */
@@ -809,7 +808,6 @@ html{overflow-y:scroll}
 .tr .trk-pagehead-row{flex-wrap:nowrap;align-items:center;gap:12px}
 .tr .trk-pagehead-text{flex:1}
 .tr .trk-pagehead-row .trk-back{flex:none}
-@media (max-width:760px){.tr .tg-title{padding:0 8px 10px}}
 .tr .trk-block{display:grid;gap:10px;align-content:start}
 .tr .trk-block-head{display:flex;align-items:center;gap:10px}
 .tr .trk-blocktitle{margin:0;flex:1;font-size:18px;letter-spacing:-0.02em}
@@ -865,3 +863,21 @@ html{overflow-y:scroll}
 .tr .trk-tags{gap:4px 14px}
 .tr .tag+.tag::before{content:none}
 .tr .tag::before{content:'';display:inline-block;width:5px;height:5px;margin-right:7px;border-radius:50%;background:var(--accent);vertical-align:middle}
+
+/* v36: крупные скругления проекта, одинаковые заголовки и отступы, круглые аватары, спокойные блоки профиля */
+.tr .card,.tr .lesson,.tr .trk-navlist,.tr .trk-account-hero{border-radius:28px}
+.tr .trk-rows.boxed{border-radius:20px}
+.tr .trk-pagehead-row{min-height:44px}
+.tr .trk-blocktitle.trh-h1{font-size:32px;flex:1}
+@media (max-width:760px){.tr .trk-blocktitle.trh-h1{font-size:26px}}
+.tr .trk-account{gap:36px}
+.tr .trk-block{gap:16px}
+.tr .trk-account-hero{display:flex;align-items:center;gap:14px;color:var(--ink)}
+.tr .trk-account-who{flex:1}
+.tr .trk-account-hero>.i{width:20px;height:20px;color:var(--muted);flex:none}
+.tr .trk-student-photo{border-radius:50%;width:56px;height:56px}
+.tr .trk-student.small .trk-student-photo{border-radius:50%}
+.tr .tg-title{font-size:32px;letter-spacing:-0.04em;line-height:1.08;font-weight:700;margin:0;min-height:44px;display:flex;align-items:center}
+@media (max-width:760px){.tr .tg-title{font-size:26px;padding:0 0 10px}}
+.tr .trk-settings-who{display:flex;align-items:center;gap:14px}
+.tr .trk-navrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;text-align:left;cursor:pointer}

@@ -7,16 +7,17 @@ from PIL import Image, UnidentifiedImageError
 
 from core.errors import ApiError
 
-MAX_PHOTO_BYTES = 3_000_000
+# сайт сам сжимает фото в браузере; верхняя граница нужна только как защита сервера
+MAX_PHOTO_BYTES = 50_000_000
 
 
 def save_photo(request) -> str:
-    """Принимает файл `file` из запроса, проверяет, что это JPG, PNG или WebP до 3 МБ, сохраняет и возвращает ссылку."""
+    """Принимает файл `file` из запроса, проверяет, что это JPG, PNG или WebP сохраняет и возвращает ссылку."""
     file = request.FILES.get('file')
     if not file:
         raise ApiError('Выберите файл')
     if file.size > MAX_PHOTO_BYTES:
-        raise ApiError('Фото больше 3 МБ. Выберите файл поменьше.')
+        raise ApiError('Файл слишком большой.')
     try:
         image = Image.open(file)
         image.verify()

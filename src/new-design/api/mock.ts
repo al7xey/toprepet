@@ -1,6 +1,7 @@
 import { teachers } from '../../entities/teacher';
 import { PRICE } from '../../shared/config/site';
 import teacherPhotos from '../../shared/config/teacher-photos.json';
+import { optimizeImage } from '../lib/images';
 import { ApiError, type Api } from './contract';
 import type {
   AdminProfile, Card, Conversation, Dispute, Id, Lesson, Message, Notification, PaymentRecord, PayoutSettings, Review,
@@ -345,8 +346,8 @@ export function createMockApi(): Api {
     async updateMe(input) { const u = me(); Object.assign(u, input); save(); return delay(publicUser(u)); },
     async uploadMyPhoto(file) {
       const u = me();
-      if (file.size > 3_000_000) fail('Фото больше 3 МБ. Выберите файл поменьше.');
       if (!file.type.startsWith('image/')) fail('Нужна картинка: JPG, PNG или WebP.');
+      file = await optimizeImage(file);
       u.photo = await new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(typeof r.result === 'string' ? r.result : ''); r.onerror = () => reject(new ApiError('Не удалось прочитать файл')); r.readAsDataURL(file); });
       save();
       return delay(publicUser(u), 300);
@@ -590,10 +591,10 @@ export function createMockApi(): Api {
       const u = me(); const s = load();
       const c = myConversation(id);
       if (c.blocked) fail('Диалог заблокирован: писать в него нельзя');
-      if (file.size > 3_000_000) fail('Фото больше 3 МБ. Выберите файл поменьше.');
       if (!file.type.startsWith('image/')) fail('Нужна картинка: JPG, PNG или WebP.');
       const text = (caption ?? '').trim();
       if (text && hasContacts(text)) fail(CONTACTS_MESSAGE);
+      file = await optimizeImage(file);
       const imageUrl = await new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(typeof r.result === 'string' ? r.result : ''); r.onerror = () => reject(new ApiError('Не удалось прочитать файл')); r.readAsDataURL(file); });
       const m: Message = { id: nextId('m'), conversationId: id, authorId: u.id, kind: 'photo', text, at: iso(Date.now()), read: false, imageUrl };
       s.messages.push(m); (c as Conversation).lastMessage = text || 'Фото'; (c as Conversation).updatedAt = m.at; save();
@@ -650,8 +651,8 @@ export function createMockApi(): Api {
     },
     async uploadPhoto(file) {
       myTutor();
-      if (file.size > 3_000_000) fail('Фото больше 3 МБ. Выберите файл поменьше.');
       if (!file.type.startsWith('image/')) fail('Нужна картинка: JPG, PNG или WebP.');
+      file = await optimizeImage(file);
       const url = await new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(typeof r.result === 'string' ? r.result : ''); r.onerror = () => reject(new ApiError('Не удалось прочитать файл')); r.readAsDataURL(file); });
       return delay({ url }, 400);
     },
