@@ -845,7 +845,6 @@ html{overflow-y:scroll}
 .tr .trh-range-track input::-moz-range-thumb{pointer-events:auto;width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--accent);cursor:grab}
 .tr .trh-pf-intro-tag{min-height:28px;padding:0 12px;font-size:13px}
 .tr .trh-pf-intro-tag .i{width:14px;height:14px}
-.tr .tc .pl>span:not(.trh-price),.tr .trh-pf-role{color:var(--accent)}
 .tr .trk-rows.boxed{background:#fff;border-radius:16px}
 .tr .trk-account-who{min-width:0;flex:1}
 .tr .trk-account-who .muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
