@@ -17,6 +17,26 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const bar = useRef<HTMLElement>(null);
+  // при прокрутке вниз панель сжимается (подписи прячутся), при прокрутке вверх раскрывается
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    // страница может прокручиваться внутри контейнера, поэтому слушаем прокрутку в фазе захвата у документа
+    let last = 0;
+    let frame = 0;
+    const onScroll = (e: Event) => {
+      if (frame) return;
+      const target = e.target;
+      const y = target instanceof HTMLElement ? target.scrollTop : window.scrollY;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        if (y > 80 && y > last + 6) setCompact(true);
+        else if (y <= 80 || y < last - 6) setCompact(false);
+        last = y;
+      });
+    };
+    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    return () => { document.removeEventListener('scroll', onScroll, { capture: true }); if (frame) cancelAnimationFrame(frame); };
+  }, []);
   const press = useRef<{ id: number; x: number; timer: number } | null>(null);
   const dragging = useRef(false);
   const [dragPos, setDragPos] = useState<number | null>(null);
@@ -90,11 +110,11 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
 
 
   return (
-    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
+    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', compact && 'compact')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
       {current >= 0 && <span className="tabpill" aria-hidden="true" style={{ '--pos': dragPos ?? current, transition: dragPos === null ? undefined : 'none' } as CSSProperties} />}
       {tabs.map((t, i) => (
         <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', shown === i && 'cur')}>
-          <Icon name={t.icon} />{t.label}{t.badge ? <span className="dot">{t.badge}</span> : null}
+          <Icon name={t.icon} /><span className="tab-label">{t.label}</span>{t.badge ? <span className="dot">{t.badge}</span> : null}
         </NavLink>
       ))}
     </nav>
@@ -206,11 +226,11 @@ const ready = (to: string) => READY.some((p) => to === p || to.startsWith(`${p}/
 const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   student: {
     top: [{ label: 'Найти репетитора', to: '/teachers', icon: 'search' }, { label: 'Мои уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Платежи', to: '/me/payments', icon: 'card' }],
-    tabs: [{ label: 'Найти', to: '/teachers', icon: 'search' }, { label: 'Уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Чаты', to: '/me/chats', icon: 'chat' }, { label: 'Профиль', to: '/me/account', icon: 'user' }],
+    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'book' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Чаты', to: '/me/chats', icon: 'chat' }, { label: 'Профиль', to: '/me/account', icon: 'user' }],
   },
   tutor: {
     top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
-    tabs: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
+    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat' }, { label: 'Доход', to: '/tutor/finance', icon: 'wallet' }, { label: 'Анкета', to: '/tutor/profile', icon: 'school' }],
   },
   admin: {
     top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],

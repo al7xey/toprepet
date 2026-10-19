@@ -6,7 +6,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { Achievement, TutorProfileDraft, WeekSchedule } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
-import { Avatar, Button, Card, CardTitle, FilePick, FormError, OptionChips, PageHeader, QueryView, SelectField, Status, Switch, TextArea, TextField, WeekEditor, WizardProgress, weekIsEmpty, weekProblem, useToast } from '../../ui';
+import { Button, Card, CardTitle, FilePick, FormError, OptionChips, PageHeader, QueryView, SelectField, Status, Switch, TextArea, TextField, WeekEditor, WizardProgress, weekIsEmpty, weekProblem, useToast } from '../../ui';
 
 const SUBJECTS = allSubjects.filter((s) => s !== 'Другой предмет');
 const LEVELS = ['Дошкольники', '1–4 класс', '5–9 класс', '10–11 класс', 'Взрослые'];
@@ -92,13 +92,11 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
         <div className="trk-form">
           {step === 1 && (
             <>
-              <div className="trk-photo">
-                <Avatar name={draft.name || '•'} photo={draft.photo} size={96} />
-                <div className="g8">
-                  <FilePick accept="image/*" loading={photo.pending} onPick={async (file) => { const done = await photo.run(file); if (done) patch({ photo: done.url }); }}>{draft.photo ? 'Заменить фото' : 'Загрузить фото'}</FilePick>
-                  <span className="muted sm">Лицо крупно, спокойный фон. JPG, PNG или WebP до 3 МБ.</span>
-                </div>
+              <div className="trk-photo-big">
+                {draft.photo ? <img src={draft.photo} alt={`Фото: ${draft.name || 'вы'}`} /> : <div className="trk-photo-empty">Фото не загружено</div>}
               </div>
+              <FilePick accept="image/*" loading={photo.pending} onPick={async (file) => { const done = await photo.run(file); if (done) patch({ photo: done.url }); }}>{draft.photo ? 'Заменить фото' : 'Загрузить фото'}</FilePick>
+              <span className="muted sm">Так фото увидят ученики. Лицо крупно, спокойный фон. JPG, PNG или WebP до 3 МБ.</span>
               <FormError error={photo.error} />
               <TextField label="Имя" value={draft.name} onChange={(e) => patch({ name: e.target.value })} error={errors.name} autoComplete="given-name" />
               <TextField label="Коротко о вас" value={draft.headline} onChange={(e) => patch({ headline: e.target.value })} error={errors.headline} placeholder="Репетитор по английскому для школьников и взрослых" maxLength={120} />
