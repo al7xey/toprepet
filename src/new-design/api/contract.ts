@@ -68,6 +68,7 @@ export interface Api {
   getConversation(id: Id): Promise<Conversation>; // GET /conversations/:id
   listMessages(id: Id): Promise<Message[]>; // GET /conversations/:id/messages
   sendMessage(id: Id, text: string): Promise<Message>; // POST /conversations/:id/messages
+  sendPhoto(id: Id, file: File, caption?: string): Promise<Message>; // POST /conversations/:id/messages (multipart: file, text)
   reportConversation(id: Id, reason: string, block: boolean): Promise<void>; // POST /conversations/:id/report
 
   // Деньги

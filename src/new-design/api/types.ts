@@ -132,7 +132,11 @@ export interface StudyRequest {
   id: Id;
   studentId: Id;
   studentName: string;
+  /** Предметы одной строкой: «Математика, Физика» или свой предмет. */
   subject: string;
+  subjects?: string[];
+  /** Предмет, который ученик написал сам: такую заявку видят все репетиторы. */
+  customSubject?: string;
   goal: string;
   level: string;
   budgetMax: number | null;
@@ -145,7 +149,8 @@ export interface StudyRequest {
 }
 
 export interface CreateRequestInput {
-  subject: string;
+  subjects: string[];
+  customSubject: string;
   goal: string;
   level: string;
   budgetMax: number | null;
@@ -183,7 +188,7 @@ export interface Conversation {
   blocked?: boolean;
 }
 
-export type MessageKind = 'text' | 'event' | 'proposal';
+export type MessageKind = 'text' | 'event' | 'proposal' | 'photo';
 
 export interface Message {
   id: Id;
@@ -193,6 +198,9 @@ export interface Message {
   text: string;
   at: IsoDate;
   proposalStart?: IsoDate;
+  /** Для своих сообщений: собеседник уже открыл диалог. */
+  read?: boolean;
+  imageUrl?: string;
 }
 
 export interface Card { id: Id; brand: string; last4: string; primary: boolean }

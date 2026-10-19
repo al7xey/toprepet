@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subjects as allSubjects } from '../../../entities/lesson';
-import { api } from '../../api';
+import { api, studentPriceOf } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import type { Achievement, TutorProfileDraft, WeekSchedule } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
@@ -116,7 +116,7 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
           )}
           {step === 3 && (
             <>
-              <TextField label="Цена за урок, ₽" type="number" inputMode="numeric" min={300} max={15000} step={50} value={draft.price || ''} onChange={(e) => patch({ price: Number(e.target.value) })} error={errors.price} hint={draft.price ? `Вы получите ${rub(draft.price)} за каждый урок целиком` : 'Урок длится 60 минут'} />
+              <TextField label="Цена за урок, ₽" type="number" inputMode="numeric" min={300} max={15000} step={50} value={draft.price || ''} onChange={(e) => patch({ price: Number(e.target.value) })} error={errors.price} hint={draft.price ? `Ученики увидят ${rub(studentPriceOf(draft.price))}. Вы получите ${rub(draft.price)} за каждый урок целиком` : 'Урок длится 60 минут'} />
               <Switch checked={draft.introMinutes > 0} onChange={(on) => patch({ introMinutes: on ? 20 : 0 })} title="Бесплатное знакомство" text="Один раз на ученика, без оплаты. Анкеты со знакомством выбирают чаще." />
               {draft.introMinutes > 0 && <TextField label="Длительность знакомства, минут" type="number" inputMode="numeric" min={5} max={60} step={5} value={draft.introMinutes || ''} onChange={(e) => patch({ introMinutes: Number(e.target.value) })} error={errors.introMinutes} hint="От 5 до 60 минут" />}
             </>

@@ -14,6 +14,8 @@ class Conversation(models.Model):
     unread_tutor = models.PositiveIntegerField(default=0)
     blocked = models.BooleanField(default=False)
     reports = models.JSONField(default=list)
+    student_read_at = models.DateTimeField(null=True, blank=True)
+    tutor_read_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         unique_together = [('tutor', 'student')]
@@ -25,7 +27,8 @@ class Message(models.Model):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     kind = models.CharField(max_length=6, default='text')
-    text = models.TextField()
+    text = models.TextField(blank=True)
+    image = models.CharField(max_length=300, blank=True)
     at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api } from '../../api';
+import { api, studentPriceOf } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import type { StudyRequest } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
@@ -81,7 +81,7 @@ function RespondModal({ request, defaultPrice, onClose, onDone }: { request: Stu
   return (
     <Modal open onClose={onClose} width={640} title="Отклик на заявку" footer={<><Button variant="fill" onClick={onClose}>Отмена</Button><Button onClick={submit} loading={send.pending}>Отправить отклик</Button></>}>
       <Note tone="plain" icon="info"><b className="trk-note-title">{request.subject}</b><span className="trk-note-line">{request.level}</span><span className="trk-note-line">{request.budgetMax ? `Бюджет ученика до ${rub(request.budgetMax)}` : 'Бюджет не указан'}</span></Note>
-      <TextField label="Ваша цена за урок, ₽" type="number" inputMode="numeric" min={300} step={50} value={price || ''} onChange={(e) => setPrice(Number(e.target.value))} error={error.price} hint={price ? `Вы получите ${rub(price)} за урок` : undefined} />
+      <TextField label="Ваша цена за урок, ₽" type="number" inputMode="numeric" min={300} step={50} value={price || ''} onChange={(e) => setPrice(Number(e.target.value))} error={error.price} hint={price ? `Ученик увидит ${rub(studentPriceOf(price))}. Вы получите ${rub(price)} за урок` : undefined} />
       <TextArea label="Сообщение ученику" rows={4} value={message} onChange={(e) => setMessage(e.target.value)} error={error.message} hint="Как будете заниматься. Телефоны и ссылки писать нельзя." />
       <div className="g8">
         <b className="label">Время, на которое можно записаться (до 3)</b>

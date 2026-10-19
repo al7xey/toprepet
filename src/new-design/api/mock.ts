@@ -503,8 +503,11 @@ export function createMockApi(): Api {
     async listMyRequests() { const u = me(); return delay(load().requests.filter((r) => r.studentId === u.id).map(withExpiry)); },
     async createRequest(input) {
       const u = me();
-      if (!input.subject || !input.description.trim()) fail('Опишите задачу');
-      const r: StudyRequest = { ...input, id: nextId('r'), studentId: u.id, studentName: u.name, status: 'open', createdAt: iso(Date.now()), expiresAt: iso(Date.now() + 14 * DAY), responsesCount: 0 };
+      const custom = input.customSubject.trim();
+      if (!input.subjects.length && !custom) fail('Выберите предмет или напишите свой');
+      if (!input.description.trim()) fail('Опишите задачу');
+      const { subjects, customSubject: _c, ...rest } = input;
+      const r: StudyRequest = { ...rest, subject: [...subjects, ...(custom ? [custom] : [])].join(', '), subjects, customSubject: custom, id: nextId('r'), studentId: u.id, studentName: u.name, status: 'open', createdAt: iso(Date.now()), expiresAt: iso(Date.now() + 14 * DAY), responsesCount: 0 };
       load().requests.unshift(r); save(); return delay(r, 400);
     },
     async getRequest(id) {
@@ -527,9 +530,11 @@ export function createMockApi(): Api {
       // лента только для вошедших; репетитор видит заявки по предметам своей анкеты; имя ученика сокращено
       const s = load(); const u = s.users.find((x) => x.id === s.sessionUserId);
       if (!u) throw new ApiError('Войдите, чтобы продолжить', 401);
-      const subjects = u.role === 'tutor' ? myTutor().subjects : null;
-      const fits = (name: string) => !subjects || subjects.some((x) => name.startsWith(x));
-      return delay(s.requests.map(withExpiry).filter((r) => r.status === 'open' && fits(r.subject) && (!subject || r.subject === subject)).map((r) => ({ ...r, studentName: r.studentName.split(' ')[0] })));
+      const mine = u.role === 'tutor' ? myTutor().subjects : null;
+      const listOf = (r: StudyRequest) => (r.subjects?.length ? r.subjects : [r.subject]);
+      // заявку со своим предметом видят все репетиторы, остальные — по предметам анкеты
+      const fits = (r: StudyRequest) => !mine || Boolean(r.customSubject) || listOf(r).some((name) => mine.some((x) => name.startsWith(x)));
+      return delay(s.requests.map(withExpiry).filter((r) => r.status === 'open' && fits(r) && (!subject || listOf(r).includes(subject))).map((r) => ({ ...r, studentName: r.studentName.split(' ')[0] })));
     },
     async respondToRequest(requestId, input) {
       const t = myTutor(); const s = load();
@@ -558,16 +563,35 @@ export function createMockApi(): Api {
       return delay(c);
     },
     async getConversation(id) { return delay(peerView(myConversation(id))); },
-    async listMessages(id) { const s = load(); const c = myConversation(id); c.unread = 0; save(); return delay(s.messages.filter((m) => m.conversationId === id)); },
+    async listMessages(id) {
+      const s = load(); const c = myConversation(id); const uid = me().id; c.unread = 0;
+      const list = s.messages.filter((m) => m.conversationId === id);
+      for (const m of list) if (m.authorId !== uid) m.read = true; // собеседник прочитал бы мои сообщения так же
+      save();
+      return delay(list.map((m) => ({ ...m, read: m.authorId === uid ? Boolean(m.read) : true })));
+    },
     async sendMessage(id, text) {
       const u = me(); const s = load();
       const c = myConversation(id);
       if (c.blocked) fail('Диалог заблокирован: писать в него нельзя');
       if (!text.trim()) fail('Напишите сообщение');
       if (hasContacts(text)) fail(CONTACTS_MESSAGE);
-      const m: Message = { id: nextId('m'), conversationId: id, authorId: u.id, kind: 'text', text: text.trim(), at: iso(Date.now()) };
+      const m: Message = { id: nextId('m'), conversationId: id, authorId: u.id, kind: 'text', text: text.trim(), at: iso(Date.now()), read: false };
       s.messages.push(m); (c as Conversation).lastMessage = m.text; (c as Conversation).updatedAt = m.at; save();
       return delay(m, 150);
+    },
+    async sendPhoto(id, file, caption) {
+      const u = me(); const s = load();
+      const c = myConversation(id);
+      if (c.blocked) fail('Диалог заблокирован: писать в него нельзя');
+      if (file.size > 3_000_000) fail('Фото больше 3 МБ. Выберите файл поменьше.');
+      if (!file.type.startsWith('image/')) fail('Нужна картинка: JPG, PNG или WebP.');
+      const text = (caption ?? '').trim();
+      if (text && hasContacts(text)) fail(CONTACTS_MESSAGE);
+      const imageUrl = await new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(typeof r.result === 'string' ? r.result : ''); r.onerror = () => reject(new ApiError('Не удалось прочитать файл')); r.readAsDataURL(file); });
+      const m: Message = { id: nextId('m'), conversationId: id, authorId: u.id, kind: 'photo', text, at: iso(Date.now()), read: false, imageUrl };
+      s.messages.push(m); (c as Conversation).lastMessage = text || 'Фото'; (c as Conversation).updatedAt = m.at; save();
+      return delay(m, 200);
     },
     async reportConversation(id, reason, block) {
       const c = myConversation(id); if (!reason.trim()) fail('Выберите причину жалобы');

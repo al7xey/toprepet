@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 from django.db import transaction
-from django.db.models import Q
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -22,9 +21,14 @@ def effective_status(r) -> str:
     return 'expired' if r.status == 'open' and r.expires_at < timezone.now() else r.status
 
 
+def request_subjects(r) -> list:
+    """Предметы заявки; у старых заявок только один предмет."""
+    return list(r.subjects) if r.subjects else [r.subject]
+
+
 def request_json(r, short_name: bool = False) -> dict:
     name = r.student.name
-    return {'id': r.id, 'studentId': r.student_id, 'studentName': name.split(' ')[0] if short_name else name, 'subject': r.subject, 'goal': r.goal, 'level': r.level,
+    return {'id': r.id, 'studentId': r.student_id, 'studentName': name.split(' ')[0] if short_name else name, 'subject': r.subject, 'subjects': request_subjects(r), 'customSubject': r.custom_subject, 'goal': r.goal, 'level': r.level,
             'budgetMax': r.budget_max, 'schedule': r.schedule, 'description': r.description, 'status': effective_status(r), 'createdAt': iso(r.created_at),
             'expiresAt': iso(r.expires_at), 'responsesCount': r.responses.count()}
 
@@ -47,16 +51,13 @@ def tutor_subjects(user) -> list:
     return list(tutor.subjects) if tutor else []
 
 
-def subject_match(subjects: list) -> Q:
-    """Предмет анкеты («Английский») подходит заявке «Английский язык»: сравниваем начало названия."""
-    match = Q(pk__in=[])
-    for name in subjects:
-        match |= Q(subject__startswith=name)
-    return match
-
-
 def matches_subjects(subject: str, subjects: list) -> bool:
     return any(subject.startswith(name) for name in subjects)
+
+
+def visible_to_tutor(r, tutor_subs: list) -> bool:
+    """Заявку со своим предметом видят все репетиторы; остальные — только по предметам анкеты."""
+    return bool(r.custom_subject) or any(matches_subjects(s, tutor_subs) for s in request_subjects(r))
 
 
 class RequestsView(APIView):
@@ -64,20 +65,33 @@ class RequestsView(APIView):
         """Лента открытых заявок, только для вошедших. Репетитор видит заявки по предметам своей анкеты."""
         user = require_user(request)
         subject = request.query_params.get('subject')
-        items = StudyRequest.objects.filter(status='open', expires_at__gt=timezone.now()).select_related('student')
+        items = list(StudyRequest.objects.filter(status='open', expires_at__gt=timezone.now()).select_related('student'))
         if user.role == 'tutor':
-            items = items.filter(subject_match(tutor_subjects(user)))
+            mine = tutor_subjects(user)
+            items = [r for r in items if visible_to_tutor(r, mine)]
         if subject:
-            items = items.filter(subject=subject)
+            items = [r for r in items if subject in request_subjects(r)]
         return Response([request_json(r, short_name=True) for r in items[:100]])
 
     @transaction.atomic
     def post(self, request):
         user = require_role(request, 'student')
         d = request.data
-        subject, description = str(d.get('subject', '')).strip(), str(d.get('description', '')).strip()
-        if not subject or not description:
-            raise ApiError('Опишите задачу подробнее: хотя бы пару предложений')
+        subjects = d.get('subjects')
+        if subjects is None and d.get('subject'):
+            subjects = [d.get('subject')]
+        if not isinstance(subjects, list) or not all(isinstance(s, str) for s in subjects):
+            raise ApiError('Выберите предмет')
+        subjects = [s.strip()[:80] for s in subjects if s.strip()][:12]
+        custom = str(d.get('customSubject', '')).strip()[:120]
+        description = str(d.get('description', '')).strip()
+        if not subjects and not custom:
+            raise ApiError('Выберите предмет или напишите свой')
+        if not description:
+            raise ApiError('Опишите задачу')
+        if custom and has_contacts(custom):
+            raise ApiError(CONTACTS_MESSAGE)
+        subject = ', '.join([*subjects, custom] if custom else subjects)
         if has_contacts(description):
             raise ApiError(CONTACTS_MESSAGE)
         budget = d.get('budgetMax')
@@ -88,7 +102,7 @@ class RequestsView(APIView):
             raise ApiError('Неверное удобное время')
         if StudyRequest.objects.filter(student=user, status='open', expires_at__gt=timezone.now()).count() >= MAX_OPEN:
             raise ApiError(f'Одновременно можно держать до {MAX_OPEN} открытых заявок. Закройте ненужные.', 409, 'too_many')
-        r = StudyRequest.objects.create(student=user, subject=subject[:120], goal=str(d.get('goal', ''))[:200], level=str(d.get('level', ''))[:120], budget_max=budget,
+        r = StudyRequest.objects.create(student=user, subject=subject[:120], subjects=subjects, custom_subject=custom, goal=str(d.get('goal', ''))[:200], level=str(d.get('level', ''))[:120], budget_max=budget,
                                         schedule=schedule[:7], description=description[:3000], expires_at=timezone.now() + timedelta(days=14))
         return Response(request_json(r), status=201)
 
@@ -135,7 +149,7 @@ class ResponsesView(APIView):
             raise ApiError('Опубликуйте анкету, чтобы откликаться на заявки')
         if effective_status(r) != 'open':
             raise ApiError('Заявка уже закрыта')
-        if not matches_subjects(r.subject, tutor.subjects):
+        if not visible_to_tutor(r, tutor.subjects):
             raise forbidden('Эта заявка по другому предмету: откликаться можно только по предметам вашей анкеты')
         message = str(request.data.get('message', '')).strip()
         if not message:

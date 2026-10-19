@@ -78,6 +78,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     getConversation: (id) => get(`/conversations/${id}`),
     listMessages: (id) => get(`/conversations/${id}/messages`),
     sendMessage: (id, text) => post(`/conversations/${id}/messages`, { text }),
+    sendPhoto: (id, file, caption) => { const form = new FormData(); form.set('file', file); if (caption) form.set('text', caption); return post(`/conversations/${id}/messages`, form); },
     reportConversation: (id, reason, block) => post(`/conversations/${id}/report`, { reason, block }),
 
     listPayments: () => get('/me/payments'),

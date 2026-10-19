@@ -64,3 +64,15 @@ test('профиль: смена пароля, выход с подтвержд�
   await page.getByRole('dialog').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).not.toHaveURL(/\/me\/account/);
 });
+
+test('чат: фото сжимается и отправляется, у своего сообщения одна галочка', async ({ page }) => {
+  await login(page, 'student');
+  await page.goto('/me/chats/new?tutor=english');
+  await expect(page).toHaveURL(/\/me\/chats\/(?!new)[^/?]+$/);
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+  await page.locator('input[type=file]').setInputFiles({ name: 'zadanie.png', mimeType: 'image/png', buffer: png });
+  await expect(page.locator('.tg-thread .tg-photo').last()).toBeVisible();
+  // у своего непрочитанного сообщения одна галочка
+  await expect(page.locator('.tg-msg.out').last().locator('small .i-check')).toHaveCount(1);
+  await expect(page.locator('.tg-msg.out').last().locator('small .i-checks')).toHaveCount(0);
+});

@@ -78,3 +78,20 @@ def test_booking_from_a_response_closes_the_request(world):
     statuses = {x['tutorId']: x['status'] for x in olga.get_ok('/requests/r-1/responses')}
     assert statuses['mathematics'] == 'accepted' and [v for k, v in statuses.items() if k != 'mathematics'] == ['closed']
     assert lesson['status'] == 'pending'
+
+
+def test_request_with_several_subjects_and_a_custom_subject(world):
+    olga, tutor = world['olga'], world['tutor']
+    several = olga.post_ok('/requests', {**NEW, 'subject': None, 'subjects': ['Математика', 'Английский язык'], 'budgetMax': 1000}, 201)
+    assert several['subjects'] == ['Математика', 'Английский язык'] and several['subject'] == 'Математика, Английский язык'
+    # Анастасия преподаёт английский: заявка, где он среди предметов, ей видна
+    assert several['id'] in {r['id'] for r in tutor.get_ok('/requests')}
+    custom = olga.post_ok('/requests', {**NEW, 'subject': None, 'subjects': [], 'customSubject': 'Шахматы'}, 201)
+    assert custom['subject'] == 'Шахматы' and custom['customSubject'] == 'Шахматы'
+    # заявку со своим предметом видят все репетиторы
+    assert custom['id'] in {r['id'] for r in tutor.get_ok('/requests')}
+    # а заявку по физике Анастасия не видит и откликнуться на неё не может
+    physics = olga.post_ok('/requests', {**NEW, 'subject': None, 'subjects': ['Физика']}, 201)
+    assert physics['id'] not in {r['id'] for r in tutor.get_ok('/requests')}
+    assert tutor.call('post', f"/requests/{physics['id']}/responses", {'price': 1500, 'message': 'Здравствуйте', 'slots': []}).status_code == 403
+    assert olga.call('post', '/requests', {**NEW, 'subject': None, 'subjects': []}).status_code == 400

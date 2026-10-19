@@ -114,6 +114,13 @@ function Thread({ conversation, list, loading, onSent }: { conversation: Convers
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const send = useMutation((value: string) => api.sendMessage(conversation.id, value));
+  const fileInput = useRef<HTMLInputElement>(null);
+  // фото сжимаем в браузере до отправки: не больше 1600 px по длинной стороне и около 0,8 МБ
+  const sendPhoto = useMutation(async (file: File) => {
+    const { default: compress } = await import('browser-image-compression');
+    const small = await compress(file, { maxSizeMB: 0.8, maxWidthOrHeight: 1600, useWebWorker: true });
+    return api.sendPhoto(conversation.id, new File([small], file.name, { type: small.type || file.type }), text.trim() || undefined);
+  });
 
   useLayoutEffect(() => {
     const node = scroller.current;
@@ -133,6 +140,12 @@ function Thread({ conversation, list, loading, onSent }: { conversation: Convers
     if (!value || send.pending) return;
     const sent = await send.run(value);
     if (sent) { setText(''); onSent(sent); input.current?.focus(); }
+  };
+  const pickPhoto = async (file: File | undefined) => {
+    if (!file) return;
+    const sent = await sendPhoto.run(file);
+    if (sent) { setText(''); onSent(sent); }
+    if (fileInput.current) fileInput.current.value = '';
   };
   const onKey = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     // Enter отправляет, Shift+Enter — новая строка (как в Telegram)
@@ -156,8 +169,9 @@ function Thread({ conversation, list, loading, onSent }: { conversation: Convers
                 ? <div className="tg-sys">{m.text}</div>
                 : (
                   <div className={`tg-msg ${mine ? 'out' : 'in'}${joined ? ' joined' : ''}`}>
-                    <span className="tg-text">{m.text}</span>
-                    <small>{timeLabel(m.at)}{mine && <Icon name="check" />}</small>
+                    {m.imageUrl && <img className="tg-photo" src={m.imageUrl} alt="Фото в сообщении" loading="lazy" />}
+                    {m.text && <span className="tg-text">{m.text}</span>}
+                    <small>{timeLabel(m.at)}{mine && <Icon name={m.read ? 'checks' : 'check'} />}</small>
                   </div>
                 )}
             </div>
@@ -166,8 +180,10 @@ function Thread({ conversation, list, loading, onSent }: { conversation: Convers
       </div>
       {conversation.blocked ? <p className="tg-blocked">Диалог заблокирован: писать в него нельзя.</p> : (
         <form className="tg-compose" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
-          {send.error && <FormError error={send.error} />}
+          {(send.error || sendPhoto.error) && <FormError error={send.error ?? sendPhoto.error} />}
           <div className="tg-compose-row">
+            <input ref={fileInput} type="file" accept="image/*" className="trk-sr" tabIndex={-1} aria-hidden="true" onChange={(e) => void pickPhoto(e.target.files?.[0])} />
+            <button type="button" className="tg-attach" aria-label="Прикрепить фото" disabled={sendPhoto.pending} onClick={() => fileInput.current?.click()}><Icon name="attach" /></button>
             <textarea ref={input} rows={1} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKey}
               aria-label="Сообщение" placeholder="Сообщение" className="tg-input" />
             <button type="submit" className="tg-send" aria-label="Отправить" disabled={!text.trim() || send.pending}><Icon name="arrow-up" /></button>

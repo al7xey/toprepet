@@ -66,3 +66,30 @@ def test_report_with_block_stops_the_dialog(world):
     blocked = tutor.call('post', '/conversations/c-1/messages', {'text': 'Здравствуйте'})
     assert blocked.status_code == 403 and 'заблокирован' in blocked.json()['message']
     assert olga.get_ok('/conversations/c-1')['blocked'] is True
+
+
+def test_message_is_read_after_the_other_side_opens_the_dialog(world):
+    olga, tutor = world['olga'], world['tutor']
+    sent = olga.post_ok('/conversations/c-1/messages', {'text': 'Здравствуйте! Есть время в среду?'}, 201)
+    assert sent['read'] is False
+    mine = [m for m in olga.get_ok('/conversations/c-1/messages') if m['id'] == sent['id']][0]
+    assert mine['read'] is False  # собеседник ещё не открывал диалог
+    tutor.get_ok('/conversations/c-1/messages')
+    mine = [m for m in olga.get_ok('/conversations/c-1/messages') if m['id'] == sent['id']][0]
+    assert mine['read'] is True
+
+
+def test_photo_message(world, settings, tmp_path):
+    import io
+
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    from PIL import Image
+    settings.MEDIA_ROOT = tmp_path
+    buf = io.BytesIO()
+    Image.new('RGB', (8, 8), 'orange').save(buf, 'PNG')
+    ok = world['olga'].post('/conversations/c-1/messages', {'file': SimpleUploadedFile('a.png', buf.getvalue(), 'image/png'), 'text': 'Вот задание'}, format='multipart')
+    assert ok.status_code == 201
+    body = ok.json()
+    assert body['kind'] == 'photo' and body['imageUrl'].endswith('.png') and body['text'] == 'Вот задание'
+    bad = world['olga'].post('/conversations/c-1/messages', {'file': SimpleUploadedFile('a.png', b'not an image', 'image/png')}, format='multipart')
+    assert bad.status_code == 400

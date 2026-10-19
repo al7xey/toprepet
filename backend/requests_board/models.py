@@ -8,6 +8,8 @@ class StudyRequest(models.Model):
     id = ShortIdField('r')
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='study_requests')
     subject = models.CharField(max_length=120)
+    subjects = models.JSONField(default=list, blank=True)
+    custom_subject = models.CharField(max_length=120, blank=True)
     goal = models.CharField(max_length=200)
     level = models.CharField(max_length=120, blank=True)
     budget_max = models.PositiveIntegerField(null=True, blank=True)

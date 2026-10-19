@@ -9,6 +9,7 @@ from core.perm import require_role, require_user
 from core.utils import iso
 from notifications.service import notify, notify_admins
 from services.contacts import CONTACTS_MESSAGE, has_contacts
+from services.images import save_photo
 from tutors.models import Tutor
 
 from .models import Conversation, Message
@@ -27,8 +28,14 @@ def conversation_json(c, user) -> dict:
     return data
 
 
-def message_json(m) -> dict:
-    return {'id': m.id, 'conversationId': m.conversation_id, 'authorId': m.author_id, 'kind': m.kind, 'text': m.text, 'at': iso(m.at)}
+def message_json(m, peer_read_at=None, viewer_id=None) -> dict:
+    """`read`: для своих сообщений — собеседник открыл диалог после отправки; чужие считаются прочитанными."""
+    own = viewer_id is not None and m.author_id == viewer_id
+    read = bool(peer_read_at and m.at <= peer_read_at) if own else True
+    data = {'id': m.id, 'conversationId': m.conversation_id, 'authorId': m.author_id, 'kind': m.kind, 'text': m.text, 'at': iso(m.at), 'read': read}
+    if m.image:
+        data['imageUrl'] = m.image
+    return data
 
 
 def mine(user, conversation_id: str) -> Conversation:
@@ -70,8 +77,11 @@ class MessagesView(APIView):
     def get(self, request, conversation_id):
         user = require_user(request)
         c = mine(user, conversation_id)
-        Conversation.objects.filter(id=c.id).update(**({'unread_tutor': 0} if user.role == 'tutor' else {'unread_student': 0}))
-        return Response([message_json(m) for m in c.messages.all()])
+        now = timezone.now()
+        side = {'unread_tutor': 0, 'tutor_read_at': now} if user.role == 'tutor' else {'unread_student': 0, 'student_read_at': now}
+        peer_read_at = c.student_read_at if user.role == 'tutor' else c.tutor_read_at
+        Conversation.objects.filter(id=c.id).update(**side)
+        return Response([message_json(m, peer_read_at, user.id) for m in c.messages.all()])
 
     @transaction.atomic
     def post(self, request, conversation_id):
@@ -80,20 +90,23 @@ class MessagesView(APIView):
         if c.blocked:
             raise ApiError('Диалог заблокирован: писать в него нельзя', 403, 'blocked')
         text = str(request.data.get('text', '')).strip()
-        if not text:
+        has_file = bool(request.FILES.get('file'))
+        if not text and not has_file:
             raise ApiError('Напишите сообщение')
         if len(text) > 2000:
             raise ApiError('Сообщение слишком длинное')
-        if has_contacts(text):
+        if text and has_contacts(text):
             raise ApiError(CONTACTS_MESSAGE)
-        m = Message.objects.create(conversation=c, author=user, kind='text', text=text)
+        image = save_photo(request) if has_file else ''
+        m = Message.objects.create(conversation=c, author=user, kind='photo' if image else 'text', text=text, image=image)
+        text = text or 'Фото'
         mine_side = user.role == 'tutor'
         Conversation.objects.filter(id=c.id).update(last_message=text[:300], updated_at=timezone.now(), **({'unread_student': F('unread_student') + 1} if mine_side else {'unread_tutor': F('unread_tutor') + 1}))
         c.refresh_from_db()
         recipient, unread = (c.student, c.unread_student) if mine_side else (c.tutor.user, c.unread_tutor)
         if unread == 1:  # одно уведомление на серию сообщений
             notify(recipient, 'message', 'Новое сообщение', f'{user.name}: {text[:120]}', f'/me/chats/{c.id}' if mine_side else f'/tutor/chats/{c.id}')
-        return Response(message_json(m), status=201)
+        return Response(message_json(m, None, user.id), status=201)
 
 
 class ReportView(APIView):

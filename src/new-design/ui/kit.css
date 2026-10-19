@@ -702,3 +702,9 @@ html{overflow-y:scroll}
 .tr .trk-account-stats dt{color:var(--muted);font-size:14px}
 .tr .trk-account-stats dd{margin:2px 0 0;font-size:30px;font-weight:800}
 @media (min-width:900px){.tr .trk-account{grid-template-columns:repeat(2,minmax(0,1fr))}.tr .trk-account-wide{grid-column:1/-1}}
+
+/* v25: фото в сообщениях и кнопка вложения */
+.tr .tg-photo{display:block;max-width:100%;max-height:320px;border-radius:14px;margin-bottom:4px;object-fit:cover}
+.tr .tg-attach{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer}
+.tr .tg-attach:hover{color:var(--ink)}
+.tr .tg-attach:disabled{opacity:.5}
