@@ -90,8 +90,17 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
     <>
       <header className="tg-head">
         <Link to={base} className="tg-back" aria-label="Назад к списку"><Icon name="back" /></Link>
-        <Avatar name={c.peerName} photo={c.peerPhoto} size={44} />
-        <div className="tg-head-text"><b>{c.peerName}</b><small>{role === 'student' ? 'Репетитор' : 'Ученик'}</small></div>
+        {role === 'student' ? (
+          <Link className="tg-peer" to={`/teachers/${c.tutorId}`} state={{ back: `${base}/${c.id}` }} aria-label={`Анкета: ${c.peerName}`}>
+            <Avatar name={c.peerName} photo={c.peerPhoto} size={44} />
+            <span className="tg-head-text"><b>{c.peerName}</b><small>Репетитор, открыть анкету</small></span>
+          </Link>
+        ) : (
+          <span className="tg-peer">
+            <Avatar name={c.peerName} photo={c.peerPhoto} size={44} />
+            <span className="tg-head-text"><b>{c.peerName}</b><small>Ученик</small></span>
+          </span>
+        )}
         <ReportButton conversation={c} onBlocked={() => conversation.reload()} />
       </header>
       <Thread conversation={c} list={messages.data ?? []} loading={messages.loading && !messages.data} onSent={(m) => { messages.setData((prev) => [...(prev ?? []), m]); onRead(); }} />
@@ -161,7 +170,7 @@ function Thread({ conversation, list, loading, onSent }: { conversation: Convers
           <div className="tg-compose-row">
             <textarea ref={input} rows={1} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKey}
               aria-label="Сообщение" placeholder="Сообщение" className="tg-input" />
-            <button type="submit" className="tg-send" aria-label="Отправить" disabled={!text.trim() || send.pending}><Icon name="send" /></button>
+            <button type="submit" className="tg-send" aria-label="Отправить" disabled={!text.trim() || send.pending}><Icon name="arrow-up" /></button>
           </div>
         </form>
       )}

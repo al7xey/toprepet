@@ -1,10 +1,14 @@
 from rest_framework import serializers
 
 
+NOTIFY_DEFAULTS = {'lessons': True, 'messages': True, 'reminders': True}
+
+
 def user_json(user) -> dict:
     data = {
         'id': user.id, 'role': user.role, 'name': user.name, 'email': user.email, 'emailVerified': user.email_verified,
-        'timezone': user.timezone, 'onboarded': user.onboarded,
+        'timezone': user.timezone, 'onboarded': user.onboarded, 'photo': user.photo or None,
+        'notifications': {**NOTIFY_DEFAULTS, **(user.notify_prefs or {})},
     }
     if user.role == 'tutor' and user.tutor_id:
         data['tutorId'] = user.tutor_id
@@ -33,3 +37,4 @@ class OnboardingIn(serializers.Serializer):
 class MePatchIn(serializers.Serializer):
     name = serializers.CharField(max_length=120, required=False)
     timezone = serializers.CharField(max_length=64, required=False)
+    notifications = serializers.DictField(child=serializers.BooleanField(), required=False)

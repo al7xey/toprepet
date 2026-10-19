@@ -1,7 +1,7 @@
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
@@ -14,7 +14,9 @@ from core.errors import ApiError
 
 from .mail import send_reset, send_verification
 from .models import EmailToken, User
-from .serializers import LoginIn, MePatchIn, OnboardingIn, SignupIn, user_json
+from services.images import save_photo
+
+from .serializers import NOTIFY_DEFAULTS, LoginIn, MePatchIn, OnboardingIn, SignupIn, user_json
 
 
 class Throttled(APIView):
@@ -44,8 +46,37 @@ class MeView(APIView):
             except (ZoneInfoNotFoundError, ValueError):
                 raise ApiError('Неизвестный часовой пояс')
             user.timezone = data.validated_data['timezone']
+        if 'notifications' in data.validated_data:
+            allowed = {k: v for k, v in data.validated_data['notifications'].items() if k in NOTIFY_DEFAULTS}
+            user.notify_prefs = {**(user.notify_prefs or {}), **allowed}
         user.save()
         return Response(user_json(user))
+
+
+class MePhotoView(APIView):
+    def post(self, request):
+        _require(request)
+        user = request.user
+        user.photo = save_photo(request)
+        user.save(update_fields=['photo'])
+        return Response(user_json(user))
+
+
+class MePasswordView(APIView):
+    def post(self, request):
+        _require(request)
+        user = request.user
+        current, new = str(request.data.get('current', '')), str(request.data.get('password', ''))
+        if not user.check_password(current):
+            raise ApiError('Текущий пароль указан неверно')
+        try:
+            validate_password(new, user)
+        except DjangoValidationError as error:
+            raise ApiError(error.messages[0])
+        user.set_password(new)
+        user.save()
+        update_session_auth_hash(request._request, user)
+        return Response({'ok': True})
 
 
 def _require(request):

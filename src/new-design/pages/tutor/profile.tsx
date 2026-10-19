@@ -61,6 +61,7 @@ export default function TutorProfilePage() {
                 {(items) => <div className="trk-list">{items.map((d) => <Card key={d.id}><div className="trk-exrow"><CardTitle>{d.title}</CardTitle><Status tone={DOC[d.status].tone}>{DOC[d.status].text}</Status></div></Card>)}</div>}
               </QueryView>
             </Section>
+            <Button to="/tutor/account" variant="line" block icon="user">Профиль и настройки</Button>
             <button type="button" className="trk-logout" onClick={exit}>Выйти</button>
           </>
         )}

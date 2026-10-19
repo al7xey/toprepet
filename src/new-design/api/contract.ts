@@ -22,7 +22,9 @@ export interface Api {
   resendVerification(): Promise<void>; // POST /auth/verify/resend
   verifyEmail(token: string): Promise<User>; // POST /auth/verify (токен из письма)
   completeOnboarding(input: { forWhom: string; subjects: string[]; goal: string }): Promise<User>; // POST /me/onboarding
-  updateMe(input: Partial<Pick<User, 'name' | 'timezone'>>): Promise<User>; // PATCH /me
+  updateMe(input: Partial<Pick<User, 'name' | 'timezone' | 'notifications'>>): Promise<User>; // PATCH /me
+  uploadMyPhoto(file: File): Promise<User>; // POST /me/photo
+  changePassword(input: { current: string; password: string }): Promise<void>; // POST /me/password
 
   // Каталог и анкеты
   listTutors(filter: TutorFilter): Promise<Page<Tutor>>; // GET /tutors

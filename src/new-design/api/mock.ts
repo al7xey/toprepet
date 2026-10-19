@@ -338,6 +338,21 @@ export function createMockApi(): Api {
     },
     async completeOnboarding() { const u = me(); u.onboarded = true; save(); return delay(publicUser(u)); },
     async updateMe(input) { const u = me(); Object.assign(u, input); save(); return delay(publicUser(u)); },
+    async uploadMyPhoto(file) {
+      const u = me();
+      if (file.size > 3_000_000) fail('Фото больше 3 МБ. Выберите файл поменьше.');
+      if (!file.type.startsWith('image/')) fail('Нужна картинка: JPG, PNG или WebP.');
+      u.photo = await new Promise<string>((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(typeof r.result === 'string' ? r.result : ''); r.onerror = () => reject(new ApiError('Не удалось прочитать файл')); r.readAsDataURL(file); });
+      save();
+      return delay(publicUser(u), 300);
+    },
+    async changePassword(input) {
+      const u = me();
+      if (u.password !== input.current) fail('Текущий пароль указан неверно');
+      if (input.password.length < 8) fail('Пароль должен быть не короче 8 символов');
+      u.password = input.password; save();
+      return delay(undefined);
+    },
 
     async listTutors(filter) {
       const s = load();

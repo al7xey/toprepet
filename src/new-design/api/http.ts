@@ -38,6 +38,8 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     verifyEmail: (token) => post('/auth/verify', { token }),
     completeOnboarding: (input) => post('/me/onboarding', input),
     updateMe: (input) => request('PATCH', '/me', input),
+    uploadMyPhoto: (file) => { const form = new FormData(); form.set('file', file); return post('/me/photo', form); },
+    changePassword: async (input) => { await post('/me/password', input); },
 
     listTutors: (filter) => get(`/tutors${q({ ...filter })}`),
     getTutor: (id) => get(`/tutors/${id}`),

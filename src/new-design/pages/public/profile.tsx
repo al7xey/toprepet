@@ -34,6 +34,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const reviews = useQuery(`reviews-${tutor.id}`, () => api.getTutorReviews(tutor.id));
   const isTutorAccount = user?.role === 'tutor' || user?.role === 'admin';
   const location = useLocation();
+  const fromChat = (location.state as { back?: string } | null)?.back;
   // «Записаться» закреплена внизу экрана, а у блока со временем встаёт на своё место
   const ctaSlot = useRef<HTMLDivElement>(null);
   const [docked, setDocked] = useState(false);
@@ -71,7 +72,6 @@ function Profile({ tutor }: { tutor: Tutor }) {
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
         <>
           <Button to={bookHref('regular')} size="lg" block disabled={!start} onClick={() => trackGoal('book_start', { kind: 'regular' })}>{start ? 'Записаться' : 'Выберите время'}</Button>
-          {tutor.introMinutes > 0 && <Button to={bookHref('intro')} variant="soft" block onClick={() => trackGoal('book_start', { kind: 'intro' })}>Бесплатное знакомство</Button>}
           <Button variant="fill" block icon="chat" onClick={write}>Написать репетитору</Button>
         </>
       )}
@@ -80,7 +80,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
 
   return (
     <PublicLayout tight bareMobile>
-      <div className="trh-pf-backwrap"><BackLink to="/teachers">Все преподаватели</BackLink></div>
+      <div className="trh-pf-backwrap"><BackLink to={fromChat ?? '/teachers'}>{fromChat ? 'К сообщениям' : 'Все преподаватели'}</BackLink></div>
       <div className="trh-pf">
         <div className="trh-pf-main">
           <section className="trh-pf-top">
@@ -90,7 +90,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
               <IconButton icon="share" label="Поделиться" onClick={share} surf className="trh-pf-share" />
             </div>
             <div className="trh-pf-sheet">
-              <div className="trh-sec" {...rv('up', 0.05)}>
+              <div className="trh-sec">
                 <h1 className="trh-h1">{tutor.name}</h1>
                 <p className="muted trh-pf-role">{tutor.headline}</p>
                 <div className="fr fw u-gap8">
@@ -98,7 +98,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
                   {tutor.introMinutes > 0 && <span className="trh-pf-intro-tag"><Icon name="gift" />Бесплатное знакомство</span>}
                 </div>
               </div>
-              <p className="trh-pf-intro" {...rv('up', 0.15)}>{tutor.intro}</p>
+              <p className="trh-pf-intro">{tutor.intro}</p>
             </div>
           </section>
 

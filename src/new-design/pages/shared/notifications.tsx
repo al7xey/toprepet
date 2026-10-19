@@ -22,8 +22,8 @@ export default function NotificationsPage() {
     window.dispatchEvent(new Event('tr:notes'));
   };
   return (
-    <AppLayout role={role} narrow>
-      <PageHeader title="Уведомления" actions={unread ? <Button variant="fill" size="s" icon="checks" onClick={() => void markAll()} loading={readAll.pending}>Прочитать все</Button> : undefined} />
+    <AppLayout role={role}>
+      <PageHeader title="Уведомления" actions={unread ? <Button variant="fill" icon="checks" onClick={() => void markAll()} loading={readAll.pending}>Прочитать все</Button> : undefined} />
       <QueryView query={list} empty={(items) => items.length === 0 ? <EmptyState icon="bell" title="Пока тихо" text="Здесь появятся ответы на заявки, подтверждения уроков и сообщения." /> : null}>
         {(items) => (
           <div className="trk-list">

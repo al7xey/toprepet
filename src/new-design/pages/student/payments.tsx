@@ -17,7 +17,7 @@ const KIND: Record<PaymentKind, { tone: Tone; text: string; sign: string }> = {
 export default function PaymentsPage() {
   const [tab, setTab] = useState<'history' | 'cards'>('history');
   return (
-    <AppLayout role="student" narrow>
+    <AppLayout role="student">
       <PageHeader title="Платежи" />
       <Tabs items={[{ value: 'history', label: 'История' }, { value: 'cards', label: 'Карты' }]} value={tab} onChange={setTab} />
       {tab === 'history' ? <History /> : <Cards />}
@@ -56,7 +56,7 @@ function Cards() {
     if (await remove.run(removing.id)) { setRemoving(null); cards.reload(); toast('Карта удалена'); }
   };
   return (
-    <Section title="Мои карты" action={<Button size="s" icon="plus" onClick={() => setOpen(true)}>Добавить карту</Button>}>
+    <Section title="Мои карты" action={<Button icon="plus" onClick={() => setOpen(true)}>Добавить карту</Button>}>
       <QueryView query={cards} empty={(items) => items.length === 0 ? <EmptyState icon="card" title="Карт пока нет" text="Добавьте карту, чтобы записываться на платные уроки." actions={<Button onClick={() => setOpen(true)}>Добавить карту</Button>} /> : null}>
         {(items) => (
           <div className="trk-list">

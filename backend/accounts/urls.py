@@ -14,4 +14,6 @@ urlpatterns = [
     path('auth/verify/resend', views.ResendVerificationView.as_view()),
     path('auth/verify', views.VerifyEmailView.as_view()),
     path('me/onboarding', views.OnboardingView.as_view()),
+    path('me/photo', views.MePhotoView.as_view()),
+    path('me/password', views.MePasswordView.as_view()),
 ]

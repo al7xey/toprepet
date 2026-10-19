@@ -260,7 +260,7 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
         {role === 'admin' && <span className="icons"><Button size="s" variant="fill" onClick={() => { void logout().then(() => navigate('/')); }}>Выйти</Button></span>}
         {role !== 'admin' && (
           <span className="icons">
-            {ready(`${counters.prefix}/notifications`) && <IconButton icon="bell" label="Уведомления" to={`${counters.prefix}/notifications`} badge={counters.notifications > 0} className="trk-hdr-ic" />}
+            {ready(`${counters.prefix}/notifications`) && <IconButton icon="bell" label="Уведомления" to={`${counters.prefix}/notifications`} badge={counters.notifications} className="trk-hdr-ic" />}
             {ready(`${counters.prefix}/chats`) && <IconButton icon="chat" label="Сообщения" to={`${counters.prefix}/chats`} badge={counters.chats || false} className="trk-hdr-ic" />}
             <Link className="trk-ava-link" to={accountTo} aria-label="Профиль"><Avatar name={user?.name ?? '•'} size={44} /></Link>
           </span>

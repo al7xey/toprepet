@@ -16,6 +16,7 @@ from core.perm import my_tutor, require_user
 from core.utils import parse_iso
 from notifications.service import notify, notify_admins
 from services.contacts import CONTACTS_MESSAGE, has_contacts
+from services.images import save_photo
 from services.slots import slots_for
 
 from .models import ScheduleException, Tutor, TutorDocument
@@ -175,22 +176,7 @@ class ExceptionDetailView(APIView):
 class PhotoView(APIView):
     def post(self, request):
         my_tutor(request)
-        file = request.FILES.get('file')
-        if not file:
-            raise ApiError('Выберите файл')
-        if file.size > 3_000_000:
-            raise ApiError('Фото больше 3 МБ. Выберите файл поменьше.')
-        try:
-            image = Image.open(file)
-            image.verify()
-            fmt = (image.format or '').lower()
-        except (UnidentifiedImageError, OSError):
-            raise ApiError('Нужна картинка: JPG, PNG или WebP.')
-        if fmt not in ('jpeg', 'png', 'webp'):
-            raise ApiError('Нужна картинка: JPG, PNG или WebP.')
-        file.seek(0)
-        name = default_storage.save(f'photos/{uuid.uuid4().hex}.{"jpg" if fmt == "jpeg" else fmt}', ContentFile(file.read()))
-        return Response({'url': request.build_absolute_uri(settings.MEDIA_URL + name)})
+        return Response({'url': save_photo(request)})
 
 
 class DocumentsView(APIView):

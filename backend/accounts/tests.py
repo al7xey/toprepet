@@ -13,7 +13,7 @@ def signup(api, **kw):
 def test_signup_logs_in_and_sends_verification(api):
     response = signup(api)
     assert response.status_code == 201
-    assert response.json() == {'id': response.json()['id'], 'role': 'student', 'name': 'Ольга', 'email': 'olga.test@mail.ru', 'emailVerified': False, 'timezone': 'Europe/Moscow', 'onboarded': False}
+    assert response.json() == {'id': response.json()['id'], 'role': 'student', 'name': 'Ольга', 'email': 'olga.test@mail.ru', 'emailVerified': False, 'timezone': 'Europe/Moscow', 'onboarded': False, 'photo': None, 'notifications': {'lessons': True, 'messages': True, 'reminders': True}}
     assert api.get_ok('/auth/me')['email'] == 'olga.test@mail.ru'
     assert len(mail.outbox) == 1 and '/auth/verify?token=' in mail.outbox[0].body
 
@@ -90,3 +90,34 @@ def test_tutor_signup_creates_draft_profile(api):
 
 def test_yandex_is_not_configured_yet(api):
     assert api.call('post', '/auth/yandex').status_code == 501
+
+
+def test_change_password_needs_the_current_one_and_keeps_the_session(api):
+    signup(api)
+    assert api.call('post', '/me/password', {'current': 'wrong-one', 'password': 'newpassword1'}).status_code == 400
+    assert api.call('post', '/me/password', {'current': 'password1', 'password': 'short'}).status_code == 400
+    api.post_ok('/me/password', {'current': 'password1', 'password': 'newpassword1'})
+    assert api.get_ok('/me')['email'] == 'olga.test@mail.ru'  # сессия осталась
+    other = Api()
+    assert other.call('post', '/auth/login', {'email': 'olga.test@mail.ru', 'password': 'newpassword1'}).status_code == 200
+
+
+def test_notification_settings_are_saved_and_unknown_keys_ignored(api):
+    signup(api)
+    me = api.call('patch', '/me', {'notifications': {'messages': False, 'unknown': True}}, 200).json()
+    assert me['notifications'] == {'lessons': True, 'messages': False, 'reminders': True}
+
+
+def test_profile_photo_upload(api, settings, tmp_path):
+    import io
+
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    from PIL import Image
+    settings.MEDIA_ROOT = tmp_path
+    signup(api)
+    buf = io.BytesIO()
+    Image.new('RGB', (8, 8), 'orange').save(buf, 'PNG')
+    ok = api.post('/me/photo', {'file': SimpleUploadedFile('a.png', buf.getvalue(), 'image/png')}, format='multipart')
+    assert ok.status_code == 200 and ok.json()['photo'].endswith('.png')
+    bad = api.post('/me/photo', {'file': SimpleUploadedFile('a.png', b'not an image', 'image/png')}, format='multipart')
+    assert bad.status_code == 400

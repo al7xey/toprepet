@@ -18,6 +18,9 @@ export interface User {
   /** Для репетитора: id его анкеты. */
   tutorId?: Id;
   onboarded: boolean;
+  photo?: string | null;
+  /** Какие уведомления присылать на почту. */
+  notifications?: { lessons: boolean; messages: boolean; reminders: boolean };
 }
 
 export interface Achievement { title: string; text: string }

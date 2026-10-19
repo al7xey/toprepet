@@ -36,6 +36,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     timezone = models.CharField(max_length=64, default='Europe/Moscow')
     email_verified = models.BooleanField(default=False)
     onboarded = models.BooleanField(default=False)
+    photo = models.CharField(max_length=300, blank=True)
+    notify_prefs = models.JSONField(default=dict, blank=True)
     onboarding = models.JSONField(default=dict, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
