@@ -482,7 +482,7 @@
 .tr .wash{position:relative;isolation:isolate;overflow:clip;background:#fff}
 .tr .anim>*{animation:tr-rise .75s var(--spring) both}
 .tr .anim>.hdr{animation-name:tr-drop}
-.tr .anim>.tabbar,.tr .anim>.actionbar{animation-name:tr-sheetup}
+.tr .anim>.actionbar{animation-name:tr-sheetup}
 .tr .anim>:nth-child(1){animation-delay:0.08s}.tr .anim>:nth-child(2){animation-delay:0.13s}.tr .anim>:nth-child(3){animation-delay:0.18s}.tr .anim>:nth-child(4){animation-delay:0.23s}.tr .anim>:nth-child(5){animation-delay:0.28s}.tr .anim>:nth-child(6){animation-delay:0.33s}.tr .anim>:nth-child(7){animation-delay:0.38s}.tr .anim>:nth-child(8){animation-delay:0.43s}.tr .anim>:nth-child(9){animation-delay:0.48s}.tr .anim>:nth-child(10){animation-delay:0.53s}.tr .anim>:nth-child(11){animation-delay:0.58s}.tr .anim>:nth-child(12){animation-delay:0.63s}.tr .anim>:nth-child(13){animation-delay:0.68s}.tr .anim>:nth-child(14){animation-delay:0.73s}.tr .anim>:nth-child(15){animation-delay:0.78s}
 .tr .anim>.hdr{animation-delay:0s}
 

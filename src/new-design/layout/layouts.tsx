@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useQuery } from '../api/hooks';
@@ -8,112 +8,12 @@ import { Avatar, Button, Icon, IconButton } from '../ui';
 
 const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ');
 
-const PRESS_MS = 250; // сколько держать пункт, чтобы подложку можно было тянуть
-const PAD = 6; // отступ панели от краёв; совпадает с padding в kit.css
-const GAP = 2; // зазор между пунктами; совпадает с gap в tr.css
-
-/** Нижняя панель: подложка выбранного раздела. Долгое нажатие — подложку можно тянуть влево и вправо. */
+/** Нижняя панель: значок и подпись, выбранный раздел подсвечен. Без жестов и анимаций. */
 function TabBar({ tabs }: { tabs: NavItem[] }) {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const bar = useRef<HTMLElement>(null);
-  // при прокрутке вниз панель сжимается (подписи прячутся), при прокрутке вверх раскрывается
-  const [compact, setCompact] = useState(false);
-  useEffect(() => {
-    // страница может прокручиваться внутри контейнера, поэтому слушаем прокрутку в фазе захвата у документа
-    let last = 0;
-    let frame = 0;
-    const onScroll = (e: Event) => {
-      if (frame) return;
-      const target = e.target;
-      const y = target instanceof HTMLElement ? target.scrollTop : window.scrollY;
-      frame = requestAnimationFrame(() => {
-        frame = 0;
-        if (y > 80 && y > last + 6) setCompact(true);
-        else if (y <= 80 || y < last - 6) setCompact(false);
-        last = y;
-      });
-    };
-    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
-    return () => { document.removeEventListener('scroll', onScroll, { capture: true }); if (frame) cancelAnimationFrame(frame); };
-  }, []);
-  const press = useRef<{ id: number; x: number; timer: number } | null>(null);
-  const dragging = useRef(false);
-  const [dragPos, setDragPos] = useState<number | null>(null);
-  const current = tabs.findIndex((t) => pathname === t.to || pathname.startsWith(`${t.to}/`));
-  const shown = dragPos === null ? current : Math.round(dragPos);
-
-  // положение пальца в долях пункта: 0 — первый пункт, n−1 — последний
-  const posAt = (clientX: number) => {
-    const el = bar.current;
-    if (!el) return current;
-    const rect = el.getBoundingClientRect();
-    const w = (rect.width - PAD * 2 - GAP * (tabs.length - 1)) / tabs.length;
-    const value = (clientX - rect.left - PAD - w / 2) / (w + GAP);
-    return Math.min(Math.max(value, 0), tabs.length - 1);
-  };
-  const cancelPress = () => {
-    if (press.current) window.clearTimeout(press.current.timer);
-    press.current = null;
-  };
-  const endDrag = () => { dragging.current = false; setDragPos(null); };
-
-  const onPointerDown = (e: PointerEvent) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    cancelPress();
-    const { pointerId, clientX } = e;
-    const timer = window.setTimeout(() => {
-      dragging.current = true;
-      bar.current?.setPointerCapture(pointerId);
-      setDragPos(posAt(clientX));
-    }, PRESS_MS);
-    press.current = { id: pointerId, x: clientX, timer };
-  };
-  const onPointerMove = (e: PointerEvent) => {
-    const p = press.current;
-    if (!p) return;
-    if (!dragging.current) {
-      // палец уехал до того, как подложка стала активной: это обычная прокрутка или нажатие
-      if (Math.abs(e.clientX - p.x) > 8) cancelPress();
-      return;
-    }
-    e.preventDefault();
-    setDragPos(posAt(e.clientX));
-  };
-  const onPointerUp = (e: PointerEvent) => {
-    cancelPress();
-    if (!dragging.current) return;
-    const to = tabs[Math.round(posAt(e.clientX))];
-    endDrag();
-    if (to && to.to !== tabs[current]?.to) void navigate(to.to);
-  };
-  const onPointerCancel = () => { cancelPress(); endDrag(); };
-  // обработчики вешаем на элемент в эффекте: nav сам по себе не интерактивен
-  useEffect(() => {
-    const el = bar.current;
-    if (!el) return undefined;
-    const onContext = (e: Event) => e.preventDefault();
-    el.addEventListener('pointerdown', onPointerDown);
-    el.addEventListener('pointermove', onPointerMove);
-    el.addEventListener('pointerup', onPointerUp);
-    el.addEventListener('pointercancel', onPointerCancel);
-    el.addEventListener('contextmenu', onContext);
-    return () => {
-      el.removeEventListener('pointerdown', onPointerDown);
-      el.removeEventListener('pointermove', onPointerMove);
-      el.removeEventListener('pointerup', onPointerUp);
-      el.removeEventListener('pointercancel', onPointerCancel);
-      el.removeEventListener('contextmenu', onContext);
-    };
-  });
-
-
-
   return (
-    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', compact && 'compact')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
-      {current >= 0 && <span className="tabpill" aria-hidden="true" style={{ '--pos': dragPos ?? current, transition: dragPos === null ? undefined : 'none' } as CSSProperties} />}
-      {tabs.map((t, i) => (
-        <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', shown === i && 'cur')}>
+    <nav className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
+      {tabs.map((t) => (
+        <NavLink key={t.to} to={t.to} className={({ isActive }) => cx('tab', isActive && 'cur')}>
           <Icon name={t.icon} /><span className="tab-label">{t.label}</span>{t.badge ? <span className="dot">{t.badge}</span> : null}
         </NavLink>
       ))}
@@ -230,7 +130,7 @@ const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   },
   tutor: {
     top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
-    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat' }, { label: 'Доход', to: '/tutor/finance', icon: 'wallet' }, { label: 'Анкета', to: '/tutor/profile', icon: 'school' }],
+    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat' }, { label: 'Профиль', to: '/tutor/account', icon: 'user' }],
   },
   admin: {
     top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],

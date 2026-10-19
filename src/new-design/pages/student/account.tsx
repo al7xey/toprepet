@@ -124,6 +124,15 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
           </div>
         </Card>
 
+        {role === 'tutor' && (
+          <Card>
+            <div className="trk-form">
+              <CardTitle>Доход</CardTitle>
+              <Button to="/tutor/finance" variant="line" size="lg" block>Доход и выплаты</Button>
+            </div>
+          </Card>
+        )}
+
         {user && !user.emailVerified && (
           <Note tone="bad">Почта не подтверждена. <Button to="/verify-email" variant="line" size="s">Подтвердить</Button></Note>
         )}
