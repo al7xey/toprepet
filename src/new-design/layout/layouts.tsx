@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useQuery } from '../api/hooks';
@@ -8,84 +8,12 @@ import { Avatar, Button, Icon, IconButton } from '../ui';
 
 const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ');
 
-const PAD = 6; // отступ панели от краёв; совпадает с padding в kit.css
-const GAP = 2; // зазор между пунктами; совпадает с gap в tr.css
-const DRAG_PX = 6; // на сколько сдвинуть палец, чтобы нажатие стало перетаскиванием
-
-/**
- * Нижняя панель «жидкое стекло», как в Telegram. Подложка выбранного раздела скользит к нажатому пункту,
- * под пальцем «приподнимается», и её можно тянуть влево и вправо: открывается раздел, над которым отпустили палец.
- */
+/** Нижняя панель: значок и подпись, выбранный раздел выделен оранжевой пилюлей. */
 function TabBar({ tabs }: { tabs: NavItem[] }) {
-  const { pathname } = useLocation();
-  const navigate = useNavigate();
-  const bar = useRef<HTMLElement>(null);
-  const gesture = useRef<{ x: number; moved: boolean } | null>(null);
-  const swallowClick = useRef(false);
-  const [pos, setPos] = useState<number | null>(null); // положение подложки под пальцем в долях пункта
-  const [moved, setMoved] = useState(false);
-  const current = tabs.findIndex((t) => pathname === t.to || pathname.startsWith(`${t.to}/`));
-  const shown = pos === null ? current : Math.round(pos);
-
-  // положение пальца в долях пункта: 0 — первый пункт, n−1 — последний
-  const posAt = (clientX: number) => {
-    const el = bar.current;
-    if (!el) return Math.max(current, 0);
-    const rect = el.getBoundingClientRect();
-    const w = (rect.width - PAD * 2 - GAP * (tabs.length - 1)) / tabs.length;
-    return Math.min(Math.max((clientX - rect.left - PAD - w / 2) / (w + GAP), 0), tabs.length - 1);
-  };
-  const finish = () => { gesture.current = null; setPos(null); setMoved(false); };
-
-  const onPointerDown = (e: PointerEvent) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    gesture.current = { x: e.clientX, moved: false };
-    bar.current?.setPointerCapture(e.pointerId);
-    setPos(posAt(e.clientX));
-  };
-  const onPointerMove = (e: PointerEvent) => {
-    const g = gesture.current;
-    if (!g) return;
-    if (!g.moved && Math.abs(e.clientX - g.x) > DRAG_PX) { g.moved = true; setMoved(true); }
-    setPos(posAt(e.clientX));
-  };
-  const onPointerUp = (e: PointerEvent) => {
-    const g = gesture.current;
-    if (!g) return;
-    const to = tabs[Math.round(posAt(e.clientX))];
-    finish();
-    // и нажатие, и перетаскивание открывают раздел здесь; обычный клик по ссылке после этого не нужен
-    swallowClick.current = true;
-    window.setTimeout(() => { swallowClick.current = false; }, 0);
-    if (to && to.to !== tabs[current]?.to) void navigate(to.to);
-  };
-  // обработчики вешаем на элемент в эффекте: nav сам по себе не интерактивен
-  useEffect(() => {
-    const el = bar.current;
-    if (!el) return undefined;
-    const onContext = (e: Event) => e.preventDefault();
-    const onClick = (e: Event) => { if (swallowClick.current) e.preventDefault(); };
-    el.addEventListener('pointerdown', onPointerDown);
-    el.addEventListener('pointermove', onPointerMove);
-    el.addEventListener('pointerup', onPointerUp);
-    el.addEventListener('pointercancel', finish);
-    el.addEventListener('contextmenu', onContext);
-    el.addEventListener('click', onClick, true);
-    return () => {
-      el.removeEventListener('pointerdown', onPointerDown);
-      el.removeEventListener('pointermove', onPointerMove);
-      el.removeEventListener('pointerup', onPointerUp);
-      el.removeEventListener('pointercancel', finish);
-      el.removeEventListener('contextmenu', onContext);
-      el.removeEventListener('click', onClick, true);
-    };
-  });
-
   return (
-    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', pos !== null && 'press')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
-      {current >= 0 && <span className="tabpill" aria-hidden="true" style={{ '--pos': pos ?? current, transition: moved ? 'transform .3s var(--spring), box-shadow .3s' : undefined } as CSSProperties} />}
-      {tabs.map((t, i) => (
-        <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', shown === i && 'cur')}>
+    <nav className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
+      {tabs.map((t) => (
+        <NavLink key={t.to} to={t.to} className={({ isActive }) => cx('tab', isActive && 'cur')}>
           <Icon name={t.icon} /><span className="tab-label">{t.label}</span>{t.badge ? <span className="dot">{t.badge}</span> : null}
         </NavLink>
       ))}
@@ -198,11 +126,11 @@ const ready = (to: string) => READY.some((p) => to === p || to.startsWith(`${p}/
 const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   student: {
     top: [{ label: 'Найти репетитора', to: '/teachers', icon: 'search' }, { label: 'Мои уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Платежи', to: '/me/payments', icon: 'card' }],
-    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'book' }, { label: 'Заявки', to: '/me/requests', icon: 'check' }, { label: 'Чаты', to: '/me/chats', icon: 'chat' }, { label: 'Профиль', to: '/me/account', icon: 'user' }],
+    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'book' }, { label: 'Заявки', to: '/me/requests', icon: 'doc' }, { label: 'Чаты', to: '/me/chats', icon: 'chat' }, { label: 'Профиль', to: '/me/account', icon: 'user' }],
   },
   tutor: {
     top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
-    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book' }, { label: 'Заявки', to: '/tutor/requests', icon: 'check' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat' }, { label: 'Профиль', to: '/tutor/account', icon: 'user' }],
+    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book' }, { label: 'Заявки', to: '/tutor/requests', icon: 'doc' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat' }, { label: 'Профиль', to: '/tutor/account', icon: 'user' }],
   },
   admin: {
     top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],

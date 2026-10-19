@@ -649,17 +649,13 @@
 .tr .trk-note-title{display:block;font-size:16px}
 .tr .trk-note-line{display:block;margin-top:2px}
 
-/* v29: нижняя панель — жидкое стекло как в Telegram: размытие фона и блики, подложка скользит и приподнимается под пальцем */
-.tr .trk-tabbar,.tr .trk-tabbar.five{--w:calc((100% - 12px - (var(--n) - 1) * 2px) / var(--n));background:rgb(255 255 255 / 46%);backdrop-filter:blur(22px) saturate(190%);-webkit-backdrop-filter:blur(22px) saturate(190%);border:1px solid rgb(255 255 255 / 72%);border-radius:999px;box-shadow:0 14px 34px rgb(32 40 56 / 16%),0 2px 6px rgb(32 40 56 / 8%),inset 0 1px 0 rgb(255 255 255 / 92%),inset 0 -1px 0 rgb(255 255 255 / 40%),inset 0 0 18px rgb(255 255 255 / 28%);padding:6px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overflow:visible;transition:transform .35s var(--spring)}
-.tr .trk-tabbar.press{transform:scale(1.025)}
-.tr .trk-tabbar .tab{z-index:1;min-height:56px;padding:7px 0 5px;background:transparent;color:var(--ink);transition:color .2s}
-.tr .trk-tabbar .tab .i{width:24px;height:24px;transition:transform .35s var(--spring)}
-.tr .trk-tabbar .tab.cur{background:transparent;color:var(--ink)}
-.tr .trk-tabbar .tab.cur .i{background:#fff;transform:scale(1.06)}
-.tr .trk-tabbar .tabpill{position:absolute;top:6px;bottom:6px;left:calc(6px + var(--pos,0) * (var(--w) + 2px));width:var(--w);border-radius:999px;background:linear-gradient(180deg,#fbb994,#f8a06a);box-shadow:0 4px 12px rgb(248 160 106 / 38%),inset 0 1px 0 rgb(255 255 255 / 65%),inset 0 -1px 0 rgb(255 255 255 / 18%);transition:left .5s var(--spring),transform .3s var(--spring),box-shadow .3s;pointer-events:none;z-index:0}
-.tr .trk-tabbar.press .tabpill{transform:scale(1.12,1.08);box-shadow:0 10px 22px rgb(248 160 106 / 46%),inset 0 1px 0 rgb(255 255 255 / 75%),inset 0 -1px 0 rgb(255 255 255 / 25%)}
-@media (hover:hover){.tr .trk-tabbar .tab:not(.cur):hover{background:rgb(255 255 255 / 45%)}}
-@media (prefers-reduced-motion:reduce){.tr .trk-tabbar,.tr .trk-tabbar *{transition:none!important}}
+/* v30: нижняя панель — обычная светлая панель без эффектов; выбранный раздел — оранжевая пилюля, иконка белая */
+.tr .trk-tabbar,.tr .trk-tabbar.five{background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:0 4px 14px rgb(32 40 56 / 8%);padding:6px}
+.tr .trk-tabbar .tab{min-height:56px;padding:7px 0 5px;background:transparent;color:var(--ink);transition:background .2s,color .2s}
+.tr .trk-tabbar .tab:hover{background:var(--surface)}
+.tr .trk-tabbar .tab .i{width:24px;height:24px}
+.tr .trk-tabbar .tab.cur{background:var(--accent);color:var(--ink)}
+.tr .trk-tabbar .tab.cur .i{background:#fff}
 
 /* v20: анкета репетитора и фото в мастере — в том же виде, что у ученика */
 .tr .trk-profile-card{display:grid;background:#fff;border-radius:28px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
