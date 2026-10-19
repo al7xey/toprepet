@@ -12,6 +12,23 @@ test('нижняя панель: нажатие открывает раздел 
   await expect(tabs.nth(1)).not.toHaveClass(/cur/);
 });
 
+test('нижняя панель: подложку можно тянуть, открывается пункт, над которым отпустили палец', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 1440) > 600, 'нижняя панель только на телефоне');
+  await login(page, 'student');
+  await page.goto('/me/requests');
+  const tabs = page.locator('nav.trk-tabbar a.tab');
+  const from = await tabs.nth(2).boundingBox();
+  const to = await tabs.nth(1).boundingBox();
+  if (!from || !to) throw new Error('нет размеров пунктов панели');
+  await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(to.x + to.width / 2, from.y + from.height / 2, { steps: 12 });
+  await expect(page.locator('nav.trk-tabbar')).toHaveClass(/press/);
+  await page.mouse.up();
+  await expect(page).toHaveURL(/\/me\/lessons/);
+  await expect(page.locator('nav.trk-tabbar')).not.toHaveClass(/press/);
+});
+
 test('репетитор: в нижней панели есть «Профиль», а раздела «Доход» там нет', async ({ page }) => {
   test.skip((page.viewportSize()?.width ?? 1440) > 600, 'нижняя панель только на телефоне');
   await login(page, 'tutor');
