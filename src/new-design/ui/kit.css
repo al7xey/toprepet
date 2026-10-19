@@ -322,7 +322,7 @@
 .tr .trk-blog-rubrics a:hover{color:#c8460f}
 .tr .trk-blog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 24px}
 .tr .trk-blog-card{display:grid;gap:12px;align-content:start;min-width:0}
-.tr .trk-blog-media{display:block;aspect-ratio:16/10;border-radius:24px;overflow:hidden;background:#fff3ea}
+.tr .trk-blog-media{display:block;aspect-ratio:16/10;border-radius:24px;overflow:hidden;background:#fff}
 .tr .trk-blog-media img{width:100%;height:100%;object-fit:cover;display:block}
 .tr .trk-blog-body{display:grid;gap:6px;min-width:0}
 .tr .trk-blog-cat{font-size:14px;font-weight:700;color:var(--ink)}
@@ -451,7 +451,7 @@
 .tr .tg-row-meta{display:grid;justify-items:end;gap:6px;align-self:start;padding-top:4px}
 .tr .tg-row-meta small{font-size:12px;color:var(--muted)}
 .tr .tg-unread{min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
-.tr .tg-main{display:flex;flex-direction:column;min-width:0;min-height:0;background:#fffaf6}
+.tr .tg-main{display:flex;flex-direction:column;min-width:0;min-height:0;background:#fff}
 .tr .tg-placeholder{margin:auto;display:grid;justify-items:center;gap:10px;color:var(--muted);font-weight:600;padding:24px;text-align:center}
 .tr .tg-placeholder .i{width:40px;height:40px}
 .tr .tg-head{display:flex;align-items:center;gap:12px;padding:10px 16px;background:#fff;border-bottom:1.5px solid var(--line)}
@@ -649,13 +649,21 @@
 .tr .trk-note-title{display:block;font-size:16px}
 .tr .trk-note-line{display:block;margin-top:2px}
 
-/* v30: нижняя панель — обычная светлая панель без эффектов; выбранный раздел — оранжевая пилюля, иконка белая */
-.tr .trk-tabbar,.tr .trk-tabbar.five{background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:0 4px 14px rgb(32 40 56 / 8%);padding:6px}
-.tr .trk-tabbar .tab{min-height:56px;padding:7px 0 5px;background:transparent;color:var(--ink);transition:background .2s,color .2s}
-.tr .trk-tabbar .tab:hover{background:var(--surface)}
-.tr .trk-tabbar .tab .i{width:24px;height:24px}
-.tr .trk-tabbar .tab.cur{background:var(--accent);color:var(--ink)}
+/* v31: нижняя панель — белая, только значки; оранжевая пилюля плавно переезжает к выбранному разделу */
+.tr .trk-tabbar,.tr .trk-tabbar.five{--w:calc((100% - 12px - (var(--n) - 1) * 2px) / var(--n));background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:0 8px 24px rgb(32 40 56 / 10%);padding:6px}
+.tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:60px;padding:0;border-radius:999px;background:transparent;color:var(--ink);transition:background .2s}
+.tr .trk-tabbar .tab:not(.cur):hover{background:var(--accent-soft)}
+.tr .trk-tabbar .tab .i{width:30px;height:30px}
+.tr .trk-tabbar .tab.cur{background:transparent;color:#fff}
 .tr .trk-tabbar .tab.cur .i{background:#fff}
+.tr .trk-tabbar .tabpill{position:absolute;top:6px;bottom:6px;left:calc(6px + var(--pos,0) * (var(--w) + 2px));width:var(--w);border-radius:999px;background:var(--accent);transition:left .35s var(--spring);pointer-events:none;z-index:0}
+@media (prefers-reduced-motion:reduce){.tr .trk-tabbar .tabpill{transition:none}}
+@media (max-width:760px){
+  .tr .trk-chat-list .trh-main{padding-left:8px;padding-right:8px}
+  .tr .tg-title{padding:16px 8px 10px}
+  .tr .tg-rows{padding:0}
+  .tr .tg-row{padding:10px 8px}
+}
 
 /* v20: анкета репетитора и фото в мастере — в том же виде, что у ученика */
 .tr .trk-profile-card{display:grid;background:#fff;border-radius:28px;overflow:hidden;box-shadow:0 0 0 1px var(--line)}
