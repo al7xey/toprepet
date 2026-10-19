@@ -649,16 +649,10 @@
 .tr .trk-note-title{display:block;font-size:16px}
 .tr .trk-note-line{display:block;margin-top:2px}
 
-/* v19: нижняя панель — светлая с обводкой, подложка-кружок у выбранного раздела, залитые иконки */
-.tr .trk-tabbar{--w:calc((100% - 12px - (var(--n) - 1) * 2px) / var(--n));background:#fff;box-shadow:0 0 0 1px var(--line),0 12px 30px rgb(32 40 56 / 16%);touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overflow:visible}
-.tr .trk-tabbar .tabpill{position:absolute;top:50%;left:6px;width:56px;height:56px;margin-top:-28px;border-radius:50%;background:#fde2d0;transform:translateX(calc(var(--pos,0) * (var(--w) + 2px) + (var(--w) - 56px) / 2));transition:transform .35s var(--spring);pointer-events:none;z-index:0}
-.tr .trk-tabbar .tab{z-index:1;background:transparent;color:var(--ink);box-shadow:none}
-.tr .trk-tabbar .tab.cur,.tr .trk-tabbar .tab.active{background:transparent;color:#b23e0c;box-shadow:none}
+/* v19: нижняя панель. Светлая пилюля с обводкой; круг строго за иконкой выбранного раздела; иконки контурные, не залитые */
+.tr .trk-tabbar{--w:calc((100% - 12px - (var(--n) - 1) * 2px) / var(--n));background:#fff;border-radius:999px;box-shadow:0 0 0 1px #e8ddd4,0 10px 28px rgb(32 40 56 / 12%);padding:6px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overflow:visible}
+.tr .trk-tabbar .tab{z-index:1;min-height:62px;padding:9px 0 6px;background:transparent;color:var(--ink);box-shadow:none}
 .tr .trk-tabbar .tab .i{width:24px;height:24px}
-.tr .trk-tabbar .tab.cur .i{--m:var(--mf)}
-.tr .trk-tabbar .i-search{--mf:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='11' cy='11' r='7' fill='black'/><path d='M16 16l5 5' stroke='black' stroke-width='2.6' stroke-linecap='round'/></svg>")}
-.tr .trk-tabbar .i-cal{--mf:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3' y='5' width='18' height='16' rx='4' fill='black'/><path d='M8 2.5v4M16 2.5v4' stroke='black' stroke-width='2.4' stroke-linecap='round'/></svg>")}
-.tr .trk-tabbar .i-list{--mf:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='4.5' cy='6.5' r='2' fill='black'/><circle cx='4.5' cy='12' r='2' fill='black'/><circle cx='4.5' cy='17.5' r='2' fill='black'/><path d='M9 6.5h12M9 12h12M9 17.5h12' stroke='black' stroke-width='3' stroke-linecap='round'/></svg>")}
-.tr .trk-tabbar .i-chat{--mf:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M4 6.5A3.5 3.5 0 0 1 7.5 3h9A3.5 3.5 0 0 1 20 6.5v7a3.5 3.5 0 0 1-3.5 3.5H11l-4.5 3.5V17h-.5A3.5 3.5 0 0 1 4 13.5z' fill='black'/></svg>")}
-.tr .trk-tabbar .i-wallet{--mf:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='2.5' y='6' width='19' height='14' rx='4' fill='black'/></svg>")}
-.tr .trk-tabbar .i-user{--mf:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='8' r='4.5' fill='black'/><path d='M3.5 21c0-4.7 3.8-8 8.5-8s8.5 3.3 8.5 8z' fill='black'/></svg>")}
+.tr .trk-tabbar .tab.cur{color:#b23e0c}
+.tr .trk-tabbar .tab.cur .i{background:#b23e0c}
+.tr .trk-tabbar .tabpill{position:absolute;top:5px;left:calc(6px + var(--pos,0) * (var(--w) + 2px) + (var(--w) - 42px) / 2);width:42px;height:42px;border-radius:50%;background:#fde2d0;transition:left .35s var(--spring);pointer-events:none;z-index:0}

@@ -46,7 +46,7 @@ test.describe('ученик', () => {
     await expect(page.getByText(/запрещены/)).toBeVisible();
     await box.fill('Здравствуйте! Хочу заниматься английским перед экзаменом.');
     await page.getByRole('button', { name: 'Отправить', exact: true }).click();
-    await expect(page.getByText('Хочу заниматься английским перед экзаменом.')).toBeVisible();
+    await expect(page.locator('.tg-thread').getByText('Хочу заниматься английским перед экзаменом.')).toBeVisible();
   });
 
   test('сброс пароля: письмо → новый пароль → вход', async ({ page }) => {
