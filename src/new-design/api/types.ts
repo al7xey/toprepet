@@ -93,6 +93,8 @@ export interface Lesson {
   tutorPhoto: string;
   studentId: Id;
   studentName: string;
+  /** Фото ученика: видно репетитору. */
+  studentPhoto?: string | null;
   subject: string;
   start: IsoDate;
   durationMin: number;
@@ -132,6 +134,7 @@ export interface StudyRequest {
   id: Id;
   studentId: Id;
   studentName: string;
+  studentPhoto?: string | null;
   /** Предметы одной строкой: «Математика, Физика» или свой предмет. */
   subject: string;
   subjects?: string[];

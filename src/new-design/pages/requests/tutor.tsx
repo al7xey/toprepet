@@ -35,7 +35,7 @@ export default function TutorRequestsPage() {
             {(list) => (
               <div className="trk-list">
                 {list.map((r) => (
-                  <RequestCard key={r.id} request={r} showStatus={false} actions={answered.has(r.id)
+                  <RequestCard key={r.id} request={r} forTutor showStatus={false} actions={answered.has(r.id)
                     ? <Status tone="ok" icon="check">Вы откликнулись</Status>
                     : <Button size="s" onClick={() => setResponding(r)} disabled={!published}>Откликнуться</Button>} />
                 ))}
@@ -48,7 +48,7 @@ export default function TutorRequestsPage() {
           {(list) => (
             <div className="trk-list">
               {list.map((x) => (
-                <RequestCard key={x.id} request={x.request} showStatus={false} actions={<span className="muted sm">{x.status === 'accepted' ? 'Ученик записался к вам' : `Ваш отклик: ${fromRub(x.price)} · ${REQUEST_STATUS[x.request.status].text.toLowerCase()}`}</span>} />
+                <RequestCard key={x.id} request={x.request} forTutor showStatus={false} actions={<span className="muted sm">{x.status === 'accepted' ? 'Ученик записался к вам' : `Ваш отклик: ${fromRub(x.price)} · ${REQUEST_STATUS[x.request.status].text.toLowerCase()}`}</span>} />
               ))}
             </div>
           )}

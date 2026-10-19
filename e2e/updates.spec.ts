@@ -46,20 +46,28 @@ test('из диалога имя и фото ведут на анкету, ст�
   await expect(page).toHaveURL(chatUrl);
 });
 
-test('профиль: смена пароля, выход с подтверждением', async ({ page }) => {
+test('профиль: смена пароля в окне, разделы кабинета, выход с подтверждением', async ({ page }) => {
   await login(page, 'student');
   await page.goto('/me/account');
-  await page.getByLabel('Текущий пароль').fill('неверный');
-  await page.getByLabel('Новый пароль').fill('newpassword1');
+  // «Мои уроки» и «Мои заявки» открываются из профиля
+  const main = page.locator('#main');
+  await expect(main.getByRole('link', { name: 'Мои уроки' })).toBeVisible();
+  await expect(main.getByRole('link', { name: 'Мои заявки' })).toBeVisible();
+  const dialog = page.getByRole('dialog');
   await page.getByRole('button', { name: 'Сменить пароль' }).click();
+  await dialog.getByLabel('Текущий пароль').fill('неверный');
+  await dialog.getByLabel('Новый пароль').fill('newpassword1');
+  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
   await expect(page.getByText('Текущий пароль указан неверно')).toBeVisible();
-  await page.getByLabel('Текущий пароль').fill('demo');
-  await page.getByRole('button', { name: 'Сменить пароль' }).click();
+  await dialog.getByLabel('Текущий пароль').fill('demo');
+  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
   await expect(page.getByText('Пароль изменён')).toBeVisible();
   // возвращаем демо-пароль, чтобы не ломать другие сценарии
-  await page.getByLabel('Текущий пароль').fill('newpassword1');
-  await page.getByLabel('Новый пароль').fill('demo1234');
   await page.getByRole('button', { name: 'Сменить пароль' }).click();
+  await dialog.getByLabel('Текущий пароль').fill('newpassword1');
+  await dialog.getByLabel('Новый пароль').fill('demo1234');
+  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
+  await expect(page.getByText('Пароль изменён').first()).toBeVisible();
   await page.getByRole('button', { name: 'Выйти', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).not.toHaveURL(/\/me\/account/);

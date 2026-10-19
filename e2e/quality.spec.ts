@@ -35,16 +35,16 @@ test.describe('качество: доступность и вёрстка', () =
     });
   }
 
-  test('размеры заголовков: 40/30 у страницы, 30/26 у раздела', async ({ page }) => {
+  test('размеры заголовков: 32/26 у страницы, 24/21 у раздела', async ({ page }) => {
     const phone = isPhone(page);
     for (const url of ['/teachers/', '/help/', '/legal/terms/', '/login']) {
       await page.goto(url);
       const h1 = await page.locator('h1').first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-      expect(h1, `${url} h1`).toBe(phone ? 30 : 40);
+      expect(h1, `${url} h1`).toBe(phone ? 26 : 32);
     }
     await page.goto('/help/');
     const h2 = await page.locator('h2.trh-h2').first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-    expect(h2).toBe(phone ? 26 : 30);
+    expect(h2).toBe(phone ? 21 : 24);
   });
 
   test('телефон: кнопки и поля не меньше 36 px по высоте, основные кнопки не меньше 44', async ({ page }) => {

@@ -111,7 +111,6 @@
 
 /* Урок */
 .tr .trk-lesson{position:relative;transition:transform .3s var(--spring),box-shadow .25s}
-.tr .trk-lesson:hover{box-shadow:none}
 .tr .trk-lesson-link{position:absolute;inset:0;border-radius:inherit;z-index:1}
 .tr .trk-lesson-actions{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:10px}
 .tr .trk-lesson .lesson-top{gap:12px;flex-wrap:wrap}
@@ -743,3 +742,61 @@ html{overflow-y:scroll}
 .tr .trk-month-key{width:10px;height:10px;border-radius:50%;background:#1f7a4d}
 .tr .trk-month-key.m-extra{background:var(--accent)}
 .tr .trk-month-key.m-off{background:#6f6461}
+
+/* v33: единые размеры и стили. Без анимаций появления и наведения, компактные карточки и кнопки, понятные кнопки и подписи */
+.tr .trh-hero-h .trh-ln>span,.tr .trh-hero-lead,.tr .trh-hero-btns,.tr .trh-benefits,.tr .trh-hero-media>img,.tr .tcg>*,.tr .tab.cur .i,.tr .tab .dot,.tr .cnt2,.tr .side .cnt{animation:none!important}
+.tr .trh-hero-h .trh-ln>span{transform:none}
+.tr .trk-tabbar,.tr .trk-tabbar.five{box-shadow:none}
+.tr .trk-tabbar .tab,.tr .trk-tabbar .tab .i{transition:none}
+.tr .card,.tr .lesson{border-radius:20px;transition:none}
+.tr .trk-card.pad-sm{padding:16px}
+.tr .trk-card.pad-md,.tr .trk-card.pad-lg{padding:18px}
+.tr .lesson{padding:16px;gap:10px}
+.tr .lesson-when b{font-size:18px;letter-spacing:-0.02em}
+.tr .lesson-when span{font-size:14px}
+.tr .trk-lesson-status{display:flex}
+.tr .trh-h1{font-size:32px}
+.tr .trh-h2{font-size:24px}
+.tr .trk-cardtitle{font-size:18px}
+@media (max-width:760px){.tr .trh-h1{font-size:26px}.tr .trh-h2{font-size:21px}}
+.tr .btn{min-height:44px;padding:0 18px}
+.tr .btn.btn-lg{min-height:46px}
+.tr .btn.btn-s,.tr main .btn.btn-s:not(.btn-icon){min-height:40px;padding:0 16px}
+.tr .btn-fill,.tr .btn-line,.tr .btn-warm,.tr .btn-soft{background:#ffeadf;box-shadow:none;color:var(--ink);font-size:15px}
+.tr .btn-primary,.tr .btn-primary.btn-s,.tr .btn-primary.btn-lg{font-size:18.7px;font-weight:700}
+.tr .trk-tags{display:flex;flex-wrap:wrap;gap:4px 0}
+.tr .tag{min-height:0;padding:0;border:0;border-radius:0;box-shadow:none;background:none;font-size:14px;font-weight:600;color:var(--muted)}
+.tr .tag+.tag::before{content:'·';margin:0 8px}
+.tr .st{min-height:28px;padding:0 12px;font-size:13px}
+.tr .st-bad .i{color:var(--bad)}
+.tr .trk-iconbtn:hover{background:transparent}
+.tr .trk-back{width:40px;height:40px;min-height:0;padding:0;justify-self:start;background:#fff;box-shadow:inset 0 0 0 1px var(--line);color:var(--ink)}
+.tr .trk-back:hover{background:#fff}
+.tr .trk-addbtn,.tr .trk-addbtn:hover{background:var(--accent);box-shadow:none;color:#fff}
+.tr .trk-addbtn .i{width:22px;height:22px}
+.tr .trk-pagehead-row:has(.trk-addbtn){flex-wrap:nowrap;align-items:center}
+.tr .trk-pagehead-actions{width:auto;flex-shrink:0}
+.tr .trk-account{gap:12px}
+.tr .trk-account-hero{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tr .trk-account-who{gap:2px;min-width:160px}
+.tr .trk-account-name{font-size:20px}
+.tr .trk-navlist{display:grid;overflow:hidden;border-radius:20px;background:#fff;box-shadow:0 0 0 1px var(--line)}
+.tr .trk-navrow{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-top:1px solid var(--line);color:var(--ink);font-weight:650}
+.tr .trk-navrow:first-child{border-top:0}
+.tr .trk-navrow span{flex:1}
+.tr .trk-navrow .i{width:22px;height:22px;color:var(--accent)}
+.tr .trk-navrow .i:last-child{width:18px;height:18px;color:var(--muted)}
+.tr .trk-request{gap:10px}
+.tr .trk-request-title{font-size:18px}
+@media (max-width:760px){
+  .tr .trk-app .trh-pf-photo{margin-top:-32px}
+  .tr .trk-app .trh-pf-cta{position:static;bottom:auto}
+}
+.tr .trk-student{display:flex;align-items:center;gap:14px;min-width:0}
+.tr .trk-student-photo{flex:none;display:grid;place-items:center;width:72px;height:72px;border-radius:18px;overflow:hidden;background:#ffeadf;color:var(--accent)}
+.tr .trk-student-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.tr .trk-student-photo .i{width:32px;height:32px}
+.tr .trk-student-text{display:grid;gap:2px;min-width:0}
+.tr .trk-student-text b{font-size:18px;line-height:1.2}
+.tr .trk-student-text span{color:var(--muted);font-size:14px}
+.tr .trk-back{display:grid;place-items:center}

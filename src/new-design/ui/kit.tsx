@@ -54,9 +54,9 @@ export function IconButton({ icon, label, to, onClick, surf, badge, className }:
   return <button type="button" className={cls} onClick={onClick} aria-label={label}><Icon name={icon} />{dot}</button>;
 }
 
-/** Текстовая ссылка «назад». */
+/** Круглая стрелка «назад»: одна на всех страницах. Подпись остаётся для скринридеров. */
 export function BackLink({ to, children }: { to: string; children: ReactNode }) {
-  return <Link className="trk-back" to={to}><Icon name="back" />{children}</Link>;
+  return <Link className="trk-iconbtn trk-back" to={to} aria-label={typeof children === 'string' ? children : 'Назад'}><Icon name="back" /></Link>;
 }
 
 /* ---------- Заголовки и секции ---------- */

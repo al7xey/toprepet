@@ -36,6 +36,16 @@ export function TutorGrid({ tutors, layout = 'grid', children }: { tutors: Param
   );
 }
 
+/** Анкета ученика для репетитора: фото слева, имя и подпись справа. Без фото — пустая заглушка. */
+export function StudentCard({ name, photo, sub, children }: { name: string; photo?: string | null; sub?: ReactNode; children?: ReactNode }) {
+  return (
+    <div className="trk-student">
+      <div className="trk-student-photo">{photo ? <img src={photo} alt={`Фото: ${name}`} loading="lazy" decoding="async" /> : <Icon name="user" />}</div>
+      <div className="trk-student-text"><b>{name}</b>{sub && <span>{sub}</span>}{children}</div>
+    </div>
+  );
+}
+
 /* ---------- Уроки ---------- */
 
 const STATUS: Record<Lesson['status'], { tone: Tone; icon: string; student: string; tutor: string }> = {
@@ -43,7 +53,7 @@ const STATUS: Record<Lesson['status'], { tone: Tone; icon: string; student: stri
   confirmed: { tone: 'ok', icon: 'check', student: 'Подтверждён', tutor: 'Подтверждён' },
   declined: { tone: 'bad', icon: 'x', student: 'Отклонён', tutor: 'Вы отклонили' },
   expired: { tone: 'neutral', icon: 'clock', student: 'Не подтверждён вовремя', tutor: 'Время на ответ вышло' },
-  cancelled: { tone: 'neutral', icon: 'x', student: 'Отменён', tutor: 'Отменён' },
+  cancelled: { tone: 'bad', icon: 'x', student: 'Отменён', tutor: 'Отменён' },
   completed: { tone: 'ok', icon: 'check', student: 'Состоялся', tutor: 'Состоялся' },
   no_show_student: { tone: 'bad', icon: 'alert', student: 'Неявка ученика', tutor: 'Ученик не пришёл' },
   no_show_tutor: { tone: 'bad', icon: 'alert', student: 'Репетитор не пришёл', tutor: 'Неявка репетитора' },
@@ -64,15 +74,13 @@ export const lessonHref = (l: Lesson, role: Role) => (role === 'tutor' ? `/tutor
 
 /** Карточка урока в списках ученика и репетитора. */
 export function LessonCard({ lesson, role, actions, delay = 0 }: { lesson: Lesson; role: Role; actions?: ReactNode; delay?: number }) {
-  const who = role === 'tutor' ? { name: lesson.studentName, photo: null } : { name: lesson.tutorName, photo: lesson.tutorPhoto };
+  const who = role === 'tutor' ? { name: lesson.studentName, photo: lesson.studentPhoto } : { name: lesson.tutorName, photo: lesson.tutorPhoto };
   return (
     <article className="lesson trk-lesson" {...rv('up', delay)}>
       <Link className="trk-lesson-link" to={lessonHref(lesson, role)} aria-label={`${lessonTitle(lesson)}, ${whenLabel(lesson.start)}`} />
-      <div className="lesson-top">
-        <div className="lesson-when"><b className="tn">{whenLabel(lesson.start)}</b><span>{lessonTitle(lesson)} · {minutes(lesson.durationMin)}</span></div>
-        <LessonStatus lesson={lesson} role={role} />
-      </div>
+      <div className="lesson-when"><b className="tn">{whenLabel(lesson.start)}</b><span>{lessonTitle(lesson)} · {minutes(lesson.durationMin)}</span></div>
       <Person name={who.name} photo={who.photo} sub={lesson.status === 'pending' && lesson.confirmBy && role === 'tutor' ? `Ответьте ${until(lesson.confirmBy)}` : lesson.kind === 'intro' ? 'Знакомство бесплатно' : rub(role === 'tutor' ? lesson.tutorPrice : lesson.price)} />
+      <div className="trk-lesson-status"><LessonStatus lesson={lesson} role={role} /></div>
       {actions && <div className="trk-lesson-actions">{actions}</div>}
     </article>
   );

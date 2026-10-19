@@ -28,7 +28,7 @@ def request_subjects(r) -> list:
 
 def request_json(r, short_name: bool = False) -> dict:
     name = r.student.name
-    return {'id': r.id, 'studentId': r.student_id, 'studentName': name.split(' ')[0] if short_name else name, 'subject': r.subject, 'subjects': request_subjects(r), 'customSubject': r.custom_subject, 'goal': r.goal, 'level': r.level,
+    return {'id': r.id, 'studentId': r.student_id, 'studentName': name.split(' ')[0] if short_name else name, 'studentPhoto': r.student.photo or None, 'subject': r.subject, 'subjects': request_subjects(r), 'customSubject': r.custom_subject, 'goal': r.goal, 'level': r.level,
             'budgetMax': r.budget_max, 'schedule': r.schedule, 'description': r.description, 'status': effective_status(r), 'createdAt': iso(r.created_at),
             'expiresAt': iso(r.expires_at), 'responsesCount': r.responses.count()}
 

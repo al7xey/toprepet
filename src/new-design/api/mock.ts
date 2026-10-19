@@ -195,7 +195,12 @@ function load(): State {
   if (hasStorage()) {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) { state = JSON.parse(raw) as State; return state; }
+      if (raw) {
+        state = JSON.parse(raw) as State;
+        // состояние из старых версий: у анкет нет отметки о проверке документов
+        state.tutors = state.tutors.map((t) => ({ ...t, documentsVerified: t.documentsVerified ?? true }));
+        return state;
+      }
     } catch { /* повреждённые данные: начинаем заново */ }
   }
   state = seed();
@@ -389,7 +394,7 @@ export function createMockApi(): Api {
       const startMs = new Date(input.start).getTime();
       const price = input.kind === 'intro' ? 0 : Math.round(tutor.studentPrice * input.durationMin / 60);
       const lesson: Lesson = {
-        id: nextId('l'), kind: input.kind, tutorId: tutor.id, tutorName: tutor.name, tutorPhoto: tutor.photo, studentId: u.id, studentName: u.name,
+        id: nextId('l'), kind: input.kind, tutorId: tutor.id, tutorName: tutor.name, tutorPhoto: tutor.photo, studentId: u.id, studentName: u.name, studentPhoto: u.photo ?? null,
         subject: input.subject, start: input.start, durationMin: input.kind === 'intro' ? tutor.introMinutes : input.durationMin, status: 'pending',
         price, tutorPrice: input.kind === 'intro' ? 0 : Math.round(tutor.price * input.durationMin / 60), payment: price ? 'hold' : 'none',
         confirmBy: iso(Math.min(startMs - 2 * HOUR, Date.now() + DAY)), meetingUrl: null, moveProposal: null, reviewId: null, disputeId: null, seriesId: null,
@@ -507,7 +512,7 @@ export function createMockApi(): Api {
       if (!input.subjects.length && !custom) fail('Выберите предмет или напишите свой');
       if (!input.description.trim()) fail('Опишите задачу');
       const { subjects, customSubject: _c, ...rest } = input;
-      const r: StudyRequest = { ...rest, subject: [...subjects, ...(custom ? [custom] : [])].join(', '), subjects, customSubject: custom, id: nextId('r'), studentId: u.id, studentName: u.name, status: 'open', createdAt: iso(Date.now()), expiresAt: iso(Date.now() + 14 * DAY), responsesCount: 0 };
+      const r: StudyRequest = { ...rest, subject: [...subjects, ...(custom ? [custom] : [])].join(', '), subjects, customSubject: custom, id: nextId('r'), studentId: u.id, studentName: u.name, studentPhoto: u.photo ?? null, status: 'open', createdAt: iso(Date.now()), expiresAt: iso(Date.now() + 14 * DAY), responsesCount: 0 };
       load().requests.unshift(r); save(); return delay(r, 400);
     },
     async getRequest(id) {

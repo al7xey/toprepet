@@ -1,8 +1,8 @@
 import { useEffect, type RefObject } from 'react';
 
-/** Атрибуты анимации появления при прокрутке: тип, задержка в секундах и дополнительные стили. */
-export const rv = (kind: 'up' | 'scale' | 'left' | 'right' = 'up', delay = 0, style: React.CSSProperties = {}) =>
-  ({ 'data-rv': kind, style: { ...style, ...(delay ? { '--d': `${delay}s` } : {}) } as React.CSSProperties }) as const;
+/** Появление блоков при прокрутке отключено: блоки сразу на месте. Функция оставлена, чтобы не менять разметку страниц. */
+export const rv = (_kind: 'up' | 'scale' | 'left' | 'right' = 'up', _delay = 0, style: React.CSSProperties = {}) =>
+  ({ style }) as const;
 
 /**
  * Появление блоков при прокрутке: элементы с data-rv плавно выезжают, когда попадают в экран.

@@ -6,7 +6,7 @@ import type { Lesson } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { minutes, rub, until, whenLabel } from '../../lib/format';
 import { useNow } from '../../lib/useNow';
-import { Button, Card, FormError, LessonStatus, Modal, Note, OptionChips, PageHeader, Person, QueryView, Rows, SlotPicker, lessonTitle, useToast } from '../../ui';
+import { Button, Card, FormError, LessonStatus, Modal, Note, OptionChips, PageHeader, QueryView, Rows, SlotPicker, StudentCard, lessonTitle, useToast } from '../../ui';
 import { DeclineModal } from './lessons';
 
 const CANCEL_REASONS = ['Не получается в это время', 'Заболел(а)', 'Другая причина'];
@@ -45,7 +45,7 @@ function View({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson) => v
     <>
       <PageHeader title={lessonTitle(lesson)} back={{ to: '/tutor/lessons', label: 'Уроки' }} lead={whenLabel(lesson.start)} actions={<LessonStatus lesson={lesson} role="tutor" />} />
       <Card>
-        <Person name={lesson.studentName} sub={lesson.subject} />
+        <StudentCard name={lesson.studentName} photo={lesson.studentPhoto} sub={lesson.subject} />
         <Rows rows={[
           ['Когда', whenLabel(lesson.start)],
           ['Длительность', minutes(lesson.durationMin)],

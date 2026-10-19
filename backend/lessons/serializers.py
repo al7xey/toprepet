@@ -13,7 +13,7 @@ def lesson_json(lesson, viewer) -> dict:
         price = tutor_price
     data = {
         'id': lesson.id, 'kind': lesson.kind, 'tutorId': lesson.tutor_id, 'tutorName': lesson.tutor.name, 'tutorPhoto': lesson.tutor.photo,
-        'studentId': lesson.student_id, 'studentName': lesson.student.name, 'subject': lesson.subject, 'start': iso(lesson.start),
+        'studentId': lesson.student_id, 'studentName': lesson.student.name, 'studentPhoto': lesson.student.photo or None, 'subject': lesson.subject, 'start': iso(lesson.start),
         'durationMin': lesson.duration_min, 'status': lesson.status, 'price': price, 'tutorPrice': tutor_price, 'payment': lesson.payment,
         'meetingUrl': lesson.meeting_url or None, 'moveProposal': {'start': iso(lesson.move_start), 'by': lesson.move_by} if lesson.move_start else None,
         'reviewId': _reverse_id(lesson, 'review'), 'disputeId': _reverse_id(lesson, 'dispute'), 'seriesId': lesson.series_id or None,

@@ -21,7 +21,7 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
   const swallowClick = useRef(false);
   const [pos, setPos] = useState<number | null>(null); // положение пилюли под пальцем в долях пункта
   const [moved, setMoved] = useState(false);
-  const current = tabs.findIndex((t) => pathname === t.to || pathname.startsWith(`${t.to}/`));
+  const current = tabs.findIndex((t) => [t.to, ...(t.also ?? [])].some((to) => pathname === to || pathname.startsWith(`${to}/`)));
   const shown = pos === null ? current : Math.round(pos);
 
   // положение пальца в долях пункта: 0 — первый пункт, n−1 — последний
@@ -165,7 +165,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
   return <PublicLayout tight narrow hideSignIn>{children}</PublicLayout>;
 }
 
-interface NavItem { label: string; to: string; icon: string; badge?: number }
+interface NavItem { label: string; to: string; icon: string; badge?: number; /** Другие адреса, которые подсвечивают этот пункт. */ also?: string[] }
 
 function useCounters(role: Role) {
   const { user } = useSession();
@@ -194,11 +194,11 @@ const ready = (to: string) => READY.some((p) => to === p || to.startsWith(`${p}/
 const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   student: {
     top: [{ label: 'Найти репетитора', to: '/teachers', icon: 'search' }, { label: 'Мои уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Платежи', to: '/me/payments', icon: 'card' }],
-    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'book' }, { label: 'Чаты', to: '/me/chats', icon: 'chat-round' }, { label: 'Заявки', to: '/me/requests', icon: 'circle-check' }, { label: 'Профиль', to: '/me/account', icon: 'user' }],
+    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Чаты', to: '/me/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/me/account', icon: 'user', also: ['/me/lessons', '/me/requests', '/me/payments', '/me/notifications'] }],
   },
   tutor: {
     top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
-    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-round' }, { label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Профиль', to: '/tutor/account', icon: 'user' }],
+    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book', also: ['/tutor/schedule'] }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-bubble' }, { label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Профиль', to: '/tutor/account', icon: 'user', also: ['/tutor/profile', '/tutor/finance', '/tutor/students', '/tutor/reviews', '/tutor/notifications'] }],
   },
   admin: {
     top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],
@@ -216,7 +216,7 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
   const counters = useCounters(role);
   const nav = NAV[role];
   const top = nav.top.filter((item) => ready(item.to));
-  const tabs = nav.tabs.filter((t) => ready(t.to)).map((t) => (t.icon === 'chat-round' ? { ...t, badge: counters.chats } : t));
+  const tabs = nav.tabs.filter((t) => ready(t.to)).map((t) => (t.icon === 'chat-bubble' ? { ...t, badge: counters.chats } : t));
   const accountTo = role === 'admin' ? '/admin/disputes' : `${counters.prefix}/account`;
   return (
     <div className={cx('wash trh-page trh-tight trk-app', `tabs-${tabs.length}`, chat && `trk-chat-${chat}`)} style={{ '--n': tabs.length } as CSSProperties}>

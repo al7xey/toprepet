@@ -15,11 +15,7 @@ const ACH_ICONS = ['target', 'school', 'book'] as const;
 /** Анкета репетитора: данные, календарь записи, цены, отзывы. Карточка записи справа (на телефоне — панель снизу). */
 export default function ProfilePage() {
   const { id = '' } = useParams();
-  // стартовые данные — заглушка без проверки документов: метку показываем только по ответу сервера, иначе она мигает
-  const initial = useMemo(() => {
-    const seed = staticTutors().find((t) => t.id === id);
-    return seed && { ...seed, documentsVerified: undefined };
-  }, [id]);
+  const initial = useMemo(() => staticTutors().find((t) => t.id === id), [id]);
   const tutorQuery = useQuery(`tutor-${id}`, () => api.getTutor(id), initial);
   const tutor = tutorQuery.data;
   if (!tutor && !tutorQuery.loading) {
