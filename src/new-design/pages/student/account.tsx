@@ -5,7 +5,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import type { PaymentKind } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
-import { ago, dateLong, rub } from '../../lib/format';
+import { ago, count, dateLong, rub } from '../../lib/format';
 import { Avatar, Button, Card, ConfirmDialog, FilePick, FormError, Icon, IconButton, Modal, Note, PageHeader, PasswordField, SelectField, Status, Switch, TextField, useToast, type Tone } from '../../ui';
 import { RequestCard } from '../requests/parts';
 import { RequestWizard } from '../requests/new';
@@ -53,8 +53,7 @@ function BlockHead({ title, to, action }: { title: string; to?: string; action?:
   return (
     <div className="trk-block-head">
       <h2 className="trk-blocktitle">{title}</h2>
-      {action}
-      {to && <Link className="trk-block-all" to={to}>Все</Link>}
+      {action ?? (to && <Link className="trk-block-all" to={to}>Все</Link>)}
     </div>
   );
 }
@@ -165,24 +164,24 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
       <PageHeader title="Профиль" actions={<IconButton icon="settings" label="Настройки" onClick={() => setSettings(true)} />} />
       <div className="trk-account">
         <Card pad="sm" className="trk-account-hero">
-          <Avatar name={user?.name ?? '•'} photo={user?.photo ?? undefined} size={64} />
+          <Avatar name={user?.name ?? '•'} photo={user?.photo ?? undefined} size={56} />
           <div className="trk-account-who">
             <h2 className="trk-account-name">{user?.name}</h2>
             <span className="muted">{user?.email}</span>
+            <span className="muted sm">{count(done, 'занятие', 'занятия', 'занятий')} · {count(reviews.data?.length ?? 0, 'отзыв', 'отзыва', 'отзывов')}</span>
           </div>
-          <dl className="trk-account-stats">
-            <div><dt>Занятий</dt><dd className="tn">{done}</dd></div>
-            <div><dt>Отзывов</dt><dd className="tn">{reviews.data?.length ?? 0}</dd></div>
-          </dl>
         </Card>
 
         {role === 'student' && (
           <section className="trk-block trk-block-big" aria-label="Мои заявки">
-            <BlockHead title="Мои заявки" to="/me/requests" action={<IconButton icon="plus" label="Новая заявка" onClick={() => setNewRequest(true)} className="trk-addbtn" />} />
+            <BlockHead title="Мои заявки" action={<IconButton icon="plus" label="Новая заявка" onClick={() => setNewRequest(true)} className="trk-addbtn" />} />
             {requests.loading && !requests.data ? <span className="muted">Загружаем…</span> : activeRequests.length ? (
-              <div className="trk-list">
-                {activeRequests.slice(0, 3).map((r) => <RequestCard key={r.id} request={r} actions={<Button size="s" to={`/me/requests/${r.id}`}>Открыть</Button>} />)}
-              </div>
+              <>
+                <div className="trk-list">
+                  {activeRequests.slice(0, 2).map((r) => <RequestCard key={r.id} compact request={r} actions={<Button size="s" to={`/me/requests/${r.id}`}>Открыть</Button>} />)}
+                </div>
+                <Button to="/me/requests" variant="line" block>Все заявки</Button>
+              </>
             ) : (
               <Card pad="sm"><div className="trk-form"><p className="muted">Активных заявок нет. Опишите, что нужно, и репетиторы сами откликнутся с ценой и временем.</p><Button icon="plus" onClick={() => setNewRequest(true)}>Создать заявку</Button></div></Card>
             )}

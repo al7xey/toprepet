@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useQuery } from '../api/hooks';
@@ -11,25 +11,32 @@ const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ')
 const PAD = 5; // отступ панели от краёв; совпадает с padding в kit.css
 const GAP = 2; // зазор между пунктами; совпадает с gap в tr.css
 const DRAG_PX = 6; // на сколько сдвинуть палец, чтобы нажатие стало перетаскиванием
+const MOVE_MS = 480; // сколько пилюля переезжает к новому пункту
+/** Ширина одного пункта панели. */
+const cellWidth = (barWidth: number, count: number) => (barWidth - PAD * 2 - GAP * (count - 1)) / count;
 
-/** Нижняя панель: только значки. Оранжевая пилюля плавно переезжает к выбранному разделу, и её можно тянуть влево и вправо. */
+/**
+ * Нижняя панель «жидкое стекло». Прозрачная пилюля выбранного раздела переезжает к новому пункту,
+ * на ходу растягиваясь, как капля; под пальцем она приподнимается, и её можно тянуть влево и вправо.
+ */
 function TabBar({ tabs }: { tabs: NavItem[] }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const bar = useRef<HTMLElement>(null);
+  const pill = useRef<HTMLSpanElement>(null);
   const gesture = useRef<{ x: number; moved: boolean } | null>(null);
   const swallowClick = useRef(false);
+  const [width, setWidth] = useState(0);
   const [pos, setPos] = useState<number | null>(null); // положение пилюли под пальцем в долях пункта
   const [moved, setMoved] = useState(false);
   const current = tabs.findIndex((t) => [t.to, ...(t.also ?? [])].some((to) => pathname === to || pathname.startsWith(`${to}/`)));
   const shown = pos === null ? current : Math.round(pos);
 
-  // положение пальца в долях пункта: 0 — первый пункт, n−1 — последний
   const posAt = (clientX: number) => {
     const el = bar.current;
     if (!el) return Math.max(current, 0);
     const rect = el.getBoundingClientRect();
-    const w = (rect.width - PAD * 2 - GAP * (tabs.length - 1)) / tabs.length;
+    const w = cellWidth(rect.width, tabs.length);
     return Math.min(Math.max((clientX - rect.left - PAD - w / 2) / (w + GAP), 0), tabs.length - 1);
   };
   const finish = () => { gesture.current = null; setPos(null); setMoved(false); };
@@ -76,10 +83,38 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
       el.removeEventListener('click', onClick, true);
     };
   });
+  // ширина панели меняется при повороте телефона
+  useEffect(() => {
+    const el = bar.current;
+    if (!el || typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(([entry]) => setWidth(Math.round(entry.contentRect.width)));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // положение пилюли: под пальцем — следом за ним, иначе плавно к выбранному пункту с растяжением
+  useLayoutEffect(() => {
+    const el = pill.current;
+    const host = bar.current;
+    if (!el || !host || current < 0) return;
+    const w = cellWidth(host.getBoundingClientRect().width, tabs.length);
+    const left = (i: number) => PAD + i * (w + GAP);
+    el.style.width = `${w}px`;
+    if (pos !== null) { el.style.left = `${left(pos)}px`; return; }
+    const target = left(current);
+    const from = parseFloat(el.style.left);
+    el.style.left = `${target}px`;
+    if (Number.isNaN(from) || Math.abs(from - target) < 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const stretch = Math.abs(target - from);
+    el.animate(
+      [{ left: `${from}px`, width: `${w}px` }, { left: `${Math.min(from, target)}px`, width: `${w + stretch}px`, offset: 0.45 }, { left: `${target}px`, width: `${w}px` }],
+      { duration: MOVE_MS, easing: 'cubic-bezier(.32,.72,0,1)' },
+    );
+  }, [current, pos, width, tabs.length]);
 
   return (
-    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', moved && 'drag')} aria-label="Разделы" style={{ '--n': tabs.length, '--pos': pos ?? Math.max(current, 0) } as CSSProperties}>
-      {current >= 0 && <span className="tabpill" aria-hidden="true" />}
+    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', pos !== null && 'press', moved && 'drag')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
+      {current >= 0 && <span ref={pill} className="tabpill" aria-hidden="true" />}
       {tabs.map((t, i) => (
         <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', i === shown && 'cur')}>
           <Icon name={t.icon} /><span className="trk-sr">{t.label}</span>{t.badge ? <span className="dot">{t.badge}</span> : null}

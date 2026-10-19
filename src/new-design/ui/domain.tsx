@@ -37,9 +37,9 @@ export function TutorGrid({ tutors, layout = 'grid', children }: { tutors: Param
 }
 
 /** Анкета ученика для репетитора: фото слева, имя и подпись справа. Без фото — пустая заглушка. */
-export function StudentCard({ name, photo, sub, children }: { name: string; photo?: string | null; sub?: ReactNode; children?: ReactNode }) {
+export function StudentCard({ name, photo, sub, children, small }: { name: string; photo?: string | null; sub?: ReactNode; children?: ReactNode; small?: boolean }) {
   return (
-    <div className="trk-student">
+    <div className={small ? 'trk-student small' : 'trk-student'}>
       <div className="trk-student-photo">{photo ? <img src={photo} alt={`Фото: ${name}`} loading="lazy" decoding="async" /> : <Icon name="user" />}</div>
       <div className="trk-student-text"><b>{name}</b>{sub && <span>{sub}</span>}{children}</div>
     </div>

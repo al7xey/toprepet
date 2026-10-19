@@ -648,15 +648,15 @@
 .tr .trk-note-title{display:block;font-size:16px}
 .tr .trk-note-line{display:block;margin-top:2px}
 
-/* v34: нижняя панель — узкая, «жидкое стекло»: размытие фона и блики; оранжевая пилюля скользит и приподнимается под пальцем */
-.tr .trk-tabbar,.tr .trk-tabbar.five{--w:calc((100% - 10px - (var(--n) - 1) * 2px) / var(--n));background:rgb(255 255 255 / 52%);backdrop-filter:blur(22px) saturate(190%);-webkit-backdrop-filter:blur(22px) saturate(190%);border:1px solid rgb(255 255 255 / 75%);border-radius:999px;box-shadow:0 10px 28px rgb(32 40 56 / 14%),inset 0 1px 0 rgb(255 255 255 / 92%),inset 0 -1px 0 rgb(255 255 255 / 40%),inset 0 0 16px rgb(255 255 255 / 28%);padding:5px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+/* v35: нижняя панель — узкое «жидкое стекло»; прозрачная пилюля выбранного раздела растягивается на ходу и приподнимается под пальцем */
+.tr .trk-tabbar,.tr .trk-tabbar.five{background:rgb(255 255 255 / 48%);backdrop-filter:blur(26px) saturate(190%);-webkit-backdrop-filter:blur(26px) saturate(190%);border:1px solid rgb(255 255 255 / 78%);border-radius:999px;box-shadow:0 12px 30px rgb(32 40 56 / 14%),0 1px 3px rgb(32 40 56 / 8%),inset 0 1px 0 rgb(255 255 255 / 95%),inset 0 -1px 0 rgb(255 255 255 / 45%),inset 0 0 18px rgb(255 255 255 / 30%);padding:5px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .35s var(--spring)}
+.tr .trk-tabbar.press{transform:scale(1.03)}
 .tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:46px;padding:0;border-radius:999px;background:transparent;color:var(--ink);transition:none}
 .tr .trk-tabbar .tab .i{width:26px;height:26px;transition:none}
-.tr .trk-tabbar .tab.cur{background:transparent;color:#fff}
-.tr .trk-tabbar .tab.cur .i{background:#fff}
-.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:calc(5px + var(--pos,0) * (var(--w) + 2px));width:var(--w);border-radius:999px;background:var(--accent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 45%);transition:left .35s var(--spring),transform .3s var(--spring);pointer-events:none;z-index:0}
-.tr .trk-tabbar.drag .tabpill{transition:transform .3s var(--spring);transform:scale(1.1,1.06)}
-@media (prefers-reduced-motion:reduce){.tr .trk-tabbar .tabpill{transition:none}}
+.tr .trk-tabbar .tab.cur{background:transparent;color:var(--ink)}
+.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px) / var(--n));border-radius:999px;background:linear-gradient(180deg,rgb(32 40 56 / 9%),rgb(32 40 56 / 5%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 85%),inset 0 -1px 0 rgb(255 255 255 / 30%),0 2px 8px rgb(32 40 56 / 8%);backdrop-filter:blur(6px) saturate(160%);-webkit-backdrop-filter:blur(6px) saturate(160%);transition:transform .3s var(--spring),box-shadow .3s;pointer-events:none;z-index:0}
+.tr .trk-tabbar.press .tabpill{transform:scale(1.1,1.08);background:linear-gradient(180deg,rgb(32 40 56 / 13%),rgb(32 40 56 / 8%));box-shadow:inset 0 1px 0 rgb(255 255 255 / 90%),0 6px 16px rgb(32 40 56 / 14%)}
+@media (prefers-reduced-motion:reduce){.tr .trk-tabbar,.tr .trk-tabbar .tabpill{transition:none}}
 @media (max-width:760px){.tr .trk-app .trk-tabbar{left:0;right:0;margin-inline:auto;width:min(300px,calc(100% - 48px))}}
 @media (max-width:760px){
   .tr .trk-chat-list .trh-main{padding-left:8px;padding-right:8px}
@@ -849,3 +849,19 @@ html{overflow-y:scroll}
 .tr .trk-account-who{min-width:0;flex:1}
 .tr .trk-account-who .muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tr .trk-account-stats{flex:none;gap:14px}
+
+/* v35: сводка профиля и заявки — спокойнее и реже */
+.tr .trk-account{gap:24px}
+.tr .trk-account-hero{padding:16px;gap:14px}
+.tr .trk-account-who{display:grid;gap:2px}
+.tr .trk-account-who .sm{font-size:13px}
+.tr .trk-student.small{gap:12px}
+.tr .trk-student.small .trk-student-photo{width:44px;height:44px;border-radius:12px}
+.tr .trk-student.small .trk-student-photo .i{width:22px;height:22px}
+.tr .trk-student.small .trk-student-text b{font-size:15px}
+.tr .trk-student.small .trk-student-text span{font-size:13px}
+.tr .trk-request-text.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:15px;color:var(--muted)}
+.tr .trk-request .trk-actions{justify-content:flex-start}
+.tr .trk-tags{gap:4px 14px}
+.tr .tag+.tag::before{content:none}
+.tr .tag::before{content:'';display:inline-block;width:5px;height:5px;margin-right:7px;border-radius:50%;background:var(--accent);vertical-align:middle}

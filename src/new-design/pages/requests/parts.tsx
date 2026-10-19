@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { RequestResponse, RequestStatus, StudyRequest } from '../../api/types';
 import { ago, count, fromRub, rub, whenLabel } from '../../lib/format';
-import { Button, Card, Person, Rows, Status, StudentCard } from '../../ui';
+import { Button, Card, Person, Rows, Status, StudentCard, Tags } from '../../ui';
 
 export const REQUEST_STATUS: Record<RequestStatus, { tone: 'wait' | 'ok' | 'neutral'; icon: string; text: string }> = {
   open: { tone: 'wait', icon: 'clock', text: 'Ищем репетитора' },
@@ -10,27 +10,31 @@ export const REQUEST_STATUS: Record<RequestStatus, { tone: 'wait' | 'ok' | 'neut
   closed: { tone: 'neutral', icon: 'x', text: 'Закрыта' },
 };
 
-/** Карточка заявки: основная информация в ячейках-таблице, как в карточке записи на анкете. Одна на странице ученика, ленте заявок и кабинете репетитора. */
-export function RequestCard({ request, actions, showStatus = true, forTutor }: { request: StudyRequest; actions?: ReactNode; showStatus?: boolean; forTutor?: boolean }) {
+/**
+ * Карточка заявки: кто создал (фото и имя), предмет и условия. Подробный вид — таблица из ячеек, как в карточке записи;
+ * compact — для сводки в профиле: условия одной строкой, описание в две строки.
+ * Статус показываем только когда заявка уже не ищет репетитора: про «Ищем репетитора» и так понятно.
+ */
+export function RequestCard({ request, actions, showStatus = true, compact }: { request: StudyRequest; actions?: ReactNode; showStatus?: boolean; forTutor?: boolean; compact?: boolean }) {
   const s = REQUEST_STATUS[request.status];
+  const budget = request.budgetMax ? `до ${rub(request.budgetMax)}` : 'Бюджет не указан';
   return (
-    <Card as="article" className="trk-request">
-      {forTutor && <StudentCard name={request.studentName} photo={request.studentPhoto} sub={`${ago(request.createdAt)} · ${count(request.responsesCount, 'отклик', 'отклика', 'откликов')}`} />}
+    <Card as="article" className="trk-request" pad={compact ? 'sm' : 'md'}>
+      <StudentCard small={compact} name={request.studentName} photo={request.studentPhoto} sub={`${ago(request.createdAt)} · ${count(request.responsesCount, 'отклик', 'отклика', 'откликов')}`} />
       <div className="trk-exrow">
         <b className="trk-request-title">{request.subject}</b>
-        {showStatus && <Status tone={s.tone} icon={s.icon}>{s.text}</Status>}
+        {showStatus && request.status !== 'open' && <Status tone={s.tone} icon={s.icon}>{s.text}</Status>}
       </div>
-      <Rows boxed rows={[
-        ['Уровень', request.level],
-        ['Цель', request.goal],
-        ['Удобное время', request.schedule.join(', ')],
-        ['Бюджет', request.budgetMax ? `до ${rub(request.budgetMax)}` : 'Не указан'],
-      ]} />
-      <p className="trk-request-text">{request.description}</p>
-      <div className="trk-exrow">
-        {!forTutor && <span className="muted sm">{ago(request.createdAt)} · {count(request.responsesCount, 'отклик', 'отклика', 'откликов')}</span>}
-        {actions && <div className="trk-actions">{actions}</div>}
-      </div>
+      {compact ? <Tags items={[request.level, request.goal, ...request.schedule, budget]} /> : (
+        <Rows boxed rows={[
+          ['Уровень', request.level],
+          ['Цель', request.goal],
+          ['Удобное время', request.schedule.join(', ')],
+          ['Бюджет', budget],
+        ]} />
+      )}
+      <p className={compact ? 'trk-request-text clamp' : 'trk-request-text'}>{request.description}</p>
+      {actions && <div className="trk-actions">{actions}</div>}
     </Card>
   );
 }
