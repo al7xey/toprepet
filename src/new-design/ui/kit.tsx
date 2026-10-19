@@ -407,7 +407,7 @@ export function ArrowLink({ to, label }: { to: string; label: string }) {
 /** Выбор файла: кнопка-метка с настоящим input[type=file] внутри (работает с клавиатуры). */
 export function FilePick({ children, accept, onPick, loading, icon = 'upload' }: { children: ReactNode; accept?: string; onPick: (file: File) => void; loading?: boolean; icon?: string }) {
   return (
-    <label className={cx('btn btn-soft trk-filepick', loading && 'is-loading')}>
+    <label className={cx('btn btn-line trk-filepick', loading && 'is-loading')}>
       <input type="file" className="trk-sr" accept={accept} disabled={loading} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ''; if (file) onPick(file); }} />
       <Icon name={icon} />{loading ? 'Загружаем…' : children}
     </label>

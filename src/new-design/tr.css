@@ -1,7 +1,7 @@
 /* Сгенерировано из макетов (tr.css): все селекторы ограничены классом .tr, чтобы не влиять на остальные страницы. */
 /* TopRepet mockups. Tokens come from the live site (ink, accent, surface, line), the form language from the UI kit.
    White page. Separation by whitespace first, hairline second, warm tint third. Flat: no blur, no gradients, no drop shadows. */
-.tr{--bg:#fff;--ink:#202838;--muted:#6f6461;--accent:#f26a2e;--accent-press:#d9551d;--accent-soft:#fff0df;--accent-tint:#fff5ef;--surface:#fff7f1;--line:#f0e2d8;--highlight:#ffd66e;--fill:rgb(32 40 56 / 6%);--fill-strong:rgb(32 40 56 / 11%);--ok:#1f7a4d;--ok-soft:#e6f5ec;--font:'Manrope Variable','Manrope',-apple-system,'Segoe UI',Arial,sans-serif}
+.tr{--bg:#fff;--ink:#202838;--muted:#6f6461;--accent:#f26a2e;--accent-press:#202838;--accent-soft:#fff0df;--accent-tint:#fff5ef;--surface:#fff7f1;--line:#f0e2d8;--highlight:#ffd66e;--fill:rgb(32 40 56 / 6%);--fill-strong:rgb(32 40 56 / 11%);--ok:#1f7a4d;--ok-soft:#e6f5ec;--font:'Manrope Variable','Manrope',-apple-system,'Segoe UI',Arial,sans-serif}
 .tr *{box-sizing:border-box}
 .tr{margin:0;background:var(--bg);color:var(--ink);font:450 17px/1.55 var(--font);-webkit-font-smoothing:antialiased}
 .tr h1,.tr h2,.tr h3,.tr h4,.tr p,.tr dl,.tr dd,.tr ul,.tr ol{margin:0;padding:0}
@@ -493,7 +493,7 @@
 .tr .hdr.surf:not(.m){top:0;height:60px;padding:0;border-radius:0;background:#fff;box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
 .tr .hdr nav a{transition:background .25s var(--ease),color .25s}
 .tr .hdr nav a:hover{background:rgb(32 40 56 / 5%);color:var(--ink)}
-.tr .hdr nav a.cur{background:#ffeee6;color:#b23e0c}
+.tr .hdr nav a.cur{background:#ffeee6;color:var(--ink)}
 
 /* buttons */
 .tr .btn{position:relative;overflow:hidden;transition:transform .3s var(--spring),box-shadow .3s var(--ease),background .25s,filter .2s}
@@ -575,7 +575,7 @@
 .tr .tabbar.five{background:#fff}
 .tr .tab{border-radius:28px;transition:background .3s var(--ease),transform .3s var(--spring),color .2s}
 .tr .tab:active{transform:scale(.92)}
-.tr .tab.cur{background:#ffeee6;color:#b23e0c;box-shadow:none}
+.tr .tab.cur{background:#ffeee6;color:var(--ink);box-shadow:none}
 .tr .tab.cur .i{animation:tr-pop .5s var(--spring)}
 .tr .actionbar{border-radius:36px;padding:9px}
 .tr .composer{border-radius:36px;padding:7px 7px 7px 22px}
@@ -737,7 +737,7 @@
 .tr .btn.btn-primary{font-size:18.7px;font-weight:700}
 
 @media (max-width:760px){.tr .tl h3{font-size:20px}}
-.tr .tab.cur{background:#ffeee6;color:#b23e0c}
+.tr .tab.cur{background:#ffeee6;color:var(--ink)}
 
 /* ===== v4: pill header without border, text-only highlights, no grey fills, compact ===== */
 .tr{--fill:#fff3ea;--fill-strong:#f6e3d6}

@@ -5,14 +5,14 @@
 .blog-root .footer { --muted:#667085; --line:#f0e3dc; }
 .blog-root .blog-container { width:min(1184px,calc(100% - 64px)); margin-inline:auto; }
 .blog-root .blog-button { min-height:52px; border:1px solid transparent; border-radius:16px; padding:14px 22px; display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--orange); color:#fff; font-size:.94rem; line-height:1.4; font-weight:700; text-align:center; cursor:pointer; }
-.blog-root .blog-button:hover { background:var(--orange-dark); color:#fff; }
+.blog-root .blog-button:hover { background:#f7874f; color:#fff; }
 .blog-root .blog-button:disabled { opacity:.55; cursor:not-allowed; }
 .blog-root .blog-admin-header { position:sticky; top:0; z-index:1000; background:rgb(255 255 255 / 94%);  }
 .blog-root .blog-admin-header > div { min-height:62px; display:flex; align-items:center; gap:18px; }
 .blog-root .blog-admin-header > div > a { margin-right:auto; font-size:1.03rem; font-weight:800; }
 .blog-root .blog-admin-header nav { display:flex; align-items:center; gap:4px; }
 .blog-root .blog-admin-header nav a,.blog-root .blog-admin-header nav button { padding:9px 11px; border:0; border-radius:11px; background:none; font-size:.84rem; font-weight:750; }
-.blog-root .blog-admin-header nav a:hover,.blog-root .blog-admin-header nav button:hover { color:var(--orange-dark); background:var(--surface); }
+.blog-root .blog-admin-header nav a:hover,.blog-root .blog-admin-header nav button:hover { color:var(--ink); background:var(--surface); }
 .blog-root .blog-admin-main { max-width:1184px; min-height:70vh; padding-block:30px 90px; }
 .blog-root .blog-admin-main h1 { margin:8px 0 22px; font-size:clamp(2rem,3vw,2.8rem); font-weight:800; letter-spacing:-.055em; line-height:1.12; }
 .blog-root .blog-admin-title { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:20px; padding-bottom:27px; border-bottom:1px solid var(--line); }
