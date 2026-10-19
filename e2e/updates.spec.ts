@@ -76,3 +76,31 @@ test('чат: фото сжимается и отправляется, у сво
   await expect(page.locator('.tg-msg.out').last().locator('small .i-check')).toHaveCount(1);
   await expect(page.locator('.tg-msg.out').last().locator('small .i-checks')).toHaveCount(0);
 });
+
+test('анкета: метка «Документы проверены» видна сразу и не пропадает', async ({ page }) => {
+  await page.goto('/teachers/english');
+  const tag = page.getByText('Документы проверены').first();
+  await expect(tag).toBeVisible();
+  await page.waitForTimeout(1500);
+  await expect(tag).toBeVisible();
+  const opacity = await tag.evaluate((node) => Number(getComputedStyle(node).opacity) * Number(getComputedStyle(node.closest('.trh-sec') ?? node).opacity));
+  expect(opacity).toBe(1);
+});
+
+test('расписание: недельный шаблон и выбор дат в календаре', async ({ page }) => {
+  await login(page, 'tutor');
+  await page.goto('/tutor/schedule');
+  await expect(page.getByRole('tab', { name: 'Каждую неделю' })).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('tab', { name: 'По датам' }).click();
+  // выбираем сегодняшнюю дату или ближайший доступный день недели вперёд
+  const days = page.locator('.trk-month-day:not([disabled])');
+  await days.nth(2).click();
+  await page.getByRole('button', { name: 'Выходной', exact: true }).click();
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(page.getByText('Сохранено').first()).toBeVisible();
+  await expect(page.locator('.trk-month-day.m-off')).toHaveCount(1);
+  // возвращаем день по расписанию
+  await page.getByRole('button', { name: 'Как обычно' }).click();
+  await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
+  await expect(page.locator('.trk-month-day.m-off')).toHaveCount(0);
+});

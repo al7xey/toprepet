@@ -172,17 +172,25 @@ function Finish({ draft, week }: { draft: TutorProfileDraft; week: WeekSchedule 
   ];
   return (
     <>
-      <div className="g8">
+      <section className="trk-docs">
         <CardTitle>Документы</CardTitle>
-        <p className="muted">Диплом и сертификаты подтверждают квалификацию: у проверенных анкет значок «Документы проверены». Необязательно, но повышает доверие.</p>
-        {(docs.data ?? []).map((d) => <div className="trk-exrow" key={d.id}><span>{d.title}</span><Status tone={d.status === 'approved' ? 'ok' : d.status === 'rejected' ? 'bad' : 'wait'}>{DOC_STATUS[d.status]}</Status></div>)}
+        <p className="muted">Диплом или сертификат подтверждают квалификацию: у проверенных анкет появляется метка «Документы проверены». Необязательно.</p>
+        {(docs.data ?? []).length > 0 && (
+          <ul className="trk-docrows">
+            {(docs.data ?? []).map((d) => <li key={d.id}><span>{d.title}</span><Status tone={d.status === 'approved' ? 'ok' : d.status === 'rejected' ? 'bad' : 'wait'}>{DOC_STATUS[d.status]}</Status></li>)}
+          </ul>
+        )}
         <FormError error={upload.error} />
-        <div><FilePick accept="image/*,application/pdf" loading={upload.pending} onPick={async (file) => { if (await upload.run(file)) { toast('Документ загружен, мы его проверим'); docs.reload(); } }}>Загрузить документ</FilePick></div>
-      </div>
-      <div className="g8">
+        <div className="trk-docs-upload">
+          <FilePick accept="image/*,application/pdf" loading={upload.pending} onPick={async (file) => { if (await upload.run(file)) { toast('Документ загружен, мы его проверим'); docs.reload(); } }}>Загрузить документ</FilePick>
+        </div>
+      </section>
+      <section className="trk-docs">
         <CardTitle>Перед публикацией</CardTitle>
-        {checks.map(([label, ok]) => <div className="trk-exrow" key={label}><span>{label}</span><Status tone={ok ? 'ok' : 'neutral'} icon={ok ? undefined : 'clock'}>{ok ? 'Готово' : 'Желательно'}</Status></div>)}
-      </div>
+        <ul className="trk-todo">
+          {checks.map(([label, ok]) => <li key={label}><span className={ok ? 'trk-dot' : 'trk-dot off'} aria-hidden="true" /><span>{label}</span><small className="muted">{ok ? 'Заполнено' : 'Нужно заполнить'}</small></li>)}
+        </ul>
+      </section>
     </>
   );
 }

@@ -708,3 +708,36 @@ html{overflow-y:scroll}
 .tr .tg-attach{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer}
 .tr .tg-attach:hover{color:var(--ink)}
 .tr .tg-attach:disabled{opacity:.5}
+
+/* v26: шаг «Документы и публикация» в мастере анкеты */
+.tr .trk-docs{display:grid;gap:12px}
+.tr .trk-docs p{margin:0}
+.tr .trk-docrows{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.tr .trk-docrows li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-radius:18px;box-shadow:inset 0 0 0 1.5px var(--line);font-weight:600}
+.tr .trk-docs-upload .btn,.tr .trk-docs-upload label{width:100%;justify-content:center}
+.tr .trk-todo{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.tr .trk-todo li{display:flex;align-items:center;gap:10px;font-size:16px}
+.tr .trk-todo li small{margin-left:auto}
+.tr .trk-dot.off{background:var(--line)}
+
+/* v27: месячный календарь расписания */
+.tr .trk-month{display:grid;gap:14px}
+.tr .trk-month-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tr .trk-month-title{font-size:18px;text-transform:capitalize}
+.tr .trk-month-nav{width:44px;height:44px;border:0;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink);display:grid;place-items:center;cursor:pointer}
+.tr .trk-month-nav:disabled{opacity:.35;cursor:default}
+.tr .trk-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px 4px}
+.tr .trk-month-wd{text-align:center;font-size:13px;font-weight:700;color:var(--muted);padding-bottom:4px}
+.tr .trk-month-day{position:relative;aspect-ratio:1;min-height:44px;border:0;border-radius:50%;background:transparent;color:var(--ink);font:inherit;font-size:16px;font-weight:600;display:grid;place-items:center;cursor:pointer}
+.tr .trk-month-day:disabled{color:#b9afa9;cursor:default}
+.tr .trk-month-day.today{box-shadow:inset 0 0 0 1.5px var(--line)}
+.tr .trk-month-day.on{background:#fde2d0;color:#9a3412;box-shadow:inset 0 0 0 2px #9a3412}
+.tr .trk-month-day::after{content:"";position:absolute;bottom:5px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:transparent}
+.tr .trk-month-day.m-regular::after{background:#1f7a4d}
+.tr .trk-month-day.m-extra::after{background:#b23e0c}
+.tr .trk-month-day.m-off::after{background:#6f6461}
+.tr .trk-month-legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:0;list-style:none;font-size:14px;color:var(--muted)}
+.tr .trk-month-legend li{display:flex;align-items:center;gap:8px}
+.tr .trk-month-key{width:10px;height:10px;border-radius:50%;background:#1f7a4d}
+.tr .trk-month-key.m-extra{background:#b23e0c}
+.tr .trk-month-key.m-off{background:#6f6461}
