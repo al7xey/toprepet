@@ -11,7 +11,6 @@ import { Button, Card, CardTitle, FilePick, FormError, OptionChips, PageHeader, 
 const SUBJECTS = allSubjects.filter((s) => s !== 'Другой предмет');
 const LEVELS = ['Дошкольники', '1–4 класс', '5–9 класс', '10–11 класс', 'Взрослые'];
 const EXPERIENCE = ['Меньше года', '1–3 года', '3–5 лет', '5–10 лет', 'Больше 10 лет'];
-const INTRO = ['15', '20', '30'];
 const STEPS = ['О себе', 'Что и как вы преподаёте', 'Сколько стоят занятия', 'Когда вы свободны', 'Документы и публикация'];
 const DOC_STATUS = { uploaded: 'Загружен', checking: 'Проверяем', approved: 'Проверен', rejected: 'Отклонён' } as const;
 
@@ -60,6 +59,7 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
     }
     if (step === 3) {
       if (!Number.isInteger(draft.price) || draft.price < 300 || draft.price > 15000) found.price = 'Цена от 300 до 15 000 ₽ за урок';
+      if (draft.introMinutes > 0 && (!Number.isInteger(draft.introMinutes) || draft.introMinutes < 5 || draft.introMinutes > 60)) found.introMinutes = 'От 5 до 60 минут';
     }
     if (step === 4) {
       const problem = weekProblem(week);
@@ -118,7 +118,7 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
             <>
               <TextField label="Цена за урок, ₽" type="number" inputMode="numeric" min={300} max={15000} step={50} value={draft.price || ''} onChange={(e) => patch({ price: Number(e.target.value) })} error={errors.price} hint={draft.price ? `Вы получите ${rub(draft.price)} за каждый урок целиком` : 'Урок длится 60 минут'} />
               <Switch checked={draft.introMinutes > 0} onChange={(on) => patch({ introMinutes: on ? 20 : 0 })} title="Бесплатное знакомство" text="Один раз на ученика, без оплаты. Анкеты со знакомством выбирают чаще." />
-              {draft.introMinutes > 0 && <OptionChips options={INTRO} value={String(draft.introMinutes)} onChange={(v) => patch({ introMinutes: Number(v) })} label="Длительность знакомства, минут" />}
+              {draft.introMinutes > 0 && <TextField label="Длительность знакомства, минут" type="number" inputMode="numeric" min={5} max={60} step={5} value={draft.introMinutes || ''} onChange={(e) => patch({ introMinutes: Number(e.target.value) })} error={errors.introMinutes} hint="От 5 до 60 минут" />}
             </>
           )}
           {step === 4 && (
