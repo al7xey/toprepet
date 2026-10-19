@@ -649,14 +649,14 @@
 .tr .trk-note-title{display:block;font-size:16px}
 .tr .trk-note-line{display:block;margin-top:2px}
 
-/* v31: нижняя панель — белая, только значки; оранжевая пилюля плавно переезжает к выбранному разделу */
-.tr .trk-tabbar,.tr .trk-tabbar.five{--w:calc((100% - 12px - (var(--n) - 1) * 2px) / var(--n));background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:0 8px 24px rgb(32 40 56 / 10%);padding:6px}
-.tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:60px;padding:0;border-radius:999px;background:transparent;color:var(--ink);transition:background .2s}
-.tr .trk-tabbar .tab:not(.cur):hover{background:var(--accent-soft)}
-.tr .trk-tabbar .tab .i{width:30px;height:30px}
+/* v32: нижняя панель — компактная, белая, только значки; оранжевая пилюля плавно переезжает и тянется пальцем */
+.tr .trk-tabbar,.tr .trk-tabbar.five{--w:calc((100% - 10px - (var(--n) - 1) * 2px) / var(--n));background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:0 6px 18px rgb(32 40 56 / 10%);padding:5px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:48px;padding:0;border-radius:999px;background:transparent;color:var(--ink)}
+.tr .trk-tabbar .tab .i{width:26px;height:26px}
 .tr .trk-tabbar .tab.cur{background:transparent;color:#fff}
 .tr .trk-tabbar .tab.cur .i{background:#fff}
-.tr .trk-tabbar .tabpill{position:absolute;top:6px;bottom:6px;left:calc(6px + var(--pos,0) * (var(--w) + 2px));width:var(--w);border-radius:999px;background:var(--accent);transition:left .35s var(--spring);pointer-events:none;z-index:0}
+.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:calc(5px + var(--pos,0) * (var(--w) + 2px));width:var(--w);border-radius:999px;background:var(--accent);transition:left .35s var(--spring);pointer-events:none;z-index:0}
+.tr .trk-tabbar.drag .tabpill{transition:none}
 @media (prefers-reduced-motion:reduce){.tr .trk-tabbar .tabpill{transition:none}}
 @media (max-width:760px){
   .tr .trk-chat-list .trh-main{padding-left:8px;padding-right:8px}

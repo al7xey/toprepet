@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useQuery } from '../api/hooks';
@@ -8,15 +8,80 @@ import { Avatar, Button, Icon, IconButton } from '../ui';
 
 const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ');
 
-/** Нижняя панель: только значки. Выбранный раздел — оранжевая пилюля, которая плавно переезжает к новому разделу. */
+const PAD = 5; // отступ панели от краёв; совпадает с padding в kit.css
+const GAP = 2; // зазор между пунктами; совпадает с gap в tr.css
+const DRAG_PX = 6; // на сколько сдвинуть палец, чтобы нажатие стало перетаскиванием
+
+/** Нижняя панель: только значки. Оранжевая пилюля плавно переезжает к выбранному разделу, и её можно тянуть влево и вправо. */
 function TabBar({ tabs }: { tabs: NavItem[] }) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const bar = useRef<HTMLElement>(null);
+  const gesture = useRef<{ x: number; moved: boolean } | null>(null);
+  const swallowClick = useRef(false);
+  const [pos, setPos] = useState<number | null>(null); // положение пилюли под пальцем в долях пункта
+  const [moved, setMoved] = useState(false);
   const current = tabs.findIndex((t) => pathname === t.to || pathname.startsWith(`${t.to}/`));
+  const shown = pos === null ? current : Math.round(pos);
+
+  // положение пальца в долях пункта: 0 — первый пункт, n−1 — последний
+  const posAt = (clientX: number) => {
+    const el = bar.current;
+    if (!el) return Math.max(current, 0);
+    const rect = el.getBoundingClientRect();
+    const w = (rect.width - PAD * 2 - GAP * (tabs.length - 1)) / tabs.length;
+    return Math.min(Math.max((clientX - rect.left - PAD - w / 2) / (w + GAP), 0), tabs.length - 1);
+  };
+  const finish = () => { gesture.current = null; setPos(null); setMoved(false); };
+
+  const onPointerDown = (e: PointerEvent) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    gesture.current = { x: e.clientX, moved: false };
+    bar.current?.setPointerCapture(e.pointerId);
+    setPos(posAt(e.clientX));
+  };
+  const onPointerMove = (e: PointerEvent) => {
+    const g = gesture.current;
+    if (!g) return;
+    if (!g.moved && Math.abs(e.clientX - g.x) > DRAG_PX) { g.moved = true; setMoved(true); }
+    if (g.moved) setPos(posAt(e.clientX));
+  };
+  const onPointerUp = (e: PointerEvent) => {
+    if (!gesture.current) return;
+    const to = tabs[Math.round(posAt(e.clientX))];
+    finish();
+    // и нажатие, и перетаскивание открывают раздел здесь; обычный клик по ссылке после этого не нужен
+    swallowClick.current = true;
+    window.setTimeout(() => { swallowClick.current = false; }, 0);
+    if (to && to.to !== tabs[current]?.to) void navigate(to.to);
+  };
+  // обработчики вешаем на элемент в эффекте: nav сам по себе не интерактивен
+  useEffect(() => {
+    const el = bar.current;
+    if (!el) return undefined;
+    const onContext = (e: Event) => e.preventDefault();
+    const onClick = (e: Event) => { if (swallowClick.current) e.preventDefault(); };
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', onPointerUp);
+    el.addEventListener('pointercancel', finish);
+    el.addEventListener('contextmenu', onContext);
+    el.addEventListener('click', onClick, true);
+    return () => {
+      el.removeEventListener('pointerdown', onPointerDown);
+      el.removeEventListener('pointermove', onPointerMove);
+      el.removeEventListener('pointerup', onPointerUp);
+      el.removeEventListener('pointercancel', finish);
+      el.removeEventListener('contextmenu', onContext);
+      el.removeEventListener('click', onClick, true);
+    };
+  });
+
   return (
-    <nav className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five')} aria-label="Разделы" style={{ '--n': tabs.length, '--pos': Math.max(current, 0) } as CSSProperties}>
+    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', moved && 'drag')} aria-label="Разделы" style={{ '--n': tabs.length, '--pos': pos ?? Math.max(current, 0) } as CSSProperties}>
       {current >= 0 && <span className="tabpill" aria-hidden="true" />}
       {tabs.map((t, i) => (
-        <NavLink key={t.to} to={t.to} className={cx('tab', i === current && 'cur')}>
+        <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', i === shown && 'cur')}>
           <Icon name={t.icon} /><span className="trk-sr">{t.label}</span>{t.badge ? <span className="dot">{t.badge}</span> : null}
         </NavLink>
       ))}
@@ -129,11 +194,11 @@ const ready = (to: string) => READY.some((p) => to === p || to.startsWith(`${p}/
 const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   student: {
     top: [{ label: 'Найти репетитора', to: '/teachers', icon: 'search' }, { label: 'Мои уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Платежи', to: '/me/payments', icon: 'card' }],
-    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'book' }, { label: 'Заявки', to: '/me/requests', icon: 'circle-check' }, { label: 'Чаты', to: '/me/chats', icon: 'chat' }, { label: 'Профиль', to: '/me/account', icon: 'user' }],
+    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'book' }, { label: 'Чаты', to: '/me/chats', icon: 'chat-round' }, { label: 'Заявки', to: '/me/requests', icon: 'circle-check' }, { label: 'Профиль', to: '/me/account', icon: 'user' }],
   },
   tutor: {
     top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
-    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book' }, { label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat' }, { label: 'Профиль', to: '/tutor/account', icon: 'user' }],
+    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book' }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-round' }, { label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Профиль', to: '/tutor/account', icon: 'user' }],
   },
   admin: {
     top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],
@@ -151,7 +216,7 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
   const counters = useCounters(role);
   const nav = NAV[role];
   const top = nav.top.filter((item) => ready(item.to));
-  const tabs = nav.tabs.filter((t) => ready(t.to)).map((t) => (t.icon === 'chat' ? { ...t, badge: counters.chats } : t));
+  const tabs = nav.tabs.filter((t) => ready(t.to)).map((t) => (t.icon === 'chat-round' ? { ...t, badge: counters.chats } : t));
   const accountTo = role === 'admin' ? '/admin/disputes' : `${counters.prefix}/account`;
   return (
     <div className={cx('wash trh-page trh-tight trk-app', `tabs-${tabs.length}`, chat && `trk-chat-${chat}`)} style={{ '--n': tabs.length } as CSSProperties}>
