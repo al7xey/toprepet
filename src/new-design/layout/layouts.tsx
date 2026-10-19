@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useQuery } from '../api/hooks';
@@ -7,6 +7,99 @@ import type { Role } from '../api/types';
 import { Avatar, Button, Icon, IconButton } from '../ui';
 
 const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ');
+
+const PRESS_MS = 250; // сколько держать пункт, чтобы подложку можно было тянуть
+const PAD = 6; // отступ панели от краёв; совпадает с padding в kit.css
+const GAP = 2; // зазор между пунктами; совпадает с gap в tr.css
+
+/** Нижняя панель: подложка выбранного раздела. Долгое нажатие — подложку можно тянуть влево и вправо. */
+function TabBar({ tabs }: { tabs: NavItem[] }) {
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const bar = useRef<HTMLElement>(null);
+  const press = useRef<{ id: number; x: number; timer: number } | null>(null);
+  const dragging = useRef(false);
+  const [dragPos, setDragPos] = useState<number | null>(null);
+  const current = tabs.findIndex((t) => pathname === t.to || pathname.startsWith(`${t.to}/`));
+  const shown = dragPos === null ? current : Math.round(dragPos);
+
+  // положение пальца в долях пункта: 0 — первый пункт, n−1 — последний
+  const posAt = (clientX: number) => {
+    const el = bar.current;
+    if (!el) return current;
+    const rect = el.getBoundingClientRect();
+    const w = (rect.width - PAD * 2 - GAP * (tabs.length - 1)) / tabs.length;
+    const value = (clientX - rect.left - PAD - w / 2) / (w + GAP);
+    return Math.min(Math.max(value, 0), tabs.length - 1);
+  };
+  const cancelPress = () => {
+    if (press.current) window.clearTimeout(press.current.timer);
+    press.current = null;
+  };
+  const endDrag = () => { dragging.current = false; setDragPos(null); };
+
+  const onPointerDown = (e: PointerEvent) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    cancelPress();
+    const { pointerId, clientX } = e;
+    const timer = window.setTimeout(() => {
+      dragging.current = true;
+      bar.current?.setPointerCapture(pointerId);
+      setDragPos(posAt(clientX));
+    }, PRESS_MS);
+    press.current = { id: pointerId, x: clientX, timer };
+  };
+  const onPointerMove = (e: PointerEvent) => {
+    const p = press.current;
+    if (!p) return;
+    if (!dragging.current) {
+      // палец уехал до того, как подложка стала активной: это обычная прокрутка или нажатие
+      if (Math.abs(e.clientX - p.x) > 8) cancelPress();
+      return;
+    }
+    e.preventDefault();
+    setDragPos(posAt(e.clientX));
+  };
+  const onPointerUp = (e: PointerEvent) => {
+    cancelPress();
+    if (!dragging.current) return;
+    const to = tabs[Math.round(posAt(e.clientX))];
+    endDrag();
+    if (to && to.to !== tabs[current]?.to) void navigate(to.to);
+  };
+  const onPointerCancel = () => { cancelPress(); endDrag(); };
+  // обработчики вешаем на элемент в эффекте: nav сам по себе не интерактивен
+  useEffect(() => {
+    const el = bar.current;
+    if (!el) return undefined;
+    const onContext = (e: Event) => e.preventDefault();
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', onPointerUp);
+    el.addEventListener('pointercancel', onPointerCancel);
+    el.addEventListener('contextmenu', onContext);
+    return () => {
+      el.removeEventListener('pointerdown', onPointerDown);
+      el.removeEventListener('pointermove', onPointerMove);
+      el.removeEventListener('pointerup', onPointerUp);
+      el.removeEventListener('pointercancel', onPointerCancel);
+      el.removeEventListener('contextmenu', onContext);
+    };
+  });
+
+
+
+  return (
+    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
+      {current >= 0 && <span className="tabpill" aria-hidden="true" style={{ '--pos': dragPos ?? current, transition: dragPos === null ? undefined : 'none' } as CSSProperties} />}
+      {tabs.map((t, i) => (
+        <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', shown === i && 'cur')}>
+          <Icon name={t.icon} />{t.label}{t.badge ? <span className="dot">{t.badge}</span> : null}
+        </NavLink>
+      ))}
+    </nav>
+  );
+}
 
 function Logo() {
   return <Link className="logo" to="/" aria-label="TopRepet, главная"><i className="logo-mark" aria-hidden="true" />toprepet</Link>;
@@ -154,13 +247,7 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
         )}
       </header>
       <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>{children}</main>
-      <nav className={cx('tabbar surf trk-tabbar', tabs.length === 5 && 'five')} aria-label="Разделы">
-        {tabs.map((t) => (
-          <NavLink key={t.to} to={t.to} className={({ isActive }) => cx('tab', isActive && 'cur')}>
-            <Icon name={t.icon} />{t.label}{t.badge ? <span className="dot">{t.badge}</span> : null}
-          </NavLink>
-        ))}
-      </nav>
+      <TabBar tabs={tabs} />
     </div>
   );
 }
