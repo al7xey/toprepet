@@ -4,6 +4,7 @@ import { login, logout } from './helpers';
 test('заявка ученика → отклик репетитора → запись по отклику', async ({ page }) => {
   await login(page, 'student');
   await page.goto('/me/requests/new');
+  await page.getByLabel('Предмет').selectOption('Английский язык');
   await page.getByLabel('Кто будет заниматься').selectOption({ label: '5–9 класс' });
   await page.getByRole('button', { name: 'Подготовка к ОГЭ или ЕГЭ' }).click();
   await page.getByRole('button', { name: 'Дальше' }).click();

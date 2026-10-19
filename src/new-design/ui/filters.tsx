@@ -20,10 +20,10 @@ export function Dropdown<T extends string | number>({ label, icon, value, option
         {icon && <Icon name={icon} />}{iconOnly ? null : <>{current?.label ?? label}<Icon name="down" /></>}
       </summary>
       <div className={`trh-drop-menu surf-strong${align === 'right' ? ' right' : ''}`}>
-        {allLabel && <button type="button" className={value === null ? 'on' : undefined} onClick={() => pick(null)}>{allLabel}{value === null && <Icon name="check" />}</button>}
+        {allLabel && <button type="button" className={value === null ? 'on' : undefined} onClick={() => pick(null)}>{allLabel}</button>}
         {options.map((o) => (
           <button type="button" key={String(o.value)} className={o.value === value ? 'on' : undefined} aria-pressed={o.value === value} onClick={() => pick(o.value)}>
-            {o.label}{o.value === value && <Icon name="check" />}
+            {o.label}
           </button>
         ))}
       </div>

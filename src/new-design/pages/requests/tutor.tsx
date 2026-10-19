@@ -73,14 +73,14 @@ function RespondModal({ request, defaultPrice, onClose, onDone }: { request: Stu
   const submit = async () => {
     const found: { price?: string; message?: string } = {};
     if (!Number.isInteger(price) || price < 300) found.price = 'Цена от 300 ₽ за урок';
-    if (message.trim().length < 20) found.message = 'Напишите ученику хотя бы пару предложений';
+    if (!message.trim()) found.message = 'Напишите ученику сообщение';
     setError(found);
     if (found.price || found.message) return;
     if (await send.run({ price, message: message.trim(), slots })) onDone();
   };
   return (
     <Modal open onClose={onClose} width={640} title="Отклик на заявку" footer={<><Button variant="fill" onClick={onClose}>Отмена</Button><Button onClick={submit} loading={send.pending}>Отправить отклик</Button></>}>
-      <Note tone="plain" icon="info"><b>{request.subject}</b>, {request.level}. {request.budgetMax ? `Бюджет ученика до ${rub(request.budgetMax)}.` : 'Бюджет не указан.'}</Note>
+      <Note tone="plain" icon="info"><b className="trk-note-title">{request.subject}</b><span className="trk-note-line">{request.level}</span><span className="trk-note-line">{request.budgetMax ? `Бюджет ученика до ${rub(request.budgetMax)}` : 'Бюджет не указан'}</span></Note>
       <TextField label="Ваша цена за урок, ₽" type="number" inputMode="numeric" min={300} step={50} value={price || ''} onChange={(e) => setPrice(Number(e.target.value))} error={error.price} hint={price ? `Вы получите ${rub(price)} за урок` : undefined} />
       <TextArea label="Сообщение ученику" rows={4} value={message} onChange={(e) => setMessage(e.target.value)} error={error.message} hint="Как будете заниматься. Телефоны и ссылки писать нельзя." />
       <div className="g8">

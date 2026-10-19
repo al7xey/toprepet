@@ -148,8 +148,8 @@ export function defineScenarios(title: string, make: () => ScenarioContext) {
 
     it('заявка: описание обязательно, отклик репетитора, запись из отклика закрывает заявку', async () => {
       await api.login('olga@mail.ru', 'demo');
-      await expect(api.createRequest({ subject: 'Математика', goal: 'ОГЭ', level: '9 класс', budgetMax: null, schedule: ['Будни вечером'], description: 'коротко' })).rejects.toThrow(/подробнее/);
-      const request = await api.createRequest({ subject: 'Математика', goal: 'ОГЭ', level: '9 класс', budgetMax: 2000, schedule: ['Будни вечером'], description: 'Нужно подтянуть геометрию и вторую часть ОГЭ.' });
+      await expect(api.createRequest({ subject: 'Математика', goal: 'ОГЭ', level: '9 класс', budgetMax: null, schedule: ['Будни вечером'], description: '   ' })).rejects.toThrow(/Опишите задачу/);
+      const request = await api.createRequest({ subject: 'Английский язык', goal: 'Разговорный английский', level: 'Взрослый, A2', budgetMax: 2000, schedule: ['Будни вечером'], description: 'Нужна разговорная практика.' });
       expect(request.status).toBe('open');
       await api.login('anastasia@toprepet.ru', 'demo');
       expect((await api.listOpenRequests()).some((r) => r.id === request.id)).toBe(true);

@@ -234,7 +234,7 @@ export function Faq({ items }: { items: [string, ReactNode][] }) {
 }
 
 export function Ticks({ items }: { items: ReactNode[] }) {
-  return <ul className="ticks">{items.map((t, i) => <li key={i}><Icon name="check" />{t}</li>)}</ul>;
+  return <ul className="ticks">{items.map((t, i) => <li key={i}><span className="trk-dot" aria-hidden="true" />{t}</li>)}</ul>;
 }
 
 /** Сегментный переключатель вкладок. */
@@ -327,7 +327,7 @@ export function Checkbox({ checked, onChange, children }: { checked: boolean; on
   return (
     <label className={cx('chk trk-check', checked && 'on')}>
       <input type="checkbox" className="trk-sr" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      <i aria-hidden="true">{checked && <Icon name="check" />}</i>
+      <i aria-hidden="true" />
       <span>{children}</span>
     </label>
   );

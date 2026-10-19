@@ -30,7 +30,7 @@ def test_private_post_requires_login(demo, path):
 
 def test_public_endpoints_work_without_login(demo):
     client = Api()
-    for path in ('/health', '/tutors', '/tutors/english', '/tutors/english/slots', '/tutors/english/reviews', '/requests'):
+    for path in ('/health', '/tutors', '/tutors/english', '/tutors/english/slots', '/tutors/english/reviews'):
         assert client.call('get', path).status_code == 200, path
 
 
@@ -51,3 +51,7 @@ def test_error_shape_is_message_and_code(demo):
     body = Api().call('get', '/tutors/nope').json()
     assert set(body) == {'message', 'code'} and body['code'] == 'not_found'
     assert Api().call('get', '/auth/me').json() == {'message': 'Войдите, чтобы продолжить', 'code': 'unauthorized'}
+
+
+def test_feed_needs_login(demo):
+    Api().call('get', '/requests', None, 401)

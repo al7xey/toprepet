@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -41,11 +42,31 @@ def own_request(user, request_id: str) -> StudyRequest:
     return r
 
 
+def tutor_subjects(user) -> list:
+    tutor = getattr(user, 'tutor', None)
+    return list(tutor.subjects) if tutor else []
+
+
+def subject_match(subjects: list) -> Q:
+    """Предмет анкеты («Английский») подходит заявке «Английский язык»: сравниваем начало названия."""
+    match = Q(pk__in=[])
+    for name in subjects:
+        match |= Q(subject__startswith=name)
+    return match
+
+
+def matches_subjects(subject: str, subjects: list) -> bool:
+    return any(subject.startswith(name) for name in subjects)
+
+
 class RequestsView(APIView):
     def get(self, request):
-        """Лента открытых заявок: видна и гостям, имя ученика сокращено до имени."""
+        """Лента открытых заявок, только для вошедших. Репетитор видит заявки по предметам своей анкеты."""
+        user = require_user(request)
         subject = request.query_params.get('subject')
         items = StudyRequest.objects.filter(status='open', expires_at__gt=timezone.now()).select_related('student')
+        if user.role == 'tutor':
+            items = items.filter(subject_match(tutor_subjects(user)))
         if subject:
             items = items.filter(subject=subject)
         return Response([request_json(r, short_name=True) for r in items[:100]])
@@ -55,7 +76,7 @@ class RequestsView(APIView):
         user = require_role(request, 'student')
         d = request.data
         subject, description = str(d.get('subject', '')).strip(), str(d.get('description', '')).strip()
-        if not subject or len(description) < 20:
+        if not subject or not description:
             raise ApiError('Опишите задачу подробнее: хотя бы пару предложений')
         if has_contacts(description):
             raise ApiError(CONTACTS_MESSAGE)
@@ -114,9 +135,11 @@ class ResponsesView(APIView):
             raise ApiError('Опубликуйте анкету, чтобы откликаться на заявки')
         if effective_status(r) != 'open':
             raise ApiError('Заявка уже закрыта')
+        if not matches_subjects(r.subject, tutor.subjects):
+            raise forbidden('Эта заявка по другому предмету: откликаться можно только по предметам вашей анкеты')
         message = str(request.data.get('message', '')).strip()
-        if len(message) < 20:
-            raise ApiError('Напишите ученику хотя бы пару предложений')
+        if not message:
+            raise ApiError('Напишите ученику сообщение')
         if has_contacts(message):
             raise ApiError(CONTACTS_MESSAGE)
         price = request.data.get('price')

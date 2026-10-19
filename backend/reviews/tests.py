@@ -36,7 +36,7 @@ def test_review_goes_through_moderation_and_changes_rating(world):
 
 def test_review_rules(world):
     olga, tutor = world['olga'], world['tutor']
-    assert olga.call('post', '/lessons/l-4/review', {'rating': 5, 'text': 'коротко'}).status_code == 400
+    assert olga.call('post', '/lessons/l-4/review', {'rating': 5, 'text': '   '}).status_code == 400
     assert olga.call('post', '/lessons/l-4/review', {'rating': 7, 'text': TEXT}).status_code == 400
     assert olga.call('post', '/lessons/l-4/review', {'rating': 5, 'text': 'Пишите мне на почту test@mail.ru, всё объясню'}).status_code == 400
     assert olga.call('post', '/lessons/l-1/review', {'rating': 5, 'text': TEXT}).status_code == 400  # урок ещё не прошёл

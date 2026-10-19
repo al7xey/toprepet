@@ -8,7 +8,6 @@ from services.contacts import CONTACTS_MESSAGE, has_contacts
 
 from .models import Review
 
-MIN_TEXT = 20
 
 
 @transaction.atomic
@@ -23,8 +22,8 @@ def create_review(user, lesson_id: str, rating, text: str) -> Review:
     if not isinstance(rating, int) or not 1 <= rating <= 5:
         raise ApiError('Поставьте оценку от 1 до 5')
     text = (text or '').strip()
-    if len(text) < MIN_TEXT:
-        raise ApiError(f'Напишите хотя бы {MIN_TEXT} символов: так отзыв будет полезен другим ученикам')
+    if not text:
+        raise ApiError('Напишите отзыв')
     if has_contacts(text):
         raise ApiError(CONTACTS_MESSAGE)
     review = Review.objects.create(lesson=lesson, tutor=lesson.tutor, author_name=user.name, author_note=lesson.subject, rating=rating, text=text[:2000])
@@ -68,7 +67,7 @@ def reply(user, review_id: str, text: str) -> Review:
     if review.reply:
         raise ApiError('Вы уже ответили на этот отзыв', 409, 'reply_exists')
     text = text.strip()
-    if len(text) < 3:
+    if not text:
         raise ApiError('Напишите ответ')
     if has_contacts(text):
         raise ApiError(CONTACTS_MESSAGE)

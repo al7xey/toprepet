@@ -488,7 +488,7 @@ export function createMockApi(): Api {
     async listMyRequests() { const u = me(); return delay(load().requests.filter((r) => r.studentId === u.id).map(withExpiry)); },
     async createRequest(input) {
       const u = me();
-      if (!input.subject || input.description.trim().length < 20) fail('Опишите задачу подробнее: хотя бы пару предложений');
+      if (!input.subject || !input.description.trim()) fail('Опишите задачу');
       const r: StudyRequest = { ...input, id: nextId('r'), studentId: u.id, studentName: u.name, status: 'open', createdAt: iso(Date.now()), expiresAt: iso(Date.now() + 14 * DAY), responsesCount: 0 };
       load().requests.unshift(r); save(); return delay(r, 400);
     },
@@ -509,15 +509,19 @@ export function createMockApi(): Api {
       return delay(load().responses.filter((x) => x.requestId === requestId));
     },
     async listOpenRequests(subject) {
-      // лента видна и гостям; имя ученика в ней сокращено до имени без фамилии
-      return delay(load().requests.map(withExpiry).filter((r) => r.status === 'open' && (!subject || r.subject === subject)).map((r) => ({ ...r, studentName: r.studentName.split(' ')[0] })));
+      // лента только для вошедших; репетитор видит заявки по предметам своей анкеты; имя ученика сокращено
+      const s = load(); const u = s.users.find((x) => x.id === s.sessionUserId);
+      if (!u) throw new ApiError('Войдите, чтобы продолжить', 401);
+      const subjects = u.role === 'tutor' ? myTutor().subjects : null;
+      const fits = (name: string) => !subjects || subjects.some((x) => name.startsWith(x));
+      return delay(s.requests.map(withExpiry).filter((r) => r.status === 'open' && fits(r.subject) && (!subject || r.subject === subject)).map((r) => ({ ...r, studentName: r.studentName.split(' ')[0] })));
     },
     async respondToRequest(requestId, input) {
       const t = myTutor(); const s = load();
       const r = s.requests.find((x) => x.id === requestId); if (!r) fail('Заявка не найдена', 404);
       if (t.status !== 'published') fail('Опубликуйте анкету, чтобы откликаться на заявки');
       if (withExpiry(r as StudyRequest).status !== 'open') fail('Заявка уже закрыта');
-      if (input.message.trim().length < 20) fail('Напишите ученику хотя бы пару предложений');
+      if (!input.message.trim()) fail('Напишите ученику сообщение');
       if (hasContacts(input.message)) fail(CONTACTS_MESSAGE);
       if (!Number.isInteger(input.price) || input.price < 300) fail('Укажите цену от 300 ₽');
       if (s.responses.some((x) => x.requestId === requestId && x.tutorId === t.id)) fail('Вы уже откликнулись на эту заявку');

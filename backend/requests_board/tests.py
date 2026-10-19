@@ -20,15 +20,21 @@ def world(db):
 NEW = {'subject': 'Физика', 'goal': 'ЕГЭ', 'level': '11 класс', 'budgetMax': 2000, 'schedule': ['Будни вечером'], 'description': 'Нужна подготовка к ЕГЭ по физике, два раза в неделю.'}
 
 
-def test_feed_is_public_and_hides_surnames(world):
-    feed = Api().get_ok('/requests')
+def test_feed_is_for_signed_in_users_only(world):
+    Api().call('get', '/requests', None, 401)
+
+
+def test_feed_hides_surnames_and_filters_tutors_by_subject(world):
+    feed = world['olga'].get_ok('/requests')
     assert {r['id'] for r in feed} == {'r-1', 'r-2', 'r-3'} and all(' ' not in r['studentName'] for r in feed)
-    assert {r['id'] for r in Api().get_ok('/requests', {'subject': 'Английский язык'})} == {'r-2', 'r-3'}
+    assert {r['id'] for r in world['olga'].get_ok('/requests', {'subject': 'Английский язык'})} == {'r-2', 'r-3'}
+    # Анастасия преподаёт английский и историю: математика ей не видна
+    assert {r['subject'] for r in world['tutor'].get_ok('/requests')} == {'Английский язык'}
 
 
 def test_create_request_validation_and_limit(world):
     olga = world['olga']
-    assert olga.call('post', '/requests', {**NEW, 'description': 'коротко'}).status_code == 400
+    assert olga.call('post', '/requests', {**NEW, 'description': '   '}).status_code == 400
     assert olga.call('post', '/requests', {**NEW, 'description': 'Звоните мне по телефону +7 912 345 67 89 в любое время'}).status_code == 400
     created = olga.post_ok('/requests', NEW, 201)
     assert created['status'] == 'open' and created['responsesCount'] == 0
@@ -60,7 +66,7 @@ def test_expired_and_closed_requests_do_not_accept_responses(world):
     assert olga.get_ok('/requests/r-1')['status'] == 'open'
     assert olga.post_ok('/requests/r-1/close')['status'] == 'closed'
     assert olga.call('post', '/requests/r-1/close').status_code == 400
-    assert 'r-1' not in [r['id'] for r in Api().get_ok('/requests')]
+    assert 'r-1' not in [r['id'] for r in olga.get_ok('/requests')]
 
 
 def test_booking_from_a_response_closes_the_request(world):

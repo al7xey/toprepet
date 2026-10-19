@@ -16,7 +16,7 @@ test.describe('репетитор и администратор', () => {
 
     // шаг 1: пустые поля не пропускают дальше
     await page.getByRole('button', { name: 'Дальше' }).click();
-    await expect(page.getByText('Напишите в одном предложении')).toBeVisible();
+    await expect(page.getByText('Напишите, чем вы занимаетесь')).toBeVisible();
     await page.getByLabel('Коротко о вас').fill('Репетитор по математике для школьников');
     await page.getByLabel('О себе').fill('Работаю со школьниками пятый год: разбираем темы с нуля, готовимся к ОГЭ и ЕГЭ.');
     await page.getByRole('button', { name: 'Дальше' }).click();

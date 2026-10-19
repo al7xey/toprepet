@@ -50,7 +50,7 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
     const found: Record<string, string> = {};
     if (step === 1) {
       if (draft.name.trim().length < 2) found.name = 'Введите имя';
-      if (draft.headline.trim().length < 10) found.headline = 'Напишите в одном предложении, чем вы занимаетесь';
+      if (!draft.headline.trim()) found.headline = 'Напишите, чем вы занимаетесь';
       if (draft.about.trim().length < 40) found.about = 'Расскажите о себе подробнее: не меньше 40 символов';
     }
     if (step === 2) {
@@ -183,7 +183,7 @@ function Finish({ draft, week }: { draft: TutorProfileDraft; week: WeekSchedule 
       </div>
       <div className="g8">
         <CardTitle>Перед публикацией</CardTitle>
-        {checks.map(([label, ok]) => <div className="trk-exrow" key={label}><span>{label}</span><Status tone={ok ? 'ok' : 'neutral'} icon={ok ? 'check' : 'clock'}>{ok ? 'Готово' : 'Желательно'}</Status></div>)}
+        {checks.map(([label, ok]) => <div className="trk-exrow" key={label}><span>{label}</span><Status tone={ok ? 'ok' : 'neutral'} icon={ok ? undefined : 'clock'}>{ok ? 'Готово' : 'Желательно'}</Status></div>)}
       </div>
     </>
   );

@@ -52,7 +52,7 @@ function DisputeBody({ dispute, lesson, role, onChange }: { dispute: Dispute; le
   const canReply = role === 'tutor' && dispute.status === 'open';
   const submit = async () => {
     setTouched(true);
-    if (text.trim().length < 10) return;
+    if (!text.trim()) return;
     const updated = await reply.run();
     if (updated) { onChange(updated); toast('Ответ отправлен в поддержку'); }
   };
@@ -69,7 +69,7 @@ function DisputeBody({ dispute, lesson, role, onChange }: { dispute: Dispute; le
       {canReply && (
         <Card>
           <form className="trk-form" onSubmit={(e) => { e.preventDefault(); void submit(); }} noValidate>
-            <TextArea label="Ваш ответ" rows={5} maxLength={1500} placeholder="Расскажите, как всё было. Ответ увидит поддержка" value={text} onChange={(e) => setText(e.target.value)} error={touched && text.trim().length < 10 ? 'Напишите хотя бы пару предложений' : undefined} />
+            <TextArea label="Ваш ответ" rows={5} maxLength={1500} placeholder="Расскажите, как всё было. Ответ увидит поддержка" value={text} onChange={(e) => setText(e.target.value)} error={touched && !text.trim() ? 'Напишите ответ' : undefined} />
             <FormError error={reply.error} />
             <div className="trk-actions"><Button type="submit" size="lg" loading={reply.pending}>Отправить ответ</Button></div>
           </form>

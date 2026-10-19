@@ -104,8 +104,8 @@ class DisputeReplyView(APIView):
     def post(self, request, dispute_id):
         user = require_role(request, 'tutor')
         text = str(request.data.get('text', '')).strip()
-        if len(text) < 10:
-            raise ApiError('Напишите хотя бы пару предложений')
+        if not text:
+            raise ApiError('Напишите ответ')
         return Response(dispute_json(services.reply_dispute(user, dispute_id, text[:3000])))
 
 

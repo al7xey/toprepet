@@ -85,6 +85,7 @@
 .tr .trk-eye{border:0;background:transparent;padding:6px;margin-right:-6px;color:var(--muted);cursor:pointer;display:grid}
 .tr .trk-eye .i{width:20px;height:20px}
 .tr .trk-eye{border-radius:10px}
+.tr input[type=password]{letter-spacing:normal;font-family:inherit}
 .tr .trk-eye:focus-visible{outline:2px solid var(--accent);outline-offset:0}
 .tr .trk-error{color:var(--bad);font-size:14px;font-weight:600}
 .tr .trk-check{cursor:pointer;line-height:1.45}
@@ -370,11 +371,9 @@
 /* Варианты ответа: без пустых кружков. Выбор виден по фону и рамке, у множественного выбора — галочка */
 .tr .opt{padding:0 20px}
 .tr .opt::before{display:none}
-.tr .opt.ck.on{padding-left:14px}
-.tr .opt.ck.on::before{display:block;width:22px;height:22px;border:0;border-radius:50%;box-shadow:none;background:var(--accent) var(--tick) center/13px no-repeat}
 
 /* Галочка в чекбоксе: белая на оранжевом (вложенный значок не наследует рамку и заливку коробки) */
-.tr .chk i .i,.tr .chk.on i .i{width:15px;height:15px;margin:0;border:0;border-radius:0;background:#fff}
+.tr .trk-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0}
 
 /* Каталог: компактные фильтры, меню под кнопкой в рамке, сортировка значком */
 .tr .trh-chips{gap:8px}
@@ -645,3 +644,7 @@
 .tr .trh-hero-h .trh-ln>span{line-height:inherit;padding-bottom:.2em;margin-bottom:-.2em}
 .tr .trh-hero-h .trh-ln{padding:.12em 0 .5em;margin:-.12em 0 -.5em}
 @media(max-width:760px){.tr .trh-hero-h{font-size:34px}}
+
+/* v18: карточка заявки для репетитора — предмет, уровень и бюджет отдельными строками */
+.tr .trk-note-title{display:block;font-size:16px}
+.tr .trk-note-line{display:block;margin-top:2px}

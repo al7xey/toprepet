@@ -33,7 +33,7 @@ export default function NewRequestPage() {
       if (!goal) found.goal = 'Выберите цель';
     } else {
       if (!schedule.length) found.schedule = 'Выберите хотя бы одно удобное время';
-      if (description.trim().length < 20) found.description = 'Опишите задачу подробнее: хотя бы пару предложений';
+      if (!description.trim()) found.description = 'Опишите задачу';
     }
     setErrors(found);
     return Object.keys(found).length === 0;
