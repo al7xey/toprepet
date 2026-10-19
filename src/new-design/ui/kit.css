@@ -673,3 +673,7 @@
 .tr .trk-profile-body p{margin:0}
 .tr .trk-profile-actions{display:grid;gap:10px;margin-top:16px}
 .tr .trk-photo-big{aspect-ratio:4/5;border-radius:28px;overflow:hidden;background:var(--surface);box-shadow:0 0 0 1px var(--line);max-width:100%}
+
+/* v21: выход — красная кнопка внизу страницы */
+.tr .trk-logout{display:block;width:100%;min-height:52px;margin-top:24px;border:0;border-radius:999px;background:#fdecec;color:#b42318;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+.tr .trk-logout:focus-visible{outline:2px solid #b42318;outline-offset:2px}

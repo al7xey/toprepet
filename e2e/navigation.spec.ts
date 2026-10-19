@@ -19,3 +19,12 @@ test('нижняя панель: нажатие открывает раздел,
   await page.mouse.up();
   await expect(page).toHaveURL(/\/me\/lessons/);
 });
+
+test('репетитор выходит из аккаунта со страницы «Анкета»', async ({ page }) => {
+  await login(page, 'tutor');
+  await page.goto('/tutor/profile');
+  await page.getByRole('button', { name: 'Выйти', exact: true }).click();
+  await expect(page).not.toHaveURL(/\/tutor\/profile/);
+  await page.goto('/tutor/profile');
+  await expect(page).toHaveURL(/\/login/);
+});

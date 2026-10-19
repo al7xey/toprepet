@@ -1,5 +1,7 @@
+import { useNavigate } from 'react-router-dom';
 import { api } from '../../api';
 import { useQuery } from '../../api/hooks';
+import { useSession } from '../../api/session';
 import type { TutorStatus } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { minutes, rub } from '../../lib/format';
@@ -21,6 +23,9 @@ const DOC: Record<string, { tone: 'ok' | 'wait' | 'neutral' | 'bad'; text: strin
 /** Моя анкета: статус, содержание и документы. */
 export default function TutorProfilePage() {
   const profile = useQuery('my-profile', () => api.getMyProfile());
+  const { logout } = useSession();
+  const navigate = useNavigate();
+  const exit = async () => { await logout(); void navigate('/', { replace: true }); };
   const documents = useQuery('my-documents', () => api.listDocuments());
   return (
     <AppLayout role="tutor" narrow>
@@ -56,6 +61,7 @@ export default function TutorProfilePage() {
                 {(items) => <div className="trk-list">{items.map((d) => <Card key={d.id}><div className="trk-exrow"><CardTitle>{d.title}</CardTitle><Status tone={DOC[d.status].tone}>{DOC[d.status].text}</Status></div></Card>)}</div>}
               </QueryView>
             </Section>
+            <button type="button" className="trk-logout" onClick={exit}>Выйти</button>
           </>
         )}
       </QueryView>
