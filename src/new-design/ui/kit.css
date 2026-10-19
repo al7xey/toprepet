@@ -677,3 +677,6 @@
 /* v21: выход — красная кнопка внизу страницы */
 .tr .trk-logout{display:block;width:100%;min-height:52px;margin-top:24px;border:0;border-radius:999px;background:#fdecec;color:#b42318;font:inherit;font-size:16px;font-weight:700;cursor:pointer}
 .tr .trk-logout:focus-visible{outline:2px solid #b42318;outline-offset:2px}
+
+/* v22: шапка на телефоне — кнопка входа/кабинета короче, не наезжает на логотип */
+@media (max-width:760px){.tr .hdr.surf:not(.m) .trh-actions .btn{padding-left:18px;padding-right:18px;font-size:18.7px;white-space:nowrap}}

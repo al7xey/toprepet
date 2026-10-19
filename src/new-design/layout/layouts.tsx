@@ -149,7 +149,7 @@ const PUBLIC_NAV: [string, string][] = [['Репетиторы', '/teachers'], [
 function SessionActions({ block }: { block?: boolean }) {
   const { user } = useSession();
   if (user) {
-    return <Button to={homeFor(user.role)} size={block ? 'lg' : 's'} block={block} icon="user">{user.role === 'tutor' ? 'Кабинет репетитора' : user.role === 'admin' ? 'Админка' : 'Мои уроки'}</Button>;
+    return <Button to={homeFor(user.role)} size={block ? 'lg' : 's'} block={block} icon="user">{user.role === 'admin' ? 'Админка' : 'Кабинет'}</Button>;
   }
   return <Button size={block ? 'lg' : 's'} block={block} to="/login">Войти</Button>;
 }
