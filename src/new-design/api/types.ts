@@ -60,6 +60,7 @@ export interface Tutor {
 export interface TutorFilter {
   query?: string;
   subject?: string | null;
+  priceMin?: number | null;
   priceMax?: number | null;
   hasIntro?: boolean;
   sort?: 'recommended' | 'price_asc' | 'price_desc';

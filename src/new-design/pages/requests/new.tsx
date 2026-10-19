@@ -17,9 +17,8 @@ const BUDGETS = [
   { value: '0', label: 'Не важно' }, { value: CUSTOM, label: 'Своя цена' },
 ];
 
-/** Новая заявка: два шага, блоки как в анкете. Репетиторы по этим предметам увидят заявку и откликнутся сами. */
-export default function NewRequestPage() {
-  const navigate = useNavigate();
+/** Новая заявка: два шага. Репетиторы по этим предметам увидят заявку и откликнутся сами. Один мастер для страницы и для окна в профиле. */
+export function RequestWizard({ onDone, embedded }: { onDone: (id: string) => void; embedded?: boolean }) {
   const toast = useToast();
   const [step, setStep] = useState(1);
   const [picked, setPicked] = useState<string[]>([]);
@@ -61,13 +60,13 @@ export default function NewRequestPage() {
       subjects: picked.filter((s) => s !== OTHER), customSubject: hasOther ? custom.trim() : '',
       goal: goal ?? '', level: level ?? '', budgetMax, schedule, description: description.trim(),
     });
-    if (created) { toast('Заявка опубликована'); void navigate(`/me/requests/${created.id}`, { replace: true }); }
+    if (created) { toast('Заявка опубликована'); onDone(created.id); }
   };
 
   return (
-    <AppLayout role="student">
+    <>
       <WizardProgress step={step} total={2} label={`Шаг ${step} из 2 · ${step === 1 ? 'Какая помощь нужна' : 'Подробности'}`} />
-      <PageHeader title={step === 1 ? 'Какая помощь нужна' : 'Расскажите подробнее'} />
+      {!embedded && <PageHeader title={step === 1 ? 'Какая помощь нужна' : 'Расскажите подробнее'} />}
       <div className="trk-account">
         {step === 1 ? (
           <>
@@ -126,6 +125,11 @@ export default function NewRequestPage() {
         {step === 2 && <Button variant="fill" size="lg" onClick={() => setStep(1)}>Назад</Button>}
         <Button size="lg" onClick={next} loading={create.pending}>{step === 1 ? 'Дальше' : 'Опубликовать заявку'}</Button>
       </div>
-    </AppLayout>
+    </>
   );
+}
+
+export default function NewRequestPage() {
+  const navigate = useNavigate();
+  return <AppLayout role="student"><RequestWizard onDone={(id) => void navigate(`/me/requests/${id}`, { replace: true })} /></AppLayout>;
 }

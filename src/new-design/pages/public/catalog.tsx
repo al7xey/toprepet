@@ -9,7 +9,6 @@ import { rv } from '../../reveal';
 import { Button, Dropdown, EmptyState, ErrorState, FilterMenu, Icon, PageHeader, Skeleton, TutorGrid } from '../../ui';
 
 const SUBJECTS = subjects.filter((s) => s !== 'Другой предмет');
-const PRICES = [{ value: 1500, label: 'до 1 500 ₽' }, { value: 2000, label: 'до 2 000 ₽' }, { value: 2500, label: 'до 2 500 ₽' }];
 const SORTS = [{ value: 'recommended', label: 'Рекомендуемые' }, { value: 'price_asc', label: 'Сначала дешевле' }, { value: 'price_desc', label: 'Сначала дороже' }] as const;
 const PAGE = 8;
 
@@ -87,13 +86,10 @@ export default function CatalogPage() {
         </form>
         <div className="trh-chips">
           <FilterMenu
-            active={Boolean(filter.subject || filter.priceMax || filter.hasIntro)}
-            groups={[
-              { label: 'Предмет', allLabel: 'Все предметы', value: filter.subject ?? null, options: SUBJECTS.map((s) => ({ value: s, label: s })), onChange: (v) => { set({ subject: v as string | null }); trackGoal('teacher_filter', { subject: v ? safeChoice(String(v)) : 'all' });  } },
-              { label: 'Цена', allLabel: 'Любая цена', value: filter.priceMax ?? null, options: PRICES, onChange: (v) => set({ priceMax: v as number | null }) },
-            ]}
-            intro={{ label: 'Бесплатное знакомство', on: Boolean(filter.hasIntro) }}
-            onIntro={() => set({ hasIntro: !filter.hasIntro || undefined })}
+            active={Boolean(filter.subject || filter.priceMin || filter.priceMax || filter.hasIntro)}
+            subject={{ value: filter.subject ?? null, options: SUBJECTS, onChange: (v) => { set({ subject: v }); trackGoal('teacher_filter', { subject: v ? safeChoice(v) : 'all' }); } }}
+            price={{ min: filter.priceMin ?? 0, max: filter.priceMax ?? 5000, onChange: (min, max) => set({ priceMin: min, priceMax: max }) }}
+            bonus={{ label: 'Бесплатное знакомство', on: Boolean(filter.hasIntro), onToggle: () => set({ hasIntro: !filter.hasIntro || undefined }) }}
             onReset={() => setFilter({ sort: filter.sort, query: filter.query })}
           />
           <Dropdown label="Сортировка" icon="sort" value={filter.sort ?? 'recommended'} options={SORTS.map((s) => ({ ...s }))} onChange={(v) => set({ sort: (v ?? 'recommended') as TutorFilter['sort'] })} align="right" iconOnly />

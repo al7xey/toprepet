@@ -365,6 +365,7 @@ export function createMockApi(): Api {
       let items = s.tutors.filter((t) => t.status === 'published')
         .filter((t) => !filter.subject || t.helpTopics.includes(filter.subject) || t.subjects.some((x) => filter.subject?.startsWith(x)))
         .filter((t) => !filter.priceMax || t.studentPrice <= filter.priceMax)
+        .filter((t) => !filter.priceMin || t.studentPrice >= filter.priceMin)
         .filter((t) => !filter.hasIntro || t.introMinutes > 0)
         .filter((t) => !query || norm([t.name, t.headline, t.cardSubjects, ...t.helpTopics, t.intro].join(' ')).includes(query));
       if (filter.sort === 'price_asc') items = [...items].sort((a, b) => a.studentPrice - b.studentPrice);

@@ -31,6 +31,8 @@ def test_catalog_filters_sorting_and_pagination(api, demo):
     assert second['items'][0]['id'] != page['items'][0]['id']
     assert api.get_ok('/tutors', {'query': 'АНГЛИЙСК', 'limit': 50})['total'] >= 1
     assert api.get_ok('/tutors', {'priceMax': 1000, 'limit': 50})['total'] == 0
+    assert api.get_ok('/tutors', {'priceMin': 100000, 'limit': 50})['total'] == 0
+    assert api.get_ok('/tutors', {'priceMin': 1, 'limit': 50})['total'] > 0
     assert all(t['introMinutes'] > 0 for t in api.get_ok('/tutors', {'hasIntro': 'true', 'limit': 50})['items'])
     prices = [t['studentPrice'] for t in api.get_ok('/tutors', {'sort': 'price_desc', 'limit': 50})['items']]
     assert prices == sorted(prices, reverse=True)

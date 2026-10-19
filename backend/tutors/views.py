@@ -44,6 +44,7 @@ class TutorListView(APIView):
         subject = q.get('subject') or None
         try:
             price_max = int(q['priceMax']) if q.get('priceMax') else None
+            price_min = int(q['priceMin']) if q.get('priceMin') else None
             limit = max(1, min(int(q.get('limit', 8)), 50))
             start = max(0, int(q.get('cursor') or 0))
         except ValueError:
@@ -53,6 +54,8 @@ class TutorListView(APIView):
             items = [t for t in items if subject in (t.help_topics or []) or any(subject.startswith(s) for s in t.subjects)]
         if price_max:
             items = [t for t in items if t.student_price <= price_max]
+        if price_min:
+            items = [t for t in items if t.student_price >= price_min]
         if q.get('hasIntro') in ('true', '1'):
             items = [t for t in items if t.intro_minutes > 0]
         if query:

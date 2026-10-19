@@ -46,15 +46,22 @@ test('из диалога имя и фото ведут на анкету, ст�
   await expect(page).toHaveURL(chatUrl);
 });
 
-test('профиль: смена пароля в окне, разделы кабинета, выход с подтверждением', async ({ page }) => {
+test('профиль: сводка по заявкам, настройки за кнопкой, смена пароля, выход с подтверждением', async ({ page }) => {
   await login(page, 'student');
   await page.goto('/me/account');
-  // «Мои уроки» и «Мои заявки» открываются из профиля
   const main = page.locator('#main');
-  await expect(main.getByRole('link', { name: 'Мои уроки' })).toBeVisible();
-  await expect(main.getByRole('link', { name: 'Мои заявки' })).toBeVisible();
+  // заявки, уведомления и платежи — прямо в профиле, заявку можно создать из окна
+  await expect(main.getByRole('heading', { name: 'Мои заявки' })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Уведомления' })).toBeVisible();
+  await expect(main.getByRole('heading', { name: 'Платежи' })).toBeVisible();
+  await expect(main.getByRole('button', { name: 'Сменить пароль' })).toHaveCount(0);
+  await main.getByRole('button', { name: 'Новая заявка' }).click();
+  await expect(page.getByRole('dialog').getByText('Шаг 1 из 2')).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: 'Закрыть' }).click();
+  // настройки открываются шестерёнкой
+  await page.getByRole('button', { name: 'Настройки' }).click();
   const dialog = page.getByRole('dialog');
-  await page.getByRole('button', { name: 'Сменить пароль' }).click();
+  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
   await dialog.getByLabel('Текущий пароль').fill('неверный');
   await dialog.getByLabel('Новый пароль').fill('newpassword1');
   await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
@@ -63,14 +70,40 @@ test('профиль: смена пароля в окне, разделы каб
   await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
   await expect(page.getByText('Пароль изменён')).toBeVisible();
   // возвращаем демо-пароль, чтобы не ломать другие сценарии
-  await page.getByRole('button', { name: 'Сменить пароль' }).click();
+  await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
   await dialog.getByLabel('Текущий пароль').fill('newpassword1');
   await dialog.getByLabel('Новый пароль').fill('demo1234');
   await dialog.getByRole('button', { name: 'Сменить пароль' }).click();
   await expect(page.getByText('Пароль изменён').first()).toBeVisible();
-  await page.getByRole('button', { name: 'Выйти', exact: true }).click();
+  await dialog.getByRole('button', { name: 'Выйти', exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Выйти' }).click();
   await expect(page).not.toHaveURL(/\/me\/account/);
+});
+
+test('уведомление об успехе приходит в зелёном окне, а не в белом', async ({ page }) => {
+  await login(page, 'student');
+  await page.goto('/me/account');
+  await page.getByRole('button', { name: 'Настройки' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Изменить данные' }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Сохранить' }).click();
+  const toast = page.locator('.trk-toast.ok').first();
+  await expect(toast).toBeVisible();
+  expect(await toast.evaluate((el) => getComputedStyle(el).backgroundColor)).not.toBe('rgb(255, 255, 255)');
+});
+
+test('фильтры: цена от и до двумя движками, знакомство в разделе «Бонус»', async ({ page }) => {
+  await page.goto('/teachers');
+  await page.getByLabel('Фильтры').click();
+  const dialog = page.getByRole('dialog', { name: 'Фильтры' });
+  await expect(dialog.getByText('Бонус')).toBeVisible();
+  await expect(dialog.getByLabel('Цена от')).toBeVisible();
+  await expect(dialog.getByLabel('Цена до')).toBeVisible();
+  await dialog.getByLabel('Цена до').fill('1000');
+  await dialog.getByLabel('Цена до').dispatchEvent('pointerup');
+  await expect(dialog.getByRole('button', { name: 'Сбросить' })).toBeEnabled();
+  const reset = await dialog.getByRole('button', { name: 'Сбросить' }).boundingBox();
+  const show = await dialog.getByRole('button', { name: 'Показать' }).boundingBox();
+  expect(Math.round(reset?.height ?? 0)).toBe(Math.round(show?.height ?? 1));
 });
 
 test('чат: фото сжимается и отправляется, у своего сообщения одна галочка', async ({ page }) => {

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { RequestResponse, RequestStatus, StudyRequest } from '../../api/types';
 import { ago, count, fromRub, rub, whenLabel } from '../../lib/format';
-import { Button, Card, Person, Status, StudentCard, Tags } from '../../ui';
+import { Button, Card, Person, Rows, Status, StudentCard } from '../../ui';
 
 export const REQUEST_STATUS: Record<RequestStatus, { tone: 'wait' | 'ok' | 'neutral'; icon: string; text: string }> = {
   open: { tone: 'wait', icon: 'clock', text: 'Ищем репетитора' },
@@ -10,18 +10,23 @@ export const REQUEST_STATUS: Record<RequestStatus, { tone: 'wait' | 'ok' | 'neut
   closed: { tone: 'neutral', icon: 'x', text: 'Закрыта' },
 };
 
-/** Карточка заявки: одна на странице ученика, ленте заявок и кабинете репетитора. */
+/** Карточка заявки: основная информация в ячейках-таблице, как в карточке записи на анкете. Одна на странице ученика, ленте заявок и кабинете репетитора. */
 export function RequestCard({ request, actions, showStatus = true, forTutor }: { request: StudyRequest; actions?: ReactNode; showStatus?: boolean; forTutor?: boolean }) {
   const s = REQUEST_STATUS[request.status];
   return (
     <Card as="article" className="trk-request">
       {forTutor && <StudentCard name={request.studentName} photo={request.studentPhoto} sub={`${ago(request.createdAt)} · ${count(request.responsesCount, 'отклик', 'отклика', 'откликов')}`} />}
       <div className="trk-exrow">
-        <div><b className="trk-request-title">{request.subject}</b><br /><span className="muted">{request.level} · {request.goal}</span></div>
+        <b className="trk-request-title">{request.subject}</b>
         {showStatus && <Status tone={s.tone} icon={s.icon}>{s.text}</Status>}
       </div>
+      <Rows boxed rows={[
+        ['Уровень', request.level],
+        ['Цель', request.goal],
+        ['Удобное время', request.schedule.join(', ')],
+        ['Бюджет', request.budgetMax ? `до ${rub(request.budgetMax)}` : 'Не указан'],
+      ]} />
       <p className="trk-request-text">{request.description}</p>
-      <Tags items={[...request.schedule, request.budgetMax ? `до ${rub(request.budgetMax)}` : 'Бюджет не указан']} />
       <div className="trk-exrow">
         {!forTutor && <span className="muted sm">{ago(request.createdAt)} · {count(request.responsesCount, 'отклик', 'отклика', 'откликов')}</span>}
         {actions && <div className="trk-actions">{actions}</div>}
@@ -44,8 +49,8 @@ export function ResponseCard({ response, bookable, bookHref, chatHref }: { respo
         </div>
       )}
       <div className="trk-actions">
-        <Button size="s" variant="line" to={`/teachers/${response.tutorId}/`}>Анкета</Button>
-        <Button size="s" variant="fill" icon="chat" to={chatHref}>Написать</Button>
+        <Button size="s" to={`/teachers/${response.tutorId}/`}>Анкета</Button>
+        <Button size="s" icon="chat" to={chatHref}>Написать</Button>
       </div>
     </Card>
   );

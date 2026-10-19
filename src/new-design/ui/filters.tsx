@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { rub } from '../lib/format';
 import { Icon } from './icon';
 
 /** Выпадающее меню фильтра из белого стекла. */
@@ -35,11 +36,30 @@ export const Chip = ({ on, onClick, children }: { on: boolean; onClick: () => vo
   <button type="button" className={`chipf${on ? ' on' : ''}`} aria-pressed={on} onClick={onClick}>{children}</button>
 );
 
+const PRICE_HI = 5000; // правая граница ползунка: «5 000 ₽ и дороже»
+const PRICE_STEP = 100;
+
+/** Цена «от и до»: два движка на одной шкале. Значение применяется, когда палец отпущен. */
+function PriceRange({ min, max, onChange }: { min: number; max: number; onChange: (min: number, max: number) => void }) {
+  const [lo, setLo] = useState(min);
+  const [hi, setHi] = useState(max);
+  const commit = () => onChange(lo, hi);
+  return (
+    <div className="trh-range">
+      <div className="trh-range-vals"><span>от <b>{rub(lo)}</b></span><span>до <b>{hi >= PRICE_HI ? `${rub(PRICE_HI)} и больше` : rub(hi)}</b></span></div>
+      <div className="trh-range-track" style={{ '--a': `${(lo / PRICE_HI) * 100}%`, '--b': `${(hi / PRICE_HI) * 100}%` } as CSSProperties}>
+        <input type="range" aria-label="Цена от" min={0} max={PRICE_HI} step={PRICE_STEP} value={lo} onChange={(e) => setLo(Math.min(Number(e.target.value), hi - PRICE_STEP))} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
+        <input type="range" aria-label="Цена до" min={0} max={PRICE_HI} step={PRICE_STEP} value={hi} onChange={(e) => setHi(Math.max(Number(e.target.value), lo + PRICE_STEP))} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
+      </div>
+    </div>
+  );
+}
+
 /** Кнопка фильтров: значок с ползунками открывает страницу фильтров на весь экран. Точка на значке — фильтр включён. */
-export function FilterMenu({ groups, intro, onIntro, onReset, active }: {
-  groups: { label: string; allLabel: string; value: string | number | null; options: { value: string | number; label: string }[]; onChange: (v: string | number | null) => void }[];
-  intro: { label: string; on: boolean };
-  onIntro: () => void;
+export function FilterMenu({ subject, price, bonus, onReset, active }: {
+  subject: { value: string | null; options: string[]; onChange: (v: string | null) => void };
+  price: { min: number; max: number; onChange: (min: number | null, max: number | null) => void };
+  bonus: { label: string; on: boolean; onToggle: () => void };
   onReset: () => void;
   active: boolean;
 }) {
@@ -58,20 +78,23 @@ export function FilterMenu({ groups, intro, onIntro, onReset, active }: {
         <button type="button" className="trk-iconbtn" aria-label="Закрыть фильтры" onClick={() => setOpen(false)}><Icon name="x" /></button>
       </div>
       <div className="trh-fpage-body">
-        {groups.map((g) => (
-          <div className="trh-fpage-group" key={g.label}>
-            <b>{g.label}</b>
-            <div className="trh-fpage-opts">
-              <button type="button" className={`opt${g.value === null ? ' on' : ''}`} aria-pressed={g.value === null} onClick={() => g.onChange(null)}>{g.allLabel}</button>
-              {g.options.map((o) => (
-                <button type="button" key={String(o.value)} className={`opt${o.value === g.value ? ' on' : ''}`} aria-pressed={o.value === g.value} onClick={() => g.onChange(o.value)}>{o.label}</button>
-              ))}
-            </div>
-          </div>
-        ))}
         <div className="trh-fpage-group">
+          <b>Предмет</b>
           <div className="trh-fpage-opts">
-            <button type="button" className={`opt${intro.on ? ' on' : ''}`} aria-pressed={intro.on} onClick={onIntro}>{intro.label}</button>
+            <button type="button" className={`opt${subject.value === null ? ' on' : ''}`} aria-pressed={subject.value === null} onClick={() => subject.onChange(null)}>Все предметы</button>
+            {subject.options.map((o) => (
+              <button type="button" key={o} className={`opt${o === subject.value ? ' on' : ''}`} aria-pressed={o === subject.value} onClick={() => subject.onChange(o)}>{o}</button>
+            ))}
+          </div>
+        </div>
+        <div className="trh-fpage-group">
+          <b>Цена за урок</b>
+          <PriceRange key={`${price.min}-${price.max}`} min={price.min} max={price.max} onChange={(lo, hi) => price.onChange(lo > 0 ? lo : null, hi < PRICE_HI ? hi : null)} />
+        </div>
+        <div className="trh-fpage-group">
+          <b>Бонус</b>
+          <div className="trh-fpage-opts">
+            <button type="button" className={`opt${bonus.on ? ' on' : ''}`} aria-pressed={bonus.on} onClick={bonus.onToggle}>{bonus.label}</button>
           </div>
         </div>
       </div>

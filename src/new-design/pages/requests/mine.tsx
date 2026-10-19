@@ -28,7 +28,7 @@ export default function MyRequestsPage() {
         {(all) => (
           <div className="trk-list">
             {all.filter((r) => (scope === 'active') === (r.status === 'open')).map((r) => (
-              <RequestCard key={r.id} request={r} actions={<Button size="s" variant="fill" to={`/me/requests/${r.id}`}>Открыть</Button>} />
+              <RequestCard key={r.id} request={r} actions={<Button size="s" to={`/me/requests/${r.id}`}>Открыть</Button>} />
             ))}
           </div>
         )}

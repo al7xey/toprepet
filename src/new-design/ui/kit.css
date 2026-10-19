@@ -648,15 +648,16 @@
 .tr .trk-note-title{display:block;font-size:16px}
 .tr .trk-note-line{display:block;margin-top:2px}
 
-/* v32: нижняя панель — компактная, белая, только значки; оранжевая пилюля плавно переезжает и тянется пальцем */
-.tr .trk-tabbar,.tr .trk-tabbar.five{--w:calc((100% - 10px - (var(--n) - 1) * 2px) / var(--n));background:#fff;border:1px solid var(--line);border-radius:999px;box-shadow:0 6px 18px rgb(32 40 56 / 10%);padding:5px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-.tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:48px;padding:0;border-radius:999px;background:transparent;color:var(--ink)}
-.tr .trk-tabbar .tab .i{width:26px;height:26px}
+/* v34: нижняя панель — узкая, «жидкое стекло»: размытие фона и блики; оранжевая пилюля скользит и приподнимается под пальцем */
+.tr .trk-tabbar,.tr .trk-tabbar.five{--w:calc((100% - 10px - (var(--n) - 1) * 2px) / var(--n));background:rgb(255 255 255 / 52%);backdrop-filter:blur(22px) saturate(190%);-webkit-backdrop-filter:blur(22px) saturate(190%);border:1px solid rgb(255 255 255 / 75%);border-radius:999px;box-shadow:0 10px 28px rgb(32 40 56 / 14%),inset 0 1px 0 rgb(255 255 255 / 92%),inset 0 -1px 0 rgb(255 255 255 / 40%),inset 0 0 16px rgb(255 255 255 / 28%);padding:5px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:46px;padding:0;border-radius:999px;background:transparent;color:var(--ink);transition:none}
+.tr .trk-tabbar .tab .i{width:26px;height:26px;transition:none}
 .tr .trk-tabbar .tab.cur{background:transparent;color:#fff}
 .tr .trk-tabbar .tab.cur .i{background:#fff}
-.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:calc(5px + var(--pos,0) * (var(--w) + 2px));width:var(--w);border-radius:999px;background:var(--accent);transition:left .35s var(--spring);pointer-events:none;z-index:0}
-.tr .trk-tabbar.drag .tabpill{transition:none}
+.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:calc(5px + var(--pos,0) * (var(--w) + 2px));width:var(--w);border-radius:999px;background:var(--accent);box-shadow:inset 0 1px 0 rgb(255 255 255 / 45%);transition:left .35s var(--spring),transform .3s var(--spring);pointer-events:none;z-index:0}
+.tr .trk-tabbar.drag .tabpill{transition:transform .3s var(--spring);transform:scale(1.1,1.06)}
 @media (prefers-reduced-motion:reduce){.tr .trk-tabbar .tabpill{transition:none}}
+@media (max-width:760px){.tr .trk-app .trk-tabbar{left:0;right:0;margin-inline:auto;width:min(300px,calc(100% - 48px))}}
 @media (max-width:760px){
   .tr .trk-chat-list .trh-main{padding-left:8px;padding-right:8px}
   .tr .tg-title{padding:16px 8px 10px}
@@ -800,3 +801,52 @@ html{overflow-y:scroll}
 .tr .trk-student-text b{font-size:18px;line-height:1.2}
 .tr .trk-student-text span{color:var(--muted);font-size:14px}
 .tr .trk-back{display:grid;place-items:center}
+
+/* v34: профиль-сводка, настройки, цветные уведомления, цена в фильтрах, ячейки и общие правки */
+.tr .btn-fill,.tr .btn-line,.tr .btn-warm,.tr .btn-soft{background:#fff;box-shadow:inset 0 0 0 1.5px var(--line)}
+.tr .btn-line.btn-lg,.tr .btn-primary.btn-lg{height:48px;min-height:48px}
+.tr .trh-fpage-foot .btn{height:48px;min-height:48px}
+.tr .trk-pagehead-row{flex-wrap:nowrap;align-items:center;gap:12px}
+.tr .trk-pagehead-text{flex:1}
+.tr .trk-pagehead-row .trk-back{flex:none}
+@media (max-width:760px){.tr .tg-title{padding:0 8px 10px}}
+.tr .trk-block{display:grid;gap:10px;align-content:start}
+.tr .trk-block-head{display:flex;align-items:center;gap:10px}
+.tr .trk-blocktitle{margin:0;flex:1;font-size:18px;letter-spacing:-0.02em}
+.tr .trk-block-big .trk-blocktitle{font-size:22px}
+.tr .trk-block-all{font-size:14px;font-weight:650;color:var(--muted)}
+.tr .trk-notice{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);color:var(--ink)}
+.tr .trk-navlist>.trk-notice:first-child{border-top:0}
+.tr .trk-notice-text{display:grid;flex:1;min-width:0}
+.tr .trk-notice-text b{font-size:15px}
+.tr .trk-notice-text span{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr .trk-notice small{color:var(--muted);font-size:12px;flex:none}
+.tr .trk-right{display:grid;justify-items:end;gap:4px;flex:none}
+.tr .trk-account-hero{display:flex;align-items:center;gap:14px;flex-wrap:nowrap}
+.tr .trk-account-stats{display:flex;gap:18px;margin:0}
+.tr .trk-account-stats dd{font-size:20px}
+.tr .trk-account-stats dt{font-size:12px}
+.tr .trk-settings{display:grid;gap:10px}
+.tr .trk-settings .btn{width:100%}
+.tr .trk-settings-prefs{display:grid;gap:12px;padding:6px 0}
+.tr .trk-toast.ok{background:#dff3e8;color:var(--ok);box-shadow:none}
+.tr .trk-toast.bad{background:var(--bad-soft);color:var(--bad);box-shadow:none}
+.tr .trk-toast.info{background:#ffe9d4;color:var(--ink);box-shadow:none}
+.tr .trh-range{display:grid;gap:12px}
+.tr .trh-range-vals{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:15px}
+.tr .trh-range-vals b{color:var(--ink)}
+.tr .trh-range-track{position:relative;height:32px}
+.tr .trh-range-track::before{content:'';position:absolute;left:0;right:0;top:14px;height:4px;border-radius:2px;background:var(--line)}
+.tr .trh-range-track::after{content:'';position:absolute;top:14px;height:4px;border-radius:2px;background:var(--accent);left:var(--a);right:calc(100% - var(--b))}
+.tr .trh-range-track input{position:absolute;inset:0;width:100%;height:32px;margin:0;background:none;pointer-events:none;-webkit-appearance:none;appearance:none}
+.tr .trh-range-track input::-webkit-slider-runnable-track{height:32px;background:transparent}
+.tr .trh-range-track input::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:28px;height:28px;margin-top:2px;border-radius:50%;background:#fff;border:2px solid var(--accent);box-shadow:0 2px 6px rgb(32 40 56 / 18%);cursor:grab;position:relative;z-index:2}
+.tr .trh-range-track input::-moz-range-track{height:32px;background:transparent}
+.tr .trh-range-track input::-moz-range-thumb{pointer-events:auto;width:24px;height:24px;border-radius:50%;background:#fff;border:2px solid var(--accent);cursor:grab}
+.tr .trh-pf-intro-tag{min-height:28px;padding:0 12px;font-size:13px}
+.tr .trh-pf-intro-tag .i{width:14px;height:14px}
+.tr .tc .pl>span:not(.trh-price),.tr .trh-pf-role{color:var(--accent)}
+.tr .trk-rows.boxed{background:#fff;border-radius:16px}
+.tr .trk-account-who{min-width:0;flex:1}
+.tr .trk-account-who .muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr .trk-account-stats{flex:none;gap:14px}

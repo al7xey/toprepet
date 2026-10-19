@@ -65,8 +65,8 @@ export function BackLink({ to, children }: { to: string; children: ReactNode }) 
 export function PageHeader({ title, lead, back, actions, center }: { title: ReactNode; lead?: ReactNode; back?: { to: string; label: string }; actions?: ReactNode; center?: boolean }) {
   return (
     <header className={cx('trk-pagehead', center && 'center')} {...rv('up')}>
-      {back && <BackLink to={back.to}>{back.label}</BackLink>}
       <div className="trk-pagehead-row">
+        {back && <BackLink to={back.to}>{back.label}</BackLink>}
         <div className="trk-pagehead-text">
           <h1 className="trh-h1">{title}</h1>
           {lead && <p className="lead">{lead}</p>}
