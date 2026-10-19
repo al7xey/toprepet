@@ -649,10 +649,10 @@
 .tr .trk-note-title{display:block;font-size:16px}
 .tr .trk-note-line{display:block;margin-top:2px}
 
-/* v19: нижняя панель. Светлая пилюля с обводкой; круг строго за иконкой выбранного раздела; иконки контурные, не залитые */
+/* v19: нижняя панель. Светлая пилюля с обводкой; выбранный раздел выделен целой пилюлей на всю высоту панели, иконка и подпись белые */
 .tr .trk-tabbar{--w:calc((100% - 12px - (var(--n) - 1) * 2px) / var(--n));background:#fff;border-radius:999px;box-shadow:0 0 0 1px #e8ddd4,0 10px 28px rgb(32 40 56 / 12%);padding:6px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overflow:visible}
 .tr .trk-tabbar .tab{z-index:1;min-height:62px;padding:9px 0 6px;background:transparent;color:var(--ink);box-shadow:none}
 .tr .trk-tabbar .tab .i{width:24px;height:24px}
-.tr .trk-tabbar .tab.cur{color:#b23e0c}
-.tr .trk-tabbar .tab.cur .i{background:#b23e0c}
-.tr .trk-tabbar .tabpill{position:absolute;top:5px;left:calc(6px + var(--pos,0) * (var(--w) + 2px) + (var(--w) - 42px) / 2);width:42px;height:42px;border-radius:50%;background:#fde2d0;transition:left .35s var(--spring);pointer-events:none;z-index:0}
+.tr .trk-tabbar .tab.cur{color:#fff}
+.tr .trk-tabbar .tab.cur .i{background:#fff}
+.tr .trk-tabbar .tabpill{position:absolute;top:6px;bottom:6px;left:calc(6px + var(--pos,0) * (var(--w) + 2px));width:var(--w);border-radius:999px;background:#b23e0c;transition:left .35s var(--spring);pointer-events:none;z-index:0}
