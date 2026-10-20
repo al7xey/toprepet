@@ -53,6 +53,30 @@ function Profile({ tutor }: { tutor: Tutor }) {
     window.addEventListener('resize', onScroll);
     return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (frame) cancelAnimationFrame(frame); };
   }, []);
+  // полоса браузера над страницей берёт цвет верха фотографии, чтобы фото казалось идущим до самого края
+  useEffect(() => {
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!meta) return undefined;
+    const previous = meta.content;
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 24; canvas.height = 4;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight * 0.04, 0, 0, 24, 4);
+        const data = ctx.getImageData(0, 0, 24, 4).data;
+        let r = 0; let g = 0; let b = 0;
+        for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i + 1]; b += data[i + 2]; }
+        const n = data.length / 4;
+        if (!cancelled) meta.content = `rgb(${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)})`;
+      } catch { /* фото с другого адреса нельзя прочитать: оставляем белый */ }
+    };
+    img.src = tutor.photo;
+    return () => { cancelled = true; meta.content = previous; };
+  }, [tutor.photo]);
   // назад — по истории, если она есть; иначе к каталогу
   const close = () => { if (location.key !== 'default') void navigate(-1); else void navigate('/teachers'); };
   const share = () => {
