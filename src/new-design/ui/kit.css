@@ -923,3 +923,8 @@ html{overflow-y:scroll}
 .tr .trk-lesson-state{display:flex;justify-content:center;padding-top:2px}
 .tr .trk-pagehead.has-back .trk-pagehead-row{align-items:start}
 .tr .trk-pagehead.has-back .trk-pagehead-text h1{min-height:44px;display:flex;align-items:center;justify-content:center}
+
+/* v43: пилюля увеличивается под пальцем и идёт за ним; точка уведомления — справа сверху от самого значка */
+.tr .trk-tabbar.press .tabpill{transform:scale(1.1,1.08);box-shadow:0 8px 18px rgb(32 40 56 / 16%),inset 0 1px 0 rgb(255 255 255 / 90%),inset 0 0 0 1px rgb(255 255 255 / 40%)}
+.tr .trk-tabbar.press{transform:none}
+.tr .trk-tabbar .tab .dot{width:10px;height:10px;top:8px;left:calc(50% + 13px);box-shadow:none;background:var(--accent)}

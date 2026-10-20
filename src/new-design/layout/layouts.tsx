@@ -11,6 +11,9 @@ const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ')
 const DRAG_PX = 6; // на сколько сдвинуть палец, чтобы нажатие стало перетаскиванием
 const MOVE_MS = 480; // дольше всего пилюля переезжает к новому пункту
 
+/** Где пилюля стояла в последний раз: страницы собирают панель заново, а пилюля должна ехать от старого места, а не появляться на новом. */
+let lastPillLeft: number | null = null;
+
 /** Положение и ширина каждого пункта относительно внутреннего края панели. Берём из вёрстки, поэтому слева и справа всё симметрично. */
 function cellsOf(host: HTMLElement) {
   const box = host.getBoundingClientRect();
@@ -24,7 +27,8 @@ function cellsOf(host: HTMLElement) {
 
 /**
  * Нижняя панель «жидкое стекло». Прозрачная пилюля выбранного раздела переезжает к новому пункту,
- * на ходу растягиваясь, как капля; под пальцем она приподнимается, и её можно тянуть влево и вправо.
+ * на ходу растягиваясь, как капля. Под пальцем она увеличивается и идёт за ним влево и вправо:
+ * пока палец на панели, страница не меняется и ничего не пересобирается, раздел открывается при отпускании.
  */
 function TabBar({ tabs }: { tabs: NavItem[] }) {
   const { pathname } = useLocation();
@@ -33,15 +37,14 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
   const pill = useRef<HTMLSpanElement>(null);
   const gesture = useRef<{ x: number; moved: boolean } | null>(null);
   const swallowClick = useRef(false);
+  const placed = useRef(false);
   const [width, setWidth] = useState(0);
-  const [pos, setPos] = useState<number | null>(null); // положение пилюли под пальцем в долях пункта (только при перетаскивании)
+  const [dragIndex, setDragIndex] = useState<number | null>(null); // пункт под пальцем: подсвечивает значок
   const [pending, setPending] = useState<{ index: number; at: string } | null>(null); // куда едем, пока адрес ещё не сменился
-  const [pressed, setPressed] = useState(false);
-  const [moved, setMoved] = useState(false);
   const current = tabs.findIndex((t) => [t.to, ...(t.also ?? [])].some((to) => pathname === to || pathname.startsWith(`${to}/`)));
   // после отпускания пилюля сразу едет к выбранному пункту, а не возвращается назад в ожидании смены адреса
   const target = pending && pending.at === pathname ? pending.index : current;
-  const shown = pos === null ? target : Math.round(pos);
+  const shown = dragIndex ?? target;
 
   // палец в долях пункта: 0 — первый пункт, n−1 — последний
   const posAt = (clientX: number) => {
@@ -55,20 +58,73 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     const step = cells[1].left - cells[0].left;
     return Math.min(Math.max((x - cells[0].left - cells[0].width / 2) / step, 0), cells.length - 1);
   };
-  const finish = () => { gesture.current = null; setPos(null); setPressed(false); setMoved(false); };
+  const leftOf = (cells: { left: number }[], pos: number) => cells[0].left + pos * (cells.length > 1 ? cells[1].left - cells[0].left : 0);
+
+  // пилюля плавно едет к краю dest; в середине пути растянута от старого места до нового и не выходит за панель
+  const glide = (dest: number, w: number, from?: number) => {
+    const el = pill.current;
+    if (!el) return;
+    const live = from ?? (placed.current ? parseFloat(getComputedStyle(el).left) : (lastPillLeft ?? Number.NaN));
+    el.getAnimations().forEach((a) => a.cancel());
+    el.style.width = `${w}px`;
+    el.style.left = `${dest}px`;
+    placed.current = true;
+    lastPillLeft = dest;
+    if (Number.isNaN(live) || Math.abs(live - dest) < 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const dist = Math.abs(dest - live);
+    const anim = el.animate(
+      [{ left: `${live}px`, width: `${w}px` }, { left: `${Math.min(live, dest)}px`, width: `${w + dist * 0.9}px`, offset: 0.5 }, { left: `${dest}px`, width: `${w}px` }],
+      { duration: Math.round(Math.min(MOVE_MS, 260 + dist * 1.1)), easing: 'cubic-bezier(.32,.72,0,1)' },
+    );
+    // пока пилюля едет, запоминаем, где она сейчас: если страница пересоберёт панель, новая пилюля продолжит путь с этого места
+    lastPillLeft = live;
+    const sample = () => {
+      if (!el.isConnected) return;
+      const now = parseFloat(getComputedStyle(el).left);
+      if (!Number.isNaN(now)) lastPillLeft = now;
+      if (anim.playState === 'running') requestAnimationFrame(sample);
+      else lastPillLeft = dest;
+    };
+    requestAnimationFrame(sample);
+  };
+  // пилюля идёт за пальцем без анимации и без перерисовки страницы
+  const follow = (pos: number) => {
+    const el = pill.current;
+    const host = bar.current;
+    if (!el || !host) return;
+    const cells = cellsOf(host);
+    if (!cells.length) return;
+    el.getAnimations().forEach((a) => a.cancel());
+    const left = leftOf(cells, pos);
+    el.style.width = `${cells[0].width}px`;
+    el.style.left = `${left}px`;
+    lastPillLeft = left;
+  };
+
+  const finish = () => { gesture.current = null; setDragIndex(null); };
 
   const onPointerDown = (e: PointerEvent) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     gesture.current = { x: e.clientX, moved: false };
     bar.current?.setPointerCapture(e.pointerId);
-    // пилюля пока стоит на месте: при обычном нажатии она плавно переедет сама, при перетаскивании пойдёт за пальцем
-    setPressed(true);
+    // под пальцем пилюля сразу увеличивается и плавно подъезжает к нажатому пункту
+    const index = Math.round(posAt(e.clientX));
+    setDragIndex(index);
+    const host = bar.current;
+    if (host && index !== target) {
+      const cells = cellsOf(host);
+      if (cells.length) glide(leftOf(cells, index), cells[0].width);
+    }
   };
   const onPointerMove = (e: PointerEvent) => {
     const g = gesture.current;
     if (!g) return;
-    if (!g.moved && Math.abs(e.clientX - g.x) > DRAG_PX) { g.moved = true; setMoved(true); }
-    if (g.moved) setPos(posAt(e.clientX));
+    if (!g.moved && Math.abs(e.clientX - g.x) > DRAG_PX) g.moved = true;
+    if (!g.moved) return;
+    const pos = posAt(e.clientX);
+    follow(pos);
+    const index = Math.round(pos);
+    setDragIndex((prev) => (prev === index ? prev : index));
   };
   const onPointerUp = (e: PointerEvent) => {
     if (!gesture.current) return;
@@ -78,7 +134,10 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     // и нажатие, и перетаскивание открывают раздел здесь; обычный клик по ссылке после этого не нужен
     swallowClick.current = true;
     window.setTimeout(() => { swallowClick.current = false; }, 0);
-    if (to && index !== target) { setPending({ index, at: pathname }); void navigate(to.to); }
+    if (to && index !== target) { setPending({ index, at: pathname }); void navigate(to.to); return; }
+    // отпустили на прежнем пункте: пилюля плавно возвращается на место
+    const host = bar.current;
+    if (host) { const cells = cellsOf(host); if (cells.length) glide(leftOf(cells, target), cells[0].width); }
   };
   // обработчики вешаем на элемент в эффекте: nav сам по себе не интерактивен
   useEffect(() => {
@@ -110,35 +169,16 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     return () => ro.disconnect();
   }, []);
 
-  // положение пилюли: под пальцем — следом за ним, иначе плавно к выбранному пункту с растяжением
+  // в покое пилюля стоит на выбранном пункте; пока палец на панели, её ведёт жест
   useLayoutEffect(() => {
-    const el = pill.current;
     const host = bar.current;
-    if (!el || !host || target < 0) return;
+    if (!host || target < 0 || gesture.current) return;
     const cells = cellsOf(host);
-    if (!cells.length) return;
-    const w = cells[0].width;
-    const step = cells.length > 1 ? cells[1].left - cells[0].left : 0;
-    const first = cells[0].left;
-    const last = first + step * (cells.length - 1);
-    // откуда едем: текущее видимое положение, даже если прошлая анимация ещё не закончилась
-    const live = parseFloat(getComputedStyle(el).left);
-    el.getAnimations().forEach((a) => a.cancel());
-    el.style.width = `${w}px`;
-    if (pos !== null) { el.style.left = `${Math.min(Math.max(first + pos * step, first), last)}px`; return; }
-    const dest = first + target * step;
-    el.style.left = `${dest}px`;
-    if (Number.isNaN(live) || Math.abs(live - dest) < 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const dist = Math.abs(dest - live);
-    const edge = Math.min(live, dest); // в середине пути пилюля растянута от старого места до нового и не выходит за панель
-    el.animate(
-      [{ left: `${live}px`, width: `${w}px` }, { left: `${edge}px`, width: `${w + dist * 0.9}px`, offset: 0.5 }, { left: `${dest}px`, width: `${w}px` }],
-      { duration: Math.round(Math.min(MOVE_MS, 260 + dist * 1.1)), easing: 'cubic-bezier(.32,.72,0,1)' },
-    );
-  }, [target, pos, width, tabs.length]);
+    if (cells.length) glide(leftOf(cells, target), cells[0].width);
+  }, [target, width, tabs.length]);
 
   return (
-    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', (pressed || pos !== null) && 'press', moved && 'drag')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
+    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', dragIndex !== null && 'press')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
       {target >= 0 && <span ref={pill} className="tabpill" aria-hidden="true" />}
       {tabs.map((t, i) => (
         <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', i === shown && 'cur')}>

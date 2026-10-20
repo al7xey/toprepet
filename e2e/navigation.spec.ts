@@ -26,7 +26,10 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   if (!from || !to) throw new Error('нет размеров пунктов панели');
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
   await page.mouse.down();
+  // пока палец на панели, пилюля увеличена, а страница не меняется
+  await expect(page.locator('nav.trk-tabbar')).toHaveClass(/press/);
   await page.mouse.move(to.x + to.width / 2, from.y + from.height / 2, { steps: 12 });
+  await expect(page).toHaveURL(/\/me\/chats/);
   await page.mouse.up();
   await expect(page).toHaveURL(/\/me\/account/);
 });
@@ -102,7 +105,11 @@ test('нижняя панель: пилюля симметрична слева 
   await page.waitForTimeout(800);
   const lefts = await page.evaluate(() => (window as unknown as { __lefts: number[] }).__lefts);
   for (let i = 1; i < lefts.length; i += 1) expect(lefts[i]).toBeGreaterThanOrEqual(lefts[i - 1] - 0.5);
-  expect(lefts[lefts.length - 1]).toBeGreaterThan(lefts[0] + 100);
+  const total = lefts[lefts.length - 1] - lefts[0];
+  expect(total).toBeGreaterThan(100);
+  // страница пересобирает панель на ходу, но пилюля не прыгает: ни один кадр не съедает больше 60% пути
+  const maxStep = Math.max(...lefts.slice(1).map((v, i) => v - lefts[i]));
+  expect(maxStep).toBeLessThan(total * 0.6);
 });
 
 test('репетитор: в нижней панели есть «Профиль», а раздела «Доход» там нет', async ({ page }) => {
