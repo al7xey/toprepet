@@ -987,10 +987,9 @@ html{overflow-y:scroll}
 .tr input.trk-input[type=password]{font-weight:300;font-size:15px;letter-spacing:.12em;-webkit-text-stroke:0}
 .tr input.trk-input[type=password]::placeholder{letter-spacing:normal;font-size:17px;font-weight:400}
 
-/* v48: страница фильтров и кнопка «Найти» в стиле проекта */
+/* v48: страница фильтров в стиле проекта */
 .tr .trh-fpage-head h2{font-size:28px;line-height:1.15}
 .tr .trh-fpage-foot .btn{height:52px;min-height:52px;padding:0 20px;font-size:18.7px;font-weight:700;line-height:1}
-.tr .trh-tools .search .btn,.tr .search .btn{min-height:48px;height:48px;min-width:112px;padding:0 32px;font-size:18.7px;font-weight:700}
 
 /* v49: кнопки в окнах и на странице фильтров: умеренный шрифт, длинная подпись переносится и не выходит за края */
 .tr .trk-modal-foot .btn,.tr .trh-fpage-foot .btn{font-size:16px;font-weight:700;padding:0 14px;min-width:0;height:auto;min-height:52px;line-height:1.2;white-space:normal;text-align:center;overflow-wrap:anywhere}
