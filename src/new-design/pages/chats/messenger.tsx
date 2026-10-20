@@ -116,6 +116,14 @@ function Thread({ conversation, list, loading, onSent, onRemoved }: { conversati
   const send = useMutation((value: string) => api.sendMessage(conversation.id, value));
   const [removing, setRemoving] = useState<Message | null>(null);
   const remove = useMutation(async (m: Message) => { await api.deleteMessage(conversation.id, m.id); return true; });
+  // долгое нажатие на своё сообщение (или правая кнопка мыши) предлагает удалить его, как в Telegram и WhatsApp
+  const hold = useRef<number | null>(null);
+  const stopHold = () => { if (hold.current !== null) { window.clearTimeout(hold.current); hold.current = null; } };
+  const holdProps = (m: Message) => ({
+    onPointerDown: () => { stopHold(); hold.current = window.setTimeout(() => { hold.current = null; setRemoving(m); }, 450); },
+    onPointerUp: stopHold, onPointerLeave: stopHold, onPointerCancel: stopHold, onPointerMove: stopHold,
+    onContextMenu: (e: { preventDefault: () => void }) => { e.preventDefault(); stopHold(); setRemoving(m); },
+  });
   const confirmRemove = async () => {
     if (removing && await remove.run(removing)) { onRemoved(removing.id); setRemoving(null); }
   };
@@ -173,10 +181,10 @@ function Thread({ conversation, list, loading, onSent, onRemoved }: { conversati
               {m.kind === 'event'
                 ? <div className="tg-sys">{m.text}</div>
                 : (
-                  <div className={`tg-msg ${mine ? 'out' : 'in'}${joined ? ' joined' : ''}`}>
+                  <div className={`tg-msg ${mine ? 'out' : 'in'}${joined ? ' joined' : ''}`} {...(mine ? holdProps(m) : {})}>
                     {m.imageUrl && <img className="tg-photo" src={m.imageUrl} alt="Фото в сообщении" loading="lazy" />}
                     {m.text && <span className="tg-text">{m.text}</span>}
-                    <small>{mine && <button type="button" className="tg-del" aria-label="Удалить сообщение" onClick={() => setRemoving(m)}><Icon name="trash" /></button>}{timeLabel(m.at)}{mine && <Icon name={m.read ? 'checks' : 'check'} />}</small>
+                    <small>{timeLabel(m.at)}{mine && <Icon name={m.read ? 'checks' : 'check'} />}</small>
                   </div>
                 )}
             </div>

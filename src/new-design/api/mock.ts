@@ -245,6 +245,19 @@ const systemMessage = (tutorId: Id, studentId: Id, text: string) => {
   s.messages.push({ id: nextId('m'), conversationId: c.id, authorId: null, kind: 'event', text, at: iso(Date.now()) });
   c.lastMessage = text; c.updatedAt = iso(Date.now());
 };
+/** Обычное сообщение от имени участника диалога (отклик на заявку, запись по отклику). Диалог создаётся, если его ещё нет. */
+const directMessage = (tutorId: Id, studentId: Id, authorId: Id | undefined, text: string) => {
+  const s = load();
+  let c = s.conversations.find((x) => x.tutorId === tutorId && x.studentId === studentId);
+  if (!c) {
+    const t = s.tutors.find((x) => x.id === tutorId); if (!t) return;
+    c = { id: nextId('c'), peerName: (t as Tutor).name, peerPhoto: (t as Tutor).photo, peerRole: 'tutor', lastMessage: '', updatedAt: iso(Date.now()), unread: 0, tutorId, studentId };
+    s.conversations.unshift(c);
+  }
+  s.messages.push({ id: nextId('m'), conversationId: c.id, authorId: authorId ?? null, kind: 'text', text, at: iso(Date.now()), read: false });
+  c.lastMessage = text; c.updatedAt = iso(Date.now());
+  if (authorId && authorId !== studentId) c.unread += 1;
+};
 const CONTACTS_MESSAGE = 'Телефоны, ссылки и мессенджеры в сообщениях запрещены: общайтесь и платите внутри TopRepet, так мы сможем помочь, если что-то пойдёт не так.';
 /** Мягкая проверка на обмен контактами. Жёсткую проверку делает сервер. */
 const hasContacts = (text: string) => /(?:\+?\d[\s().-]*){10,}/.test(text) || /https?:\/\/|\bt\.me\/|\bwa\.me\/|(?:^|\s)@[a-z0-9_]{3,}|\b[\w.+-]+@[\w-]+\.[a-z]{2,}\b/i.test(text);
@@ -408,6 +421,7 @@ export function createMockApi(): Api {
         if (request && request.status === 'open') {
           request.status = 'booked';
           s.responses.filter((x) => x.requestId === request.id).forEach((x) => { x.status = x.tutorId === tutor.id ? 'accepted' : 'closed'; });
+          directMessage(tutor.id, u.id, u.id, `Выбрала ваш отклик на заявку «${request.subject}» и записалась на урок.`);
         }
       }
       let c = s.conversations.find((x) => x.tutorId === tutor.id && x.studentId === u.id);
@@ -554,6 +568,7 @@ export function createMockApi(): Api {
       if (s.responses.some((x) => x.requestId === requestId && x.tutorId === t.id)) fail('Вы уже откликнулись на эту заявку');
       const resp: RequestResponse = { id: nextId('rr'), requestId, tutorId: t.id, tutorName: t.name, tutorPhoto: t.photo, tutorRating: t.rating, price: studentPriceOf(input.price), message: input.message, slots: input.slots, status: 'sent', createdAt: iso(Date.now()) };
       s.responses.push(resp); (r as StudyRequest).responsesCount += 1;
+      directMessage(t.id, (r as StudyRequest).studentId, tutorUserId(t.id), `Отклик на заявку «${(r as StudyRequest).subject}»: ${resp.price} ₽ за урок.\n${input.message.trim()}`);
       notify((r as StudyRequest).studentId, { kind: 'request', title: 'Новый отклик на заявку', text: `${t.name} откликнулась на заявку`, link: `/me/requests/${requestId}` });
       save(); return delay(resp);
     },

@@ -72,7 +72,7 @@ function LessonView({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson
         <div className="trk-actions">
           {joinOpen && lesson.meetingUrl && <Button size="lg" icon="video" href={lesson.meetingUrl}>Войти в урок</Button>}
           {active && lesson.moveProposal?.by !== 'student' && !proposal && <Button variant="line" size="lg" icon="repeat" onClick={() => setMoveOpen(true)}>Перенести</Button>}
-          {active && <Button variant="fill" size="lg" onClick={() => setCancelOpen(true)}>Отменить урок</Button>}
+          {active && <Button variant="danger" size="lg" onClick={() => setCancelOpen(true)}>Отменить урок</Button>}
         </div>
       )}
       {lesson.moveProposal?.by === 'student' && <Note tone="plain" icon="clock">Вы предложили перенести урок на {whenLabel(lesson.moveProposal.start)}. Ждём ответ репетитора.</Note>}

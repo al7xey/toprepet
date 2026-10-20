@@ -23,14 +23,21 @@ test('заявка ученика → отклик репетитора → за
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Ваша цена за урок, ₽').fill('1700');
   await dialog.getByLabel('Сообщение ученику').fill('Здравствуйте! Подготовлю к ОГЭ по шагам, начнём с диагностики.');
-  await dialog.locator('.slot:not([disabled])').first().click();
-  await dialog.getByRole('button', { name: 'Отправить отклик' }).click();
+  // несколько окошек подряд: выбранные подсвечиваются все
+  await dialog.locator('.slot:not([disabled])').nth(0).click();
+  await dialog.locator('.slot:not([disabled])').nth(1).click();
+  await expect(dialog.locator('.slot.sel')).toHaveCount(2);
+  await dialog.getByRole('button', { name: 'Отправить', exact: true }).click();
   await expect(dialog).toBeHidden();
   await logout(page);
 
   await login(page, 'student');
   await page.goto(requestUrl);
   await expect(page.getByText('Подготовлю к ОГЭ по шагам')).toBeVisible();
+  // отклик пришёл и в личные сообщения
+  await page.goto('/me/chats');
+  await expect(page.getByText(/Отклик на заявку/).first()).toBeVisible();
+  await page.goto(requestUrl);
   await page.getByRole('link', { name: /Записаться|\d{1,2}:\d{2}/ }).first().click();
   await expect(page).toHaveURL(/\/book\/.*request=/);
 });

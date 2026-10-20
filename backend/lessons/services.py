@@ -5,7 +5,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
 
-from chats.service import get_or_create_conversation, system_message
+from chats.service import direct_message, get_or_create_conversation, system_message
 from core.errors import ApiError, forbidden, not_found
 from notifications.service import notify, notify_admins
 from payments import service as money
@@ -105,6 +105,7 @@ def create_booking(user, data: dict, idempotency_key: str = '') -> Lesson:
                 response.save(update_fields=['status'])
             lesson.request = request
             lesson.save(update_fields=['request'])
+            direct_message(tutor, user, user, f'Выбрала ваш отклик на заявку «{request.subject}» и записалась на урок.')
     get_or_create_conversation(tutor, user)
     system_message(tutor, user, f'{user.name} записалась на {"бесплатное знакомство" if intro else "урок"}')
     notify(tutor.user, 'lesson', 'Новая запись', f'{user.name} записалась. Подтвердите запись.', f'/tutor/lessons/{lesson.id}')

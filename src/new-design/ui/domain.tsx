@@ -92,7 +92,7 @@ export function LessonCard({ lesson, role, actions, delay = 0 }: { lesson: Lesso
  * Календарь записи: дни сверху, время ниже. Один компонент для анкеты, записи, переноса и откликов.
  * slots — свободные и занятые окна от сервера, value — выбранное начало (ISO).
  */
-export function SlotPicker({ slots, value, onChange, days = 7, loading }: { slots: Slot[]; value: string | null; onChange: (start: string) => void; days?: number; loading?: boolean }) {
+export function SlotPicker({ slots, value, values, onChange, days = 7, loading }: { slots: Slot[]; value: string | null; /** Несколько выбранных окошек: тогда подсвечиваются все. */ values?: string[]; onChange: (start: string) => void; days?: number; loading?: boolean }) {
   // занятое время не показываем вовсе: только свободные слоты и дни, где они есть
   const byDay = useMemo(() => {
     const map = new Map<string, Slot[]>();
@@ -125,7 +125,7 @@ export function SlotPicker({ slots, value, onChange, days = 7, loading }: { slot
       </div>
       <div className="slots trh-slots" aria-label={current ? dayLabel(list[0]?.start ?? new Date()) : undefined}>
         {list.map((s) => (
-          <button key={s.start} type="button" className={`slot${s.start === value ? ' sel' : ''}`} aria-pressed={s.start === value} onClick={() => onChange(s.start)}>
+          <button key={s.start} type="button" className={`slot${(values ? values.includes(s.start) : s.start === value) ? ' sel' : ''}`} aria-pressed={values ? values.includes(s.start) : s.start === value} onClick={() => onChange(s.start)}>
             {timeLabel(s.start)}
           </button>
         ))}

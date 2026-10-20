@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { ScheduleException, WeekSchedule } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { dateLong } from '../../lib/format';
-import { Button, Card, CardTitle, FormError, MonthCalendar, OptionChips, PageHeader, QueryView, SelectField, Tabs, WeekEditor, weekProblem, useToast, type DayMark } from '../../ui';
+import { Button, Card, CardTitle, FormError, IconButton, MonthCalendar, OptionChips, PageHeader, QueryView, SelectField, Tabs, WeekEditor, weekProblem, useToast, type DayMark } from '../../ui';
 
 const HOURS = Array.from({ length: 19 }, (_, i) => `${String(i + 5).padStart(2, '0')}:00`);
 type Mode = 'week' | 'dates';
@@ -83,8 +83,7 @@ function DatesPanel({ week, exceptions, onChanged }: { week: WeekSchedule; excep
 function DayPanel({ date, week, exception, onChanged }: { date: string; week: WeekSchedule; exception: ScheduleException | undefined; onChanged: () => void }) {
   const toast = useToast();
   const [kind, setKind] = useState<DayKind>(exception ? (exception.kind === 'off' ? 'off' : 'extra') : 'normal');
-  const [from, setFrom] = useState(exception?.intervals[0]?.from ?? '10:00');
-  const [to, setTo] = useState(exception?.intervals[0]?.to ?? '14:00');
+  const [windows, setWindows] = useState<{ from: string; to: string }[]>(exception?.intervals.length ? exception.intervals : [{ from: '10:00', to: '14:00' }]);
   const [error, setError] = useState<string | undefined>();
   const save = useMutation(async (item: ScheduleException | null) => { if (item) await api.saveException(item); else await api.deleteException(date); return true; });
   const usual = week.days.find((d) => d.weekday === weekdayOf(date))?.intervals ?? [];
@@ -92,8 +91,13 @@ function DayPanel({ date, week, exception, onChanged }: { date: string; week: We
 
   const apply = async () => {
     setError(undefined);
-    if (kind === 'extra' && Number(from.slice(0, 2)) >= Number(to.slice(0, 2))) { setError('Время «до» должно быть позже «с»'); return; }
-    const item: ScheduleException | null = kind === 'normal' ? null : { date, kind, intervals: kind === 'extra' ? [{ from, to }] : [] };
+    const hourOf = (v: string) => Number(v.slice(0, 2));
+    const sorted = [...windows].sort((a, b) => hourOf(a.from) - hourOf(b.from));
+    if (kind === 'extra') {
+      if (sorted.some((w) => hourOf(w.from) >= hourOf(w.to))) { setError('Время «до» должно быть позже «с»'); return; }
+      if (sorted.some((w, i) => i > 0 && hourOf(w.from) < hourOf(sorted[i - 1].to))) { setError('Окошки не должны пересекаться'); return; }
+    }
+    const item: ScheduleException | null = kind === 'normal' ? null : { date, kind, intervals: kind === 'extra' ? sorted : [] };
     if (await save.run(item)) { toast(kind === 'normal' ? 'День снова по расписанию' : 'Сохранено'); onChanged(); }
   };
 
@@ -103,9 +107,15 @@ function DayPanel({ date, week, exception, onChanged }: { date: string; week: We
       <p className="cap">По расписанию в этот день: {usualText}.</p>
       <OptionChips options={DAY_KINDS} value={kind} onChange={setKind} />
       {kind === 'extra' && (
-        <div className="trk-two">
-          <SelectField label="С" value={from} onChange={(e) => setFrom(e.target.value)} options={HOURS} />
-          <SelectField label="До" value={to} onChange={(e) => setTo(e.target.value)} options={HOURS} error={error} />
+        <div className="trk-form">
+          {windows.map((w, i) => (
+            <div className="trk-two trk-window" key={i}>
+              <SelectField label="С" value={w.from} onChange={(e) => setWindows(windows.map((x, j) => (j === i ? { ...x, from: e.target.value } : x)))} options={HOURS} />
+              <SelectField label="До" value={w.to} onChange={(e) => setWindows(windows.map((x, j) => (j === i ? { ...x, to: e.target.value } : x)))} options={HOURS} error={i === windows.length - 1 ? error : undefined} />
+              {windows.length > 1 && <IconButton icon="x" label={`Убрать окошко ${i + 1}`} onClick={() => setWindows(windows.filter((_, j) => j !== i))} />}
+            </div>
+          ))}
+          <div><IconButton icon="plus" label="Добавить окошко" className="trk-addbtn" onClick={() => { const last = windows[windows.length - 1]; const h = Math.min(21, Number(last.to.slice(0, 2))); setWindows([...windows, { from: `${String(h).padStart(2, '0')}:00`, to: `${String(Math.min(23, h + 2)).padStart(2, '0')}:00` }]); }} /></div>
         </div>
       )}
       <FormError error={save.error} />

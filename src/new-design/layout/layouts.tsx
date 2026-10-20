@@ -298,7 +298,7 @@ const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   },
   tutor: {
     top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
-    tabs: [{ label: 'Занятия', to: '/tutor/lessons', icon: 'book', also: ['/tutor/schedule'] }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-bubble' }, { label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Профиль', to: '/tutor/account', icon: 'user', also: ['/tutor/profile', '/tutor/finance', '/tutor/students', '/tutor/reviews', '/tutor/notifications'] }],
+    tabs: [{ label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Занятия', to: '/tutor/lessons', icon: 'book', also: ['/tutor/schedule'] }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/tutor/account', icon: 'user', also: ['/tutor/profile', '/tutor/finance', '/tutor/students', '/tutor/reviews', '/tutor/notifications'] }],
   },
   admin: {
     top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],

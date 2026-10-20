@@ -66,7 +66,7 @@ function View({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson) => v
         {lesson.status === 'pending' && <><Button size="lg" onClick={() => run(confirm.run(), 'Запись подтверждена')} loading={confirm.pending}>Подтвердить</Button><Button size="lg" variant="fill" onClick={() => setDeclineOpen(true)}>Отклонить</Button></>}
         {joinOpen && lesson.meetingUrl && <Button size="lg" icon="video" href={lesson.meetingUrl}>Войти в урок</Button>}
         {ended && <><Button size="lg" onClick={() => run(mark.run('happened'), 'Урок отмечен как состоявшийся')} loading={mark.pending}>Урок состоялся</Button><Button size="lg" variant="fill" onClick={() => run(mark.run('no_show_student'), 'Отметили: ученик не пришёл')}>Ученик не пришёл</Button></>}
-        {lesson.status === 'confirmed' && !ended && <><Button size="lg" variant="line" icon="repeat" onClick={() => setMoveOpen(true)}>Предложить перенос</Button><Button size="lg" variant="fill" onClick={() => setCancelOpen(true)}>Отменить урок</Button></>}
+        {lesson.status === 'confirmed' && !ended && <><Button size="lg" variant="line" icon="repeat" onClick={() => setMoveOpen(true)}>Предложить перенос</Button><Button size="lg" variant="danger" onClick={() => setCancelOpen(true)}>Отменить урок</Button></>}
       </div>
       <DeclineModal lesson={lesson} open={declineOpen} onClose={() => setDeclineOpen(false)} onDone={(l) => { onChange(l); setDeclineOpen(false); toast('Запись отклонена'); }} />
       <CancelModal lesson={lesson} open={cancelOpen} onClose={() => setCancelOpen(false)} onDone={(l) => { onChange(l); setCancelOpen(false); toast('Урок отменён, ученику вернутся деньги'); }} />

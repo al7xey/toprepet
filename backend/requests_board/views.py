@@ -5,6 +5,7 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from chats.service import direct_message
 from core.errors import ApiError, forbidden, not_found
 from core.perm import my_tutor, require_role, require_user
 from core.utils import iso, parse_iso
@@ -171,6 +172,7 @@ class ResponsesView(APIView):
         except (TypeError, ValueError):
             raise ApiError('Неверное время в отклике')
         x = RequestResponse.objects.create(request=r, tutor=tutor, price=student_price(price), message=message[:2000], slots=slots)
+        direct_message(tutor, r.student, tutor.user, f'Отклик на заявку «{r.subject}»: {x.price} ₽ за урок.\n{x.message}')
         notify(r.student, 'request', 'Новый отклик на заявку', f'{tutor.name} откликнулась на заявку', f'/me/requests/{r.id}')
         return Response(response_json(x), status=201)
 

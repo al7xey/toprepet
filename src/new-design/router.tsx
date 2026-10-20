@@ -1,5 +1,5 @@
-import { lazy, Suspense, useRef } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useRef } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { SessionProvider } from './api/session';
 import { useReveal } from './reveal';
 import { adminRoutes } from './routes/admin';
@@ -16,6 +16,13 @@ import './ui/kit.css';
 
 const NotFoundPage = lazy(() => import('./pages/public/notfound'));
 
+/** Новая страница всегда открывается с самого верха, а не с места, где остановилась предыдущая. */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 export function NewApp() {
   const root = useRef<HTMLDivElement>(null);
   useReveal(root);
@@ -23,6 +30,7 @@ export function NewApp() {
     <SessionProvider>
       <div className="tr" ref={root}>
         <ToastProvider>
+          <ScrollToTop />
           <Suspense fallback={<div className="trk-route-loading" aria-busy="true" />}>
             <Routes>
               {publicRoutes}

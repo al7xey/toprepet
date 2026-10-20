@@ -467,7 +467,7 @@
 .tr .tg-msg{position:relative;max-width:min(78%,560px);margin-top:8px;padding:8px 12px 6px 14px;border-radius:20px;font-size:16px;line-height:1.4;overflow-wrap:anywhere;white-space:pre-wrap;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:flex-end;gap:2px 10px}
 .tr .tg-msg.joined{margin-top:2px}
 .tr .tg-msg.in{justify-self:start;background:#fff;box-shadow:inset 0 0 0 1px var(--line);border-bottom-left-radius:6px}
-.tr .tg-msg.out{justify-self:end;background:#ffe9d4;border-bottom-right-radius:6px}
+.tr .tg-msg.out{justify-self:end;background:#fdece3;border-bottom-right-radius:6px}
 .tr .tg-text{flex:1 1 auto;min-width:0}
 .tr .tg-msg small{display:inline-flex;align-items:center;gap:2px;font-size:12px;color:#6f6461;margin-left:auto}
 .tr .tg-msg small .i{width:13px;height:13px;color:var(--accent)}
@@ -544,7 +544,7 @@
 .tr main .btn.btn-primary{font-size:18.7px;font-weight:800}
 
 /* ---- v10: детальный просмотр репетитора ---- */
-.tr .trh-pf-intro-tag{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border-radius:999px;background:#ffe9d4;color:var(--ink);font-size:14px;font-weight:700}
+.tr .trh-pf-intro-tag{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 12px;border-radius:999px;background:#fdece3;color:var(--ink);font-size:14px;font-weight:700}
 .tr .trh-pf-intro-tag .i{width:16px;height:16px}
 .tr .trk-iconbtn.trh-pf-share{display:none}
 @media(max-width:760px){
@@ -732,7 +732,7 @@ html{overflow-y:scroll}
 .tr .trk-month-day{position:relative;aspect-ratio:1;min-height:44px;border:0;border-radius:50%;background:transparent;color:var(--ink);font:inherit;font-size:16px;font-weight:600;display:grid;place-items:center;cursor:pointer}
 .tr .trk-month-day:disabled{color:#b9afa9;cursor:default}
 .tr .trk-month-day.today{box-shadow:inset 0 0 0 1.5px var(--line)}
-.tr .trk-month-day.on{background:#fde2d0;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.tr .trk-month-day.on{background:#fdece3;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
 .tr .trk-month-day::after{content:"";position:absolute;bottom:5px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:transparent}
 .tr .trk-month-day.m-regular::after{background:#1f7a4d}
 .tr .trk-month-day.m-extra::after{background:var(--accent)}
@@ -762,7 +762,7 @@ html{overflow-y:scroll}
 .tr .btn{min-height:44px;padding:0 18px}
 .tr .btn.btn-lg{min-height:46px}
 .tr .btn.btn-s,.tr main .btn.btn-s:not(.btn-icon){min-height:40px;padding:0 16px}
-.tr .btn-fill,.tr .btn-line,.tr .btn-warm,.tr .btn-soft{background:#ffeadf;box-shadow:none;color:var(--ink);font-size:15px}
+.tr .btn-fill,.tr .btn-line,.tr .btn-warm,.tr .btn-soft{background:#fdece3;box-shadow:none;color:var(--ink);font-size:15px}
 .tr .btn-primary,.tr .btn-primary.btn-s,.tr .btn-primary.btn-lg{font-size:18.7px;font-weight:700}
 .tr .trk-tags{display:flex;flex-wrap:wrap;gap:4px 0}
 .tr .tag{min-height:0;padding:0;border:0;border-radius:0;box-shadow:none;background:none;font-size:14px;font-weight:600;color:var(--muted)}
@@ -793,7 +793,7 @@ html{overflow-y:scroll}
   .tr .trk-app .trh-pf-cta{position:static;bottom:auto}
 }
 .tr .trk-student{display:flex;align-items:center;gap:14px;min-width:0}
-.tr .trk-student-photo{flex:none;display:grid;place-items:center;width:72px;height:72px;border-radius:18px;overflow:hidden;background:#ffeadf;color:var(--accent)}
+.tr .trk-student-photo{flex:none;display:grid;place-items:center;width:72px;height:72px;border-radius:18px;overflow:hidden;background:#fdece3;color:var(--accent)}
 .tr .trk-student-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .tr .trk-student-photo .i{width:32px;height:32px}
 .tr .trk-student-text{display:grid;gap:2px;min-width:0}
@@ -829,7 +829,7 @@ html{overflow-y:scroll}
 .tr .trk-settings-prefs{display:grid;gap:12px;padding:6px 0}
 .tr .trk-toast.ok{background:#dff3e8;color:var(--ok);box-shadow:none}
 .tr .trk-toast.bad{background:var(--bad-soft);color:var(--bad);box-shadow:none}
-.tr .trk-toast.info{background:#ffe9d4;color:var(--ink);box-shadow:none}
+.tr .trk-toast.info{background:#fdece3;color:var(--ink);box-shadow:none}
 .tr .trh-range{display:grid;gap:12px}
 .tr .trh-range-vals{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:15px}
 .tr .trh-range-vals b{color:var(--ink)}
@@ -878,7 +878,7 @@ html{overflow-y:scroll}
 .tr .trk-student-photo{border-radius:50%;width:56px;height:56px}
 .tr .trk-student.small .trk-student-photo{border-radius:50%}
 .tr .tg-title{font-size:32px;letter-spacing:-0.04em;line-height:1.08;font-weight:700;margin:0;min-height:44px;display:flex;align-items:center}
-@media (max-width:760px){.tr .tg-title{font-size:26px;padding:0 0 10px}}
+@media (max-width:760px){.tr .tg-title{font-size:26px;padding:0;margin-bottom:10px}}
 .tr .trk-settings-who{display:flex;align-items:center;gap:14px}
 .tr .trk-navrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;text-align:left;cursor:pointer}
 
@@ -942,7 +942,7 @@ html{overflow-y:scroll}
 .tr .chk > i .i{display:none;width:16px;height:16px}
 .tr .chk.on > i .i{display:block}
 .tr .trk-eye .i{width:22px;height:22px}
-.tr .btn-icon:hover,.tr .hdr nav a:hover,.tr .trh-drop-menu button:hover,.tr .trk-iconbtn:hover{background:#fff1e8}
+.tr .btn-icon:hover,.tr .hdr nav a:hover,.tr .trh-drop-menu button:hover,.tr .trk-iconbtn:hover{background:#fdece3}
 .tr .trk-iconbtn.trk-back:hover,.tr .trk-iconbtn.trk-round:hover{background:#fff}
 .tr .trk-iconbtn.trk-addbtn:hover{background:var(--accent)}
 .tr .trk-choice .ic-sq .i{width:24px;height:24px}
@@ -954,15 +954,29 @@ html{overflow-y:scroll}
 .tr .btn,.tr .btn.btn-lg,.tr .btn.btn-s,.tr .btn-primary,.tr .btn-primary.btn-s,.tr .btn-primary.btn-lg{font-size:18.7px;font-weight:700}
 .tr .tg-back.trk-round{display:none}
 @media (max-width:760px){.tr .tg-back.trk-round{display:grid}}
-.tr .tg-del{width:24px;height:24px;border-radius:50%;border:0;background:transparent;color:#6f6461;display:grid;place-items:center;padding:0;margin-right:6px;cursor:pointer}
-.tr .tg-del .i{width:14px;height:14px}
-.tr .tg-del:hover{color:var(--ink)}
-.tr .tg-msg small .tg-del .i{width:16px;height:16px;color:#6f6461}
+@media (hover:none){.tr .tg-msg.out{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}}
+/* стрелка и скрепка в белых кружках, одинаковые отступы до поля ввода */
+.tr .tg-attach,.tr .tg-send,.tr .tg-send:disabled{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+.tr .tg-send .i,.tr .tg-attach .i{width:22px;height:22px;background:var(--ink)}
+.tr .tg-send:disabled{cursor:default}
+.tr .tg-send:disabled .i{background:#b9afa9}
+.tr .tg-attach:hover,.tr .tg-send:hover{color:var(--ink);background:#fff}
+.tr .tg-compose-row{gap:8px;align-items:center}
+.tr .tg-input{min-height:44px;padding:10px 18px}
+/* опасные действия: красная кнопка */
+.tr .btn-danger,.tr .btn-danger:hover{background:var(--bad);color:#fff;box-shadow:none}
+/* окна: кнопки как на остальном сайте */
+.tr .trk-modal-foot .btn{height:52px;min-height:52px;padding:0 20px;font-size:18.7px;font-weight:700;line-height:1}
+/* выбранный день в расписании по датам: без оранжевой заливки */
+.tr .trk-month-day.on{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.tr .trk-window{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:end;gap:12px}
+/* подпись под формой входа и регистрации */
+.tr .trk-auth-foot{margin-top:20px;padding-top:4px;line-height:1.6}
 
 /* v46: карточки «Хочу учиться / Хочу преподавать» не серятся ни при наведении, ни при нажатии, ни при выборе */
 .tr,.tr * { -webkit-tap-highlight-color: transparent; }
 .tr .trk-choice,.tr .trk-choice:hover,.tr .trk-choice:active,.tr .trk-choice:focus,.tr .trk-choice:focus-within,.tr .trk-choice.on{background:#fff;transition:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.tr .trk-choice .ic-sq,.tr .trk-choice:hover .ic-sq,.tr .trk-choice:active .ic-sq{background:#ffeadb;transition:none}
+.tr .trk-choice .ic-sq,.tr .trk-choice:hover .ic-sq,.tr .trk-choice:active .ic-sq{background:#fdece3;transition:none}
 .tr .trk-choice,.tr .trk-choice *{filter:none;opacity:1}
 .tr .trk-choice:hover{box-shadow:inset 0 0 0 1px var(--line)}
 .tr .trk-choice.on:hover,.tr .trk-choice.on:active{box-shadow:inset 0 0 0 2px var(--accent)}

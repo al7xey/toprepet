@@ -79,13 +79,13 @@ function RespondModal({ request, defaultPrice, onClose, onDone }: { request: Stu
     if (await send.run({ price, message: message.trim(), slots })) onDone();
   };
   return (
-    <Modal open onClose={onClose} width={640} title="Отклик на заявку" footer={<><Button variant="fill" onClick={onClose}>Отмена</Button><Button onClick={submit} loading={send.pending}>Отправить отклик</Button></>}>
+    <Modal open onClose={onClose} width={640} title="Отклик на заявку" footer={<><Button variant="fill" onClick={onClose}>Отмена</Button><Button onClick={submit} loading={send.pending}>Отправить</Button></>}>
       <Note tone="plain" icon="info"><b className="trk-note-title">{request.subject}</b><span className="trk-note-line">{request.level}</span><span className="trk-note-line">{request.budgetMax ? `Бюджет ученика до ${rub(request.budgetMax)}` : 'Бюджет не указан'}</span></Note>
       <TextField label="Ваша цена за урок, ₽" type="number" inputMode="numeric" min={300} step={50} value={price || ''} onChange={(e) => setPrice(Number(e.target.value))} error={error.price} hint={price ? `Ученик увидит ${rub(studentPriceOf(price))}. Вы получите ${rub(price)} за урок` : undefined} />
       <TextArea label="Сообщение ученику" rows={4} value={message} onChange={(e) => setMessage(e.target.value)} error={error.message} hint="Как будете заниматься. Телефоны и ссылки писать нельзя." />
       <div className="g8">
-        <b className="label">Время, на которое можно записаться (до 3)</b>
-        <SlotPicker slots={mySlots.data ?? []} value={picked} onChange={(start) => { setPicked(start); setSlots((list) => (list.includes(start) || list.length >= 3 ? list : [...list, start])); }} days={14} loading={mySlots.loading && !mySlots.data} />
+        <b className="label">Время, на которое можно записаться (можно несколько)</b>
+        <SlotPicker slots={mySlots.data ?? []} value={picked} values={slots} onChange={(start) => { setPicked(start); setSlots((list) => (list.includes(start) ? list.filter((x) => x !== start) : list.length >= 6 ? list : [...list, start])); }} days={14} loading={mySlots.loading && !mySlots.data} />
         {slots.length > 0 && <div className="trk-actions">{slots.map((s) => <button key={s} type="button" className="trk-demo" onClick={() => setSlots(slots.filter((x) => x !== s))} aria-label={`Убрать ${whenLabel(s)}`}>{whenLabel(s)} ✕</button>)}</div>}
       </div>
       <FormError error={send.error} />

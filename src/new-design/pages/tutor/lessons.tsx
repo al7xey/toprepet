@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { Lesson } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { useNow } from '../../lib/useNow';
-import { Button, EmptyState, FormError, LessonCard, LoadingList, Modal, Note, OptionChips, PageHeader, QueryView, Section, Tabs, TextArea, useToast } from '../../ui';
+import { Button, EmptyState, FormError, IconButton, LessonCard, LoadingList, Modal, Note, OptionChips, PageHeader, QueryView, Section, Tabs, TextArea, useToast } from '../../ui';
 
 type Scope = 'upcoming' | 'past';
 const DECLINE_REASONS = ['Это время занято', 'Не веду этот предмет', 'Не подходит уровень ученика', 'Другое'];
@@ -61,7 +61,7 @@ export default function TutorLessonsPage() {
 
   return (
     <AppLayout role="tutor">
-      <PageHeader title="Уроки" actions={<Button to="/tutor/schedule" variant="line" icon="clock">Расписание</Button>} />
+      <PageHeader title="Уроки" actions={<IconButton icon="clock" label="Расписание" to="/tutor/schedule" />} />
       {profile.data?.status === 'draft' && (
         <Note tone="info" icon="edit" action={<Button size="s" to="/tutor/profile/edit">Заполнить анкету</Button>}>Анкета ещё не опубликована: ученики вас не видят. Это займёт около 15 минут.</Note>
       )}
