@@ -43,7 +43,7 @@ function View({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson) => v
 
   return (
     <>
-      <PageHeader title={lessonTitle(lesson)} back={{ to: '/tutor/lessons', label: 'Уроки' }} lead={whenLabel(lesson.start)} actions={<LessonStatus lesson={lesson} role="tutor" />} />
+      <PageHeader title={lessonTitle(lesson)} back={{ to: '/tutor/lessons', label: 'Уроки' }} lead={<>{whenLabel(lesson.start)}<span className="trk-lesson-state"><LessonStatus lesson={lesson} role="tutor" /></span></>} />
       <Card>
         <StudentCard name={lesson.studentName} photo={lesson.studentPhoto} sub={lesson.subject} />
         <Rows rows={[

@@ -45,7 +45,7 @@ function LessonView({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson
 
   return (
     <>
-      <PageHeader title={lessonTitle(lesson)} back={{ to: '/me/lessons', label: 'Мои уроки' }} lead={whenLabel(lesson.start)} actions={<LessonStatus lesson={lesson} role="student" />} />
+      <PageHeader title={lessonTitle(lesson)} back={{ to: '/me/lessons', label: 'Мои уроки' }} lead={<>{whenLabel(lesson.start)}<span className="trk-lesson-state"><LessonStatus lesson={lesson} role="student" /></span></>} />
       <Card>
         <Person name={lesson.tutorName} photo={lesson.tutorPhoto} sub={lesson.subject} right={<Button to={`/teachers/${lesson.tutorId}/`} variant="line" size="s">Анкета</Button>} />
         <Rows rows={[

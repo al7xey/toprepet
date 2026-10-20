@@ -275,9 +275,9 @@
 .tr .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .tr .trk-note-row{display:flex;align-items:flex-start;gap:14px;color:inherit;text-decoration:none}
 .tr .trk-note-ic{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:14px;background:var(--accent-soft);color:var(--accent-press)}
-.tr .trk-note-text{display:grid;gap:2px;min-width:0;flex:1}
-.tr .trk-note-text span{color:var(--muted)}
-.tr .trk-note-text small{color:var(--muted);font-size:13px}
+.tr .trk-note-row .trk-note-text{display:grid;gap:2px;min-width:0;flex:1}
+.tr .trk-note-row .trk-note-text span{color:var(--muted)}
+.tr .trk-note-row .trk-note-text small{color:var(--muted);font-size:13px}
 .tr .trk-note-dot{flex:none;width:10px;height:10px;margin-top:6px;border-radius:50%;background:var(--accent)}
 .tr .trk-reply{display:grid;gap:4px;padding:14px 16px;border-radius:16px;background:var(--surface)}
 
@@ -916,3 +916,10 @@ html{overflow-y:scroll}
 /* v41: пилюля только на своём месте — без перехода по left и без подпрыгивания */
 .tr .trk-tabbar .tabpill{will-change:left,width;transition:box-shadow .25s,transform .25s var(--spring)}
 .tr .trk-tabbar.press .tabpill{transform:scale(1.03,1.03)}
+
+/* v42: заголовок со стрелкой не наезжает на широкие кнопки справа; текст заметок идёт обычным потоком */
+.tr .trk-pagehead.has-back .trk-pagehead-row:has(.trk-pagehead-actions){grid-template-columns:auto minmax(0,1fr) auto}
+.tr .trk-pagehead.has-back .trk-pagehead-row:has(.trk-pagehead-actions) .trk-pagehead-text{min-width:0}
+.tr .trk-lesson-state{display:flex;justify-content:center;padding-top:2px}
+.tr .trk-pagehead.has-back .trk-pagehead-row{align-items:start}
+.tr .trk-pagehead.has-back .trk-pagehead-text h1{min-height:44px;display:flex;align-items:center;justify-content:center}
