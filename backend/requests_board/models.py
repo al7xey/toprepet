@@ -12,6 +12,7 @@ class StudyRequest(models.Model):
     custom_subject = models.CharField(max_length=120, blank=True)
     goal = models.CharField(max_length=200)
     level = models.CharField(max_length=120, blank=True)
+    budget_min = models.PositiveIntegerField(null=True, blank=True)
     budget_max = models.PositiveIntegerField(null=True, blank=True)
     schedule = models.JSONField(default=list)
     description = models.TextField()

@@ -1,21 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subjects as allSubjects } from '../../../entities/lesson';
 import { api } from '../../api';
 import { useMutation } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
-import { Button, Card, CardTitle, FormError, OptionChips, PageHeader, TextArea, TextField, WizardProgress, useToast } from '../../ui';
+import { Button, Card, CardTitle, FormError, OptionChips, PageHeader, PriceRange, TextArea, TextField, WizardProgress, useToast } from '../../ui';
 
 const OTHER = 'Другой предмет';
 const SUBJECTS = allSubjects.filter((s) => s !== OTHER);
 const LEVELS = ['Дошкольник', '1–4 класс', '5–9 класс', '10–11 класс', 'Студент', 'Взрослый'];
 const GOALS = ['Подтянуть школьную программу', 'Подготовка к ОГЭ или ЕГЭ', 'Домашние задания', 'Разговорная практика', 'Работа и карьера', 'Другое'];
 const SCHEDULE = ['Будни утром', 'Будни днём', 'Будни вечером', 'Выходные'];
-const CUSTOM = 'custom';
-const BUDGETS = [
-  { value: '1000', label: 'до 1 000 ₽' }, { value: '1500', label: 'до 1 500 ₽' }, { value: '2000', label: 'до 2 000 ₽' }, { value: '2500', label: 'до 2 500 ₽' },
-  { value: '0', label: 'Не важно' }, { value: CUSTOM, label: 'Своя цена' },
-];
+const BUDGET_LIMIT = 10000; // правый край ползунка бюджета: «10 000 ₽ и больше»
 
 /** Новая заявка: два шага. Репетиторы по этим предметам увидят заявку и откликнутся сами. Один мастер для страницы и для окна в профиле. */
 export function RequestWizard({ onDone, embedded }: { onDone: (id: string) => void; embedded?: boolean }) {
@@ -25,8 +21,8 @@ export function RequestWizard({ onDone, embedded }: { onDone: (id: string) => vo
   const [custom, setCustom] = useState('');
   const [level, setLevel] = useState<string | null>(null);
   const [goal, setGoal] = useState<string | null>(null);
-  const [budget, setBudget] = useState<string | null>(null);
-  const [ownPrice, setOwnPrice] = useState('');
+  const [budget, setBudget] = useState<[number, number]>([0, BUDGET_LIMIT]);
+  const wrap = useRef<HTMLDivElement>(null);
   const [schedule, setSchedule] = useState<string[]>([]);
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -42,10 +38,6 @@ export function RequestWizard({ onDone, embedded }: { onDone: (id: string) => vo
       if (!goal) found.goal = 'Выберите цель';
     } else {
       if (!schedule.length) found.schedule = 'Выберите хотя бы одно удобное время';
-      if (budget === CUSTOM) {
-        const value = Number(ownPrice);
-        if (!Number.isInteger(value) || value < 100 || value > 50000) found.price = 'Цена от 100 до 50 000 ₽ за урок';
-      }
       if (!description.trim()) found.description = 'Опишите задачу';
     }
     setErrors(found);
@@ -55,17 +47,24 @@ export function RequestWizard({ onDone, embedded }: { onDone: (id: string) => vo
   const next = async () => {
     if (!check()) return;
     if (step === 1) { setStep(2); return; }
-    const budgetMax = budget === CUSTOM ? Number(ownPrice) : budget && budget !== '0' ? Number(budget) : null;
+    const budgetMin = budget[0] > 0 ? budget[0] : null;
+    const budgetMax = budget[1] < BUDGET_LIMIT ? budget[1] : null;
     const created = await create.run({
       subjects: picked.filter((s) => s !== OTHER), customSubject: hasOther ? custom.trim() : '',
-      goal: goal ?? '', level: level ?? '', budgetMax, schedule, description: description.trim(),
+      goal: goal ?? '', level: level ?? '', budgetMin, budgetMax, schedule, description: description.trim(),
     });
     if (created) { toast('Заявка опубликована'); onDone(created.id); }
   };
 
+  // при переходе между шагами список начинается сверху: и в окне, и на странице
+  useEffect(() => {
+    wrap.current?.closest('dialog')?.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0 });
+  }, [step]);
+
   return (
-    <>
-      <WizardProgress step={step} total={2} label={`Шаг ${step} из 2 · ${step === 1 ? 'Какая помощь нужна' : 'Подробности'}`} />
+    <div ref={wrap} className="trk-wizard">
+      <WizardProgress step={step} total={2} />
       {!embedded && <PageHeader title={step === 1 ? 'Какая помощь нужна' : 'Расскажите подробнее'} back={{ to: '/me/requests', label: 'Мои заявки' }} />}
       <div className="trk-account">
         {step === 1 ? (
@@ -105,8 +104,7 @@ export function RequestWizard({ onDone, embedded }: { onDone: (id: string) => vo
             <Card>
               <div className="trk-form">
                 <CardTitle>Бюджет за урок</CardTitle>
-                <OptionChips options={BUDGETS} value={budget} onChange={setBudget} />
-                {budget === CUSTOM && <TextField label="Не больше, ₽ за урок" type="number" inputMode="numeric" min={100} max={50000} step={50} value={ownPrice} onChange={(e) => setOwnPrice(e.target.value)} error={errors.price} />}
+                <PriceRange key={`${budget[0]}-${budget[1]}`} min={budget[0]} max={budget[1]} limit={BUDGET_LIMIT} label="Бюджет" onChange={(lo, hi) => setBudget([lo, hi])} />
               </div>
             </Card>
             <div className="trk-account-wide">
@@ -125,7 +123,7 @@ export function RequestWizard({ onDone, embedded }: { onDone: (id: string) => vo
         {step === 2 && <Button variant="fill" size="lg" onClick={() => setStep(1)}>Назад</Button>}
         <Button size="lg" onClick={next} loading={create.pending}>{step === 1 ? 'Дальше' : 'Опубликовать заявку'}</Button>
       </div>
-    </>
+    </div>
   );
 }
 

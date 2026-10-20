@@ -1,5 +1,5 @@
 import type { WeekInterval, WeekSchedule } from '../api/types';
-import { Button } from './kit';
+import { IconButton } from './kit';
 import { Icon } from './icon';
 
 export const WEEKDAYS = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
@@ -58,7 +58,7 @@ export function WeekEditor({ value, onChange }: { value: WeekSchedule; onChange:
                   <button type="button" className="trk-iconbtn" aria-label={`${name}: убрать интервал`} onClick={() => setDay(weekday, list.filter((_, j) => j !== i))}><Icon name="x" /></button>
                 </div>
               ))}
-              <Button variant="soft" size="s" icon="plus" onClick={() => setDay(weekday, [...list, { from: list.length ? list[list.length - 1].to : '17:00', to: list.length ? hh(Math.min(23, hourOf(list[list.length - 1].to) + 2)) : '21:00' }])}>Добавить время</Button>
+              <IconButton icon="plus" label="Добавить время" onClick={() => setDay(weekday, [...list, { from: list.length ? list[list.length - 1].to : '17:00', to: list.length ? hh(Math.min(23, hourOf(list[list.length - 1].to) + 2)) : '21:00' }])} className="trk-addbtn" />
             </div>
           </div>
         );

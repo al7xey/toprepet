@@ -29,7 +29,7 @@ def request_subjects(r) -> list:
 def request_json(r, short_name: bool = False) -> dict:
     name = r.student.name
     return {'id': r.id, 'studentId': r.student_id, 'studentName': name.split(' ')[0] if short_name else name, 'studentPhoto': r.student.photo or None, 'subject': r.subject, 'subjects': request_subjects(r), 'customSubject': r.custom_subject, 'goal': r.goal, 'level': r.level,
-            'budgetMax': r.budget_max, 'schedule': r.schedule, 'description': r.description, 'status': effective_status(r), 'createdAt': iso(r.created_at),
+            'budgetMin': r.budget_min, 'budgetMax': r.budget_max, 'schedule': r.schedule, 'description': r.description, 'status': effective_status(r), 'createdAt': iso(r.created_at),
             'expiresAt': iso(r.expires_at), 'responsesCount': r.responses.count()}
 
 
@@ -95,14 +95,18 @@ class RequestsView(APIView):
         if has_contacts(description):
             raise ApiError(CONTACTS_MESSAGE)
         budget = d.get('budgetMax')
-        if budget is not None and (not isinstance(budget, int) or isinstance(budget, bool) or budget < 0):
-            raise ApiError('Бюджет — целое число рублей')
+        budget_min = d.get('budgetMin')
+        for value in (budget, budget_min):
+            if value is not None and (not isinstance(value, int) or isinstance(value, bool) or value < 0):
+                raise ApiError('Бюджет — целое число рублей')
+        if budget is not None and budget_min is not None and budget_min > budget:
+            raise ApiError('Нижняя граница бюджета больше верхней')
         schedule = d.get('schedule') or []
         if not isinstance(schedule, list) or not all(isinstance(s, str) for s in schedule):
             raise ApiError('Неверное удобное время')
         if StudyRequest.objects.filter(student=user, status='open', expires_at__gt=timezone.now()).count() >= MAX_OPEN:
             raise ApiError(f'Одновременно можно держать до {MAX_OPEN} открытых заявок. Закройте ненужные.', 409, 'too_many')
-        r = StudyRequest.objects.create(student=user, subject=subject[:120], subjects=subjects, custom_subject=custom, goal=str(d.get('goal', ''))[:200], level=str(d.get('level', ''))[:120], budget_max=budget,
+        r = StudyRequest.objects.create(student=user, subject=subject[:120], subjects=subjects, custom_subject=custom, goal=str(d.get('goal', ''))[:200], level=str(d.get('level', ''))[:120], budget_min=budget_min, budget_max=budget,
                                         schedule=schedule[:7], description=description[:3000], expires_at=timezone.now() + timedelta(days=14))
         return Response(request_json(r), status=201)
 

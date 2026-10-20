@@ -929,3 +929,24 @@ html{overflow-y:scroll}
 .tr .trk-tabbar.press{transform:none}
 .tr .trk-tabbar .tab .dot{width:10px;height:10px;top:8px;left:calc(50% + 13px);box-shadow:none;background:var(--accent)}
 .tr .trk-tabbar .tab .dot{width:7px;height:7px;top:12px;left:calc(50% + 8px)}
+
+/* v44: окна, чекбокс с галочкой, круглый крестик, ровные кнопки в окнах, ховер без серого, карточки выбора с оранжевой иконкой */
+.tr .trk-modal{animation-fill-mode:backwards}
+.tr .trk-modal-head .trk-cardtitle{font-size:28px;line-height:1.15;letter-spacing:-0.03em}
+.tr .trk-modal-body p,.tr .trk-modal-body .cap{margin:0;text-align:left}
+.tr .trk-modal-foot{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:12px;justify-content:stretch}
+.tr .trk-modal-foot .btn{width:100%}
+.tr .trk-round,.tr .trk-round:hover{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;color:var(--ink)}
+.tr .trk-round .i{width:22px;height:22px}
+.tr .chk i{border-color:#c9bdb5}
+.tr .chk i .i{display:none;width:16px;height:16px}
+.tr .chk.on i .i{display:block}
+.tr .trk-eye .i{width:22px;height:22px}
+.tr .btn-icon:hover,.tr .hdr nav a:hover,.tr .trh-drop-menu button:hover,.tr .trk-iconbtn:hover{background:#fff1e8}
+.tr .trk-iconbtn.trk-back:hover,.tr .trk-iconbtn.trk-round:hover{background:#fff}
+.tr .trk-iconbtn.trk-addbtn:hover{background:var(--accent)}
+.tr .trk-choice .ic-sq{background:var(--accent);color:#fff;box-shadow:none}
+.tr .trk-choice .ic-sq .i{width:24px;height:24px}
+.tr .rowline.block{display:grid;gap:6px;justify-content:stretch}
+.tr .rowline.block p{margin:0;font-weight:500;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
+.tr .trk-progress .prog{margin-top:0}

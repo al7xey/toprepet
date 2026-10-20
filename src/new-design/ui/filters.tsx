@@ -36,20 +36,20 @@ export const Chip = ({ on, onClick, children }: { on: boolean; onClick: () => vo
   <button type="button" className={`chipf${on ? ' on' : ''}`} aria-pressed={on} onClick={onClick}>{children}</button>
 );
 
-const PRICE_HI = 5000; // правая граница ползунка: «5 000 ₽ и дороже»
+const PRICE_HI = 5000; // правая граница ползунка в фильтрах: «5 000 ₽ и дороже»
 const PRICE_STEP = 100;
 
 /** Цена «от и до»: два движка на одной шкале. Значение применяется, когда палец отпущен. */
-function PriceRange({ min, max, onChange }: { min: number; max: number; onChange: (min: number, max: number) => void }) {
+export function PriceRange({ min, max, onChange, limit = PRICE_HI, label = 'Цена' }: { min: number; max: number; onChange: (min: number, max: number) => void; limit?: number; label?: string }) {
   const [lo, setLo] = useState(min);
   const [hi, setHi] = useState(max);
   const commit = () => onChange(lo, hi);
   return (
     <div className="trh-range">
-      <div className="trh-range-vals"><span>от <b>{rub(lo)}</b></span><span>до <b>{hi >= PRICE_HI ? `${rub(PRICE_HI)} и больше` : rub(hi)}</b></span></div>
-      <div className="trh-range-track" style={{ '--a': `${(lo / PRICE_HI) * 100}%`, '--b': `${(hi / PRICE_HI) * 100}%` } as CSSProperties}>
-        <input type="range" aria-label="Цена от" min={0} max={PRICE_HI} step={PRICE_STEP} value={lo} onChange={(e) => setLo(Math.min(Number(e.target.value), hi - PRICE_STEP))} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
-        <input type="range" aria-label="Цена до" min={0} max={PRICE_HI} step={PRICE_STEP} value={hi} onChange={(e) => setHi(Math.max(Number(e.target.value), lo + PRICE_STEP))} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
+      <div className="trh-range-vals"><span>от <b>{rub(lo)}</b></span><span>до <b>{hi >= limit ? `${rub(limit)} и больше` : rub(hi)}</b></span></div>
+      <div className="trh-range-track" style={{ '--a': `${(lo / limit) * 100}%`, '--b': `${(hi / limit) * 100}%` } as CSSProperties}>
+        <input type="range" aria-label={`${label} от`} min={0} max={limit} step={PRICE_STEP} value={lo} onChange={(e) => setLo(Math.min(Number(e.target.value), hi - PRICE_STEP))} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
+        <input type="range" aria-label={`${label} до`} min={0} max={limit} step={PRICE_STEP} value={hi} onChange={(e) => setHi(Math.max(Number(e.target.value), lo + PRICE_STEP))} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
       </div>
     </div>
   );

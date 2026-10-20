@@ -143,6 +143,7 @@ export interface StudyRequest {
   customSubject?: string;
   goal: string;
   level: string;
+  budgetMin?: number | null;
   budgetMax: number | null;
   schedule: string[];
   description: string;
@@ -157,6 +158,7 @@ export interface CreateRequestInput {
   customSubject: string;
   goal: string;
   level: string;
+  budgetMin?: number | null;
   budgetMax: number | null;
   schedule: string[];
   description: string;

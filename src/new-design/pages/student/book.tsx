@@ -4,7 +4,7 @@ import { api, LESSON_MINUTES, staticTutors, type Card as PayCard, type Tutor } f
 import { useMutation, useQuery } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
 import { minutes, rub, whenLabel } from '../../lib/format';
-import { AddCardModal, Button, Card, Checkbox, CardTitle, EmptyState, FormError, Note, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker } from '../../ui';
+import { AddCardModal, Button, Card, Checkbox, CardTitle, EmptyState, FormError, IconButton, Note, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker } from '../../ui';
 
 /** Запись на урок или бесплатное знакомство: проверить сводку, выбрать карту и подтвердить. */
 export default function BookPage() {
@@ -80,7 +80,7 @@ function BookForm({ tutor }: { tutor: Tutor }) {
                   </div>
                 ) : <EmptyState icon="card" title="Карты пока нет" text="Добавьте карту: деньги будут заморожены до подтверждения урока репетитором." />}
               </QueryView>
-              <Button variant="soft" icon="plus" onClick={() => setCardOpen(true)}>Добавить карту</Button>
+              <IconButton icon="plus" label="Добавить карту" onClick={() => setCardOpen(true)} className="trk-addbtn" />
               {showErrors && problems.card && <span className="trk-error">Добавьте карту, чтобы записаться</span>}
               <Note tone="plain" icon="info">Деньги заморозим при записи и спишем, когда репетитор подтвердит урок. Бесплатная отмена за 4 часа до начала.</Note>
             </>

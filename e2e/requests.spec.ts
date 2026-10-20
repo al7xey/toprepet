@@ -45,12 +45,14 @@ test('заявка со своим предметом видна репетит�
   await page.getByRole('button', { name: 'Домашние задания' }).click();
   await page.getByRole('button', { name: 'Дальше' }).click();
   await page.getByRole('button', { name: 'Выходные' }).click();
-  await page.getByRole('button', { name: 'Своя цена' }).click();
-  await page.getByLabel('Не больше, ₽ за урок').fill('900');
+  // бюджет выбирается линией «от и до»
+  await page.getByLabel('Бюджет до').fill('900');
+  await page.getByLabel('Бюджет до').dispatchEvent('pointerup');
   await page.getByLabel('Описание задачи').fill('Хочу научиться играть');
   await page.getByRole('button', { name: /Опубликовать/ }).click();
   await expect(page).toHaveURL(/\/me\/requests\/(?!new)[^/]+$/);
   await expect(page.getByText('Физика, Шахматы').first()).toBeVisible();
+  await expect(page.getByText('до 900 ₽').first()).toBeVisible();
   await logout(page);
 
   await login(page, 'tutor');

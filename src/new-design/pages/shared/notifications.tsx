@@ -7,7 +7,7 @@ import { AppLayout } from '../../layout/layouts';
 import { ago } from '../../lib/format';
 import { Card, EmptyState, Icon, IconButton, PageHeader, QueryView } from '../../ui';
 
-const ICON: Record<Notification['kind'], string> = { lesson: 'cal', request: 'list', message: 'chat', payment: 'card', review: 'star', system: 'info' };
+const ICON: Record<Notification['kind'], string> = { lesson: 'book', request: 'circle-check', message: 'chat-bubble', payment: 'card', review: 'star', system: 'info' };
 
 /** Уведомления: уроки, заявки, сообщения, платежи, отзывы. Общая страница для ученика и репетитора. */
 export default function NotificationsPage() {

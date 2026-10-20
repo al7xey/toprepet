@@ -188,10 +188,12 @@ export function Person({ name, sub, photo, size = 48, right }: { name: string; s
 /* ---------- Списки и данные ---------- */
 
 /** Строки «название — значение». */
-export function Rows({ rows, boxed }: { rows: [ReactNode, ReactNode][]; boxed?: boolean }) {
+export function Rows({ rows, boxed }: { rows: ([ReactNode, ReactNode] | [ReactNode, ReactNode, 'block'])[]; boxed?: boolean }) {
   return (
     <div className={cx('trk-rows', boxed && 'boxed')}>
-      {rows.map(([k, v], i) => <div className="rowline" key={i}><span className="muted">{k}</span><b>{v}</b></div>)}
+      {rows.map(([k, v, kind], i) => (kind === 'block'
+        ? <div className="rowline block" key={i}><span className="muted">{k}</span><p>{v}</p></div>
+        : <div className="rowline" key={i}><span className="muted">{k}</span><b>{v}</b></div>))}
     </div>
   );
 }
@@ -255,7 +257,7 @@ export function Tabs<T extends string>({ items, value, onChange, wide }: { items
 export function WizardProgress({ step, total, label }: { step: number; total: number; label?: string }) {
   return (
     <div className="trk-progress" aria-label={`Шаг ${step} из ${total}`}>
-      <span className="mini">{label ?? `Шаг ${step} из ${total}`}</span>
+      {label && <span className="mini">{label}</span>}
       <div className="prog">{Array.from({ length: total }, (_, i) => <i key={i} className={i < step ? 'on' : undefined} />)}</div>
     </div>
   );
@@ -294,7 +296,7 @@ export function PasswordField(props: FieldShell & InputHTMLAttributes<HTMLInputE
     <TextField
       {...props}
       type={shown ? 'text' : 'password'}
-      right={<button type="button" className="trk-eye" onClick={() => setShown((v) => !v)} aria-label={shown ? 'Скрыть пароль' : 'Показать пароль'}><Icon name="eye" /></button>}
+      right={<button type="button" className="trk-eye" onPointerDown={(e) => e.preventDefault()} onClick={() => setShown((v) => !v)} aria-label={shown ? 'Скрыть пароль' : 'Показать пароль'} aria-pressed={shown}><Icon name={shown ? 'eye-off' : 'eye'} /></button>}
     />
   );
 }
@@ -328,7 +330,7 @@ export function Checkbox({ checked, onChange, children }: { checked: boolean; on
   return (
     <label className={cx('chk trk-check', checked && 'on')}>
       <input type="checkbox" className="trk-sr" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      <i aria-hidden="true" />
+      <i aria-hidden="true"><Icon name="check" /></i>
       <span>{children}</span>
     </label>
   );

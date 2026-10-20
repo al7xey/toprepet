@@ -4,7 +4,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { Card as PayCard, PaymentKind } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { dateLong, rub } from '../../lib/format';
-import { AddCardModal, Button, Card, ConfirmDialog, EmptyState, FormError, PageHeader, QueryView, Section, Status, Tabs, useToast, type Tone } from '../../ui';
+import { AddCardModal, Button, Card, ConfirmDialog, EmptyState, FormError, IconButton, PageHeader, QueryView, Section, Status, Tabs, useToast, type Tone } from '../../ui';
 
 const KIND: Record<PaymentKind, { tone: Tone; text: string; sign: string }> = {
   hold: { tone: 'wait', text: 'Заморожено', sign: '' },
@@ -56,7 +56,7 @@ function Cards() {
     if (await remove.run(removing.id)) { setRemoving(null); cards.reload(); toast('Карта удалена'); }
   };
   return (
-    <Section title="Мои карты" action={<Button icon="plus" onClick={() => setOpen(true)}>Добавить карту</Button>}>
+    <Section title="Мои карты" action={<IconButton icon="plus" label="Добавить карту" onClick={() => setOpen(true)} className="trk-addbtn" />}>
       <QueryView query={cards} empty={(items) => items.length === 0 ? <EmptyState icon="card" title="Карт пока нет" text="Добавьте карту, чтобы записываться на платные уроки." actions={<Button onClick={() => setOpen(true)}>Добавить карту</Button>} /> : null}>
         {(items) => (
           <div className="trk-list">

@@ -10,11 +10,20 @@ export const REQUEST_STATUS: Record<RequestStatus, { tone: 'wait' | 'ok' | 'neut
   closed: { tone: 'neutral', icon: 'x', text: 'Закрыта' },
 };
 
+/** Бюджет заявки словами: «от 1 000 ₽ до 2 500 ₽», «до 2 000 ₽» или «Не указан». */
+export function budgetText(request: Pick<StudyRequest, 'budgetMin' | 'budgetMax'>) {
+  const { budgetMin: min, budgetMax: max } = request;
+  if (min && max) return `от ${rub(min)} до ${rub(max)}`;
+  if (max) return `до ${rub(max)}`;
+  if (min) return `от ${rub(min)}`;
+  return 'Не указан';
+}
+
 /**
- * Карточка заявки: круглый аватар и имя того, кто её создал, а под ним таблица из ячеек с тем, чего хочет ученик.
- * compact — для сводки в профиле: без текста описания. Статус показываем только когда заявка уже не ищет репетитора.
+ * Карточка заявки: круглый аватар и имя того, кто её создал, а под ним таблица из ячеек с тем, чего хочет ученик,
+ * включая написанный им текст. Статус показываем только когда заявка уже не опубликована: про «Ищем репетитора» и так понятно.
  */
-export function RequestCard({ request, actions, showStatus = true, compact }: { request: StudyRequest; actions?: ReactNode; showStatus?: boolean; forTutor?: boolean; compact?: boolean }) {
+export function RequestCard({ request, actions, showStatus = true }: { request: StudyRequest; actions?: ReactNode; showStatus?: boolean; forTutor?: boolean }) {
   const s = REQUEST_STATUS[request.status];
   return (
     <Card as="article" className="trk-request">
@@ -25,9 +34,9 @@ export function RequestCard({ request, actions, showStatus = true, compact }: { 
         ['Уровень', request.level],
         ['Цель', request.goal],
         ['Удобное время', request.schedule.join(', ')],
-        ['Бюджет', request.budgetMax ? `до ${rub(request.budgetMax)}` : 'Не указан'],
+        ['Бюджет', budgetText(request)],
+        ['Что нужно', request.description, 'block'],
       ]} />
-      {!compact && <p className="trk-request-text">{request.description}</p>}
       {actions && <div className="trk-actions">{actions}</div>}
     </Card>
   );

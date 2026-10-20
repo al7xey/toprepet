@@ -73,7 +73,7 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
             <BlockHead title="Мои заявки" add={{ label: 'Новая заявка', onClick: () => setNewRequest(true) }} all={{ label: 'Все заявки', to: '/me/requests' }} />
             {requests.loading && !requests.data ? <span className="muted">Загружаем…</span> : activeRequests.length ? (
               <div className="trk-list">
-                {activeRequests.slice(0, 2).map((r) => <RequestCard key={r.id} compact request={r} actions={<Button size="s" to={`/me/requests/${r.id}`}>Открыть</Button>} />)}
+                {activeRequests.slice(0, 2).map((r) => <RequestCard key={r.id} request={r} actions={<Button size="s" to={`/me/requests/${r.id}`}>{r.responsesCount ? `Отклики · ${r.responsesCount}` : 'Посмотреть отклики'}</Button>} />)}
               </div>
             ) : (
               <Card pad="sm"><div className="trk-form"><p className="muted">Активных заявок нет. Опишите, что нужно, и репетиторы сами откликнутся с ценой и временем.</p><Button icon="plus" onClick={() => setNewRequest(true)}>Создать заявку</Button></div></Card>

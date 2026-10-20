@@ -6,7 +6,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { Achievement, TutorProfileDraft, WeekSchedule } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
-import { Button, Card, CardTitle, FilePick, FormError, OptionChips, PageHeader, QueryView, SelectField, Status, Switch, TextArea, TextField, WeekEditor, WizardProgress, weekIsEmpty, weekProblem, useToast } from '../../ui';
+import { Button, Card, CardTitle, FilePick, FormError, IconButton, OptionChips, PageHeader, QueryView, SelectField, Status, Switch, TextArea, TextField, WeekEditor, WizardProgress, weekIsEmpty, weekProblem, useToast } from '../../ui';
 
 const SUBJECTS = allSubjects.filter((s) => s !== 'Другой предмет');
 const LEVELS = ['Дошкольники', '1–4 класс', '5–9 класс', '10–11 класс', 'Взрослые'];
@@ -154,7 +154,7 @@ function Education({ value, onChange }: { value: Achievement[]; onChange: (v: Ac
           <Button size="s" variant="fill" onClick={() => onChange(value.filter((_, j) => j !== i))}>Убрать</Button>
         </div>
       ))}
-      {value.length < 5 && <Button variant="soft" size="s" icon="plus" onClick={() => onChange([...value, { title: '', text: '' }])}>Добавить</Button>}
+      {value.length < 5 && <IconButton icon="plus" label="Добавить достижение" onClick={() => onChange([...value, { title: '', text: '' }])} className="trk-addbtn" />}
     </div>
   );
 }
