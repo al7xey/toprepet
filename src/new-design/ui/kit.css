@@ -1008,3 +1008,12 @@ html{overflow-y:scroll}
 /* админка на телефоне: шапки нет, кнопка «Выйти» стоит внизу страницы */
 .tr .trk-admin-exit{display:none}
 @media (max-width:760px){.tr .trk-admin-exit{display:block;margin-top:24px}}
+
+/* v52: запись на урок — спокойная сводка */
+.tr .trk-summary{gap:16px}
+.tr .trk-total{border-top:0;padding:4px 4px 0;align-items:center}
+.tr .trk-total>span{font-weight:600}
+.tr .trk-pay-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.tr .trk-pay-head h2,.tr .trk-pay-head h3{margin:0}
+.tr .trk-pay-note{margin:0}
+.tr .tg-msg small .i{width:16px;height:16px}

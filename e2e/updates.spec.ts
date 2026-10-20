@@ -109,8 +109,8 @@ test('чат: фото сжимается и отправляется, у сво
   await page.locator('input[type=file]').setInputFiles({ name: 'zadanie.png', mimeType: 'image/png', buffer: png });
   await expect(page.locator('.tg-thread .tg-photo').last()).toBeVisible();
   // у своего непрочитанного сообщения одна галочка
-  await expect(page.locator('.tg-msg.out').last().locator('small .i-check')).toHaveCount(1);
-  await expect(page.locator('.tg-msg.out').last().locator('small .i-checks')).toHaveCount(0);
+  await expect(page.locator('.tg-msg.out').last().locator('small .i-tick')).toHaveCount(1);
+  await expect(page.locator('.tg-msg.out').last().locator('small .i-ticks')).toHaveCount(0);
 });
 
 test('анкета: метка «Документы проверены» видна сразу и не пропадает', async ({ page }) => {

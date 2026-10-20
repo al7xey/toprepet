@@ -4,7 +4,7 @@ import { api, LESSON_MINUTES, staticTutors, type Card as PayCard, type Tutor } f
 import { useMutation, useQuery } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
 import { minutes, rub, whenLabel } from '../../lib/format';
-import { AddCardModal, Button, Card, Checkbox, CardTitle, EmptyState, FormError, IconButton, Note, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker } from '../../ui';
+import { AddCardModal, Button, Card, Checkbox, CardTitle, EmptyState, FormError, IconButton, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker } from '../../ui';
 
 /** Запись на урок или бесплатное знакомство: проверить сводку, выбрать карту и подтвердить. */
 export default function BookPage() {
@@ -63,7 +63,7 @@ function BookForm({ tutor }: { tutor: Tutor }) {
       {tutor.subjects.length > 1 && <SelectField label="Предмет" value={subject} onChange={(e) => setSubject(e.target.value)} options={tutor.subjects} />}
       <Section title="Итог">
         <Card className="trk-summary">
-          <Rows rows={[
+          <Rows boxed rows={[
             ['Репетитор', tutor.name],
             ['Предмет', subject],
             ['Когда', start ? whenLabel(start) : 'Время не выбрано'],
@@ -72,17 +72,16 @@ function BookForm({ tutor }: { tutor: Tutor }) {
           <div className="trk-total"><span>К оплате</span><b className="tn trk-price-xl">{kind === 'intro' ? 'Бесплатно' : rub(total)}</b></div>
           {kind === 'regular' && (
             <>
-              <CardTitle>Способ оплаты</CardTitle>
+              <div className="trk-pay-head"><CardTitle>Способ оплаты</CardTitle><IconButton icon="plus" label="Добавить способ оплаты" onClick={() => setCardOpen(true)} className="trk-addbtn" /></div>
               <QueryView query={cards} loading={<span className="muted">Загружаем карты…</span>}>
                 {(items) => items.length ? (
                   <div className="trk-cards-list">
                     {items.map((c) => <CardRow key={c.id} card={c} active={c.id === card?.id} onPick={() => setCardId(c.id)} />)}
                   </div>
-                ) : <EmptyState icon="card" title="Карты пока нет" text="Добавьте карту: деньги будут заморожены до подтверждения урока репетитором." />}
+                ) : <EmptyState icon="card" title="Карты пока нет" text="Нажмите «+», чтобы добавить карту." />}
               </QueryView>
-              <IconButton icon="plus" label="Добавить карту" onClick={() => setCardOpen(true)} className="trk-addbtn" />
               {showErrors && problems.card && <span className="trk-error">Добавьте карту, чтобы записаться</span>}
-              <Note tone="plain" icon="info">Деньги заморозим при записи и спишем, когда репетитор подтвердит урок. Бесплатная отмена за 4 часа до начала.</Note>
+              <p className="muted sm trk-pay-note">Деньги замораживаются при записи и списываются после подтверждения репетитором. Бесплатная отмена за 4 часа до начала.</p>
             </>
           )}
           <div>

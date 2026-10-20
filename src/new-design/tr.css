@@ -786,3 +786,7 @@
 .tr .foot nav a{display:inline-flex;align-items:center;min-height:40px}
 .tr .hdr .logo{min-height:40px}
 .tr .trk-eye{width:40px;height:40px;margin-right:-10px;place-items:center}
+
+/* галочки сообщений: одна — отправлено, две — прочитано */
+.tr .i-tick{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='M5 12.5l4.5 4.5L19 7.5'/></svg>")}
+.tr .i-ticks{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round' d='M1.500 12.500l4.500 4.500L15.500 7.500M10.500 16.500l.5.500L21.500 7.500'/></svg>")}

@@ -184,7 +184,7 @@ function Thread({ conversation, list, loading, onSent, onRemoved }: { conversati
                   <div className={`tg-msg ${mine ? 'out' : 'in'}${joined ? ' joined' : ''}`} {...(mine ? holdProps(m) : {})}>
                     {m.imageUrl && <img className="tg-photo" src={m.imageUrl} alt="Фото в сообщении" loading="lazy" />}
                     {m.text && <span className="tg-text">{m.text}</span>}
-                    <small>{timeLabel(m.at)}{mine && <Icon name={m.read ? 'checks' : 'check'} />}</small>
+                    <small>{timeLabel(m.at)}{mine && <Icon name={m.read ? 'ticks' : 'tick'} />}</small>
                   </div>
                 )}
             </div>
