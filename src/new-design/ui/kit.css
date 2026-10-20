@@ -928,3 +928,4 @@ html{overflow-y:scroll}
 .tr .trk-tabbar.press .tabpill{transform:scale(1.1,1.08);box-shadow:0 8px 18px rgb(32 40 56 / 16%),inset 0 1px 0 rgb(255 255 255 / 90%),inset 0 0 0 1px rgb(255 255 255 / 40%)}
 .tr .trk-tabbar.press{transform:none}
 .tr .trk-tabbar .tab .dot{width:10px;height:10px;top:8px;left:calc(50% + 13px);box-shadow:none;background:var(--accent)}
+.tr .trk-tabbar .tab .dot{width:7px;height:7px;top:12px;left:calc(50% + 8px)}
