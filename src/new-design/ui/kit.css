@@ -964,7 +964,7 @@ html{overflow-y:scroll}
 .tr .tg-compose-row{gap:8px;align-items:center}
 .tr .tg-input{min-height:44px;padding:10px 18px}
 /* опасные действия: красная кнопка */
-.tr .btn-danger,.tr .btn-danger:hover{background:var(--bad);color:#fff;box-shadow:none}
+.tr .btn-danger,.tr .btn-danger:hover{background:#fde4df;color:var(--bad);box-shadow:none}
 /* окна: кнопки как на остальном сайте */
 .tr .trk-modal-foot .btn{height:52px;min-height:52px;padding:0 20px;font-size:18.7px;font-weight:700;line-height:1}
 /* выбранный день в расписании по датам: без оранжевой заливки */

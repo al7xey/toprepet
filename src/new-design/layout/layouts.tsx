@@ -301,8 +301,8 @@ const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
     tabs: [{ label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Занятия', to: '/tutor/lessons', icon: 'book', also: ['/tutor/schedule'] }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/tutor/account', icon: 'user', also: ['/tutor/profile', '/tutor/finance', '/tutor/students', '/tutor/reviews', '/tutor/notifications'] }],
   },
   admin: {
-    top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],
-    tabs: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'x' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }],
+    top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'doc' }],
+    tabs: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'doc' }, { label: 'Профиль', to: '/admin/account', icon: 'user' }],
   },
 };
 
@@ -317,7 +317,7 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
   const nav = NAV[role];
   const top = nav.top.filter((item) => ready(item.to));
   const tabs = nav.tabs.filter((t) => ready(t.to)).map((t) => (t.icon === 'chat-bubble' ? { ...t, badge: counters.chats } : t));
-  const accountTo = role === 'admin' ? '/admin/disputes' : `${counters.prefix}/account`;
+  const accountTo = role === 'admin' ? '/admin/account' : `${counters.prefix}/account`;
   return (
     <div className={cx('wash trh-page trh-tight trk-app', `tabs-${tabs.length}`, chat && `trk-chat-${chat}`)} style={{ '--n': tabs.length } as CSSProperties}>
       <header className="hdr surf trh-hdr trk-app-hdr">
