@@ -938,15 +938,23 @@ html{overflow-y:scroll}
 .tr .trk-modal-foot .btn{width:100%}
 .tr .trk-round,.tr .trk-round:hover{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;color:var(--ink)}
 .tr .trk-round .i{width:22px;height:22px}
-.tr .chk i{border-color:#c9bdb5}
-.tr .chk i .i{display:none;width:16px;height:16px}
-.tr .chk.on i .i{display:block}
+.tr .chk > i{border-color:#c9bdb5}
+.tr .chk > i .i{display:none;width:16px;height:16px}
+.tr .chk.on > i .i{display:block}
 .tr .trk-eye .i{width:22px;height:22px}
 .tr .btn-icon:hover,.tr .hdr nav a:hover,.tr .trh-drop-menu button:hover,.tr .trk-iconbtn:hover{background:#fff1e8}
 .tr .trk-iconbtn.trk-back:hover,.tr .trk-iconbtn.trk-round:hover{background:#fff}
 .tr .trk-iconbtn.trk-addbtn:hover{background:var(--accent)}
-.tr .trk-choice .ic-sq{background:var(--accent);color:#fff;box-shadow:none}
 .tr .trk-choice .ic-sq .i{width:24px;height:24px}
 .tr .rowline.block{display:grid;gap:6px;justify-content:stretch}
 .tr .rowline.block p{margin:0;font-weight:500;line-height:1.5;color:var(--ink);overflow-wrap:anywhere}
 .tr .trk-progress .prog{margin-top:0}
+
+/* v45: кнопки одного размера шрифта, круглая стрелка чата, удаление сообщений */
+.tr .btn,.tr .btn.btn-lg,.tr .btn.btn-s,.tr .btn-primary,.tr .btn-primary.btn-s,.tr .btn-primary.btn-lg{font-size:18.7px;font-weight:700}
+.tr .tg-back.trk-round{display:none}
+@media (max-width:760px){.tr .tg-back.trk-round{display:grid}}
+.tr .tg-del{width:24px;height:24px;border-radius:50%;border:0;background:transparent;color:#6f6461;display:grid;place-items:center;padding:0;margin-right:6px;cursor:pointer}
+.tr .tg-del .i{width:14px;height:14px}
+.tr .tg-del:hover{color:var(--ink)}
+.tr .tg-msg small .tg-del .i{width:16px;height:16px;color:#6f6461}

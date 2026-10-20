@@ -80,6 +80,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     listMessages: (id) => get(`/conversations/${id}/messages`),
     sendMessage: (id, text) => post(`/conversations/${id}/messages`, { text }),
     sendPhoto: async (id, file, caption) => { const form = new FormData(); form.set('file', await optimizeImage(file)); if (caption) form.set('text', caption); return post(`/conversations/${id}/messages`, form); },
+    deleteMessage: (id, messageId) => request('DELETE', `/conversations/${id}/messages/${messageId}`),
     reportConversation: (id, reason, block) => post(`/conversations/${id}/report`, { reason, block }),
 
     listPayments: () => get('/me/payments'),

@@ -93,3 +93,14 @@ def test_photo_message(world, settings, tmp_path):
     assert body['kind'] == 'photo' and body['imageUrl'].endswith('.png') and body['text'] == 'Вот задание'
     bad = world['olga'].post('/conversations/c-1/messages', {'file': SimpleUploadedFile('a.png', b'not an image', 'image/png')}, format='multipart')
     assert bad.status_code == 400
+
+
+
+def test_user_deletes_only_own_message(world):
+    olga, tutor = world['olga'], world['tutor']
+    sent = olga.post_ok('/conversations/c-1/messages', {'text': 'Это сообщение удалим'}, 201)
+    path = f"/conversations/c-1/messages/{sent['id']}"
+    tutor.call('delete', path, status=404)  # чужое сообщение удалить нельзя
+    olga.call('delete', path, status=204)
+    assert all(m['id'] != sent['id'] for m in olga.get_ok('/conversations/c-1/messages'))
+    olga.call('delete', path, status=404)

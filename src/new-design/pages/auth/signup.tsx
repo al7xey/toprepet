@@ -48,7 +48,7 @@ export default function SignupPage() {
         <form className="trk-form" onSubmit={submit} noValidate>
           <ChoiceCards<SignupRole> label="Кто вы" value={role} onChange={setRole} options={[
             { value: 'student', title: 'Хочу учиться', text: 'Для себя или для ребёнка', icon: 'book' },
-            { value: 'tutor', title: 'Хочу преподавать', text: 'Создам анкету и расписание', icon: 'school' },
+            { value: 'tutor', title: 'Хочу преподавать', text: 'Для работы со своими учениками', icon: 'school' },
           ]} />
           <TextField label="Имя" name="name" autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} error={errors.name} />
           <TextField label="Почта" type="email" name="email" autoComplete="email" inputMode="email" placeholder="name@mail.ru" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} />

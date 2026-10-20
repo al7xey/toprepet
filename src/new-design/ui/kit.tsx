@@ -48,7 +48,8 @@ export function Button({ children, variant = 'primary', size = 'md', block, icon
 
 /** Круглая кнопка со значком (уведомления, назад, закрыть). */
 export function IconButton({ icon, label, to, onClick, surf, badge, className }: { icon: string; label: string; to?: string; onClick?: () => void; surf?: boolean; badge?: number | boolean; className?: string }) {
-  const cls = cx('trk-iconbtn', surf && 'surf', className);
+  // все круглые кнопки-значки в одном стиле: белый круг с тонкой рамкой; оранжевый плюс и кнопки поверх фото остаются как есть
+  const cls = cx('trk-iconbtn', surf && 'surf', !surf && !className?.includes('trk-addbtn') && 'trk-round', className);
   // непрочитанное показываем точкой, без числа: так принято в современных приложениях
   const dot = badge ? <span className="trk-badge" aria-hidden="true" /> : null;
   if (to) return <Link className={cls} to={to} aria-label={label} data-unread={typeof badge === 'number' ? badge : undefined}><Icon name={icon} />{dot}</Link>;

@@ -600,6 +600,15 @@ export function createMockApi(): Api {
       s.messages.push(m); (c as Conversation).lastMessage = text || 'Фото'; (c as Conversation).updatedAt = m.at; save();
       return delay(m, 200);
     },
+    async deleteMessage(id, messageId) {
+      const s = load(); const c = myConversation(id); const uid = me().id;
+      const m = s.messages.find((x) => x.id === messageId && x.conversationId === id);
+      if (!m || m.authorId !== uid || m.kind === 'event') fail('Можно удалить только своё сообщение');
+      s.messages = s.messages.filter((x) => x.id !== messageId);
+      const last = s.messages.filter((x) => x.conversationId === id && x.kind !== 'event').at(-1);
+      (c as Conversation).lastMessage = last ? (last.text || 'Фото') : '';
+      save(); return delay(undefined);
+    },
     async reportConversation(id, reason, block) {
       const c = myConversation(id); if (!reason.trim()) fail('Выберите причину жалобы');
       if (block) c.blocked = true;

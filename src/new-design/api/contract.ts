@@ -69,6 +69,7 @@ export interface Api {
   listMessages(id: Id): Promise<Message[]>; // GET /conversations/:id/messages
   sendMessage(id: Id, text: string): Promise<Message>; // POST /conversations/:id/messages
   sendPhoto(id: Id, file: File, caption?: string): Promise<Message>; // POST /conversations/:id/messages (multipart: file, text)
+  deleteMessage(id: Id, messageId: Id): Promise<void>; // DELETE /conversations/:id/messages/:messageId (только своё сообщение)
   reportConversation(id: Id, reason: string, block: boolean): Promise<void>; // POST /conversations/:id/report
 
   // Деньги

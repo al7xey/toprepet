@@ -6,7 +6,7 @@ import { useSession } from '../../api/session';
 import type { Conversation, Message, Role } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { ago, timeLabel } from '../../lib/format';
-import { Avatar, Button, Checkbox, EmptyState, FormError, Icon, IconButton, Modal, OptionChips, useToast } from '../../ui';
+import { Avatar, Button, Checkbox, ConfirmDialog, EmptyState, FormError, Icon, IconButton, Modal, OptionChips, useToast } from '../../ui';
 
 type Side = Extract<Role, 'student' | 'tutor'>;
 
@@ -89,11 +89,11 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
   return (
     <>
       <header className="tg-head">
-        <Link to={base} className="tg-back" aria-label="Назад к списку"><Icon name="back" /></Link>
+        <Link to={base} className="tg-back trk-iconbtn trk-round" aria-label="Назад к списку"><Icon name="back" /></Link>
         {role === 'student' ? (
           <Link className="tg-peer" to={`/teachers/${c.tutorId}`} state={{ back: `${base}/${c.id}` }} aria-label={`Анкета: ${c.peerName}`}>
             <Avatar name={c.peerName} photo={c.peerPhoto} size={44} />
-            <span className="tg-head-text"><b>{c.peerName}</b><small>Репетитор, открыть анкету</small></span>
+            <span className="tg-head-text"><b>{c.peerName}</b><small>Репетитор</small></span>
           </Link>
         ) : (
           <span className="tg-peer">
@@ -103,17 +103,22 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
         )}
         <ReportButton conversation={c} onBlocked={() => conversation.reload()} />
       </header>
-      <Thread conversation={c} list={messages.data ?? []} loading={messages.loading && !messages.data} onSent={(m) => { messages.setData((prev) => [...(prev ?? []), m]); onRead(); }} />
+      <Thread conversation={c} list={messages.data ?? []} loading={messages.loading && !messages.data} onSent={(m) => { messages.setData((prev) => [...(prev ?? []), m]); onRead(); }} onRemoved={(id) => messages.setData((prev) => (prev ?? []).filter((x) => x.id !== id))} />
     </>
   );
 }
 
-function Thread({ conversation, list, loading, onSent }: { conversation: Conversation; list: Message[]; loading: boolean; onSent: (m: Message) => void }) {
+function Thread({ conversation, list, loading, onSent, onRemoved }: { conversation: Conversation; list: Message[]; loading: boolean; onSent: (m: Message) => void; onRemoved: (id: string) => void }) {
   const { user } = useSession();
   const [text, setText] = useState('');
   const scroller = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLTextAreaElement>(null);
   const send = useMutation((value: string) => api.sendMessage(conversation.id, value));
+  const [removing, setRemoving] = useState<Message | null>(null);
+  const remove = useMutation(async (m: Message) => { await api.deleteMessage(conversation.id, m.id); return true; });
+  const confirmRemove = async () => {
+    if (removing && await remove.run(removing)) { onRemoved(removing.id); setRemoving(null); }
+  };
   const fileInput = useRef<HTMLInputElement>(null);
   // фото сжимаем в браузере до отправки: не больше 1600 px по длинной стороне и около 0,8 МБ
   const sendPhoto = useMutation(async (file: File) => {
@@ -171,13 +176,14 @@ function Thread({ conversation, list, loading, onSent }: { conversation: Convers
                   <div className={`tg-msg ${mine ? 'out' : 'in'}${joined ? ' joined' : ''}`}>
                     {m.imageUrl && <img className="tg-photo" src={m.imageUrl} alt="Фото в сообщении" loading="lazy" />}
                     {m.text && <span className="tg-text">{m.text}</span>}
-                    <small>{timeLabel(m.at)}{mine && <Icon name={m.read ? 'checks' : 'check'} />}</small>
+                    <small>{mine && <button type="button" className="tg-del" aria-label="Удалить сообщение" onClick={() => setRemoving(m)}><Icon name="trash" /></button>}{timeLabel(m.at)}{mine && <Icon name={m.read ? 'checks' : 'check'} />}</small>
                   </div>
                 )}
             </div>
           );
         })}
       </div>
+      <ConfirmDialog open={Boolean(removing)} onClose={() => setRemoving(null)} onConfirm={() => void confirmRemove()} title="Удалить сообщение?" text="Оно исчезнет у вас и у собеседника." confirmLabel="Удалить" variant="danger" pending={remove.pending} />
       {conversation.blocked ? <p className="tg-blocked">Диалог заблокирован: писать в него нельзя.</p> : (
         <form className="tg-compose" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
           {(send.error || sendPhoto.error) && <FormError error={send.error ?? sendPhoto.error} />}

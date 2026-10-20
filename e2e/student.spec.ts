@@ -47,6 +47,10 @@ test.describe('ученик', () => {
     await box.fill('Здравствуйте! Хочу заниматься английским перед экзаменом.');
     await page.getByRole('button', { name: 'Отправить', exact: true }).click();
     await expect(page.locator('.tg-thread').getByText('Хочу заниматься английским перед экзаменом.')).toBeVisible();
+    // своё сообщение можно удалить, после подтверждения оно исчезает
+    await page.getByRole('button', { name: 'Удалить сообщение' }).last().click();
+    await page.getByRole('dialog', { name: 'Удалить сообщение?' }).getByRole('button', { name: 'Удалить' }).click();
+    await expect(page.locator('.tg-thread').getByText('Хочу заниматься английским перед экзаменом.')).toHaveCount(0);
   });
 
   test('сброс пароля: письмо → новый пароль → вход', async ({ page }) => {

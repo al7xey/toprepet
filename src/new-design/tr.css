@@ -303,9 +303,9 @@
 .tr .switch.on{background:var(--accent)}
 .tr .switch.on::after{left:22px}
 .tr .chk{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:#3a3a3e}
-.tr .chk i{width:24px;height:24px;border-radius:8px;border:1.5px solid #c7c7cc;flex-shrink:0;display:grid;place-items:center;color:#fff;margin-top:-1px}
-.tr .chk i .i{width:15px;height:15px}
-.tr .chk.on i{background:var(--accent);border-color:var(--accent)}
+.tr .chk > i{width:24px;height:24px;border-radius:8px;border:1.5px solid #c7c7cc;flex-shrink:0;display:grid;place-items:center;color:#fff;margin-top:-1px}
+.tr .chk > i .i{width:15px;height:15px}
+.tr .chk.on > i{background:var(--accent);border-color:var(--accent)}
 .tr .field.area{align-items:flex-start;padding:16px 20px;min-height:110px;border-radius:22px}
 .tr .field.ink{color:var(--ink)}
 .tr .seg.wide{display:grid;grid-auto-flow:column;grid-auto-columns:1fr}

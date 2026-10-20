@@ -109,6 +109,20 @@ class MessagesView(APIView):
         return Response(message_json(m, None, user.id), status=201)
 
 
+class MessageView(APIView):
+    @transaction.atomic
+    def delete(self, request, conversation_id, message_id):
+        user = require_user(request)
+        c = mine(user, conversation_id)
+        m = c.messages.filter(id=message_id, author=user).exclude(kind='event').first()
+        if not m:
+            raise ApiError('Можно удалить только своё сообщение', 404, 'not_found')
+        m.delete()
+        last = c.messages.exclude(kind='event').order_by('-at', '-id').first()
+        Conversation.objects.filter(id=c.id).update(last_message=((last.text or 'Фото') if last else '')[:300])
+        return Response(status=204)
+
+
 class ReportView(APIView):
     def post(self, request, conversation_id):
         user = require_user(request)
