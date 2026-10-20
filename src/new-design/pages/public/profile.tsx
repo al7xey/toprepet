@@ -86,8 +86,8 @@ function Profile({ tutor }: { tutor: Tutor }) {
           <section className="trh-pf-top">
             <div className="trh-pf-photo" {...rv('scale')}>
               <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 300px, 100vw" alt={`Фото: ${tutor.name}`} fetchPriority="high" decoding="async" />
-              <IconButton icon="back" label="Назад" onClick={close} surf className="trh-pf-back" />
-              <IconButton icon="share" label="Поделиться" onClick={share} surf className="trh-pf-share" />
+              <IconButton icon="back" label="Назад" onClick={close} className="trh-pf-back" />
+              <IconButton icon="share" label="Поделиться" onClick={share} className="trh-pf-share" />
             </div>
             <div className="trh-pf-sheet">
               <div className="trh-sec">
