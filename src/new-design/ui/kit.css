@@ -958,3 +958,13 @@ html{overflow-y:scroll}
 .tr .tg-del .i{width:14px;height:14px}
 .tr .tg-del:hover{color:var(--ink)}
 .tr .tg-msg small .tg-del .i{width:16px;height:16px;color:#6f6461}
+
+/* v46: карточки «Хочу учиться / Хочу преподавать» не серятся ни при наведении, ни при нажатии, ни при выборе */
+.tr,.tr * { -webkit-tap-highlight-color: transparent; }
+.tr .trk-choice,.tr .trk-choice:hover,.tr .trk-choice:active,.tr .trk-choice:focus,.tr .trk-choice:focus-within,.tr .trk-choice.on{background:#fff;transition:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.tr .trk-choice .ic-sq,.tr .trk-choice:hover .ic-sq,.tr .trk-choice:active .ic-sq{background:#ffeadb;transition:none}
+.tr .trk-choice,.tr .trk-choice *{filter:none;opacity:1}
+.tr .trk-choice:hover{box-shadow:inset 0 0 0 1px var(--line)}
+.tr .trk-choice.on:hover,.tr .trk-choice.on:active{box-shadow:inset 0 0 0 2px var(--accent)}
+.tr .trk-choice:active{box-shadow:inset 0 0 0 1px var(--line)}
+.tr .trk-choice.on:active{box-shadow:inset 0 0 0 2px var(--accent)}
