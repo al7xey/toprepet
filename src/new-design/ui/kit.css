@@ -653,10 +653,10 @@
 .tr .trk-tabbar.press{transform:scale(1.03)}
 .tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:46px;padding:0;border-radius:999px;background:transparent;color:var(--ink);transition:color .25s}
 .tr .trk-tabbar .tab .i{width:26px;height:26px;transition:none}
-.tr .trk-tabbar .tab.cur{background:transparent;color:var(--accent)}
-.tr .trk-tabbar .tab.cur .i{background:var(--accent)}
-.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px) / var(--n));border-radius:999px;background:linear-gradient(180deg,rgb(255 255 255 / 92%),rgb(255 255 255 / 78%));box-shadow:0 2px 8px rgb(32 40 56 / 12%),inset 0 1px 0 rgb(255 255 255 / 100%);transition:transform .3s var(--spring),box-shadow .3s;pointer-events:none;z-index:0}
-.tr .trk-tabbar.press .tabpill{transform:scale(1.1,1.08);box-shadow:0 8px 18px rgb(32 40 56 / 18%),inset 0 1px 0 rgb(255 255 255 / 100%)}
+.tr .trk-tabbar .tab.cur{background:transparent;color:var(--ink)}
+.tr .trk-tabbar .tab.cur .i{background:var(--ink)}
+.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px) / var(--n));border-radius:999px;background:linear-gradient(180deg,rgb(255 255 255 / 58%),rgb(255 255 255 / 36%));box-shadow:0 2px 8px rgb(32 40 56 / 10%),inset 0 1px 0 rgb(255 255 255 / 85%),inset 0 0 0 1px rgb(255 255 255 / 35%);transition:transform .3s var(--spring),box-shadow .3s;pointer-events:none;z-index:0}
+.tr .trk-tabbar.press .tabpill{transform:scale(1.1,1.08);box-shadow:0 8px 18px rgb(32 40 56 / 16%),inset 0 1px 0 rgb(255 255 255 / 90%),inset 0 0 0 1px rgb(255 255 255 / 40%)}
 @media (prefers-reduced-motion:reduce){.tr .trk-tabbar,.tr .trk-tabbar .tabpill{transition:none}}
 @media (max-width:760px){.tr .trk-app .trk-tabbar{left:0;right:0;margin-inline:auto;width:min(300px,calc(100% - 48px))}}
 @media (max-width:760px){
@@ -881,3 +881,11 @@ html{overflow-y:scroll}
 @media (max-width:760px){.tr .tg-title{font-size:26px;padding:0 0 10px}}
 .tr .trk-settings-who{display:flex;align-items:center;gap:14px}
 .tr .trk-navrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;text-align:left;cursor:pointer}
+
+/* v37: значки в меню всегда чёрные; выбранный (под пилюлей) и наведённый закрашиваются, лупа становится жирнее */
+.tr .trk-tabbar .tab.cur .i-book,.tr .trk-tabbar .tab:hover .i-book{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='black' stroke='black' stroke-width='1.5' stroke-linejoin='round'><path d='M2.5 5.5C5 4 8.300 4 11.300 6.200v13.200c-3.200-2.200-6.500-2.200-8.800-.9z'/><path d='M12.700 6.200c3-2.200 6.300-2.200 8.800-.7v13c-2.300-1.300-5.600-1.300-8.800.9z'/></g></svg>")}
+.tr .trk-tabbar .tab.cur .i-user,.tr .trk-tabbar .tab:hover .i-user{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='black' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='8.500' r='4'/><path d='M4.500 20c.9-3.700 3.800-5.800 7.500-5.800s6.600 2.100 7.500 5.800z'/></g></svg>")}
+.tr .trk-tabbar .tab.cur .i-chat-bubble,.tr .trk-tabbar .tab:hover .i-chat-bubble{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' d='M12 3.500c4.700 0 8.500 3.300 8.500 7.500s-3.800 7.500-8.500 7.500c-1 0-2-.2-2.900-.5L4.500 20l1.200-3.600C4.300 15.100 3.500 13.200 3.500 11c0-4.200 3.800-7.500 8.500-7.500z'/></svg>")}
+.tr .trk-tabbar .tab.cur .i-circle-check,.tr .trk-tabbar .tab:hover .i-circle-check{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM7.400 12.600l1.300-1.300 2.100 2.100 4.600-4.600 1.300 1.300-5.900 5.900z'/></svg>")}
+.tr .trk-tabbar .tab.cur .i-search,.tr .trk-tabbar .tab:hover .i-search{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='3.400' stroke-linecap='round'><circle cx='11' cy='11' r='6.500'/><path d='M16 16l4.500 4.500'/></g></svg>")}
+.tr .trk-tabbar .tab:hover{color:var(--ink)}
