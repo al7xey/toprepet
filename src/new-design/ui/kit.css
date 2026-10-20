@@ -1004,3 +1004,7 @@ html{overflow-y:scroll}
 /* v51: верхние кнопки анкеты — ровно как остальные круглые кнопки проекта */
 .tr .trk-iconbtn.trk-round.trh-pf-back,.tr .trk-iconbtn.trk-round.trh-pf-share,.tr .trk-iconbtn.trk-round.trh-pf-back:hover,.tr .trk-iconbtn.trk-round.trh-pf-share:hover{width:44px;min-width:44px;height:44px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px #f0d9c8}
 .tr .trk-iconbtn.trh-pf-back .i,.tr .trk-iconbtn.trh-pf-share .i{width:22px;height:22px;color:var(--ink)}
+
+/* админка на телефоне: шапки нет, кнопка «Выйти» стоит внизу страницы */
+.tr .trk-admin-exit{display:none}
+@media (max-width:760px){.tr .trk-admin-exit{display:block;margin-top:24px}}

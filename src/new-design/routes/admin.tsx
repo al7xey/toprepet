@@ -7,8 +7,6 @@ const CancellationsPage = lazy(() => import('../pages/admin/cancellations'));
 const ReviewsPage = lazy(() => import('../pages/admin/reviews'));
 const ProfilesPage = lazy(() => import('../pages/admin/profiles'));
 
-const AccountPage = lazy(() => import('../pages/admin/account'));
-
 const admin = (page: React.ReactNode) => <RequireRole role="admin">{page}</RequireRole>;
 
 /** Админка поддержки: споры, отмены, отзывы и анкеты на проверке. */
@@ -19,6 +17,5 @@ export const adminRoutes = (
     <Route path="/admin/cancellations" element={admin(<CancellationsPage />)} />
     <Route path="/admin/reviews" element={admin(<ReviewsPage />)} />
     <Route path="/admin/profiles" element={admin(<ProfilesPage />)} />
-    <Route path="/admin/account" element={admin(<AccountPage />)} />
   </>
 );

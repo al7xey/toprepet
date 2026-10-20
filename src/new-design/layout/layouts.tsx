@@ -302,7 +302,7 @@ const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   },
   admin: {
     top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'doc' }],
-    tabs: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'doc' }, { label: 'Профиль', to: '/admin/account', icon: 'user' }],
+    tabs: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'doc' }],
   },
 };
 
@@ -317,7 +317,7 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
   const nav = NAV[role];
   const top = nav.top.filter((item) => ready(item.to));
   const tabs = nav.tabs.filter((t) => ready(t.to)).map((t) => (t.icon === 'chat-bubble' ? { ...t, badge: counters.chats } : t));
-  const accountTo = role === 'admin' ? '/admin/account' : `${counters.prefix}/account`;
+  const accountTo = role === 'admin' ? '/admin/disputes' : `${counters.prefix}/account`;
   return (
     <div className={cx('wash trh-page trh-tight trk-app', `tabs-${tabs.length}`, chat && `trk-chat-${chat}`)} style={{ '--n': tabs.length } as CSSProperties}>
       <header className="hdr surf trh-hdr trk-app-hdr">
@@ -334,7 +334,10 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
           </span>
         )}
       </header>
-      <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>{children}</main>
+      <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>
+        {children}
+        {role === 'admin' && <div className="trk-admin-exit"><Button size="lg" variant="danger" block onClick={() => { void logout().then(() => navigate('/')); }}>Выйти</Button></div>}
+      </main>
       <TabBar tabs={tabs} />
     </div>
   );
