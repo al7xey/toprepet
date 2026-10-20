@@ -885,14 +885,22 @@ html{overflow-y:scroll}
 /* v38: значки в меню чёрные; выбранный и наведённый становятся чуть жирнее. Меню крупнее. Стрелка «назад» того же размера, что стрелка перехода */
 .tr .trk-tabbar .tab.cur{background:transparent;color:var(--ink)}
 .tr .trk-tabbar .tab.cur .i,.tr .trk-tabbar .tab:hover .i{background:var(--ink)}
-.tr .trk-tabbar .tab.cur .i-book,.tr .trk-tabbar .tab:hover .i-book{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.400' stroke-linecap='round' stroke-linejoin='round'><path d='M2.500 5.500C5 4 8.500 4 12 6.500c3.500-2.500 7-2.500 9.500-1v13c-2.500-1.500-6-1.500-9.500 1-3.500-2.500-7-2.500-9.500-1z'/><path d='M12 6.500v13'/></g></svg>")}
-.tr .trk-tabbar .tab.cur .i-user,.tr .trk-tabbar .tab:hover .i-user{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.600' stroke-linecap='round'><circle cx='12' cy='8.500' r='4'/><path d='M4.500 20c.9-3.700 3.800-5.800 7.500-5.800s6.600 2.100 7.500 5.800'/></g></svg>")}
-.tr .trk-tabbar .tab.cur .i-chat-bubble,.tr .trk-tabbar .tab:hover .i-chat-bubble{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='2.600' stroke-linecap='round' stroke-linejoin='round' d='M12 3.500c4.700 0 8.500 3.300 8.500 7.500s-3.800 7.500-8.500 7.500c-1 0-2-.2-2.900-.5L4.500 20l1.200-3.600C4.300 15.100 3.500 13.200 3.500 11c0-4.200 3.800-7.500 8.500-7.500z'/></svg>")}
-.tr .trk-tabbar .tab.cur .i-circle-check,.tr .trk-tabbar .tab:hover .i-circle-check{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.600' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M8 12.500l2.800 2.800L16 9.500'/></g></svg>")}
-.tr .trk-tabbar .tab.cur .i-search,.tr .trk-tabbar .tab:hover .i-search{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.800' stroke-linecap='round'><circle cx='11' cy='11' r='6.500'/><path d='M16 16l4.500 4.500'/></g></svg>")}
+.tr .trk-tabbar .tab.cur .i-book,.tr .trk-tabbar .tab:hover .i-book{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.100' stroke-linecap='round' stroke-linejoin='round'><path d='M2.500 5.500C5 4 8.500 4 12 6.500c3.500-2.500 7-2.500 9.500-1v13c-2.500-1.500-6-1.500-9.500 1-3.500-2.500-7-2.500-9.500-1z'/><path d='M12 6.500v13'/></g></svg>")}
+.tr .trk-tabbar .tab.cur .i-user,.tr .trk-tabbar .tab:hover .i-user{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.300' stroke-linecap='round'><circle cx='12' cy='8.500' r='4'/><path d='M4.500 20c.9-3.700 3.800-5.800 7.500-5.800s6.600 2.100 7.500 5.800'/></g></svg>")}
+.tr .trk-tabbar .tab.cur .i-chat-bubble,.tr .trk-tabbar .tab:hover .i-chat-bubble{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='2.300' stroke-linecap='round' stroke-linejoin='round' d='M12 3.500c4.700 0 8.500 3.300 8.500 7.500s-3.800 7.500-8.500 7.500c-1 0-2-.2-2.900-.5L4.500 20l1.200-3.600C4.300 15.100 3.500 13.200 3.500 11c0-4.200 3.800-7.500 8.500-7.500z'/></svg>")}
+.tr .trk-tabbar .tab.cur .i-circle-check,.tr .trk-tabbar .tab:hover .i-circle-check{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.300' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M8 12.500l2.800 2.800L16 9.500'/></g></svg>")}
+.tr .trk-tabbar .tab.cur .i-search,.tr .trk-tabbar .tab:hover .i-search{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.500' stroke-linecap='round'><circle cx='11' cy='11' r='6.500'/><path d='M16 16l4.500 4.500'/></g></svg>")}
 .tr .trk-tabbar .tab{min-height:54px}
 .tr .trk-tabbar .tab .i{width:30px;height:30px}
 @media (max-width:760px){.tr .trk-app .trk-tabbar{width:min(340px,calc(100% - 40px))}}
 .tr .trk-back,.tr .trk-back:hover{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;color:var(--ink)}
 .tr .trk-back .i{width:22px;height:22px}
 .tr .trk-pagehead{gap:12px}
+
+/* v39: меню чуть меньше и ниже; пилюля не выходит за панель */
+.tr .trk-tabbar,.tr .trk-tabbar.five{overflow:hidden}
+.tr .trk-tabbar.press{transform:scale(1.015)}
+.tr .trk-tabbar .tab{min-height:50px}
+.tr .trk-tabbar .tab .i{width:28px;height:28px}
+.tr .trk-tabbar.press .tabpill{transform:scale(1.05,1.04)}
+@media (max-width:760px){.tr .trk-app .trk-tabbar{width:min(318px,calc(100% - 44px));bottom:calc(4px + env(safe-area-inset-bottom,0px))}}

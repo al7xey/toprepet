@@ -27,7 +27,8 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
   const gesture = useRef<{ x: number; moved: boolean } | null>(null);
   const swallowClick = useRef(false);
   const [width, setWidth] = useState(0);
-  const [pos, setPos] = useState<number | null>(null); // положение пилюли под пальцем в долях пункта
+  const [pos, setPos] = useState<number | null>(null); // положение пилюли под пальцем в долях пункта (только при перетаскивании)
+  const [pressed, setPressed] = useState(false);
   const [moved, setMoved] = useState(false);
   const current = tabs.findIndex((t) => [t.to, ...(t.also ?? [])].some((to) => pathname === to || pathname.startsWith(`${to}/`)));
   const shown = pos === null ? current : Math.round(pos);
@@ -39,13 +40,14 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     const w = cellWidth(rect.width, tabs.length);
     return Math.min(Math.max((clientX - rect.left - PAD - w / 2) / (w + GAP), 0), tabs.length - 1);
   };
-  const finish = () => { gesture.current = null; setPos(null); setMoved(false); };
+  const finish = () => { gesture.current = null; setPos(null); setPressed(false); setMoved(false); };
 
   const onPointerDown = (e: PointerEvent) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     gesture.current = { x: e.clientX, moved: false };
     bar.current?.setPointerCapture(e.pointerId);
-    setPos(posAt(e.clientX));
+    // пилюля пока стоит на месте: при обычном нажатии она плавно переедет сама, при перетаскивании пойдёт за пальцем
+    setPressed(true);
   };
   const onPointerMove = (e: PointerEvent) => {
     const g = gesture.current;
@@ -99,21 +101,24 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     if (!el || !host || current < 0) return;
     const w = cellWidth(host.getBoundingClientRect().width, tabs.length);
     const left = (i: number) => PAD + i * (w + GAP);
+    // откуда едем: текущее видимое положение, даже если прошлая анимация ещё не закончилась
+    const live = parseFloat(getComputedStyle(el).left);
+    el.getAnimations().forEach((a) => a.cancel());
     el.style.width = `${w}px`;
-    if (pos !== null) { el.style.left = `${left(pos)}px`; return; }
+    if (pos !== null) { el.style.left = `${Math.min(Math.max(left(pos), PAD), left(tabs.length - 1))}px`; return; }
     const target = left(current);
-    const from = parseFloat(el.style.left);
     el.style.left = `${target}px`;
-    if (Number.isNaN(from) || Math.abs(from - target) < 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const stretch = Math.abs(target - from);
+    if (Number.isNaN(live) || Math.abs(live - target) < 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const dist = Math.abs(target - live);
+    const edge = Math.min(live, target); // в середине пути пилюля растянута почти от старого места до нового и не выходит за панель
     el.animate(
-      [{ left: `${from}px`, width: `${w}px` }, { left: `${Math.min(from, target)}px`, width: `${w + stretch}px`, offset: 0.45 }, { left: `${target}px`, width: `${w}px` }],
-      { duration: MOVE_MS, easing: 'cubic-bezier(.32,.72,0,1)' },
+      [{ left: `${live}px`, width: `${w}px` }, { left: `${edge}px`, width: `${w + dist * 0.9}px`, offset: 0.5 }, { left: `${target}px`, width: `${w}px` }],
+      { duration: Math.round(Math.min(MOVE_MS, 260 + dist * 1.1)), easing: 'cubic-bezier(.32,.72,0,1)' },
     );
   }, [current, pos, width, tabs.length]);
 
   return (
-    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', pos !== null && 'press', moved && 'drag')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
+    <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', (pressed || pos !== null) && 'press', moved && 'drag')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
       {current >= 0 && <span ref={pill} className="tabpill" aria-hidden="true" />}
       {tabs.map((t, i) => (
         <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', i === shown && 'cur')}>

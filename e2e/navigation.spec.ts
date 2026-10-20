@@ -31,6 +31,37 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   await expect(page).toHaveURL(/\/me\/account/);
 });
 
+test('нижняя панель: пилюля плавно переезжает и ни в какой момент не выходит за панель', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 1440) > 600, 'нижняя панель только на телефоне');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await login(page, 'student');
+  await page.goto('/me/chats');
+  const tabs = page.locator('nav.trk-tabbar a.tab');
+  // следим за пилюлей на каждом кадре, пока она едет с «Чатов» на «Поиск» и обратно на «Профиль»
+  await page.evaluate(() => {
+    const w = window as unknown as { __pill: { out: number; frames: number } };
+    w.__pill = { out: 0, frames: 0 };
+    const tick = () => {
+      const bar = document.querySelector('nav.trk-tabbar')?.getBoundingClientRect();
+      const pill = document.querySelector('.tabpill')?.getBoundingClientRect();
+      if (bar && pill) {
+        w.__pill.frames += 1;
+        if (pill.left < bar.left - 0.5 || pill.right > bar.right + 0.5 || pill.top < bar.top - 0.5 || pill.bottom > bar.bottom + 0.5) w.__pill.out += 1;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  await tabs.nth(0).click();
+  await page.waitForTimeout(150);
+  await tabs.nth(3).click();
+  await page.waitForTimeout(700);
+  const result = await page.evaluate(() => (window as unknown as { __pill: { out: number; frames: number } }).__pill);
+  expect(result.frames).toBeGreaterThan(20);
+  expect(result.out).toBe(0);
+  await expect(page).toHaveURL(/\/me\/account/);
+});
+
 test('репетитор: в нижней панели есть «Профиль», а раздела «Доход» там нет', async ({ page }) => {
   test.skip((page.viewportSize()?.width ?? 1440) > 600, 'нижняя панель только на телефоне');
   await login(page, 'tutor');
