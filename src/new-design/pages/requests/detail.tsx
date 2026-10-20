@@ -56,7 +56,7 @@ function Detail({ request, responses, onChange }: { request: StudyRequest; respo
         <RequestCard request={request} actions={open ? <Button size="s" variant="line" onClick={() => setConfirm(true)}>Снять с публикации</Button> : undefined} />
       </Section>
       <FormError error={close.error} />
-      <ConfirmDialog open={confirm} onClose={() => setConfirm(false)} onConfirm={doClose} pending={close.pending} title="Снять заявку с публикации?" text="Репетиторы перестанут её видеть и не смогут откликаться. Уже полученные отклики останутся здесь." confirmLabel="Снять с публикации" variant="danger" />
+      <ConfirmDialog open={confirm} onClose={() => setConfirm(false)} onConfirm={doClose} pending={close.pending} title="Снять заявку с публикации?" text="Репетиторы перестанут её видеть и не смогут откликаться. Уже полученные отклики останутся здесь." confirmLabel="Снять" variant="danger" />
     </>
   );
 }
