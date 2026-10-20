@@ -912,3 +912,7 @@ html{overflow-y:scroll}
 .tr .trk-pagehead.has-back .trk-pagehead-actions{justify-self:end}
 .tr .trk-badge:empty,.tr .trk-app .trk-badge:empty,.tr .trk-hdr-ic .trk-badge:empty{width:11px;height:11px;min-width:11px;padding:0;top:3px;right:3px;box-shadow:0 0 0 2px #fff}
 .tr .trk-tabbar .tab .dot{width:11px;height:11px;min-width:0;padding:0;font-size:0;top:10px;left:calc(50% + 9px);box-shadow:0 0 0 2px rgb(255 255 255 / 85%)}
+
+/* v41: пилюля только на своём месте — без перехода по left и без подпрыгивания */
+.tr .trk-tabbar .tabpill{will-change:left,width;transition:box-shadow .25s,transform .25s var(--spring)}
+.tr .trk-tabbar.press .tabpill{transform:scale(1.03,1.03)}

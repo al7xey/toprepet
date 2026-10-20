@@ -62,6 +62,49 @@ test('нижняя панель: пилюля плавно переезжает 
   await expect(page).toHaveURL(/\/me\/account/);
 });
 
+test('нижняя панель: пилюля симметрична слева и справа и едет без рывков', async ({ page }) => {
+  test.skip((page.viewportSize()?.width ?? 1440) > 600, 'нижняя панель только на телефоне');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await login(page, 'student');
+  const margins = async () => page.evaluate(() => {
+    const bar = document.querySelector('nav.trk-tabbar')?.getBoundingClientRect();
+    const pill = document.querySelector('.tabpill')?.getBoundingClientRect();
+    if (!bar || !pill) return null;
+    return { left: pill.left - bar.left, right: bar.right - pill.right, top: pill.top - bar.top, bottom: bar.bottom - pill.bottom };
+  });
+  await page.goto('/teachers');
+  await page.locator('.tabpill').waitFor();
+  await page.waitForTimeout(300);
+  const first = await margins();
+  await page.goto('/me/account');
+  await page.locator('.tabpill').waitFor();
+  await page.waitForTimeout(300);
+  const last = await margins();
+  if (!first || !last) throw new Error('нет пилюли: ' + JSON.stringify({ first, last }));
+  // слева у первого пункта столько же места, сколько справа у последнего
+  expect(Math.abs(first.left - last.right)).toBeLessThanOrEqual(0.6);
+  expect(Math.abs(first.top - first.bottom)).toBeLessThanOrEqual(0.6);
+  // переезд с первого пункта на последний: пилюля только движется вперёд, без отскоков и рывков назад
+  await page.goto('/teachers');
+  await page.locator('.tabpill').waitFor();
+  await page.waitForTimeout(300);
+  await page.evaluate(() => {
+    const w = window as unknown as { __lefts: number[] };
+    w.__lefts = [];
+    const tick = () => {
+      const pill = document.querySelector('.tabpill')?.getBoundingClientRect();
+      if (pill) w.__lefts.push(pill.left);
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  await page.locator('nav.trk-tabbar a.tab').nth(3).click();
+  await page.waitForTimeout(800);
+  const lefts = await page.evaluate(() => (window as unknown as { __lefts: number[] }).__lefts);
+  for (let i = 1; i < lefts.length; i += 1) expect(lefts[i]).toBeGreaterThanOrEqual(lefts[i - 1] - 0.5);
+  expect(lefts[lefts.length - 1]).toBeGreaterThan(lefts[0] + 100);
+});
+
 test('репетитор: в нижней панели есть «Профиль», а раздела «Доход» там нет', async ({ page }) => {
   test.skip((page.viewportSize()?.width ?? 1440) > 600, 'нижняя панель только на телефоне');
   await login(page, 'tutor');
