@@ -16,7 +16,7 @@ export default function FinancePage() {
   const finance = useQuery('my-finance', () => api.getFinance());
   return (
     <AppLayout role="tutor" narrow>
-      <PageHeader title="Финансы" />
+      <PageHeader title="Финансы" back={{ to: '/tutor/account', label: 'Профиль' }} />
       <QueryView query={finance}>
         {(f) => (
           <>

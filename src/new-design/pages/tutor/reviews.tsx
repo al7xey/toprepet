@@ -11,7 +11,7 @@ export default function TutorReviewsPage() {
   const reviews = useQuery('my-reviews', () => api.listMyReviews());
   return (
     <AppLayout role="tutor" narrow>
-      <PageHeader title="Отзывы" />
+      <PageHeader title="Отзывы" back={{ to: '/tutor/account', label: 'Профиль' }} />
       <QueryView query={reviews} empty={(items) => items.every((r) => r.status !== 'published') ? <EmptyState icon="star" title="Отзывов пока нет" text="Первый отзыв появится после проведённого урока." /> : null}>
         {(items) => (
           <div className="trk-list">

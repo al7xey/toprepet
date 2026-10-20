@@ -66,7 +66,7 @@ export function RequestWizard({ onDone, embedded }: { onDone: (id: string) => vo
   return (
     <>
       <WizardProgress step={step} total={2} label={`Шаг ${step} из 2 · ${step === 1 ? 'Какая помощь нужна' : 'Подробности'}`} />
-      {!embedded && <PageHeader title={step === 1 ? 'Какая помощь нужна' : 'Расскажите подробнее'} />}
+      {!embedded && <PageHeader title={step === 1 ? 'Какая помощь нужна' : 'Расскажите подробнее'} back={{ to: '/me/requests', label: 'Мои заявки' }} />}
       <div className="trk-account">
         {step === 1 ? (
           <>
