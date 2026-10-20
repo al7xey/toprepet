@@ -75,7 +75,7 @@ export function FilterMenu({ subject, price, bonus, onReset, active }: {
     <dialog open className="trh-fpage" aria-modal="true" aria-label="Фильтры">
       <div className="trh-fpage-head">
         <h2>Фильтры</h2>
-        <button type="button" className="trk-iconbtn" aria-label="Закрыть фильтры" onClick={() => setOpen(false)}><Icon name="x" /></button>
+        <button type="button" className="trk-iconbtn trk-round" aria-label="Закрыть фильтры" onClick={() => setOpen(false)}><Icon name="x" /></button>
       </div>
       <div className="trh-fpage-body">
         <div className="trh-fpage-group">
