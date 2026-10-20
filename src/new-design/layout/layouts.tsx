@@ -122,7 +122,7 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
       {current >= 0 && <span ref={pill} className="tabpill" aria-hidden="true" />}
       {tabs.map((t, i) => (
         <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', i === shown && 'cur')}>
-          <Icon name={t.icon} /><span className="trk-sr">{t.label}</span>{t.badge ? <span className="dot">{t.badge}</span> : null}
+          <Icon name={t.icon} /><span className="trk-sr">{t.label}{t.badge ? ', есть новые' : ''}</span>{t.badge ? <span className="dot" aria-hidden="true" /> : null}
         </NavLink>
       ))}
     </nav>

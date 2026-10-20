@@ -5,7 +5,7 @@ import { useSession } from '../../api/session';
 import type { Notification } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { ago } from '../../lib/format';
-import { Button, Card, EmptyState, Icon, PageHeader, QueryView } from '../../ui';
+import { Card, EmptyState, Icon, IconButton, PageHeader, QueryView } from '../../ui';
 
 const ICON: Record<Notification['kind'], string> = { lesson: 'cal', request: 'list', message: 'chat', payment: 'card', review: 'star', system: 'info' };
 
@@ -23,7 +23,7 @@ export default function NotificationsPage() {
   };
   return (
     <AppLayout role={role}>
-      <PageHeader title="Уведомления" back={{ to: role === 'tutor' ? '/tutor/account' : '/me/account', label: 'Профиль' }} actions={unread ? <Button variant="fill" icon="checks" onClick={() => void markAll()} loading={readAll.pending}>Прочитать все</Button> : undefined} />
+      <PageHeader title="Уведомления" back={{ to: role === 'tutor' ? '/tutor/account' : '/me/account', label: 'Профиль' }} actions={unread ? <IconButton icon="checks" label="Прочитать все" onClick={() => void markAll()} className="trh-more" /> : undefined} />
       <QueryView query={list} empty={(items) => items.length === 0 ? <EmptyState icon="bell" title="Пока тихо" text="Здесь появятся ответы на заявки, подтверждения уроков и сообщения." /> : null}>
         {(items) => (
           <div className="trk-list">

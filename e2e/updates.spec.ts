@@ -27,12 +27,15 @@ test('платежи и уведомления на всю ширину комп
   }
 });
 
-test('колокольчик показывает число непрочитанных', async ({ page }) => {
+test('колокольчик показывает непрочитанное маленькой точкой, а не числом', async ({ page }) => {
   test.skip(isPhone(page), 'колокольчик в шапке кабинета на компьютере');
   await login(page, 'student');
   await page.goto('/me/lessons');
   const badge = page.locator('a[aria-label="Уведомления"] .trk-badge');
-  await expect(badge).toHaveText(/^\d+$/);
+  await expect(badge).toBeVisible();
+  await expect(badge).toHaveText('');
+  const box = await badge.boundingBox();
+  expect(box?.width ?? 99).toBeLessThanOrEqual(12);
 });
 
 test('из диалога имя и фото ведут на анкету, стрелка возвращает к сообщениям', async ({ page }) => {
