@@ -968,3 +968,7 @@ html{overflow-y:scroll}
 .tr .trk-choice.on:hover,.tr .trk-choice.on:active{box-shadow:inset 0 0 0 2px var(--accent)}
 .tr .trk-choice:active{box-shadow:inset 0 0 0 1px var(--line)}
 .tr .trk-choice.on:active{box-shadow:inset 0 0 0 2px var(--accent)}
+
+/* v47: точки пароля тоньше и мельче */
+.tr input.trk-input[type=password]{font-weight:300;font-size:15px;letter-spacing:.12em;-webkit-text-stroke:0}
+.tr input.trk-input[type=password]::placeholder{letter-spacing:normal;font-size:17px;font-weight:400}
