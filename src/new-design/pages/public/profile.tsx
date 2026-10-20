@@ -105,10 +105,10 @@ function Profile({ tutor }: { tutor: Tutor }) {
           <hr className="rule" />
           <Section title="Образование и достижения">
             <ul className="ach">
-              {tutor.achievements.map((item, index) => (
+              {tutor.achievements.filter((item) => item.title.trim() || item.text.trim()).map((item, index) => (
                 <li key={item.title} {...rv('up', index * 0.08)}>
                   <span className="ic-sq"><Icon name={ACH_ICONS[index % ACH_ICONS.length]} /></span>
-                  <div><b>{item.title}</b><span className="d">{item.text}</span></div>
+                  <div>{item.title.trim() && <b>{item.title}</b>}{item.text.trim() && <span className="d">{item.text}</span>}</div>
                 </li>
               ))}
             </ul>

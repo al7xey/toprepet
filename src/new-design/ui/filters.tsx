@@ -46,7 +46,7 @@ export function PriceRange({ min, max, onChange, limit = PRICE_HI, label = 'Це
   const commit = () => onChange(lo, hi);
   return (
     <div className="trh-range">
-      <div className="trh-range-vals"><span>от <b>{rub(lo)}</b></span><span>до <b>{hi >= limit ? `${rub(limit)} и больше` : rub(hi)}</b></span></div>
+      <div className="trh-range-vals"><span>от <b>{rub(lo)}</b></span><span>{hi >= limit ? <b>{rub(limit)}+</b> : <>до <b>{rub(hi)}</b></>}</span></div>
       <div className="trh-range-track" style={{ '--a': `${(lo / limit) * 100}%`, '--b': `${(hi / limit) * 100}%` } as CSSProperties}>
         <input type="range" aria-label={`${label} от`} min={0} max={limit} step={PRICE_STEP} value={lo} onChange={(e) => setLo(Math.min(Number(e.target.value), hi - PRICE_STEP))} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
         <input type="range" aria-label={`${label} до`} min={0} max={limit} step={PRICE_STEP} value={hi} onChange={(e) => setHi(Math.max(Number(e.target.value), lo + PRICE_STEP))} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
