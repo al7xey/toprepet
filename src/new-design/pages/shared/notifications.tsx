@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
@@ -14,12 +14,19 @@ export default function NotificationsPage() {
   const { user } = useSession();
   const role = user?.role === 'tutor' ? 'tutor' : 'student';
   const list = useQuery(user ? `notes-page-${user.id}` : null, () => api.listNotifications());
+  const { pathname } = useLocation();
   const readAll = useMutation(() => api.markNotificationsRead());
   const unread = list.data?.some((n) => !n.read) ?? false;
   const markAll = async () => {
     await readAll.run();
     list.setData((prev) => (prev ?? []).map((n) => ({ ...n, read: true })));
     window.dispatchEvent(new Event('tr:notes'));
+  };
+  // открыв уведомление, считаем его прочитанным: точка пропадает сразу
+  const open = (n: Notification) => {
+    if (n.read) return;
+    list.setData((prev) => (prev ?? []).map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+    void api.markNotificationRead(n.id).then(() => window.dispatchEvent(new Event('tr:notes')));
   };
   return (
     <AppLayout role={role}>
@@ -35,7 +42,7 @@ export default function NotificationsPage() {
                   {!n.read && <span className="trk-note-dot" aria-label="Новое" />}
                 </>
               );
-              return <Card key={n.id} pad="sm">{n.link ? <Link className="trk-note-row" to={n.link}>{body}</Link> : <div className="trk-note-row">{body}</div>}</Card>;
+              return <Card key={n.id} pad="sm">{n.link ? <Link className="trk-note-row" to={n.link} state={{ from: pathname }} onClick={() => open(n)}>{body}</Link> : <div className="trk-note-row">{body}</div>}</Card>;
             })}
           </div>
         )}

@@ -144,3 +144,18 @@ test('расписание: недельный шаблон и выбор дат
   await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
   await expect(page.locator('.trk-month-day.m-off')).toHaveCount(0);
 });
+
+test('уведомление: точка пропадает после открытия, «назад» возвращает в профиль', async ({ page }) => {
+  await login(page, 'student');
+  await page.goto('/me/account');
+  await expect(page.locator('.trk-notice').first()).toBeVisible();
+  const dots = page.locator('.trk-notice .trk-note-dot');
+  const before = await dots.count();
+  expect(before).toBeGreaterThan(0);
+  await page.locator('.trk-notice[href^="/me/requests/"]').first().click();
+  await expect(page).toHaveURL(/\/me\/requests\//);
+  await page.locator('.trk-pagehead a.trk-back').click();
+  await expect(page).toHaveURL(/\/me\/account$/);
+  await expect(page.locator('.trk-notice').first()).toBeVisible();
+  await expect(page.locator('.trk-notice .trk-note-dot')).toHaveCount(before - 1);
+});

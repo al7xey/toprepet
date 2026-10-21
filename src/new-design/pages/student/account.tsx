@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { api } from '../../api';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
@@ -40,6 +40,7 @@ function BlockHead({ title, add, all }: { title: string; add?: { label: string; 
 /** Профиль: сводка по заявкам, уведомлениям и платежам. Карточка с именем и шестерёнка открывают настройки. */
 export function AccountView({ role }: { role: 'student' | 'tutor' }) {
   const { user } = useSession();
+  const { pathname } = useLocation();
   const [newRequest, setNewRequest] = useState(false);
   const toast = useToast();
   const past = useQuery(`account-lessons-${role}`, () => api.listLessons('past'));
@@ -94,7 +95,11 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
           {latestNotes.length ? (
             <div className="trk-navlist">
               {latestNotes.map((n) => (
-                <Link key={n.id} className="trk-notice" to={n.link ?? notesTo}>
+                <Link key={n.id} className="trk-notice" to={n.link ?? notesTo} state={{ from: pathname }} onClick={() => {
+                  if (n.read) return;
+                  notes.setData((prev) => (prev ?? []).map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+                  void api.markNotificationRead(n.id).then(() => window.dispatchEvent(new Event('tr:notes')));
+                }}>
                   <span className="trk-notice-text"><b>{n.title}</b><span>{n.text}</span></span>
                   <small>{ago(n.at)}</small>
                   {!n.read && <span className="trk-note-dot" aria-label="Новое" />}

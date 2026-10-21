@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { Link, NavLink, useParams } from 'react-router-dom';
+import { Link, NavLink, useLocation, useParams } from 'react-router-dom';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
@@ -75,6 +75,7 @@ export function Messenger({ role }: { role: Side }) {
 }
 
 function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: string; onRead: () => void }) {
+  const cameFrom = (useLocation().state as { from?: string } | null)?.from;
   const conversation = useQuery(`chat-${id}`, () => api.getConversation(id));
   const messages = useQuery(`messages-${id}`, () => api.listMessages(id));
   const reload = messages.reload;
@@ -89,7 +90,7 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
   return (
     <>
       <header className="tg-head">
-        <Link to={base} className="tg-back trk-iconbtn trk-round" aria-label="Назад к списку"><Icon name="back" /></Link>
+        <Link to={cameFrom ?? base} className="tg-back trk-iconbtn trk-round" aria-label="Назад к списку"><Icon name="back" /></Link>
         {role === 'student' ? (
           <Link className="tg-peer" to={`/teachers/${c.tutorId}`} state={{ back: `${base}/${c.id}` }} aria-label={`Анкета: ${c.peerName}`}>
             <Avatar name={c.peerName} photo={c.peerPhoto} size={44} />

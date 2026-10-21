@@ -93,6 +93,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
 
     listNotifications: () => get('/me/notifications'),
     markNotificationsRead: () => post('/me/notifications/read'),
+    markNotificationRead: (id) => post(`/me/notifications/${id}/read`),
 
     getMyProfile: () => get('/tutor/profile'),
     saveMyProfile: (patch) => request('PATCH', '/tutor/profile', patch),

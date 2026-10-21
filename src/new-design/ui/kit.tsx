@@ -1,5 +1,5 @@
 import { useId, useState, type CSSProperties, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import type { Query } from '../api/hooks';
 import { initial } from '../lib/format';
 import { rv } from '../reveal';
@@ -58,7 +58,9 @@ export function IconButton({ icon, label, to, onClick, surf, badge, className }:
 
 /** Круглая стрелка «назад»: одна на всех страницах. Подпись остаётся для скринридеров. */
 export function BackLink({ to, children }: { to: string; children: ReactNode }) {
-  return <Link className="trk-iconbtn trk-back" to={to} aria-label={typeof children === 'string' ? children : 'Назад'}><Icon name="back" /></Link>;
+  // если на страницу пришли по ссылке с другой страницы кабинета (например, из уведомления в профиле), «назад» возвращает туда
+  const from = (useLocation().state as { from?: string } | null)?.from;
+  return <Link className="trk-iconbtn trk-back" to={from ?? to} aria-label={typeof children === 'string' ? children : 'Назад'}><Icon name="back" /></Link>;
 }
 
 /* ---------- Заголовки и секции ---------- */

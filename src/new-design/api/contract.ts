@@ -84,6 +84,7 @@ export interface Api {
   // Уведомления
   listNotifications(): Promise<Notification[]>; // GET /me/notifications
   markNotificationsRead(): Promise<void>; // POST /me/notifications/read
+  markNotificationRead(id: Id): Promise<void>; // POST /me/notifications/:id/read
 
   // Кабинет репетитора
   getMyProfile(): Promise<TutorProfileDraft>; // GET /tutor/profile

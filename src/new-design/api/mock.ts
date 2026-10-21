@@ -659,6 +659,7 @@ export function createMockApi(): Api {
     },
 
     async listNotifications() { const u = me(); return delay(load().notifications.filter((n) => n.userId === u.id)); },
+    async markNotificationRead(id) { const u = me(); const n = load().notifications.find((x) => x.id === id && x.userId === u.id); if (n) { n.read = true; save(); } return delay(undefined); },
     async markNotificationsRead() { const u = me(); load().notifications.forEach((n) => { if (n.userId === u.id) n.read = true; }); save(); return delay(undefined); },
 
     async getMyProfile() { const t = myTutor(); return delay(load().profiles[t.id] ?? profileOf(t)); },

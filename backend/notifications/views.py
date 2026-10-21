@@ -15,6 +15,12 @@ class NotificationsView(APIView):
         return Response([notification_json(n) for n in user.notifications.all()[:200]])
 
 
+class ReadOneView(APIView):
+    def post(self, request, note_id):
+        require_user(request).notifications.filter(id=note_id).update(read=True)
+        return Response(status=204)
+
+
 class ReadAllView(APIView):
     def post(self, request):
         require_user(request).notifications.filter(read=False).update(read=True)
