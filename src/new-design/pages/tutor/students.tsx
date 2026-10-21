@@ -1,8 +1,8 @@
 import { api } from '../../api';
 import { useQuery } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
-import { count, whenLabel } from '../../lib/format';
-import { Card, EmptyState, PageHeader, Person, QueryView } from '../../ui';
+import { whenLabel } from '../../lib/format';
+import { Card, EmptyState, PageHeader, Person, QueryView, Rows } from '../../ui';
 
 /** Ученики: с кем были уроки и когда следующий. */
 export default function TutorStudentsPage() {
@@ -14,8 +14,9 @@ export default function TutorStudentsPage() {
         {(items) => (
           <div className="trk-list">
             {items.map((s) => (
-              <Card key={s.id}>
-                <Person name={s.name} sub={s.note} right={<span className="muted sm trk-right">{s.nextLesson ? `Следующий: ${whenLabel(s.nextLesson)}` : count(s.lessonsCount, 'проведённый урок', 'проведённых урока', 'проведённых уроков')}</span>} />
+              <Card key={s.id} pad="sm">
+                <Person name={s.name} sub={s.note} />
+                <Rows boxed rows={[['Следующий урок', s.nextLesson ? whenLabel(s.nextLesson) : 'Не назначен'], ['Всего уроков', String(s.lessonsCount)]]} />
               </Card>
             ))}
           </div>

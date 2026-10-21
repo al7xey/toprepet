@@ -112,8 +112,8 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
         <div className="trk-settings-who">
           <Avatar name={user?.name ?? '•'} photo={user?.photo ?? undefined} size={64} />
           <div className="trk-account-who"><h2 className="trk-account-name">{user?.name}</h2><span className="muted">{user?.email}</span></div>
+          <FilePick round={user?.photo ? 'edit' : 'add'} icon={user?.photo ? 'edit' : 'plus'} accept="image/*" loading={photo.pending} onPick={(file) => void changePhoto(file)}>{user?.photo ? 'Сменить фото' : 'Загрузить фото'}</FilePick>
         </div>
-        <FilePick accept="image/*" loading={photo.pending} onPick={(file) => void changePhoto(file)}>{user?.photo ? 'Сменить фото' : 'Загрузить фото'}</FilePick>
         <FormError error={photo.error} />
       </Card>
       <div className="trk-navlist">

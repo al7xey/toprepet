@@ -35,6 +35,8 @@ def message_json(m, peer_read_at=None, viewer_id=None) -> dict:
     data = {'id': m.id, 'conversationId': m.conversation_id, 'authorId': m.author_id, 'kind': m.kind, 'text': m.text, 'at': iso(m.at), 'read': read}
     if m.image:
         data['imageUrl'] = m.image
+    if m.card:
+        data['card'] = m.card
     return data
 
 

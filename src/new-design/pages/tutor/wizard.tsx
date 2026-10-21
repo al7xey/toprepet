@@ -92,11 +92,13 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
         <div className="trk-form">
           {step === 1 && (
             <>
-              <div className="trk-photo-big">
-                {draft.photo ? <img src={draft.photo} alt={`Фото: ${draft.name || 'вы'}`} /> : <div className="trk-photo-empty">Фото не загружено</div>}
+              <div className="trk-photo-wrap">
+                <div className="trk-photo-big">
+                  {draft.photo ? <img src={draft.photo} alt={`Фото: ${draft.name || 'вы'}`} /> : <div className="trk-photo-empty">Фото не загружено</div>}
+                </div>
+                <FilePick round={draft.photo ? 'edit' : 'add'} icon={draft.photo ? 'edit' : 'plus'} accept="image/*" loading={photo.pending} onPick={async (file) => { const done = await photo.run(file); if (done) patch({ photo: done.url }); }}>{draft.photo ? 'Заменить фото' : 'Загрузить фото'}</FilePick>
               </div>
-              <FilePick accept="image/*" loading={photo.pending} onPick={async (file) => { const done = await photo.run(file); if (done) patch({ photo: done.url }); }}>{draft.photo ? 'Заменить фото' : 'Загрузить фото'}</FilePick>
-              <span className="muted sm">Так фото увидят ученики. Лицо крупно, спокойный фон. JPG, PNG или WebP до 3 МБ.</span>
+              <span className="muted sm">Так фото увидят ученики. Лицо крупно, спокойный фон. Подойдёт фото любого размера: мы сами его уменьшим.</span>
               <FormError error={photo.error} />
               <TextField label="Имя" value={draft.name} onChange={(e) => patch({ name: e.target.value })} error={errors.name} autoComplete="given-name" />
               <TextField label="Коротко о вас" value={draft.headline} onChange={(e) => patch({ headline: e.target.value })} error={errors.headline} placeholder="Репетитор по английскому для школьников и взрослых" maxLength={120} />

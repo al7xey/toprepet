@@ -207,7 +207,13 @@ export interface Message {
   /** Для своих сообщений: собеседник уже открыл диалог. */
   read?: boolean;
   imageUrl?: string;
+  /** Карточка-таблица внутри сообщения (отклик на заявку): заголовок и строки «название — значение». */
+  card?: MessageCard;
 }
+
+export interface MessageCard { title: string; rows: [string, string][] }
+
+export interface MessageCard { title: string; rows: [string, string][] }
 
 export interface Card { id: Id; brand: string; last4: string; primary: boolean }
 

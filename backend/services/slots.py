@@ -44,7 +44,11 @@ def slots_for(tutor, from_dt: datetime, days: int, busy: list[tuple[datetime, da
                 taken = any(b_start < end and start < b_end for b_start, b_end in busy)
                 out.append({'start': start, 'available': start > now + BOOKING_LEAD and not taken})
     out.sort(key=lambda s: s['start'])
-    return out
+    # интервалы могут пересекаться (обычное время и «другое время» в один день): один час показываем один раз
+    unique = {}
+    for slot in out:
+        unique.setdefault(slot['start'], slot)
+    return list(unique.values())
 
 
 def busy_ranges(tutor, first, days, tz) -> list[tuple[datetime, datetime]]:

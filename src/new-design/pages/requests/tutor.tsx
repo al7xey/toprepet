@@ -4,21 +4,18 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { StudyRequest } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { fromRub, rub, whenLabel } from '../../lib/format';
-import { Button, Dropdown, EmptyState, FormError, LoadingList, Modal, Note, PageHeader, QueryView, SlotPicker, Status, Tabs, TextArea, TextField, useToast } from '../../ui';
-import { subjects } from '../../../entities/lesson';
+import { Button, EmptyState, FormError, LoadingList, Modal, Note, PageHeader, Icon, QueryView, SlotPicker, Status, Tabs, TextArea, TextField, useToast } from '../../ui';
 import { RequestCard, REQUEST_STATUS } from './parts';
 
 type Scope = 'feed' | 'mine';
-const SUBJECTS = subjects.filter((s) => s !== 'Другой предмет');
 
 /** Заявки учеников и мои отклики для репетитора. */
 export default function TutorRequestsPage() {
   const toast = useToast();
   const [scope, setScope] = useState<Scope>('feed');
-  const [subject, setSubject] = useState<string | null>(null);
   const [responding, setResponding] = useState<StudyRequest | null>(null);
   const profile = useQuery('my-profile', () => api.getMyProfile());
-  const feed = useQuery(`open-requests-${subject ?? 'all'}`, () => api.listOpenRequests(subject));
+  const feed = useQuery('open-requests', () => api.listOpenRequests(null));
   const mine = useQuery('my-responses', () => api.listMyResponses());
   const answered = new Set((mine.data ?? []).map((x) => x.requestId));
   const published = profile.data?.status === 'published';
@@ -30,8 +27,7 @@ export default function TutorRequestsPage() {
       <Tabs<Scope> items={[{ value: 'feed', label: 'Новые заявки' }, { value: 'mine', label: 'Мои отклики', count: mine.data?.length }]} value={scope} onChange={setScope} />
       {scope === 'feed' ? (
         <>
-          <div><Dropdown label="Предмет" icon="book" value={subject} allLabel="Все предметы" options={SUBJECTS.map((s) => ({ value: s, label: s }))} onChange={setSubject} /></div>
-          <QueryView query={feed} loading={<LoadingList rows={3} height={200} />} empty={(list) => (list.length ? null : <EmptyState icon="list" title="Новых заявок нет" text="Загляните позже или выберите другой предмет." />)}>
+          <QueryView query={feed} loading={<LoadingList rows={3} height={200} />} empty={(list) => (list.length ? null : <EmptyState icon="list" title="Новых заявок нет" text="Здесь появляются заявки по вашим предметам и заявки с другим предметом. Загляните позже." />)}>
             {(list) => (
               <div className="trk-list">
                 {list.map((r) => (
@@ -86,7 +82,7 @@ function RespondModal({ request, defaultPrice, onClose, onDone }: { request: Stu
       <div className="g8">
         <b className="label">Время, на которое можно записаться (можно несколько)</b>
         <SlotPicker slots={mySlots.data ?? []} value={picked} values={slots} onChange={(start) => { setPicked(start); setSlots((list) => (list.includes(start) ? list.filter((x) => x !== start) : list.length >= 6 ? list : [...list, start])); }} days={14} loading={mySlots.loading && !mySlots.data} />
-        {slots.length > 0 && <div className="trk-actions">{slots.map((s) => <button key={s} type="button" className="trk-demo" onClick={() => setSlots(slots.filter((x) => x !== s))} aria-label={`Убрать ${whenLabel(s)}`}>{whenLabel(s)} ✕</button>)}</div>}
+        {slots.length > 0 && <div className="trk-chosen">{slots.map((s) => <button key={s} type="button" className="trk-chosen-chip" onClick={() => setSlots(slots.filter((x) => x !== s))} aria-label={`Убрать ${whenLabel(s)}`}>{whenLabel(s)}<Icon name="x" /></button>)}</div>}
       </div>
       <FormError error={send.error} />
     </Modal>

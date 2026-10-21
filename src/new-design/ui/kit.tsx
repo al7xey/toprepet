@@ -409,7 +409,15 @@ export function ArrowLink({ to, label }: { to: string; label: string }) {
 }
 
 /** Выбор файла: кнопка-метка с настоящим input[type=file] внутри (работает с клавиатуры). */
-export function FilePick({ children, accept, onPick, loading, icon = 'upload' }: { children: ReactNode; accept?: string; onPick: (file: File) => void; loading?: boolean; icon?: string }) {
+export function FilePick({ children, accept, onPick, loading, icon = 'upload', round }: { children: ReactNode; accept?: string; onPick: (file: File) => void; loading?: boolean; icon?: string; /** Круглая кнопка только со значком: оранжевый плюс («add») или белый круг («edit»). */ round?: 'add' | 'edit' }) {
+  if (round) {
+    return (
+      <label className={cx('trk-iconbtn trk-filepick-round', round === 'add' ? 'trk-addbtn' : 'trk-round', loading && 'is-loading')} title={typeof children === 'string' ? children : undefined}>
+        <input type="file" className="trk-sr" accept={accept} disabled={loading} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ''; if (file) onPick(file); }} />
+        <span className="trk-sr">{children}</span><Icon name={loading ? 'clock' : icon} />
+      </label>
+    );
+  }
   return (
     <label className={cx('btn btn-line trk-filepick', loading && 'is-loading')}>
       <input type="file" className="trk-sr" accept={accept} disabled={loading} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ''; if (file) onPick(file); }} />

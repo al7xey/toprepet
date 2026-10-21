@@ -113,3 +113,18 @@ def test_photo_and_document_upload_rules(api, demo, settings, tmp_path):
     assert any(d['title'] == 'Диплом магистра' for d in api.get_ok('/tutor/documents'))
     exe = api.post('/tutor/documents', {'title': 'Вирус', 'file': SimpleUploadedFile('d.exe', b'MZ', 'application/octet-stream')}, format='multipart')
     assert exe.status_code == 400
+
+
+def test_overlapping_week_and_extra_intervals_give_each_slot_once(api, demo):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from services.slots import slots_for
+    from tutors.models import ScheduleException, Tutor
+
+    tutor = Tutor.objects.first()
+    day = (timezone.now() + timedelta(days=5)).date()
+    ScheduleException.objects.update_or_create(tutor=tutor, date=day, defaults={'kind': 'extra', 'intervals': [{'from': '10:00', 'to': '23:00'}]})
+    starts = [s['start'] for s in slots_for(tutor, timezone.now(), 8)]
+    assert len(starts) == len(set(starts))

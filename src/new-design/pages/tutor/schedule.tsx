@@ -1,32 +1,77 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import type { ScheduleException, WeekSchedule } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { dateLong } from '../../lib/format';
-import { Button, Card, CardTitle, FormError, IconButton, MonthCalendar, OptionChips, PageHeader, QueryView, SelectField, Tabs, WeekEditor, weekProblem, useToast, type DayMark } from '../../ui';
+import { Button, Card, CardTitle, FormError, IconButton, LoadingList, MonthCalendar, OptionChips, PageHeader, QueryView, SelectField, Tabs, WeekEditor, weekProblem, useToast, type DayMark } from '../../ui';
 
 const HOURS = Array.from({ length: 19 }, (_, i) => `${String(i + 5).padStart(2, '0')}:00`);
-type Mode = 'week' | 'dates';
+type Mode = 'bookings' | 'week' | 'dates';
 type DayKind = 'normal' | 'off' | 'extra';
 const DAY_KINDS: { value: DayKind; label: string }[] = [{ value: 'normal', label: 'Как обычно' }, { value: 'off', label: 'Выходной' }, { value: 'extra', label: 'Другое время' }];
 const weekdayOf = (key: string) => ((new Date(`${key}T12:00:00`).getDay() + 6) % 7) + 1; // 1 — понедельник
 
 /** Расписание: недельный шаблон, который повторяется каждую неделю, и отдельные даты, где время меняется. */
 export default function SchedulePage() {
-  const [mode, setMode] = useState<Mode>('week');
+  const [mode, setMode] = useState<Mode>('bookings');
   const week = useQuery('my-week', () => api.getWeek());
   const exceptions = useQuery('my-exceptions', () => api.listExceptions());
   return (
     <AppLayout role="tutor">
       <PageHeader title="Расписание" lead="Время московское" back={{ to: '/tutor/account', label: 'Профиль' }} />
-      <Tabs<Mode> items={[{ value: 'week', label: 'Каждую неделю' }, { value: 'dates', label: 'По датам' }]} value={mode} onChange={setMode} />
+      <Tabs<Mode> items={[{ value: 'bookings', label: 'Записи' }, { value: 'week', label: 'Неделя' }, { value: 'dates', label: 'Даты' }]} value={mode} onChange={setMode} />
       <QueryView query={week}>
-        {(saved) => mode === 'week'
-          ? <WeekPanel saved={saved} onSaved={week.setData} />
-          : <DatesPanel week={saved} exceptions={exceptions.data ?? []} onChanged={() => exceptions.reload()} />}
+        {(saved) => mode === 'bookings'
+          ? <BookingsPanel week={saved} exceptions={exceptions.data ?? []} />
+          : mode === 'week'
+            ? <WeekPanel saved={saved} onSaved={week.setData} />
+            : <DatesPanel week={saved} exceptions={exceptions.data ?? []} onChanged={() => exceptions.reload()} />}
       </QueryView>
     </AppLayout>
+  );
+}
+
+const DAY_NAMES = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
+const keyOf = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+/** Записи на две недели вперёд таблицей: по строке на день, в строке — кто записан и во сколько. Сегодня выделен. */
+function BookingsPanel({ week, exceptions }: { week: WeekSchedule; exceptions: ScheduleException[] }) {
+  const lessons = useQuery('my-upcoming-lessons', () => api.listLessons('upcoming'));
+  const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + i); return d; });
+  const active = (lessons.data ?? []).filter((l) => ['pending', 'confirmed'].includes(l.status));
+  return (
+    <Card pad="sm">
+      <QueryView query={lessons} loading={<LoadingList rows={4} height={64} />}>
+        {() => (
+          <div className="trk-timetable" aria-label="Записи на ближайшие две недели">
+            {days.map((d, i) => {
+              const key = keyOf(d);
+              const items = active.filter((l) => keyOf(new Date(l.start)) === key).sort((a, b) => a.start.localeCompare(b.start));
+              const exception = exceptions.find((x) => x.date === key);
+              const weekday = ((d.getDay() + 6) % 7) + 1;
+              const hours = exception?.kind === 'off' ? [] : [...(week.days.find((x) => x.weekday === weekday)?.intervals ?? []), ...(exception?.kind === 'extra' ? exception.intervals : [])];
+              const label = i === 0 ? 'Сегодня' : i === 1 ? 'Завтра' : d.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' });
+              return (
+                <div className={`trk-tt-row${i === 0 ? ' today' : ''}`} key={key}>
+                  <div className="trk-tt-day"><b>{label}</b><span>{i < 2 ? d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) : DAY_NAMES[d.getDay()]}</span></div>
+                  <div className="trk-tt-items">
+                    {items.map((l) => (
+                      <Link key={l.id} className={`trk-tt-item ${l.status}`} to={`/tutor/lessons/${l.id}`}>
+                        <b>{new Date(l.start).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })} · {l.studentName}</b>
+                        <span>{l.kind === 'intro' ? 'Знакомство' : l.subject}{l.status === 'pending' ? ' · ждёт ответа' : ''}</span>
+                      </Link>
+                    ))}
+                    {items.length === 0 && <span className="trk-tt-empty">{hours.length ? `Свободно: ${hours.map((h) => `${h.from}–${h.to}`).join(', ')}` : 'Выходной'}</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </QueryView>
+    </Card>
   );
 }
 

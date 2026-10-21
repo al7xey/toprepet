@@ -3,7 +3,7 @@ import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
 import { dateLong, rub } from '../../lib/format';
-import { Button, Card, EmptyState, FormError, PageHeader, QueryView, Section, Stats, Status, TextField, useToast } from '../../ui';
+import { Button, Card, EmptyState, FormError, PageHeader, QueryView, Rows, Section, Status, TextField, useToast } from '../../ui';
 
 const ENTRY: Record<'pending' | 'paid' | 'held', { tone: 'wait' | 'ok' | 'neutral'; text: string }> = {
   pending: { tone: 'wait', text: 'К выплате' },
@@ -20,12 +20,15 @@ export default function FinancePage() {
       <QueryView query={finance}>
         {(f) => (
           <>
-            <Card><Stats items={[[rub(f.available), 'к выплате'], [rub(f.pending), 'ждёт урока'], [rub(f.paidThisMonth), 'выплачено в этом месяце']]} /></Card>
+            <Card pad="sm"><Rows boxed rows={[['К выплате', rub(f.available)], ['Ждёт урока', rub(f.pending)], ['Выплачено в этом месяце', rub(f.paidThisMonth)]]} /></Card>
             <Section title="Операции">
               {f.entries.length === 0 ? <EmptyState icon="wallet" title="Выплат пока нет" text="После первого проведённого урока здесь появятся начисления." /> : (
-                <div className="trk-list">
+                <div className="trk-navlist">
                   {f.entries.map((e) => (
-                    <Card key={e.id}><div className="trk-exrow"><div><b>{e.title}</b><br /><span className="muted">{dateLong(e.at)}</span></div><div className="trk-right"><b className="tn">{rub(e.amount)}</b><br /><Status tone={ENTRY[e.status].tone}>{ENTRY[e.status].text}</Status></div></div></Card>
+                    <div className="trk-notice" key={e.id}>
+                      <span className="trk-notice-text"><b>{e.title}</b><span>{dateLong(e.at)}</span></span>
+                      <span className="trk-right"><b className="tn">{rub(e.amount)}</b><Status tone={ENTRY[e.status].tone}>{ENTRY[e.status].text}</Status></span>
+                    </div>
                   ))}
                 </div>
               )}

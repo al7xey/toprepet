@@ -6,7 +6,7 @@ import { useSession } from '../../api/session';
 import type { Conversation, Message, Role } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { ago, timeLabel } from '../../lib/format';
-import { Avatar, Button, Checkbox, ConfirmDialog, EmptyState, FormError, Icon, IconButton, Modal, OptionChips, useToast } from '../../ui';
+import { Avatar, Button, Checkbox, ConfirmDialog, EmptyState, FormError, Icon, IconButton, Modal, OptionChips, Rows, useToast } from '../../ui';
 
 type Side = Extract<Role, 'student' | 'tutor'>;
 
@@ -183,7 +183,12 @@ function Thread({ conversation, list, loading, onSent, onRemoved }: { conversati
                 : (
                   <div className={`tg-msg ${mine ? 'out' : 'in'}${joined ? ' joined' : ''}`} {...(mine ? holdProps(m) : {})}>
                     {m.imageUrl && <img className="tg-photo" src={m.imageUrl} alt="Фото в сообщении" loading="lazy" />}
-                    {m.text && <span className="tg-text">{m.text}</span>}
+                    {m.card ? (
+                      <div className="tg-card">
+                        <b>{m.card.title}</b>
+                        <Rows boxed rows={m.card.rows.map(([k, v]) => (k === 'Сообщение' || v.includes('\n') ? [k, v, 'block'] as [string, string, 'block'] : [k, v] as [string, string]))} />
+                      </div>
+                    ) : m.text && <span className="tg-text">{m.text}</span>}
                     <small>{timeLabel(m.at)}{mine && <Icon name={m.read ? 'ticks' : 'tick'} />}</small>
                   </div>
                 )}

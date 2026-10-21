@@ -126,8 +126,12 @@ test('анкета: метка «Документы проверены» вид�
 test('расписание: недельный шаблон и выбор дат в календаре', async ({ page }) => {
   await login(page, 'tutor');
   await page.goto('/tutor/schedule');
-  await expect(page.getByRole('tab', { name: 'Каждую неделю' })).toHaveAttribute('aria-selected', 'true');
-  await page.getByRole('tab', { name: 'По датам' }).click();
+  // первая вкладка — таблица записей по дням
+  await expect(page.getByRole('tab', { name: 'Записи' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.trk-tt-row.today')).toBeVisible();
+  await page.getByRole('tab', { name: 'Неделя' }).click();
+  await expect(page.getByRole('tab', { name: 'Неделя' })).toHaveAttribute('aria-selected', 'true');
+  await page.getByRole('tab', { name: 'Даты' }).click();
   // выбираем сегодняшнюю дату или ближайший доступный день недели вперёд
   const days = page.locator('.trk-month-day:not([disabled])');
   await days.nth(2).click();

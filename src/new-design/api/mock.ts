@@ -246,7 +246,7 @@ const systemMessage = (tutorId: Id, studentId: Id, text: string) => {
   c.lastMessage = text; c.updatedAt = iso(Date.now());
 };
 /** Обычное сообщение от имени участника диалога (отклик на заявку, запись по отклику). Диалог создаётся, если его ещё нет. */
-const directMessage = (tutorId: Id, studentId: Id, authorId: Id | undefined, text: string) => {
+const directMessage = (tutorId: Id, studentId: Id, authorId: Id | undefined, text: string, card?: Message['card']) => {
   const s = load();
   let c = s.conversations.find((x) => x.tutorId === tutorId && x.studentId === studentId);
   if (!c) {
@@ -254,7 +254,7 @@ const directMessage = (tutorId: Id, studentId: Id, authorId: Id | undefined, tex
     c = { id: nextId('c'), peerName: (t as Tutor).name, peerPhoto: (t as Tutor).photo, peerRole: 'tutor', lastMessage: '', updatedAt: iso(Date.now()), unread: 0, tutorId, studentId };
     s.conversations.unshift(c);
   }
-  s.messages.push({ id: nextId('m'), conversationId: c.id, authorId: authorId ?? null, kind: 'text', text, at: iso(Date.now()), read: false });
+  s.messages.push({ id: nextId('m'), conversationId: c.id, authorId: authorId ?? null, kind: 'text', text, at: iso(Date.now()), read: false, ...(card ? { card } : {}) });
   c.lastMessage = text; c.updatedAt = iso(Date.now());
   if (authorId && authorId !== studentId) c.unread += 1;
 };
@@ -300,7 +300,10 @@ function slotsFor(tutor: Tutor, fromMs: number, days: number) {
       }
     }
   }
-  return out;
+  // интервалы могут пересекаться (обычное время и «другое время» в один день): один час показываем один раз
+  const unique = new Map<string, { start: string; available: boolean }>();
+  for (const slot of out.sort((a, b) => a.start.localeCompare(b.start))) if (!unique.has(slot.start)) unique.set(slot.start, slot);
+  return [...unique.values()];
 }
 
 function chargeOrRefund(l: Lesson, kind: PaymentRecord['kind']) {
@@ -568,7 +571,11 @@ export function createMockApi(): Api {
       if (s.responses.some((x) => x.requestId === requestId && x.tutorId === t.id)) fail('Вы уже откликнулись на эту заявку');
       const resp: RequestResponse = { id: nextId('rr'), requestId, tutorId: t.id, tutorName: t.name, tutorPhoto: t.photo, tutorRating: t.rating, price: studentPriceOf(input.price), message: input.message, slots: input.slots, status: 'sent', createdAt: iso(Date.now()) };
       s.responses.push(resp); (r as StudyRequest).responsesCount += 1;
-      directMessage(t.id, (r as StudyRequest).studentId, tutorUserId(t.id), `Отклик на заявку «${(r as StudyRequest).subject}»: ${resp.price} ₽ за урок.\n${input.message.trim()}`);
+      const when = (v: string) => new Date(v).toLocaleString('ru-RU', { weekday: 'short', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      directMessage(t.id, (r as StudyRequest).studentId, tutorUserId(t.id), `Отклик на заявку «${(r as StudyRequest).subject}»`, {
+        title: 'Отклик на заявку',
+        rows: [['Заявка', (r as StudyRequest).subject], ['Цена за урок', `${resp.price} ₽`], ...(input.slots.length ? [['Удобное время', input.slots.map(when).join('\n')] as [string, string]] : []), ['Сообщение', input.message.trim()]],
+      });
       notify((r as StudyRequest).studentId, { kind: 'request', title: 'Новый отклик на заявку', text: `${t.name} откликнулась на заявку`, link: `/me/requests/${requestId}` });
       save(); return delay(resp);
     },

@@ -96,8 +96,10 @@ export function SlotPicker({ slots, value, values, onChange, days = 7, loading }
   // занятое время не показываем вовсе: только свободные слоты и дни, где они есть
   const byDay = useMemo(() => {
     const map = new Map<string, Slot[]>();
+    const seen = new Set<string>();
     for (const s of slots) {
-      if (!s.available) continue;
+      if (!s.available || seen.has(s.start)) continue;
+      seen.add(s.start);
       const key = new Date(s.start).toDateString();
       map.set(key, [...(map.get(key) ?? []), s]);
     }

@@ -36,7 +36,9 @@ test('заявка ученика → отклик репетитора → за
   await expect(page.getByText('Подготовлю к ОГЭ по шагам')).toBeVisible();
   // отклик пришёл и в личные сообщения
   await page.goto('/me/chats');
-  await expect(page.getByText(/Отклик на заявку/).first()).toBeVisible();
+  await page.getByText(/Отклик на заявку/).first().click();
+  await expect(page.locator('.tg-card').getByText('Цена за урок')).toBeVisible();
+  await expect(page.locator('.tg-card').getByText('Подготовлю к ОГЭ по шагам')).toBeVisible();
   await page.goto(requestUrl);
   await page.getByRole('link', { name: /Записаться|\d{1,2}:\d{2}/ }).first().click();
   await expect(page).toHaveURL(/\/book\/.*request=/);

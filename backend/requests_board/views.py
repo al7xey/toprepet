@@ -1,7 +1,9 @@
 from datetime import timedelta
+from zoneinfo import ZoneInfo
 
 from django.db import transaction
 from django.utils import timezone
+from django.utils.timezone import localtime
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -172,7 +174,10 @@ class ResponsesView(APIView):
         except (TypeError, ValueError):
             raise ApiError('Неверное время в отклике')
         x = RequestResponse.objects.create(request=r, tutor=tutor, price=student_price(price), message=message[:2000], slots=slots)
-        direct_message(tutor, r.student, tutor.user, f'Отклик на заявку «{r.subject}»: {x.price} ₽ за урок.\n{x.message}')
+        tz = ZoneInfo(tutor.timezone)
+        when = [localtime(parse_iso(s), tz).strftime('%d.%m %H:%M') for s in slots]
+        rows = [['Заявка', r.subject], ['Цена за урок', f'{x.price} ₽'], *([['Удобное время', '\n'.join(when)]] if when else []), ['Сообщение', x.message]]
+        direct_message(tutor, r.student, tutor.user, f'Отклик на заявку «{r.subject}»', {'title': 'Отклик на заявку', 'rows': rows})
         notify(r.student, 'request', 'Новый отклик на заявку', f'{tutor.name} откликнулась на заявку', f'/me/requests/{r.id}')
         return Response(response_json(x), status=201)
 
