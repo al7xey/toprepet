@@ -1058,3 +1058,7 @@ html{overflow-y:scroll}
 .tr .trk-tt-empty{color:var(--muted);font-size:14px}
 
 .tr .trk-settings-who .trk-filepick-round{margin-left:auto;flex:none}
+
+/* v55: «Показать» и «Сбросить» на странице фильтров — подписи короткие, шрифт как у основных кнопок; в окнах чуть меньше */
+.tr .trh-fpage-foot .btn{font-size:18.7px}
+.tr .trk-modal-foot .btn{font-size:17px}
