@@ -47,7 +47,8 @@ test.describe('репетитор и администратор', () => {
     await page.goto('/admin/profiles');
     await expect(page.getByText('Ирина Тестова').first()).toBeVisible();
     await page.getByRole('button', { name: 'Опубликовать' }).first().click();
-    await expect(page.getByText('Очередь пуста')).toBeVisible();
+    // Published profiles can remain in this queue while their documents await review.
+    await expect(page.getByText('Ирина Тестова', { exact: true })).toHaveCount(0);
     await logout(page);
 
     // анкета появилась в каталоге
