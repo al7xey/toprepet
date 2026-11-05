@@ -61,6 +61,8 @@ _provider: PaymentProvider | None = None
 
 
 def get_provider() -> PaymentProvider:
+    if settings.PAYMENT_PROVIDER == 'fake' and not (settings.DEBUG or settings.TESTING):
+        raise ApiError('Демонстрационная оплата отключена на рабочем сервере', 503, 'payments_unavailable')
     global _provider
     if _provider is None:
         name = settings.PAYMENT_PROVIDER

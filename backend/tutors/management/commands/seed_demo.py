@@ -4,7 +4,8 @@ from datetime import datetime, timedelta, timezone as dt_timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from django.core.management.base import BaseCommand
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
@@ -40,6 +41,8 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **opts):
+        if not settings.DEBUG and not settings.TESTING:
+            raise CommandError('Демо-аккаунты разрешены только при DEBUG=1')
         if User.objects.filter(email='olga@mail.ru').exists():
             if not opts['reset']:
                 self.stdout.write('Демо-данные уже есть (используйте --reset, чтобы пересоздать).')
@@ -124,7 +127,7 @@ class Command(BaseCommand):
         daria = next((t for t in tutors if t.id.startswith('physics')), tutors[1])
         for pk, tutor, text, ago in (('rr-1', ervan, 'Готовлю к ОГЭ третий год. Начнём с диагностики и составим план по геометрии.', 20 * HOUR),
                                      ('rr-2', daria, 'Могу два раза в неделю вечером. Разберём вторую часть на примерах прошлых лет.', 6 * HOUR)):
-            RequestResponse.objects.create(id=pk, request_id='r-1', tutor=tutor, price=tutor.student_price, message=text, slots=[at(2, 18).isoformat(), at(4, 18).isoformat()])
+            RequestResponse.objects.create(id=pk, request_id='r-1', tutor=tutor, price=tutor.student_price, tutor_price=tutor.price, message=text, slots=[at(2, 18).isoformat(), at(4, 18).isoformat()])
             set_time(RequestResponse, pk, created_at=now - ago)
 
         for pk, user, kind, title, text, ago, link, read in (

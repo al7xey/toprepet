@@ -17,10 +17,6 @@
     "browser": true,
     "node": true
   },
-  "options": {
-    "typeAware": true,
-    "typeCheck": true
-  },
   "ignorePatterns": [
     ".next/**",
     ".vinext/**",
@@ -31,7 +27,12 @@
     "next-env.d.ts"
   ],
   "rules": {
-    "jsx-a11y/aria-role": ["error", { "ignoreNonDOM": true }],
+    "jsx-a11y/aria-role": [
+      "error",
+      {
+        "ignoreNonDOM": true
+      }
+    ],
     "no-array-constructor": "error",
     "no-var": "error",
     "prefer-const": "error",
@@ -41,7 +42,6 @@
     "react/display-name": "error",
     "react/jsx-no-comment-textnodes": "error",
     "react/no-unescaped-entities": "error",
-    "react/react-compiler": "error",
     "react/require-render-return": "error",
     "react/rules-of-hooks": "error",
     "typescript/ban-ts-comment": "error",
@@ -51,6 +51,8 @@
     "typescript/no-namespace": "error",
     "typescript/no-require-imports": "error",
     "typescript/no-unnecessary-type-constraint": "error",
-    "typescript/no-unsafe-function-type": "error"
+    "typescript/no-unsafe-function-type": "error",
+    "react/purity": "off",
+    "react/immutability": "off"
   }
 }

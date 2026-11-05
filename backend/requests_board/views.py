@@ -2,6 +2,7 @@ from datetime import timedelta
 from zoneinfo import ZoneInfo
 
 from django.db import transaction
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.timezone import localtime
 from rest_framework.response import Response
@@ -33,7 +34,7 @@ def request_json(r, short_name: bool = False) -> dict:
     name = r.student.name
     return {'id': r.id, 'studentId': r.student_id, 'studentName': name.split(' ')[0] if short_name else name, 'studentPhoto': r.student.photo or None, 'subject': r.subject, 'subjects': request_subjects(r), 'customSubject': r.custom_subject, 'goal': r.goal, 'level': r.level,
             'budgetMin': r.budget_min, 'budgetMax': r.budget_max, 'schedule': r.schedule, 'description': r.description, 'status': effective_status(r), 'createdAt': iso(r.created_at),
-            'expiresAt': iso(r.expires_at), 'responsesCount': r.responses.count()}
+            'expiresAt': iso(r.expires_at), 'responsesCount': r.response_count if hasattr(r, 'response_count') else r.responses.count()}
 
 
 def response_json(x) -> dict:
@@ -68,7 +69,7 @@ class RequestsView(APIView):
         """Лента открытых заявок, только для вошедших. Репетитор видит заявки по предметам своей анкеты."""
         user = require_user(request)
         subject = request.query_params.get('subject')
-        items = list(StudyRequest.objects.filter(status='open', expires_at__gt=timezone.now()).select_related('student'))
+        items = list(StudyRequest.objects.filter(status='open', expires_at__gt=timezone.now()).select_related('student').annotate(response_count=Count('responses')))
         if user.role == 'tutor':
             mine = tutor_subjects(user)
             items = [r for r in items if visible_to_tutor(r, mine)]
@@ -117,7 +118,7 @@ class RequestsView(APIView):
 class MyRequestsView(APIView):
     def get(self, request):
         user = require_role(request, 'student')
-        return Response([request_json(r) for r in StudyRequest.objects.filter(student=user).select_related('student')])
+        return Response([request_json(r) for r in StudyRequest.objects.filter(student=user).select_related('student').annotate(response_count=Count('responses'))])
 
 
 class RequestDetailView(APIView):
@@ -173,7 +174,7 @@ class ResponsesView(APIView):
             slots = [iso(parse_iso(s)) for s in slots][:6]
         except (TypeError, ValueError):
             raise ApiError('Неверное время в отклике')
-        x = RequestResponse.objects.create(request=r, tutor=tutor, price=student_price(price), message=message[:2000], slots=slots)
+        x = RequestResponse.objects.create(request=r, tutor=tutor, price=student_price(price), tutor_price=price, message=message[:2000], slots=slots)
         tz = ZoneInfo(tutor.timezone)
         when = [localtime(parse_iso(s), tz).strftime('%d.%m %H:%M') for s in slots]
         rows = [['Заявка', r.subject], ['Цена за урок', f'{x.price} ₽'], *([['Удобное время', '\n'.join(when)]] if when else []), ['Сообщение', x.message]]

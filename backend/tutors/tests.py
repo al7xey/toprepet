@@ -70,11 +70,15 @@ def test_week_validation_and_normalisation(api, demo):
     assert len(ok['days']) == 7 and ok['days'][1]['intervals'] == [{'from': '10:00', 'to': '12:00'}] and ok['days'][0]['intervals'] == []
 
 
-def test_profile_edit_rejects_contacts_and_updates_public_card(api, demo):
+def test_profile_edit_rejects_contacts_and_requires_remoderation(api, demo):
     api.login_as('anastasia@toprepet.ru')
     assert api.call('patch', '/tutor/profile', {'about': 'Пишите мне в t.me/anastasia'}).status_code == 400
     profile = api.call('patch', '/tutor/profile', {'headline': 'Английский для школьников', 'price': 1500, 'introMinutes': 15, 'subjects': ['Английский', 'История']}, 200).json()
-    assert profile['status'] == 'published' and profile['price'] == 1500
+    assert profile['status'] == 'review' and profile['price'] == 1500
+    assert Api().call('get', '/tutors/english').status_code == 404
+    admin = Api()
+    admin.login_as('admin@toprepet.ru')
+    admin.post_ok('/admin/profiles/english', {'approve': True})
     card = api.get_ok('/tutors/english')
     assert card['studentPrice'] == 1650 and card['cardSubjects'] == 'Английский / История' and card['introMinutes'] == 15
 

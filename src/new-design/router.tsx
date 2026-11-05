@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
+import { api } from './api';
 import { SessionProvider } from './api/session';
 import { useReveal } from './reveal';
 import { adminRoutes } from './routes/admin';
@@ -30,6 +31,7 @@ export function NewApp() {
     <SessionProvider>
       <div className="tr" ref={root}>
         <ToastProvider>
+          {api.mode === 'mock' && <aside className="demo-notice" aria-label="Демонстрационный режим">Демонстрационная версия. Записи и оплаты не отправляются. Не вводите настоящие данные карты.</aside>}
           <ScrollToTop />
           <Suspense fallback={<div className="trk-route-loading" aria-busy="true" />}>
             <Routes>

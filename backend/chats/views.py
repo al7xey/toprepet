@@ -1,3 +1,4 @@
+from core.inputs import boolean_input
 from django.db import transaction
 from django.db.models import F
 from django.utils import timezone
@@ -133,7 +134,7 @@ class ReportView(APIView):
         if not reason:
             raise ApiError('Выберите причину жалобы')
         c.reports = [*c.reports, {'by': user.id, 'reason': reason[:300], 'at': iso(timezone.now())}]
-        if request.data.get('block'):
+        if boolean_input(request.data, 'block', default=False):
             c.blocked = True
         c.save(update_fields=['reports', 'blocked'])
         notify_admins('message', 'Жалоба на диалог', f'{c.student.name} и {c.tutor.name}: {reason[:120]}', None)

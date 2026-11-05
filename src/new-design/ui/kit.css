@@ -1062,3 +1062,5 @@ html{overflow-y:scroll}
 /* v55: «Показать» и «Сбросить» на странице фильтров — подписи короткие, шрифт как у основных кнопок; в окнах чуть меньше */
 .tr .trh-fpage-foot .btn{font-size:18.7px}
 .tr .trk-modal-foot .btn{font-size:17px}
+
+.tr .demo-notice{padding:10px 20px;text-align:center;font-size:13px;line-height:1.5;color:#72310d;background:#fff3e9}

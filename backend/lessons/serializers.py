@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from core.utils import iso
@@ -32,7 +33,7 @@ def lesson_json(lesson, viewer) -> dict:
 def _reverse_id(lesson, name):
     try:
         return getattr(lesson, name).id
-    except Exception:
+    except ObjectDoesNotExist:
         return None
 
 

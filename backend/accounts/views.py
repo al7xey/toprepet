@@ -145,6 +145,7 @@ class PasswordResetView(Throttled):
 
 
 class PasswordResetConfirmView(Throttled):
+    @transaction.atomic
     def post(self, request):
         token, password = str(request.data.get('token', '')), str(request.data.get('password', ''))
         try:
@@ -168,6 +169,7 @@ class ResendVerificationView(Throttled):
 
 
 class VerifyEmailView(Throttled):
+    @transaction.atomic
     def post(self, request):
         item = EmailToken.consume(str(request.data.get('token', '')).strip(), EmailToken.VERIFY)
         if not item:

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { api, LESSON_MINUTES, staticTutors, type Tutor } from '../../api';
 import { trackGoal } from '../../../shared/lib/analytics';
 import { useQuery } from '../../api/hooks';
@@ -7,7 +7,7 @@ import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
 import { minutes, rub, whenLabel } from '../../lib/format';
 import { rv } from '../../reveal';
-import { BackLink, Button, EmptyState, Icon, IconButton, Note, QueryView, Rows, Section, SlotPicker, Status, Tags } from '../../ui';
+import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, Note, QueryView, Rows, Section, SlotPicker, Status, Tags } from '../../ui';
 import { NotFoundBody } from './notfound';
 
 const ACH_ICONS = ['target', 'school', 'book'] as const;
@@ -18,19 +18,23 @@ export default function ProfilePage() {
   const initial = useMemo(() => staticTutors().find((t) => t.id === id), [id]);
   const tutorQuery = useQuery(`tutor-${id}`, () => api.getTutor(id), initial);
   const tutor = tutorQuery.data;
-  if (!tutor && !tutorQuery.loading) {
+  if (tutorQuery.status === 404 || (!tutor && !tutorQuery.loading && !tutorQuery.error)) {
     return <PublicLayout tight><NotFoundBody title="Анкета не найдена" text="Возможно, ссылка устарела или анкета снята с публикации." action={<Button to="/teachers" size="lg">К преподавателям</Button>} /></PublicLayout>;
   }
+  if (tutorQuery.error) return <PublicLayout tight><ErrorState text={tutorQuery.error} onRetry={tutorQuery.reload} /></PublicLayout>;
   if (!tutor) return <PublicLayout tight><div /></PublicLayout>;
-  return <Profile tutor={tutor} />;
+  return <Profile key={id} tutor={tutor} />;
 }
 
 function Profile({ tutor }: { tutor: Tutor }) {
   const navigate = useNavigate();
   const { user } = useSession();
+  const lessonMinutes = tutor.durations?.includes(LESSON_MINUTES) ? LESSON_MINUTES : tutor.durations?.[0] ?? LESSON_MINUTES;
+  const lessonPrice = Math.round(tutor.studentPrice * lessonMinutes / 60);
+  const [showAllReviews, setShowAllReviews] = useState(false);
   const [start, setStart] = useState<string | null>(null);
   const from = useMemo(() => new Date().toISOString(), []);
-  const slots = useQuery(`slots-${tutor.id}`, () => api.getTutorSlots(tutor.id, from, 14));
+  const slots = useQuery(`slots-${tutor.id}`, () => api.getTutorSlots(tutor.id, from, 14, lessonMinutes));
   const reviews = useQuery(`reviews-${tutor.id}`, () => api.getTutorReviews(tutor.id));
   const isTutorAccount = user?.role === 'tutor' || user?.role === 'admin';
   const location = useLocation();
@@ -91,8 +95,8 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const booking = (
     <div className="card sum" {...rv('right', 0.1)}>
       <h2 className="trk-cardtitle">Запись</h2>
-      <Rows boxed rows={[['Репетитор', tutor.name], ['Занятие', minutes(LESSON_MINUTES)], ['Когда', start ? whenLabel(start) : 'Выберите время'], ...(tutor.introMinutes ? [['Знакомство', `${minutes(tutor.introMinutes)}, бесплатно`] as [string, string]] : [])]} />
-      <div className="fr fb"><span>Цена за {minutes(LESSON_MINUTES)}</span><b className="tn trk-price-xl">{rub(tutor.studentPrice)}</b></div>
+      <Rows boxed rows={[['Репетитор', tutor.name], ['Занятие', minutes(lessonMinutes)], ['Когда', start ? whenLabel(start) : 'Выберите время'], ...(tutor.introMinutes ? [['Знакомство', `${minutes(tutor.introMinutes)}, бесплатно`] as [string, string]] : [])]} />
+      <div className="fr fb"><span>Цена за {minutes(lessonMinutes)}</span><b className="tn trk-price-xl">{rub(lessonPrice)}</b></div>
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
         <>
           <Button to={bookHref('regular')} size="lg" block disabled={!start} onClick={() => trackGoal('book_start', { kind: 'regular' })}>{start ? 'Записаться' : 'Выберите время'}</Button>
@@ -151,7 +155,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
           <Section title="Цены">
             <div {...rv('up', 0.05)}>
               {tutor.introMinutes > 0 && <div className="rowline"><span><b>Знакомство</b><br /><span className="muted">{minutes(tutor.introMinutes)}, один раз</span></span><b className="u-ok">бесплатно</b></div>}
-              <div className="rowline"><span><b>Занятие</b><br /><span className="muted">{minutes(LESSON_MINUTES)}</span></span><b className="tn">{rub(tutor.studentPrice)}</b></div>
+              <div className="rowline"><span><b>Занятие</b><br /><span className="muted">{minutes(lessonMinutes)}</span></span><b className="tn">{rub(lessonPrice)}</b></div>
             </div>
           </Section>
 
@@ -168,11 +172,11 @@ function Profile({ tutor }: { tutor: Tutor }) {
           )}
 
           <hr className="rule" />
-          <Section title="Отзывы" action={tutor.reviewsCount > 3 ? <Link className="acc sb" to={`/teachers/${tutor.id}/reviews`}>Все отзывы</Link> : undefined}>
+          <Section title="Отзывы" action={tutor.reviewsCount > 3 ? <button type="button" className="acc sb" aria-expanded={showAllReviews} onClick={() => setShowAllReviews((v) => !v)}>{showAllReviews ? 'Свернуть' : 'Все отзывы'}</button> : undefined}>
             <QueryView query={reviews} loading={<span />} empty={(list) => (list.length ? null : <EmptyState icon="chat" title="Отзывов пока нет" text="Отзывы появляются после оплаченных занятий." />)}>
               {(list) => (
                 <div className="trk-list">
-                  {list.slice(0, 3).map((r) => (
+                  {(showAllReviews ? list : list.slice(0, 3)).map((r) => (
                     <div className="rv" key={r.id}>
                       <div className="fr fb"><b>{r.authorName}</b><span className="rt">{Array.from({ length: r.rating }, (_, i) => <Icon key={i} name="star-on" />)}</span></div>
                       <p>{r.text}</p>

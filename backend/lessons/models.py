@@ -30,9 +30,11 @@ class Lesson(models.Model):
     request = models.ForeignKey('requests_board.StudyRequest', null=True, blank=True, on_delete=models.SET_NULL, related_name='lessons')
     paid_out_at = models.DateTimeField(null=True, blank=True)
     idempotency_key = models.CharField(max_length=64, blank=True, db_index=True)
+    booking_fingerprint = models.CharField(max_length=64, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        constraints = [models.UniqueConstraint(fields=['student', 'idempotency_key'], condition=~models.Q(idempotency_key=''), name='lesson_student_idempotency_unique')]
         ordering = ['start']
         indexes = [models.Index(fields=['tutor', 'start']), models.Index(fields=['student', 'start'])]
 

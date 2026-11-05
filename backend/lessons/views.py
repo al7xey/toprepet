@@ -1,3 +1,4 @@
+from core.inputs import boolean_input
 from django.db.models import Q
 from django.utils import timezone
 from rest_framework.response import Response
@@ -25,7 +26,7 @@ class MyLessonsView(APIView):
         user = require_user(request)
         scope = request.query_params.get('scope', 'upcoming')
         now = timezone.now()
-        lessons = list(services.visible_lessons(user).select_related('tutor', 'student')) if user.role != 'admin' else []
+        lessons = list(services.visible_lessons(user).select_related('tutor', 'student', 'review', 'dispute')) if user.role != 'admin' else []
         active = lambda l: l.status in Lesson.ACTIVE and l.end > now
         items = [l for l in lessons if (active(l) if scope == 'upcoming' else not active(l))]
         items.sort(key=lambda l: l.start, reverse=(scope != 'upcoming'))
@@ -61,7 +62,7 @@ class MoveView(APIView):
 class MoveAnswerView(APIView):
     def post(self, request, lesson_id):
         user = require_user(request)
-        return Response(lesson_json(services.answer_move(user, lesson_id, bool(request.data.get('accept'))), user))
+        return Response(lesson_json(services.answer_move(user, lesson_id, boolean_input(request.data, 'accept')), user))
 
 
 class ConfirmView(APIView):

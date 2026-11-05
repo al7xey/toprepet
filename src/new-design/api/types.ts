@@ -31,6 +31,7 @@ export type TutorStatus = 'draft' | 'review' | 'published' | 'hidden';
 export const LESSON_MINUTES = 60;
 
 export interface Tutor {
+  durations?: number[];
   id: Id;
   name: string;
   photo: string;
@@ -119,6 +120,7 @@ export interface Lesson {
 }
 
 export interface CreateBookingInput {
+  idempotencyKey?: string;
   tutorId: Id;
   kind: LessonKind;
   start: IsoDate;

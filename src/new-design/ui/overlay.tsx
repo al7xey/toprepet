@@ -9,19 +9,38 @@ import { Button, type ButtonVariant } from './kit';
  */
 export function Modal({ open, onClose, title, children, footer, width = 520 }: { open: boolean; onClose: () => void; title: ReactNode; children?: ReactNode; footer?: ReactNode; width?: number }) {
   const box = useRef<HTMLDialogElement>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  useEffect(() => { closeRef.current = onClose; });
   useEffect(() => {
     if (!open) return;
     const previous = document.activeElement as HTMLElement | null;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const siblings = [...document.body.children].filter((node): node is HTMLElement => node instanceof HTMLElement && node !== root.current);
+    const inertBefore = siblings.map((node) => node.inert);
+    siblings.forEach((node) => { node.inert = true; });
+    const overflowBefore = document.documentElement.style.overflow;
+    const focusable = () => [...(box.current?.querySelectorAll<HTMLElement>('a[href],button,input,textarea,select,[tabindex]') ?? [])]
+      .filter((node) => node.tabIndex >= 0 && !node.matches(':disabled') && node.getClientRects().length > 0);
+    const onKey = (e: KeyboardEvent) => {
+      if (root.current?.inert) return;
+      if (e.key === 'Escape') { e.preventDefault(); closeRef.current(); }
+      if (e.key !== 'Tab') return;
+      const nodes = focusable();
+      const first = nodes[0]; const last = nodes.at(-1);
+      if (!first) { e.preventDefault(); box.current?.focus(); return; }
+      if (e.shiftKey && (document.activeElement === first || !box.current?.contains(document.activeElement))) { e.preventDefault(); last?.focus(); }
+      else if (!e.shiftKey && (document.activeElement === last || !box.current?.contains(document.activeElement))) { e.preventDefault(); first.focus(); }
+    };
     document.addEventListener('keydown', onKey);
     document.documentElement.style.overflow = 'hidden';
     box.current?.querySelector<HTMLElement>('input,textarea,select,button:not(.trk-modal-x)')?.focus();
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.documentElement.style.overflow = '';
+      document.documentElement.style.overflow = overflowBefore;
+      siblings.forEach((node, i) => { node.inert = inertBefore[i]; });
       previous?.focus?.();
     };
-  }, [open, onClose]);
+  }, [open]);
   // на телефоне окно-шторку можно смахнуть вниз: жест начинается, только когда содержимое прокручено до верха
   useEffect(() => {
     const el = box.current;
@@ -30,6 +49,7 @@ export function Modal({ open, onClose, title, children, footer, width = 520 }: {
     let startAt = 0;
     let delta = 0;
     let dragging = false;
+    let closeTimer: number | undefined;
     const scrim = el.parentElement?.querySelector<HTMLElement>('.trk-scrim');
     const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY; startAt = Date.now(); delta = 0; dragging = false; };
     const onMove = (e: TouchEvent) => {
@@ -49,7 +69,7 @@ export function Modal({ open, onClose, title, children, footer, width = 520 }: {
         el.style.transition = 'transform .22s ease-in';
         el.style.transform = 'translateY(105%)';
         if (scrim) { scrim.style.transition = 'opacity .22s'; scrim.style.opacity = '0'; }
-        window.setTimeout(onClose, 200);
+        closeTimer = window.setTimeout(() => closeRef.current(), 200);
       } else {
         el.style.transition = 'transform .3s cubic-bezier(.32,.72,0,1)';
         el.style.transform = '';
@@ -61,17 +81,18 @@ export function Modal({ open, onClose, title, children, footer, width = 520 }: {
     el.addEventListener('touchend', onEnd);
     el.addEventListener('touchcancel', onEnd);
     return () => {
+      window.clearTimeout(closeTimer);
       el.removeEventListener('touchstart', onStart);
       el.removeEventListener('touchmove', onMove);
       el.removeEventListener('touchend', onEnd);
       el.removeEventListener('touchcancel', onEnd);
     };
-  }, [open, onClose]);
+  }, [open]);
   if (!open || typeof document === 'undefined') return null;
   return createPortal(
-    <div className="tr trk-modal-root">
+    <div className="tr trk-modal-root" ref={root}>
       <div className="trk-scrim" onClick={onClose} aria-hidden="true" />
-      <dialog open className="trk-modal surf-strong" aria-modal="true" aria-label={typeof title === 'string' ? title : undefined} ref={box} style={{ maxWidth: width }}>
+      <dialog open tabIndex={-1} className="trk-modal surf-strong" aria-modal="true" aria-label={typeof title === 'string' ? title : undefined} ref={box} style={{ maxWidth: width }}>
         <div className="grab trk-grab" aria-hidden="true" />
         <div className="trk-modal-head">
           <h2 className="trk-cardtitle">{title}</h2>

@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '../../../blog/sanitize-html.mjs';
 import { Link, useParams } from 'react-router-dom';
 import { articles, articlePath, categories, categoryById, categoryPath, formatDate, hasPublished, relatedArticles, type Article, type Category } from '../../../blog/data';
 import { PublicLayout } from '../../layout/layouts';
@@ -118,7 +119,7 @@ function ArticleView() {
           </p>
         </header>
         {article.cover_image_url && <figure className="trk-blog-cover"><img src={article.cover_image_url} alt={article.cover_image_alt || article.title} width="1200" height="675" /></figure>}
-        <section aria-label="Текст статьи" className="trk-blog-body-text" dangerouslySetInnerHTML={{ __html: article.content_html }} />
+        <section aria-label="Текст статьи" className="trk-blog-body-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(article.content_html) }} />
       </article>
       <aside className="trk-blog-cta">
         <h2 className="h3">Нужна помощь с этой темой?</h2>

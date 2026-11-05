@@ -29,7 +29,7 @@ export interface Api {
   // Каталог и анкеты
   listTutors(filter: TutorFilter): Promise<Page<Tutor>>; // GET /tutors
   getTutor(id: Id): Promise<Tutor>; // GET /tutors/:id
-  getTutorSlots(id: Id, from: IsoDate, days: number): Promise<Slot[]>; // GET /tutors/:id/slots
+  getTutorSlots(id: Id, from: IsoDate, days: number, durationMin?: number): Promise<Slot[]>; // GET /tutors/:id/slots
   getTutorReviews(id: Id): Promise<Review[]>; // GET /tutors/:id/reviews
 
   // Запись и уроки

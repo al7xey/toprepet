@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 
 import dj_database_url
+from corsheaders.defaults import default_headers
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -17,7 +18,7 @@ def env_list(name: str, default: str = '') -> list[str]:
 
 
 TESTING = 'pytest' in sys.modules
-DEBUG = env('DEBUG', '1') == '1'
+DEBUG = env('DEBUG', '1' if TESTING else '0') == '1'
 SECRET_KEY = env('SECRET_KEY', 'dev-only-secret-key-change-me' if DEBUG else '')
 if not SECRET_KEY:
     raise RuntimeError('Задайте SECRET_KEY')
@@ -82,6 +83,7 @@ MEDIA_ROOT = Path(env('MEDIA_ROOT', str(BASE_DIR / 'media')))
 FRONTEND_ORIGINS = env_list('ALLOWED_ORIGINS', 'http://localhost:5173,http://127.0.0.1:5173,http://localhost:5199,http://127.0.0.1:5199')
 CORS_ALLOWED_ORIGINS = FRONTEND_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [*default_headers, 'idempotency-key']
 SESSION_COOKIE_NAME = 'toprepet_session'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
@@ -125,7 +127,7 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', 'TopRepet <noreply@toprepet.ru>')
 SITE_URL = env('SITE_URL', 'http://localhost:5173').rstrip('/')
 
 # Платежи: сейчас заглушка; провайдера меняет одна переменная (см. payments/providers.py).
-PAYMENT_PROVIDER = env('PAYMENT_PROVIDER', 'fake')
+PAYMENT_PROVIDER = env('PAYMENT_PROVIDER', 'fake' if DEBUG else 'disabled')
 SERVICE_FEE = 0.10
 # Видеосвязь: пока одна общая ссылка-заглушка, на этапе подключения Телемоста/Zoom здесь будет создание комнаты на урок.
 MEETING_URL = env('MEETING_URL', 'https://telemost.yandex.ru/')

@@ -6,12 +6,13 @@ from .models import Card, PaymentRecord
 from .providers import get_provider
 
 
-def _record(lesson, kind: str, ref: str = ''):
+def _record(lesson, kind: str, ref: str = '', card: Card | None = None):
     if lesson.price == 0:
         return None
-    card = lesson.student.cards.filter(primary=True).first() or lesson.student.cards.first()
+    original = lesson.payment_records.filter(kind='hold').first()
+    last4 = original.card_last4 if original else (card.last4 if card else '')
     title = f'{"Знакомство" if lesson.kind == "intro" else "Урок"} с {lesson.tutor.name}'
-    return PaymentRecord.objects.create(user=lesson.student, lesson=lesson, title=title, amount=lesson.price, kind=kind, card_last4=card.last4 if card else '', provider_ref=ref)
+    return PaymentRecord.objects.create(user=lesson.student, lesson=lesson, title=title, amount=lesson.price, kind=kind, card_last4=last4, provider_ref=ref)
 
 
 def _hold_ref(lesson) -> str:
@@ -29,12 +30,17 @@ def hold(lesson, card: Card | None):
         raise ApiError('Добавьте карту, чтобы записаться', 402, 'card_required')
     ref = get_provider().hold(card.provider_token, lesson.price, lesson.id)
     lesson.payment = 'hold'
-    _record(lesson, 'hold', ref)
+    _record(lesson, 'hold', ref, card)
 
 
 def capture(lesson):
+    if lesson.payment == 'captured':
+        return
     if lesson.price == 0:
         return
+    if lesson.payment != 'hold':
+        from core.errors import ApiError
+        raise ApiError('Оплату этой записи нельзя подтвердить', 409, 'payment_state')
     get_provider().capture(_hold_ref(lesson), lesson.price)
     lesson.payment = 'captured'
     _record(lesson, 'charge', _hold_ref(lesson))
@@ -44,6 +50,8 @@ def release(lesson):
     """Снять заморозку (репетитор отказал или не ответил): деньги ученика не списывались."""
     if lesson.price == 0:
         lesson.payment = 'none'
+        return
+    if lesson.payment != 'hold':
         return
     get_provider().cancel_hold(_hold_ref(lesson))
     lesson.payment = 'refunded'
@@ -57,6 +65,8 @@ def refund(lesson):
         return
     if lesson.payment == 'hold':
         return release(lesson)
+    if lesson.payment != 'captured':
+        return
     get_provider().refund(_hold_ref(lesson), lesson.price)
     lesson.payment = 'refunded'
     _record(lesson, 'refund', _hold_ref(lesson))
@@ -65,7 +75,7 @@ def refund(lesson):
 def payout(lesson) -> bool:
     """Выплатить репетитору его часть. Без подтверждённых реквизитов самозанятого выплата ждёт."""
     payout_settings = getattr(lesson.tutor, 'payout', None)
-    if lesson.tutor_price == 0:
+    if lesson.tutor_price == 0 or lesson.payment != 'captured':
         return False
     if payout_settings is None or not payout_settings.self_employed_confirmed:
         return False

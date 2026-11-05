@@ -82,7 +82,6 @@ class EmailToken(models.Model):
     @classmethod
     def consume(cls, token: str, kind: str):
         item = cls.objects.filter(token_hash=cls.digest(token), kind=kind, used_at__isnull=True, expires_at__gt=djtz.now()).select_related('user').first()
-        if item:
-            item.used_at = djtz.now()
-            item.save(update_fields=['used_at'])
-        return item
+        if item and cls.objects.filter(pk=item.pk, used_at__isnull=True, expires_at__gt=djtz.now()).update(used_at=djtz.now()):
+            return item
+        return None

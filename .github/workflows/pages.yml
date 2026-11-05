@@ -17,7 +17,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  quality:
+    uses: ./.github/workflows/quality.yml
+  backend:
+    uses: ./.github/workflows/backend.yml
   build:
+    if: github.ref == 'refs/heads/main'
+    needs: [quality, backend]
+    env:
+      VITE_API_MODE: demo
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,6 +38,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Verify the exact artifact that will be published
+        run: pnpm e2e
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

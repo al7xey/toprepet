@@ -1,3 +1,4 @@
+import { usePolling } from '../../lib/usePolling';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Link, NavLink, useLocation, useParams } from 'react-router-dom';
 import { api } from '../../api';
@@ -30,16 +31,14 @@ export function Messenger({ role }: { role: Side }) {
   const base = role === 'tutor' ? '/tutor/chats' : '/me/chats';
   const chats = useQuery('chats', () => api.listConversations());
   const reloadChats = chats.reload;
-  useEffect(() => {
-    const timer = window.setInterval(reloadChats, LIST_POLL_MS);
-    return () => window.clearInterval(timer);
-  }, [reloadChats]);
+  usePolling(reloadChats, LIST_POLL_MS);
   const list = chats.data ?? [];
   return (
     <AppLayout role={role} chat={id ? 'thread' : 'list'}>
       <div className={`tg${id ? ' open' : ''}`}>
         <aside className="tg-list" aria-label="Диалоги">
           <h1 className="tg-title">Сообщения</h1>
+          {chats.error && <FormError error={chats.error} />}
           {chats.loading && !chats.data && <p className="muted tg-pad">Загружаем…</p>}
           {chats.data && list.length === 0 && (
             <div className="tg-pad">
@@ -79,10 +78,7 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
   const conversation = useQuery(`chat-${id}`, () => api.getConversation(id));
   const messages = useQuery(`messages-${id}`, () => api.listMessages(id));
   const reload = messages.reload;
-  useEffect(() => {
-    const timer = window.setInterval(reload, THREAD_POLL_MS);
-    return () => window.clearInterval(timer);
-  }, [reload]);
+  usePolling(reload, THREAD_POLL_MS);
   useEffect(() => { if (messages.data) onRead(); }, [messages.data?.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const c = conversation.data;
   if (conversation.error && !c) return <div className="tg-placeholder"><span>{conversation.error}</span></div>;
@@ -104,6 +100,7 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
         )}
         <ReportButton conversation={c} onBlocked={() => conversation.reload()} />
       </header>
+      {messages.error && <FormError error={messages.error} />}
       <Thread conversation={c} list={messages.data ?? []} loading={messages.loading && !messages.data} onSent={(m) => { messages.setData((prev) => [...(prev ?? []), m]); onRead(); }} onRemoved={(id) => messages.setData((prev) => (prev ?? []).filter((x) => x.id !== id))} />
     </>
   );
@@ -131,9 +128,7 @@ function Thread({ conversation, list, loading, onSent, onRemoved }: { conversati
   const fileInput = useRef<HTMLInputElement>(null);
   // фото сжимаем в браузере до отправки: не больше 1600 px по длинной стороне и около 0,8 МБ
   const sendPhoto = useMutation(async (file: File) => {
-    const { default: compress } = await import('browser-image-compression');
-    const small = await compress(file, { maxSizeMB: 0.8, maxWidthOrHeight: 1600, useWebWorker: true });
-    return api.sendPhoto(conversation.id, new File([small], file.name, { type: small.type || file.type }), text.trim() || undefined);
+    return api.sendPhoto(conversation.id, file, text.trim() || undefined);
   });
 
   useLayoutEffect(() => {

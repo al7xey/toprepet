@@ -50,3 +50,6 @@ __pycache__/
 /test-results/
 /playwright-report/
 /dist-real/
+
+# TypeScript incremental cache
+*.tsbuildinfo

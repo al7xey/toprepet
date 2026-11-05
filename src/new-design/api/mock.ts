@@ -275,9 +275,9 @@ const myConversation = (id: Id): Conversation => {
 };
 const norm = (v: string) => v.trim().toLocaleLowerCase('ru').replaceAll('ё', 'е');
 
-function slotsFor(tutor: Tutor, fromMs: number, days: number) {
+function slotsFor(tutor: Tutor, fromMs: number, days: number, durationMin = 60) {
   const s = load();
-  const busy = new Set(s.lessons.filter((l) => l.tutorId === tutor.id && ['pending', 'confirmed'].includes(l.status)).map((l) => new Date(l.start).getTime()));
+  const busy = s.lessons.filter((l) => l.tutorId === tutor.id && ['pending', 'confirmed'].includes(l.status)).map((l) => [Date.parse(l.start), Date.parse(l.start) + l.durationMin * 60_000]);
   const out: { start: string; available: boolean }[] = [];
   const base = new Date(fromMs); base.setHours(0, 0, 0, 0);
   for (let d = 0; d < days; d += 1) {
@@ -289,14 +289,15 @@ function slotsFor(tutor: Tutor, fromMs: number, days: number) {
     if (exception?.kind === 'off') continue;
     const intervals = [...(rule?.intervals ?? []), ...(exception?.kind === 'extra' ? exception.intervals : [])];
     for (const interval of intervals) {
-      const [fh] = interval.from.split(':').map(Number);
-      const [th] = interval.to.split(':').map(Number);
-      for (let h = fh; h < th; h += 1) {
-        const t = new Date(day); t.setHours(h, 0, 0, 0);
+      const [fh, fm] = interval.from.split(':').map(Number);
+      const [th, tm] = interval.to.split(':').map(Number);
+      for (let minute = fh * 60 + fm; minute + durationMin <= th * 60 + tm; minute += 60) {
+        const h = Math.floor(minute / 60);
+        const t = new Date(day); t.setHours(h, minute % 60, 0, 0);
         const ms = t.getTime();
         // у каждого репетитора своя «занятость», чтобы расписания отличались
         const taken = (t.getDate() * 7 + h + tutor.id.length) % 5 === 0;
-        out.push({ start: iso(ms), available: ms > Date.now() + 2 * HOUR && !busy.has(ms) && !taken });
+        out.push({ start: iso(ms), available: ms > Date.now() + 2 * HOUR && !busy.some(([lo, hi]) => lo < ms + durationMin * 60_000 && ms < hi) && !taken });
       }
     }
   }
@@ -394,7 +395,7 @@ export function createMockApi(): Api {
       return delay({ items, total, nextCursor: start + limit < total ? String(start + limit) : null });
     },
     async getTutor(id) { const t = load().tutors.find((x) => x.id === id); if (!t) fail('Анкета не найдена', 404); return delay(t as Tutor); },
-    async getTutorSlots(id, from, days) { const t = load().tutors.find((x) => x.id === id); if (!t) fail('Анкета не найдена', 404); return delay(slotsFor(t as Tutor, new Date(from).getTime(), days)); },
+    async getTutorSlots(id, from, days, durationMin = 60) { const t = load().tutors.find((x) => x.id === id); if (!t) fail('Анкета не найдена', 404); return delay(slotsFor(t as Tutor, new Date(from).getTime(), days, durationMin)); },
     async getTutorReviews(id) { return delay(load().reviews.filter((r) => r.tutorId === id && r.status === 'published')); },
 
     async createBooking(input) {
@@ -402,7 +403,7 @@ export function createMockApi(): Api {
       if (u.role !== 'student') fail('Записываться могут только ученики');
       const t = s.tutors.find((x) => x.id === input.tutorId); if (!t) fail('Анкета не найдена', 404);
       const tutor = t as Tutor;
-      const slot = slotsFor(tutor, new Date(input.start).getTime(), 1).find((x) => x.start === input.start);
+      const slot = slotsFor(tutor, new Date(input.start).getTime(), 1, input.kind === 'intro' ? tutor.introMinutes : input.durationMin).find((x) => x.start === input.start);
       if (!slot?.available) fail('Это время уже занято. Выберите другое.');
       if (input.kind === 'intro') {
         if (!tutor.introMinutes) fail('У этого репетитора нет бесплатного знакомства');
@@ -410,11 +411,13 @@ export function createMockApi(): Api {
           fail('Бесплатное знакомство с этим репетитором уже было');
       } else if (!s.cards.some((c) => c.userId === u.id)) fail('Добавьте карту, чтобы записаться', 402);
       const startMs = new Date(input.start).getTime();
-      const price = input.kind === 'intro' ? 0 : Math.round(tutor.studentPrice * input.durationMin / 60);
+      const response = input.requestId ? s.responses.find((r) => r.requestId === input.requestId && r.tutorId === tutor.id && r.status === 'sent') : undefined;
+      if (input.requestId && (!response || !s.requests.some((r) => r.id === input.requestId && r.studentId === u.id && r.status === 'open'))) fail('Отклик больше недоступен', 409);
+      const price = input.kind === 'intro' ? 0 : Math.round((response?.price ?? tutor.studentPrice) * input.durationMin / 60);
       const lesson: Lesson = {
         id: nextId('l'), kind: input.kind, tutorId: tutor.id, tutorName: tutor.name, tutorPhoto: tutor.photo, studentId: u.id, studentName: u.name, studentPhoto: u.photo ?? null,
         subject: input.subject, start: input.start, durationMin: input.kind === 'intro' ? tutor.introMinutes : input.durationMin, status: 'pending',
-        price, tutorPrice: input.kind === 'intro' ? 0 : Math.round(tutor.price * input.durationMin / 60), payment: price ? 'hold' : 'none',
+        price, tutorPrice: input.kind === 'intro' ? 0 : Math.round((response ? Math.round(response.price / (1 + FEE)) : tutor.price) * input.durationMin / 60), payment: price ? 'hold' : 'none',
         confirmBy: iso(Math.min(startMs - 2 * HOUR, Date.now() + DAY)), meetingUrl: null, moveProposal: null, reviewId: null, disputeId: null, seriesId: null,
       };
       s.lessons.push(lesson);

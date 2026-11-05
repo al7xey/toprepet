@@ -34,14 +34,13 @@ def auto_complete(now) -> int:
     count = 0
     for lesson in Lesson.objects.filter(status='confirmed'):
         if lesson.end + AUTO_COMPLETE_AFTER < now:
-            lesson.status = 'completed'
-            lesson.save(update_fields=['status'])
-            count += 1
+            # A dispute or cancellation may have been saved since this row was read.
+            count += Lesson.objects.filter(pk=lesson.pk, status='confirmed').update(status='completed')
     return count
 
 
-def payable(lesson) -> bool:
-    if lesson.payment != 'captured' or lesson.end + PAYOUT_AFTER > timezone.now():
+def payable(lesson, now=None) -> bool:
+    if lesson.payment != 'captured' or lesson.end + PAYOUT_AFTER > (now or timezone.now()):
         return False
     if lesson.status in ('completed', 'no_show_student'):
         return True
@@ -54,9 +53,13 @@ def payable(lesson) -> bool:
 def pay_out(now) -> int:
     count = 0
     for lesson in Lesson.objects.filter(payment='captured').select_related('tutor', 'student'):
-        if not payable(lesson):
+        if not payable(lesson, now):
             continue
         with transaction.atomic():
+            # Serialize workers with cancellations/refunds and recheck fresh state.
+            lesson = Lesson.objects.select_for_update(of=('self',)).select_related('tutor', 'student').get(pk=lesson.pk)
+            if not payable(lesson, now):
+                continue
             if money.payout(lesson):
                 lesson.save()
                 notify(lesson.tutor.user, 'payment', 'Выплата отправлена', f'За урок {lesson.subject}: {lesson.tutor_price} ₽', '/tutor/finance')

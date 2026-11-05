@@ -6,6 +6,9 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import transaction
+from django.db.models import Exists, OuterRef, Q, CharField, IntegerField, Value, F
+from django.db.models.functions import Cast, Concat, Replace
+from core.expressions import UnicodeLower, JsonText, ArraySubjectMatches, ArrayIncludes
 from django.utils import timezone
 from PIL import Image, UnidentifiedImageError
 from rest_framework.response import Response
@@ -49,23 +52,27 @@ class TutorListView(APIView):
             start = max(0, int(q.get('cursor') or 0))
         except ValueError:
             raise ApiError('Неверные параметры поиска')
-        items = list(Tutor.objects.filter(status='published'))
+        items = Tutor.objects.filter(status='published').annotate(
+            documents_verified=Exists(TutorDocument.objects.filter(tutor_id=OuterRef('pk'), status='approved')),
+            student_amount=Cast((Cast('price', output_field=IntegerField()) * 11 + 5) / 10, output_field=IntegerField()),
+        )
         if subject:
-            items = [t for t in items if subject in (t.help_topics or []) or any(subject.startswith(s) for s in t.subjects)]
-        if price_max:
-            items = [t for t in items if t.student_price <= price_max]
-        if price_min:
-            items = [t for t in items if t.student_price >= price_min]
+            items = items.annotate(
+                subject_match=ArraySubjectMatches(F('subjects'), Value(subject)),
+                topic_match=ArrayIncludes(F('help_topics'), Value(subject)),
+            ).filter(Q(subject_match=True) | Q(topic_match=True))
+        if price_max is not None:
+            items = items.filter(student_amount__lte=price_max)
+        if price_min is not None:
+            items = items.filter(student_amount__gte=price_min)
         if q.get('hasIntro') in ('true', '1'):
-            items = [t for t in items if t.intro_minutes > 0]
+            items = items.filter(intro_minutes__gt=0)
         if query:
-            items = [t for t in items if query in norm(' '.join([t.name, t.headline, t.card_subjects, *(t.help_topics or []), t.intro]))]
+            items = items.annotate(search_text=Replace(UnicodeLower(Concat('name', Value(' '), 'headline', Value(' '), 'card_subjects', Value(' '), JsonText('help_topics', output_field=CharField()), Value(' '), 'intro', output_field=CharField())), Value('ё'), Value('е'))).filter(search_text__contains=query)
         sort = q.get('sort')
-        if sort == 'price_asc':
-            items.sort(key=lambda t: t.student_price)
-        elif sort == 'price_desc':
-            items.sort(key=lambda t: -t.student_price)
-        total = len(items)
+        if sort in ('price_asc', 'price_desc'):
+            items = items.order_by('price' if sort == 'price_asc' else '-price', 'sort_order', 'pk')
+        total = items.count()
         page = items[start:start + limit]
         return Response({'items': [tutor_json(t) for t in page], 'total': total, 'nextCursor': str(start + limit) if start + limit < total else None})
 
@@ -81,9 +88,12 @@ class TutorSlotsView(APIView):
         try:
             start = parse_iso(request.query_params['from']) if request.query_params.get('from') else timezone.now()
             days = max(1, min(int(request.query_params.get('days', 7)), 60))
+            duration = int(request.query_params.get('durationMin', 60))
+            if not 1 <= duration <= 240:
+                raise ValueError('duration')
         except (ValueError, KeyError):
             raise ApiError('Неверные параметры')
-        return Response([slot_json(s) for s in slots_for(tutor, start, days)])
+        return Response([slot_json(s) for s in slots_for(tutor, start, days, duration_min=duration)])
 
 
 class MyProfileView(APIView):
@@ -114,6 +124,10 @@ class MyProfileView(APIView):
         if 'photo' in v:
             tutor.photo = v['photo'] or ''
             tutor.photo_srcset = ''
+        if tutor.status == 'published' and set(v) & {'name', 'headline', 'about', 'approach', 'experience', 'education', 'subjects', 'photo'}:
+            tutor.status = 'review'
+            tutor.submitted_at = timezone.now()
+            notify_admins('system', 'Изменения анкеты ждут проверки', tutor.name, '/admin/profiles')
         tutor.save()
         return Response(profile_json(tutor))
 
@@ -149,8 +163,10 @@ class WeekView(APIView):
         tutor = my_tutor(request)
         return Response({'days': tutor.week or EMPTY_WEEK})
 
+    @transaction.atomic
     def put(self, request):
         tutor = my_tutor(request)
+        tutor = Tutor.objects.select_for_update().get(pk=tutor.pk)
         tutor.week = _validated_week(request.data)
         tutor.save(update_fields=['week'])
         return Response({'days': tutor.week})
@@ -162,16 +178,20 @@ class ExceptionsView(APIView):
 
 
 class ExceptionDetailView(APIView):
+    @transaction.atomic
     def put(self, request, date):
         tutor = my_tutor(request)
+        tutor = Tutor.objects.select_for_update().get(pk=tutor.pk)
         data = ExceptionIn(data={**request.data, 'date': date})
         data.is_valid(raise_exception=True)
         v = data.validated_data
         ScheduleException.objects.update_or_create(tutor=tutor, date=v['date'], defaults={'kind': v['kind'], 'intervals': v.get('intervals', []) if v['kind'] == 'extra' else []})
         return Response([exception_json(e) for e in tutor.exceptions.all()])
 
+    @transaction.atomic
     def delete(self, request, date):
         tutor = my_tutor(request)
+        tutor = Tutor.objects.select_for_update().get(pk=tutor.pk)
         tutor.exceptions.filter(date=date).delete()
         return Response([exception_json(e) for e in tutor.exceptions.all()])
 

@@ -4,12 +4,13 @@ import { ApiError, type Api } from './contract';
 /** Реальный клиент: включается, когда задан VITE_API_URL. Сессия — в httpOnly cookie, поэтому credentials: 'include'. */
 /** `fetchImpl` нужен тестам в Node (там нет cookie-хранилища браузера); в приложении используется обычный fetch. */
 export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) => fetch(...args)): Api {
-  const request = async <T>(method: string, path: string, body?: unknown): Promise<T> => {
+  const request = async <T>(method: string, path: string, body?: unknown, extraHeaders?: Record<string, string>): Promise<T> => {
     const isForm = body instanceof FormData;
     const response = await fetchImpl(`${base}${path}`, {
       method,
       credentials: 'include',
-      headers: body && !isForm ? { 'Content-Type': 'application/json' } : undefined,
+      headers: { ...(body && !isForm ? { 'Content-Type': 'application/json' } : {}), ...extraHeaders },
+      signal: AbortSignal.timeout(30_000),
       body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
     });
     if (response.status === 204) return undefined as T;
@@ -44,10 +45,10 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
 
     listTutors: (filter) => get(`/tutors${q({ ...filter })}`),
     getTutor: (id) => get(`/tutors/${id}`),
-    getTutorSlots: (id, from, days) => get(`/tutors/${id}/slots${q({ from, days })}`),
+    getTutorSlots: (id, from, days, durationMin) => get(`/tutors/${id}/slots${q({ from, days, durationMin })}`),
     getTutorReviews: (id) => get(`/tutors/${id}/reviews`),
 
-    createBooking: (input) => post('/bookings', input),
+    createBooking: ({ idempotencyKey, ...input }) => request('POST', '/bookings', input, idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined),
     listLessons: (scope) => get(`/me/lessons${q({ scope })}`),
     getLesson: (id) => get(`/lessons/${id}`),
     cancelLesson: (id, reason) => post(`/lessons/${id}/cancel`, { reason }),

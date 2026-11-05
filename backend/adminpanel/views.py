@@ -1,3 +1,4 @@
+from core.inputs import boolean_input
 from django.db import transaction
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -49,7 +50,7 @@ class ReviewQueue(APIView):
 class ModerateReview(APIView):
     def post(self, request, review_id):
         require_role(request, 'admin')
-        return Response(review_json(review_services.moderate(review_id, bool(request.data.get('approve')))))
+        return Response(review_json(review_services.moderate(review_id, boolean_input(request.data, 'approve'))))
 
 
 class ProfileQueue(APIView):
@@ -68,7 +69,7 @@ class ModerateProfile(APIView):
             raise not_found('Анкета не найдена')
         if tutor.status != 'review':
             raise ApiError('Анкета не на проверке')
-        approve = bool(request.data.get('approve'))
+        approve = boolean_input(request.data, 'approve')
         comment = str(request.data.get('note') or '').strip()
         if not approve and not comment:
             raise ApiError('Напишите, что нужно исправить')

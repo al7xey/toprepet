@@ -29,6 +29,7 @@ class RequestResponse(models.Model):
     request = models.ForeignKey(StudyRequest, on_delete=models.CASCADE, related_name='responses')
     tutor = models.ForeignKey('tutors.Tutor', on_delete=models.CASCADE, related_name='responses')
     price = models.PositiveIntegerField()
+    tutor_price = models.PositiveIntegerField(default=0)
     message = models.TextField()
     slots = models.JSONField(default=list)
     status = models.CharField(max_length=10, default='sent')

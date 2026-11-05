@@ -57,19 +57,20 @@ export default function CatalogPage() {
   // следующие страницы — автоматически при прокрутке
   useEffect(() => {
     const node = sentinel.current;
-    if (!node || !cursor || !fresh || list.more) return;
+    if (!node || !cursor || !fresh) return;
+    let alive = true;
     const io = new IntersectionObserver((entries) => {
       if (!entries.some((e) => e.isIntersecting)) return;
       io.disconnect();
       dispatch({ type: 'more-start' });
       api.listTutors({ ...filter, limit: PAGE, cursor }).then(
-        (page) => dispatch({ type: 'more', items: page.items, cursor: page.nextCursor }),
-        (e: Error) => dispatch({ type: 'more-fail', message: e.message }),
+        (page) => { if (alive) dispatch({ type: 'more', items: page.items, cursor: page.nextCursor }); },
+        (e: Error) => { if (alive) dispatch({ type: 'more-fail', message: e.message }); },
       );
     }, { rootMargin: '1600px 0px' });
     io.observe(node);
-    return () => io.disconnect();
-  }, [cursor, fresh, list.more, filter]);
+    return () => { alive = false; io.disconnect(); };
+  }, [cursor, fresh, filter]);
 
   const set = (patch: Partial<TutorFilter>) => setFilter((f) => ({ ...f, ...patch, cursor: null }));
   const reset = () => { setInput(''); setFilter({ sort: filter.sort }); };
@@ -97,7 +98,7 @@ export default function CatalogPage() {
       </search>
 
       <section className="trh-sec" aria-label="Преподаватели">
-        {error && !items.length ? <ErrorState text={error} onRetry={() => setFilter((f) => ({ ...f }))} /> : null}
+        {error ? <ErrorState text={error} onRetry={() => setFilter((f) => ({ ...f }))} /> : null}
         {!loading && total === 0 ? (
           <EmptyState icon="search" title="По вашему запросу преподавателей не нашлось" text="Попробуйте другое имя, предмет или тему. Или опишите задачу в заявке: подходящие репетиторы откликнутся сами."
             actions={<><Button onClick={reset}>Показать всех</Button>{user && <Button to="/me/requests/new" variant="line">Создать заявку</Button>}</>} />

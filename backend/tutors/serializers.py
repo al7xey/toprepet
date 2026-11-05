@@ -5,7 +5,7 @@ from rest_framework import serializers
 from core.utils import iso
 
 
-_TIME = re.compile(r'^(?:[01]\d|2[0-3]|24):[0-5]\d$')
+_TIME = re.compile(r'^(?:(?:[01]\d|2[0-3]):[0-5]\d|24:00)$')
 
 
 def tutor_json(t) -> dict:
@@ -15,7 +15,8 @@ def tutor_json(t) -> dict:
         'experience': t.experience, 'intro': t.intro, 'approach': t.approach, 'achievements': t.achievements,
         'price': t.price, 'studentPrice': t.student_price, 'introMinutes': t.intro_minutes,
         'rating': float(t.rating) if t.rating is not None else None, 'reviewsCount': t.reviews_count, 'status': t.status, 'timezone': t.timezone,
-        'documentsVerified': t.documents.filter(status='approved').exists(),
+        'documentsVerified': t.documents_verified if hasattr(t, 'documents_verified') else t.documents.filter(status='approved').exists(),
+        'durations': t.durations or [60],
     }
 
 
@@ -55,17 +56,22 @@ class IntervalIn(serializers.Serializer):
 
 class DayIn(serializers.Serializer):
     weekday = serializers.IntegerField(min_value=1, max_value=7)
-    intervals = IntervalIn(many=True)
+    intervals = IntervalIn(many=True, max_length=24)
 
 
 class WeekIn(serializers.Serializer):
-    days = DayIn(many=True)
+    days = DayIn(many=True, max_length=7)
+
+    def validate_days(self, days):
+        if len({day["weekday"] for day in days}) != len(days):
+            raise serializers.ValidationError("Дни недели не должны повторяться")
+        return days
 
 
 class ExceptionIn(serializers.Serializer):
     date = serializers.DateField()
     kind = serializers.ChoiceField(choices=['off', 'extra'])
-    intervals = IntervalIn(many=True, required=False)
+    intervals = IntervalIn(many=True, max_length=24, required=False)
 
 
 class AchievementIn(serializers.Serializer):

@@ -1,6 +1,7 @@
 name: Backend
 
 on:
+  workflow_call:
   pull_request:
     paths:
       - backend/**
@@ -35,6 +36,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
+      DEBUG: '1'
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/toprepet
     steps:
       - uses: actions/checkout@v4

@@ -1,3 +1,5 @@
+import hashlib
+import json
 from datetime import timedelta, timezone as dt_timezone
 
 from django.conf import settings
@@ -31,7 +33,7 @@ def visible_lessons(user):
 
 
 def get_lesson(user, lesson_id: str, *, lock: bool = False) -> Lesson:
-    query = visible_lessons(user).select_related('tutor', 'student')
+    query = visible_lessons(user).select_related('tutor', 'student', 'review', 'dispute')
     if lock:
         query = query.select_for_update(of=('self',))
     lesson = query.filter(id=lesson_id).first()
@@ -59,17 +61,20 @@ def create_booking(user, data: dict, idempotency_key: str = '') -> Lesson:
 
     if user.role != 'student':
         raise ApiError('Записываться могут только ученики', 403, 'forbidden')
+    # Serialize retries even when the same key is submitted for different tutors.
+    from accounts.models import User
+    User.objects.select_for_update().get(pk=user.pk)
+    fingerprint = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
     if idempotency_key:
-        existing = Lesson.objects.filter(student=user, idempotency_key=idempotency_key).select_related('tutor', 'student').first()
+        existing = Lesson.objects.filter(student=user, idempotency_key=idempotency_key, booking_fingerprint=fingerprint).select_related('tutor', 'student').first()
         if existing:
+            if existing.booking_fingerprint and existing.booking_fingerprint != fingerprint:
+                raise ApiError('Этот ключ записи уже использован для другого запроса', 409, 'idempotency_conflict')
             return existing
     tutor = Tutor.objects.select_for_update().filter(id=data['tutorId'], status='published').first()
     if tutor is None:
         raise not_found('Анкета не найдена')
     start = data['start'].astimezone(dt_timezone.utc).replace(second=0, microsecond=0)
-    slot = next((s for s in slots_for(tutor, start, 1) if s['start'] == start), None)
-    if slot is None or not slot['available']:
-        raise ApiError('Это время уже занято. Выберите другое.', 409, 'slot_taken')
     intro = data['kind'] == 'intro'
     if intro:
         if not tutor.intro_minutes:
@@ -81,8 +86,19 @@ def create_booking(user, data: dict, idempotency_key: str = '') -> Lesson:
         duration = data['durationMin']
         if duration not in (tutor.durations or [60]):
             raise ApiError('Такой длительности урока у репетитора нет')
+    slot = next((s for s in slots_for(tutor, start, 1, duration_min=duration) if s['start'] == start), None)
+    if slot is None or not slot['available']:
+        raise ApiError('Это время уже занято. Выберите другое.', 409, 'slot_taken')
     price = 0 if intro else round_half_up(tutor.student_price * duration / 60)
     tutor_price = 0 if intro else round_half_up(tutor.price * duration / 60)
+    study_request = None
+    if data.get('requestId'):
+        study_request = StudyRequest.objects.select_for_update().filter(id=data['requestId'], student=user, status='open', expires_at__gt=timezone.now()).first()
+        response = RequestResponse.objects.filter(request=study_request, tutor=tutor, status='sent').first() if study_request else None
+        if response is None or intro:
+            raise ApiError('Отклик больше недоступен. Обновите заявку.', 409, 'response_unavailable')
+        price = round_half_up(response.price * duration / 60)
+        tutor_price = round_half_up(response.tutor_price * duration / 60)
     card = None
     if price:
         cards = user.cards.all()
@@ -91,7 +107,7 @@ def create_booking(user, data: dict, idempotency_key: str = '') -> Lesson:
             raise ApiError('Добавьте карту, чтобы записаться', 402, 'card_required')
     now = timezone.now()
     lesson = Lesson(kind=data['kind'], tutor=tutor, student=user, subject=data['subject'], start=start, duration_min=duration, status='pending',
-                    price=price, tutor_price=tutor_price, confirm_by=min(start - 2 * HOUR, now + DAY), idempotency_key=idempotency_key)
+                    price=price, tutor_price=tutor_price, confirm_by=min(start - 2 * HOUR, now + DAY), idempotency_key=idempotency_key, booking_fingerprint=fingerprint)
     lesson.save()
     money.hold(lesson, card)
     lesson.save()
@@ -134,8 +150,16 @@ def cancel(user, lesson_id: str, reason: str) -> Lesson:
     return lesson
 
 
+def _lock_schedule(user, lesson_id):
+    from tutors.models import Tutor
+    tutor_id = visible_lessons(user).filter(pk=lesson_id).values_list('tutor_id', flat=True).first()
+    if tutor_id is None:
+        raise not_found('Урок не найден')
+    Tutor.objects.select_for_update().get(pk=tutor_id)
+
+
 def _slot_free_for(lesson, start) -> bool:
-    slots = slots_for(lesson.tutor, start, 1)
+    slots = slots_for(lesson.tutor, start, 1, duration_min=lesson.duration_min)
     for slot in slots:
         if slot['start'] == start:
             if slot['available']:
@@ -147,6 +171,7 @@ def _slot_free_for(lesson, start) -> bool:
 
 @transaction.atomic
 def propose_move(user, lesson_id: str, start) -> Lesson:
+    _lock_schedule(user, lesson_id)
     lesson = get_lesson(user, lesson_id, lock=True)
     if user.role == 'admin':
         raise forbidden()
@@ -163,7 +188,10 @@ def propose_move(user, lesson_id: str, start) -> Lesson:
 
 @transaction.atomic
 def answer_move(user, lesson_id: str, accept: bool) -> Lesson:
+    _lock_schedule(user, lesson_id)
     lesson = get_lesson(user, lesson_id, lock=True)
+    if lesson.status not in Lesson.ACTIVE:
+        raise ApiError('Перенести можно только предстоящий урок')
     if not lesson.move_start:
         raise ApiError('Нет предложения о переносе')
     if lesson.move_by == user.role or user.role == 'admin':
@@ -245,7 +273,7 @@ def report_problem(user, lesson_id: str, reason: str, text: str) -> Dispute:
     if now < lesson.start:
         raise ApiError('Урок ещё не начался')
     if now - lesson.start > DAY + timedelta(minutes=lesson.duration_min):
-        raise ApiError('Сообщить о проблеме можно в течение 24 часов после начала урока')
+        raise ApiError('Сообщить о проблеме можно в течение 24 часов после окончания урока')
     dispute = Dispute.objects.create(lesson=lesson, reason=reason, text=text)
     lesson.status = 'disputed'
     lesson.save(update_fields=['status'])
@@ -266,7 +294,7 @@ def get_dispute(user, dispute_id: str) -> Dispute:
 
 @transaction.atomic
 def reply_dispute(user, dispute_id: str, text: str) -> Dispute:
-    dispute = get_dispute(user, dispute_id)
+    dispute = _locked_dispute(user, dispute_id)
     if not _is_tutor_of(user, dispute.lesson):
         raise forbidden('Отвечает репетитор')
     if dispute.status != 'open':
@@ -278,12 +306,23 @@ def reply_dispute(user, dispute_id: str, text: str) -> Dispute:
     return dispute
 
 
+def _locked_dispute(user, dispute_id):
+    visible = get_dispute(user, dispute_id)
+    # Shared order with payout/cancel/report: lock the lesson before the dispute.
+    lesson = get_lesson(user, visible.lesson_id, lock=True)
+    dispute = Dispute.objects.select_for_update().get(pk=dispute_id)
+    dispute.lesson = lesson
+    return dispute
+
+
 @transaction.atomic
 def resolve_dispute(admin, dispute_id: str, outcome: str) -> Dispute:
-    dispute = get_dispute(admin, dispute_id)
+    if admin.role != 'admin' or outcome not in ('refund', 'pay'):
+        raise forbidden()
+    dispute = _locked_dispute(admin, dispute_id)
     if dispute.status.startswith('resolved'):
         raise ApiError('Спор уже решён')
-    lesson = Lesson.objects.select_for_update().select_related('tutor', 'student').get(id=dispute.lesson_id)
+    lesson = dispute.lesson
     if outcome == 'refund':
         dispute.status, dispute.resolution = 'resolved_refund', 'Деньги вернули ученику'
         money.refund(lesson)

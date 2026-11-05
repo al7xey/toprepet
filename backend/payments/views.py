@@ -45,7 +45,6 @@ class CardDetailView(APIView):
         card = user.cards.filter(id=card_id).first()
         if card is None:
             raise not_found('Карта не найдена')
-        busy = Lesson.objects.filter(student=user, status='pending', payment='hold').exists()
         was_primary = card.primary
         card.delete()
         if was_primary:
@@ -59,7 +58,7 @@ class CardDetailView(APIView):
 class FinanceView(APIView):
     def get(self, request):
         tutor = my_tutor(request)
-        lessons = list(Lesson.objects.filter(tutor=tutor, tutor_price__gt=0).select_related('student').order_by('start'))
+        lessons = list(Lesson.objects.filter(tutor=tutor, tutor_price__gt=0, payment__in=['hold', 'captured', 'paid_out']).select_related('student').order_by('start'))
         entries, available, pending, paid_month = [], 0, 0, 0
         now = timezone.now().astimezone(ZoneInfo(tutor.timezone))
         for l in lessons:
