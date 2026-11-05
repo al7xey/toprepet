@@ -4,11 +4,11 @@ from datetime import timedelta, timezone as dt_timezone
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Q
 from django.utils import timezone
 
 from chats.service import direct_message, get_or_create_conversation, system_message
 from core.errors import ApiError, forbidden, not_found
+from core.audit import record
 from notifications.service import notify, notify_admins
 from payments import service as money
 from services.slots import slots_for
@@ -25,6 +25,8 @@ def round_half_up(value: float) -> int:
 
 
 def visible_lessons(user):
+    if not user or not user.is_authenticated or not user.is_active:
+        return Lesson.objects.none()
     if user.role == 'student':
         return Lesson.objects.filter(student=user)
     if user.role == 'tutor':
@@ -63,18 +65,22 @@ def create_booking(user, data: dict, idempotency_key: str = '') -> Lesson:
         raise ApiError('Записываться могут только ученики', 403, 'forbidden')
     # Serialize retries even when the same key is submitted for different tutors.
     from accounts.models import User
-    User.objects.select_for_update().get(pk=user.pk)
+    User.objects.select_for_update(no_key=True).get(pk=user.pk)
     fingerprint = hashlib.sha256(json.dumps(data, sort_keys=True, default=str).encode()).hexdigest()
+    if not user.is_active:
+        raise forbidden()
     if idempotency_key:
         existing = Lesson.objects.filter(student=user, idempotency_key=idempotency_key, booking_fingerprint=fingerprint).select_related('tutor', 'student').first()
         if existing:
             if existing.booking_fingerprint and existing.booking_fingerprint != fingerprint:
                 raise ApiError('Этот ключ записи уже использован для другого запроса', 409, 'idempotency_conflict')
             return existing
-    tutor = Tutor.objects.select_for_update().filter(id=data['tutorId'], status='published').first()
+    tutor = Tutor.objects.select_for_update(no_key=True).filter(id=data['tutorId'], status='published').first()
     if tutor is None:
         raise not_found('Анкета не найдена')
     start = data['start'].astimezone(dt_timezone.utc).replace(second=0, microsecond=0)
+    if data['subject'] not in tutor.subjects:
+        raise ApiError('Выберите предмет из анкеты репетитора')
     intro = data['kind'] == 'intro'
     if intro:
         if not tutor.intro_minutes:
@@ -145,6 +151,7 @@ def cancel(user, lesson_id: str, reason: str) -> Lesson:
         money.refund(lesson)
     # поздняя отмена учеником: деньги остаются списанными, репетитор получит выплату
     lesson.save()
+    record(user, 'lesson.cancel', lesson.pk, lesson.payment)
     system_message(lesson.tutor, lesson.student, f'{user.name} отменила урок' if user.role == 'student' else f'{user.name} отменил(а) урок')
     notify(_other_party(user, lesson), 'lesson', 'Урок отменён', reason, f'/tutor/lessons/{lesson.id}' if user.role == 'student' else f'/me/lessons/{lesson.id}')
     return lesson
@@ -155,7 +162,7 @@ def _lock_schedule(user, lesson_id):
     tutor_id = visible_lessons(user).filter(pk=lesson_id).values_list('tutor_id', flat=True).first()
     if tutor_id is None:
         raise not_found('Урок не найден')
-    Tutor.objects.select_for_update().get(pk=tutor_id)
+    Tutor.objects.select_for_update(no_key=True).get(pk=tutor_id)
 
 
 def _slot_free_for(lesson, start) -> bool:
@@ -178,6 +185,8 @@ def propose_move(user, lesson_id: str, start) -> Lesson:
     if lesson.status not in Lesson.ACTIVE:
         raise ApiError('Перенести можно только предстоящий урок')
     start = start.astimezone(dt_timezone.utc).replace(second=0, microsecond=0)
+    if lesson.start <= timezone.now():
+        raise ApiError('Начавшийся урок уже нельзя переносить')
     if not _slot_free_for(lesson, start):
         raise ApiError('Это время недоступно. Выберите другое.', 409, 'slot_taken')
     lesson.move_start, lesson.move_by = start, user.role
@@ -196,6 +205,8 @@ def answer_move(user, lesson_id: str, accept: bool) -> Lesson:
         raise ApiError('Нет предложения о переносе')
     if lesson.move_by == user.role or user.role == 'admin':
         raise forbidden('Ответить на перенос может другая сторона')
+    if lesson.start <= timezone.now():
+        raise ApiError('Начавшийся урок уже нельзя переносить')
     if accept:
         if not _slot_free_for(lesson, lesson.move_start):
             lesson.move_start, lesson.move_by = None, ''
@@ -217,6 +228,8 @@ def confirm(user, lesson_id: str) -> Lesson:
         raise forbidden('Подтверждает запись репетитор')
     if lesson.status != 'pending':
         raise ApiError('Запись уже обработана')
+    if lesson.confirm_by and lesson.confirm_by <= timezone.now():
+        raise ApiError('Срок подтверждения записи истёк', 409, 'confirmation_expired')
     money.capture(lesson)
     lesson.status = 'confirmed'
     lesson.meeting_url = settings.MEETING_URL
@@ -331,6 +344,7 @@ def resolve_dispute(admin, dispute_id: str, outcome: str) -> Dispute:
         # деньги остаются списанными; выплату проведёт задание run_jobs, как только у репетитора появятся реквизиты самозанятого
     lesson.save()
     dispute.save()
+    record(admin, 'dispute.resolve', dispute.pk, dispute.status)
     notify(lesson.student, 'payment', 'Спор решён', dispute.resolution, f'/me/disputes/{dispute.id}')
     notify(lesson.tutor.user, 'payment', 'Спор решён', dispute.resolution, f'/tutor/disputes/{dispute.id}')
     return dispute

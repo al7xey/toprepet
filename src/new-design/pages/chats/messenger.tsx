@@ -77,9 +77,38 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
   const cameFrom = (useLocation().state as { from?: string } | null)?.from;
   const conversation = useQuery(`chat-${id}`, () => api.getConversation(id));
   const messages = useQuery(`messages-${id}`, () => api.listMessages(id));
+  const [older, setOlder] = useState<Message[]>([]);
+  const [hasOlder, setHasOlder] = useState(true);
+  const previous = useRef<Message[]>([]);
   const reload = messages.reload;
   usePolling(reload, THREAD_POLL_MS);
-  useEffect(() => { if (messages.data) onRead(); }, [messages.data?.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  const mark = useMutation((throughMessageId: string) => api.markConversationRead(id, throughMessageId));
+  const markRead = mark.run;
+  const lastId = messages.data?.at(-1)?.id;
+  useEffect(() => { if (lastId) void markRead(lastId).then(onRead); }, [lastId, markRead, onRead]);
+  useEffect(() => {
+    const current = messages.data;
+    if (!current?.length) return;
+    if (current.length === 100 && previous.current.length < 100) setHasOlder(true);
+    const ids = new Set(current.map((m) => m.id));
+    if (current.length < 100 || (previous.current.length && !previous.current.some((m) => ids.has(m.id)))) {
+      setOlder([]);
+      setHasOlder(current.length === 100);
+    } else {
+      const first = current[0];
+      const archived = previous.current.filter((m) => m.at < first.at || (m.at === first.at && m.id < first.id));
+      if (archived.length) setOlder((prev) => [...new Map([...prev, ...archived].map((m) => [m.id, m])).values()]);
+    }
+    previous.current = current;
+  }, [messages.data]);
+  const history = useMutation(async () => {
+    const first = older[0] ?? messages.data?.[0];
+    if (!first) return;
+    const page = await api.listMessages(id, { before: first.id });
+    setOlder((prev) => [...page, ...prev]);
+    setHasOlder(page.length === 100);
+  });
+  const list = [...new Map([...older, ...(messages.data ?? [])].map((m) => [m.id, m])).values()].sort((a, b) => a.at.localeCompare(b.at) || a.id.localeCompare(b.id));
   const c = conversation.data;
   if (conversation.error && !c) return <div className="tg-placeholder"><span>{conversation.error}</span></div>;
   if (!c) return <div className="tg-placeholder"><span className="muted">Открываем диалог…</span></div>;
@@ -100,13 +129,13 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
         )}
         <ReportButton conversation={c} onBlocked={() => conversation.reload()} />
       </header>
-      {messages.error && <FormError error={messages.error} />}
-      <Thread conversation={c} list={messages.data ?? []} loading={messages.loading && !messages.data} onSent={(m) => { messages.setData((prev) => [...(prev ?? []), m]); onRead(); }} onRemoved={(id) => messages.setData((prev) => (prev ?? []).filter((x) => x.id !== id))} />
+      {(messages.error || history.error || mark.error) && <FormError error={messages.error ?? history.error ?? mark.error} />}
+      <Thread conversation={c} list={list} older={hasOlder && Boolean(older.length || messages.data?.length === 100)} loadingOlder={history.pending} loadOlder={history.run} loading={messages.loading && !messages.data} onSent={(m) => { messages.setData((prev) => [...(prev ?? []), m]); onRead(); }} onRemoved={(removed) => { setOlder((prev) => prev.filter((m) => m.id !== removed)); messages.setData((prev) => (prev ?? []).filter((m) => m.id !== removed)); }} />
     </>
   );
 }
 
-function Thread({ conversation, list, loading, onSent, onRemoved }: { conversation: Conversation; list: Message[]; loading: boolean; onSent: (m: Message) => void; onRemoved: (id: string) => void }) {
+function Thread({ conversation, list, loading, onSent, onRemoved, older, loadingOlder, loadOlder }: { conversation: Conversation; list: Message[]; loading: boolean; older: boolean; loadingOlder: boolean; loadOlder: () => Promise<unknown>; onSent: (m: Message) => void; onRemoved: (id: string) => void }) {
   const { user } = useSession();
   const [text, setText] = useState('');
   const scroller = useRef<HTMLDivElement>(null);
@@ -131,7 +160,17 @@ function Thread({ conversation, list, loading, onSent, onRemoved }: { conversati
     return api.sendPhoto(conversation.id, file, text.trim() || undefined);
   });
 
+  const preservingScroll = useRef(false);
+  const previousPage = async () => {
+    const node = scroller.current;
+    if (!node) return;
+    const top = node.scrollTop; const height = node.scrollHeight;
+    preservingScroll.current = true;
+    await loadOlder();
+    requestAnimationFrame(() => { node.scrollTop = top + node.scrollHeight - height; preservingScroll.current = false; });
+  };
   useLayoutEffect(() => {
+    if (preservingScroll.current) return;
     const node = scroller.current;
     if (node) node.scrollTop = node.scrollHeight;
   }, [list.length]);
@@ -164,6 +203,7 @@ function Thread({ conversation, list, loading, onSent, onRemoved }: { conversati
   return (
     <>
       <div className="tg-thread" ref={scroller} aria-live="polite">
+        {older && <Button variant="line" size="s" loading={loadingOlder} onClick={() => void previousPage()}>Предыдущие сообщения</Button>}
         {loading && <p className="muted tg-note">Загружаем сообщения…</p>}
         {!loading && list.length === 0 && <p className="tg-note">Напишите первое сообщение: представьтесь и расскажите, чем нужна помощь.</p>}
         {list.map((m, i) => {
@@ -178,7 +218,7 @@ function Thread({ conversation, list, loading, onSent, onRemoved }: { conversati
                 ? <div className="tg-sys">{m.text}</div>
                 : (
                   <div className={`tg-msg ${mine ? 'out' : 'in'}${joined ? ' joined' : ''}`} {...(mine ? holdProps(m) : {})}>
-                    {m.imageUrl && <img className="tg-photo" src={m.imageUrl} alt="Фото в сообщении" loading="lazy" />}
+                    {m.imageUrl && <img className="tg-photo" src={m.imageUrl} crossOrigin="use-credentials" alt="Фото в сообщении" loading="lazy" />}
                     {m.card ? (
                       <div className="tg-card">
                         <b>{m.card.title}</b>

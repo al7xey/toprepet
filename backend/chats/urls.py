@@ -3,6 +3,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path("conversations/<str:conversation_id>/messages/<str:message_id>/image", views.ImageView.as_view()),
+    path("conversations/<str:conversation_id>/read", views.ReadView.as_view()),
     path('me/conversations', views.ConversationsView.as_view()),
     path('conversations', views.ConversationsView.as_view()),
     path('conversations/<str:conversation_id>', views.ConversationView.as_view()),

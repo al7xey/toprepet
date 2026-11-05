@@ -4,7 +4,7 @@ from datetime import timedelta
 
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
-from django.db import models
+from django.db import models, transaction
 from django.utils import timezone as djtz
 
 from core.ids import ShortIdField
@@ -73,15 +73,20 @@ class EmailToken(models.Model):
         return hashlib.sha256(token.encode()).hexdigest()
 
     @classmethod
+    @transaction.atomic
     def issue(cls, user: User, kind: str, hours: int) -> str:
+        User.objects.select_for_update(no_key=True).get(pk=user.pk)
         cls.objects.filter(user=user, kind=kind, used_at__isnull=True).update(used_at=djtz.now())
         token = secrets.token_urlsafe(32)
         cls.objects.create(user=user, kind=kind, token_hash=cls.digest(token), expires_at=djtz.now() + timedelta(hours=hours))
         return token
 
     @classmethod
+    @transaction.atomic
     def consume(cls, token: str, kind: str):
         item = cls.objects.filter(token_hash=cls.digest(token), kind=kind, used_at__isnull=True, expires_at__gt=djtz.now()).select_related('user').first()
+        if item:
+            User.objects.select_for_update(no_key=True).get(pk=item.user_id)
         if item and cls.objects.filter(pk=item.pk, used_at__isnull=True, expires_at__gt=djtz.now()).update(used_at=djtz.now()):
             return item
         return None

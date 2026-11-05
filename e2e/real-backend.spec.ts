@@ -38,3 +38,23 @@ test('Django: вход → запись → подтверждение репе�
   await page.goto('/admin/cancellations');
   await expect(page.getByText('Заболел ребёнок')).toBeVisible();
 });
+
+test('Django: приватное фото чата загружается с cookie и недоступно гостю', async ({ page, request }) => {
+  await login(page, 'student');
+  await page.goto('/me/chats/c-1');
+  const png = await page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 8; canvas.height = 8;
+    const ctx = canvas.getContext('2d')!;
+    ctx.fillStyle = 'orange'; ctx.fillRect(0, 0, 8, 8);
+    return canvas.toDataURL('image/png').split(',')[1];
+  });
+  await page.locator('input[type=file]').setInputFiles({ name: 'private.png', mimeType: 'image/png', buffer: Buffer.from(png, 'base64') });
+  const photo = page.locator('.tg-photo').last();
+  await expect(photo).toBeVisible();
+  await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+  const url = await photo.getAttribute('src');
+  expect(url).toMatch(/\/conversations\/c-1\/messages\/.+\/image$/);
+  const denied = await request.get(url!);
+  expect(denied.status()).toBe(401);
+});

@@ -1,8 +1,11 @@
 import re
 
+from django.db import transaction
+from accounts.models import User
+
 from django.utils import timezone
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from core.views import APIView
 from zoneinfo import ZoneInfo
 
 from core.errors import ApiError, not_found
@@ -32,16 +35,20 @@ class CardsView(APIView):
     def get(self, request):
         return Response([card_json(c) for c in require_user(request).cards.all()])
 
+    @transaction.atomic
     def post(self, request):
         user = require_role(request, 'student')
+        User.objects.select_for_update(no_key=True).get(pk=user.pk)
         token = get_provider().tokenize_card(str(request.data.get('number', '')), str(request.data.get('expiry', '')), str(request.data.get('cvc', '')))
         card = Card.objects.create(user=user, brand=token.brand, last4=token.last4, provider_token=token.token, primary=not user.cards.exists())
         return Response(card_json(card), status=201)
 
 
 class CardDetailView(APIView):
+    @transaction.atomic
     def delete(self, request, card_id):
         user = require_user(request)
+        User.objects.select_for_update(no_key=True).get(pk=user.pk)
         card = user.cards.filter(id=card_id).first()
         if card is None:
             raise not_found('Карта не найдена')

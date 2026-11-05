@@ -23,9 +23,10 @@ services:
       ALLOWED_ORIGINS: http://localhost:5173
       SITE_URL: http://localhost:5173
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - media:/app/media
+      - private-media:/app/private-media
   jobs:
     build: .
     depends_on:
@@ -37,3 +38,4 @@ services:
 volumes:
   dbdata:
   media:
+  private-media:

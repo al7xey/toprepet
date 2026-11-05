@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 
 from core.ids import ShortIdField
+from services.private_storage import PrivateDocumentStorage
 
 
 class Conversation(models.Model):
@@ -29,6 +30,7 @@ class Message(models.Model):
     kind = models.CharField(max_length=6, default='text')
     text = models.TextField(blank=True)
     image = models.CharField(max_length=300, blank=True)
+    attachment = models.FileField(upload_to='messages/', storage=PrivateDocumentStorage(), blank=True)
     card = models.JSONField(null=True, blank=True)  # таблица внутри сообщения: {'title': ..., 'rows': [[имя, значение], ...]}
     at = models.DateTimeField(auto_now_add=True)
 

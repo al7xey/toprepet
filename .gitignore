@@ -53,3 +53,5 @@ __pycache__/
 
 # TypeScript incremental cache
 *.tsbuildinfo
+
+/backend/private-media/

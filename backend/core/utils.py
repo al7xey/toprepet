@@ -10,4 +10,7 @@ def iso(value: datetime | None) -> str | None:
 
 
 def parse_iso(text: str) -> datetime:
-    return datetime.fromisoformat(text.replace('Z', '+00:00')).astimezone(timezone.utc)
+    value = datetime.fromisoformat(text.replace('Z', '+00:00'))
+    if value.tzinfo is None:
+        raise ValueError('Timezone is required')
+    return value.astimezone(timezone.utc)

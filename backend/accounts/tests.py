@@ -1,12 +1,11 @@
-import pytest
 from django.core import mail
 
-from accounts.models import EmailToken, User
+from accounts.models import User
 from conftest import Api
 
 
 def signup(api, **kw):
-    body = {'role': 'student', 'name': 'Ольга', 'email': 'olga.test@mail.ru', 'password': 'password1', **kw}
+    body = {'role': 'student', 'name': 'Ольга', 'email': 'olga.test@mail.ru', 'password': 'Strong-local-test-42!', **kw}
     return api.call('post', '/auth/signup', body)
 
 
@@ -30,7 +29,7 @@ def test_login_errors_do_not_reveal_which_field_is_wrong(api):
     signup(api)
     api.logout()
     wrong_pass = api.call('post', '/auth/login', {'email': 'olga.test@mail.ru', 'password': 'nope'})
-    unknown = api.call('post', '/auth/login', {'email': 'nobody@mail.ru', 'password': 'password1'})
+    unknown = api.call('post', '/auth/login', {'email': 'nobody@mail.ru', 'password': 'Strong-local-test-42!'})
     assert wrong_pass.status_code == unknown.status_code == 400
     assert wrong_pass.json()['message'] == unknown.json()['message'] == 'Неверная почта или пароль'
     assert api.call('get', '/auth/me').status_code == 401
@@ -39,7 +38,7 @@ def test_login_errors_do_not_reveal_which_field_is_wrong(api):
 def test_login_email_is_case_insensitive_and_logout_clears_session(api):
     signup(api)
     api.logout()
-    assert api.call('post', '/auth/login', {'email': ' Olga.Test@Mail.ru ', 'password': 'password1'}).status_code == 200
+    assert api.call('post', '/auth/login', {'email': ' Olga.Test@Mail.ru ', 'password': 'Strong-local-test-42!'}).status_code == 200
     assert api.call('post', '/auth/logout').status_code == 204
     assert api.call('get', '/auth/me').status_code == 401
 
@@ -95,8 +94,8 @@ def test_yandex_is_not_configured_yet(api):
 def test_change_password_needs_the_current_one_and_keeps_the_session(api):
     signup(api)
     assert api.call('post', '/me/password', {'current': 'wrong-one', 'password': 'newpassword1'}).status_code == 400
-    assert api.call('post', '/me/password', {'current': 'password1', 'password': 'short'}).status_code == 400
-    api.post_ok('/me/password', {'current': 'password1', 'password': 'newpassword1'})
+    assert api.call('post', '/me/password', {'current': 'Strong-local-test-42!', 'password': 'short'}).status_code == 400
+    api.post_ok('/me/password', {'current': 'Strong-local-test-42!', 'password': 'newpassword1'})
     assert api.get_ok('/me')['email'] == 'olga.test@mail.ru'  # сессия осталась
     other = Api()
     assert other.call('post', '/auth/login', {'email': 'olga.test@mail.ru', 'password': 'newpassword1'}).status_code == 200

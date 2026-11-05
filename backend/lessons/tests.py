@@ -38,7 +38,7 @@ def free_slot(api, tutor='english', skip=0, lead_hours=6):
 
 
 def book(api, start, tutor='english', kind='regular', **extra):
-    return api.call('post', '/bookings', {'tutorId': tutor, 'kind': kind, 'subject': 'Английский', 'start': start, 'durationMin': 60, **extra})
+    return api.call('post', '/bookings', {'tutorId': tutor, 'kind': kind, 'subject': api.get_ok(f'/tutors/{tutor}')["subjects"][0], 'start': start, 'durationMin': 60, **extra})
 
 
 def test_booking_holds_money_and_hides_the_fee_from_the_student(olga):
@@ -123,7 +123,7 @@ def test_confirm_captures_and_decline_releases(olga, anastasia):
 
 def test_access_to_foreign_lessons_is_closed(olga, anastasia):
     stranger = Api()
-    stranger.post_ok('/auth/signup', {'role': 'student', 'name': 'Пётр', 'email': 'petr.t@mail.ru', 'password': 'password1'}, 201)
+    stranger.post_ok('/auth/signup', {'role': 'student', 'name': 'Пётр', 'email': 'petr.t@mail.ru', 'password': 'Strong-local-test-42!'}, 201)
     assert stranger.call('get', '/lessons/l-1').status_code == 404
     assert stranger.call('post', '/lessons/l-1/cancel', {'reason': 'x'}).status_code == 404
     other_tutor = Api()

@@ -36,8 +36,8 @@ def exception_json(e) -> dict:
     return {'date': e.date.isoformat(), 'kind': e.kind, 'intervals': e.intervals}
 
 
-def document_json(d) -> dict:
-    return {'id': d.id, 'title': d.title, 'status': d.status}
+def document_json(d, request=None) -> dict:
+    return {'id': d.id, 'title': d.title, 'status': d.status, 'downloadUrl': request.build_absolute_uri(f'/documents/{d.pk}/file') if request and d.file else None}
 
 
 class IntervalIn(serializers.Serializer):
@@ -94,3 +94,19 @@ class ProfilePatchIn(serializers.Serializer):
     photo = serializers.CharField(max_length=500, allow_null=True, allow_blank=True, required=False)
     slug = serializers.CharField(required=False)
     status = serializers.CharField(required=False)
+
+
+class TutorQueryIn(serializers.Serializer):
+    query = serializers.CharField(max_length=200, allow_blank=True, required=False, default='')
+    subject = serializers.CharField(max_length=120, allow_blank=True, required=False)
+    priceMin = serializers.IntegerField(min_value=0, max_value=1000000, required=False)
+    priceMax = serializers.IntegerField(min_value=0, max_value=1000000, required=False)
+    limit = serializers.IntegerField(min_value=1, max_value=50, required=False, default=8)
+    cursor = serializers.IntegerField(min_value=0, max_value=10000000, required=False, default=0)
+    hasIntro = serializers.BooleanField(required=False, default=False)
+    sort = serializers.ChoiceField(choices=['recommended', 'price_asc', 'price_desc'], default='recommended')
+
+    def validate(self, data):
+        if data.get('priceMin', 0) > data.get('priceMax', 1000000):
+            raise serializers.ValidationError('Минимальная цена больше максимальной')
+        return data

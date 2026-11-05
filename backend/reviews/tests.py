@@ -71,12 +71,12 @@ def test_admin_lists_cancellations_with_late_flag(world):
 
 def test_profile_moderation_cycle(world):
     newbie = Api()
-    newbie.post_ok('/auth/signup', {'role': 'tutor', 'name': 'Ирина', 'email': 'irina.m@mail.ru', 'password': 'password1'}, 201)
+    newbie.post_ok('/auth/signup', {'role': 'tutor', 'name': 'Ирина', 'email': 'irina.m@mail.ru', 'password': 'Strong-local-test-42!'}, 201)
     newbie.call('patch', '/tutor/profile', {'headline': 'Математика', 'about': 'Преподаю математику десять лет', 'subjects': ['Математика'], 'price': 1500, 'introMinutes': 15}, 200)
     newbie.call('put', '/tutor/schedule', {'days': [{'weekday': 1, 'intervals': [{'from': '10:00', 'to': '14:00'}]}]}, 200)
     tutor_id = newbie.post_ok('/tutor/profile/submit')['slug']
     admin = world['admin']
-    assert [q['tutorId'] for q in admin.get_ok('/admin/profiles')] == [tutor_id]
+    assert [q['tutorId'] for q in admin.get_ok('/admin/profiles') if q['profile']['status'] == 'review'] == [tutor_id]
     assert admin.call('post', f'/admin/profiles/{tutor_id}', {'approve': False}).status_code == 400
     back = admin.post_ok(f'/admin/profiles/{tutor_id}', {'approve': False, 'note': 'Загрузите фото'})
     assert back['status'] == 'draft' and back['moderationNote'] == 'Загрузите фото'

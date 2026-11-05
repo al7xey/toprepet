@@ -34,7 +34,12 @@ class Lesson(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        constraints = [models.UniqueConstraint(fields=['student', 'idempotency_key'], condition=~models.Q(idempotency_key=''), name='lesson_student_idempotency_unique')]
+        constraints = [models.UniqueConstraint(fields=['student', 'idempotency_key'], condition=~models.Q(idempotency_key=''), name='lesson_student_idempotency_unique'),
+            models.CheckConstraint(condition=models.Q(duration_min__gte=1, duration_min__lte=240), name='lesson_duration_valid'),
+            models.CheckConstraint(condition=models.Q(price__gte=models.F('tutor_price')), name='lesson_prices_valid'),
+            models.CheckConstraint(condition=models.Q(status__in=['pending', 'confirmed', 'completed', 'cancelled', 'declined', 'expired', 'no_show_student', 'no_show_tutor', 'disputed']), name='lesson_status_valid'),
+            models.CheckConstraint(condition=models.Q(payment__in=['none', 'hold', 'captured', 'refunded', 'paid_out']), name='lesson_payment_valid'),
+        ]
         ordering = ['start']
         indexes = [models.Index(fields=['tutor', 'start']), models.Index(fields=['student', 'start'])]
 

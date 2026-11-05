@@ -14,6 +14,7 @@ class Card(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        constraints = [models.UniqueConstraint(fields=['user'], condition=models.Q(primary=True), name='card_one_primary_per_user')]
         ordering = ['created_at']
 
 

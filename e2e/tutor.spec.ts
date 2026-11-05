@@ -7,7 +7,7 @@ test.describe('репетитор и администратор', () => {
     await page.getByText('Хочу преподавать').click();
     await page.locator('input:not([type]), input[autocomplete=name]').first().fill('Ирина Тестова');
     await page.locator('input[type=email]').fill('irina.tutor@mail.ru');
-    await page.locator('input[type=password]').fill('password1');
+    await page.locator('input[type=password]').fill('Strong-local-test-42!');
     await page.getByText(/Принимаю/).click();
     await page.getByRole('button', { name: 'Создать аккаунт' }).click();
     await expect(page).toHaveURL(/verify-email/);

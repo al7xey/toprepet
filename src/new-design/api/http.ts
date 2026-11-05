@@ -78,7 +78,8 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     listConversations: () => get('/me/conversations'),
     openConversation: (tutorId) => post('/conversations', { tutorId }),
     getConversation: (id) => get(`/conversations/${id}`),
-    listMessages: (id) => get(`/conversations/${id}/messages`),
+    markConversationRead: (id, throughMessageId) => post('/conversations/' + encodeURIComponent(id) + '/read', { throughMessageId }),
+    listMessages: (id, page) => get('/conversations/' + encodeURIComponent(id) + '/messages' + q(page ?? {})),
     sendMessage: (id, text) => post(`/conversations/${id}/messages`, { text }),
     sendPhoto: async (id, file, caption) => { const form = new FormData(); form.set('file', await optimizeImage(file)); if (caption) form.set('text', caption); return post(`/conversations/${id}/messages`, form); },
     deleteMessage: (id, messageId) => request('DELETE', `/conversations/${id}/messages/${messageId}`),
@@ -115,6 +116,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     adminResolveDispute: (id, outcome) => post(`/admin/disputes/${id}/resolve`, { outcome }),
     adminReviewQueue: () => get('/admin/reviews'),
     adminModerateReview: (id, approve) => post(`/admin/reviews/${id}`, { approve }),
+    adminModerateDocument: (id, approve) => post('/admin/documents/' + encodeURIComponent(id), { approve }),
     adminProfileQueue: () => get('/admin/profiles'),
     adminModerateProfile: (tutorId, approve, note) => post(`/admin/profiles/${tutorId}`, { approve, note }),
   };

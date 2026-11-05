@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models import Avg, Count
 
 from core.errors import ApiError, forbidden, not_found
+from core.audit import record
 from lessons.models import Lesson
 from notifications.service import notify, notify_admins
 from services.contacts import CONTACTS_MESSAGE, has_contacts
@@ -12,7 +13,7 @@ from .models import Review
 
 @transaction.atomic
 def create_review(user, lesson_id: str, rating, text: str) -> Review:
-    lesson = Lesson.objects.select_for_update().select_related('tutor', 'student').filter(id=lesson_id, student=user).first()
+    lesson = Lesson.objects.select_for_update(of=('self',)).select_related('tutor', 'student').filter(id=lesson_id, student=user).first()
     if lesson is None:
         raise forbidden('Отзыв оставляет ученик урока')
     if lesson.status != 'completed' or lesson.kind != 'regular':
@@ -32,6 +33,8 @@ def create_review(user, lesson_id: str, rating, text: str) -> Review:
 
 
 def recalc_rating(tutor):
+    # Serialize aggregates across distinct reviews; otherwise the last writer can lose a rating.
+    type(tutor).objects.select_for_update(no_key=True).get(pk=tutor.pk)
     stats = Review.objects.filter(tutor=tutor, status='published').aggregate(avg=Avg('rating'), n=Count('id'))
     tutor.reviews_count = stats['n']
     tutor.rating = round(stats['avg'], 1) if stats['avg'] is not None else None
@@ -39,14 +42,17 @@ def recalc_rating(tutor):
 
 
 @transaction.atomic
-def moderate(review_id: str, approve: bool) -> Review:
-    review = Review.objects.select_for_update().select_related('tutor', 'lesson__student').filter(id=review_id).first()
+def moderate(review_id: str, approve: bool, *, actor) -> Review:
+    if not actor.is_authenticated or not actor.is_active or actor.role != 'admin':
+        raise forbidden()
+    review = Review.objects.select_for_update(of=('self',)).select_related('tutor', 'lesson__student').filter(id=review_id).first()
     if review is None:
         raise not_found('Отзыв не найден')
     if review.status != 'pending':
         raise ApiError('Отзыв уже проверен')
     review.status = 'published' if approve else 'rejected'
     review.save(update_fields=['status'])
+    record(actor, 'review.moderate', review.pk, review.status)
     student, tutor = review.lesson.student, review.tutor
     if approve:
         recalc_rating(tutor)
@@ -59,7 +65,7 @@ def moderate(review_id: str, approve: bool) -> Review:
 
 @transaction.atomic
 def reply(user, review_id: str, text: str) -> Review:
-    review = Review.objects.select_for_update().select_related('tutor', 'lesson__student').filter(id=review_id).first()
+    review = Review.objects.select_for_update(of=('self',)).select_related('tutor', 'lesson__student').filter(id=review_id).first()
     if review is None or review.tutor.user_id != user.id:
         raise not_found('Отзыв не найден')
     if review.status != 'published':

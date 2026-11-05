@@ -1,29 +1,23 @@
-import io
 import os
-import uuid
 
-from django.conf import settings
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Q, CharField, IntegerField, Value, F
 from django.db.models.functions import Cast, Concat, Replace
 from core.expressions import UnicodeLower, JsonText, ArraySubjectMatches, ArrayIncludes
 from django.utils import timezone
-from PIL import Image, UnidentifiedImageError
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from core.views import TutorAPIView as APIView, PublicAPIView
 
 from core.errors import ApiError, not_found
-from core.perm import my_tutor, require_user
+from core.perm import my_tutor
 from core.utils import parse_iso
-from notifications.service import notify, notify_admins
+from notifications.service import notify_admins
 from services.contacts import CONTACTS_MESSAGE, has_contacts
 from services.images import save_photo
 from services.slots import slots_for
 
 from .models import ScheduleException, Tutor, TutorDocument
-from .serializers import (ExceptionIn, ProfilePatchIn, WeekIn, document_json, exception_json, profile_json, slot_json, tutor_json)
+from .serializers import (ExceptionIn, ProfilePatchIn, WeekIn, TutorQueryIn, document_json, exception_json, profile_json, slot_json, tutor_json)
 from .services import EMPTY_WEEK
 
 
@@ -40,18 +34,15 @@ def visible_tutor(request, tutor_id: str) -> Tutor:
     return tutor
 
 
-class TutorListView(APIView):
+class TutorListView(PublicAPIView):
     def get(self, request):
-        q = request.query_params
-        query = norm(q.get('query', ''))
+        parsed = TutorQueryIn(data=request.query_params)
+        parsed.is_valid(raise_exception=True)
+        q = parsed.validated_data
+        query = norm(q['query'])
         subject = q.get('subject') or None
-        try:
-            price_max = int(q['priceMax']) if q.get('priceMax') else None
-            price_min = int(q['priceMin']) if q.get('priceMin') else None
-            limit = max(1, min(int(q.get('limit', 8)), 50))
-            start = max(0, int(q.get('cursor') or 0))
-        except ValueError:
-            raise ApiError('Неверные параметры поиска')
+        price_max, price_min = q.get('priceMax'), q.get('priceMin')
+        limit, start = q['limit'], q['cursor']
         items = Tutor.objects.filter(status='published').annotate(
             documents_verified=Exists(TutorDocument.objects.filter(tutor_id=OuterRef('pk'), status='approved')),
             student_amount=Cast((Cast('price', output_field=IntegerField()) * 11 + 5) / 10, output_field=IntegerField()),
@@ -65,7 +56,7 @@ class TutorListView(APIView):
             items = items.filter(student_amount__lte=price_max)
         if price_min is not None:
             items = items.filter(student_amount__gte=price_min)
-        if q.get('hasIntro') in ('true', '1'):
+        if q.get('hasIntro'):
             items = items.filter(intro_minutes__gt=0)
         if query:
             items = items.annotate(search_text=Replace(UnicodeLower(Concat('name', Value(' '), 'headline', Value(' '), 'card_subjects', Value(' '), JsonText('help_topics', output_field=CharField()), Value(' '), 'intro', output_field=CharField())), Value('ё'), Value('е'))).filter(search_text__contains=query)
@@ -77,12 +68,12 @@ class TutorListView(APIView):
         return Response({'items': [tutor_json(t) for t in page], 'total': total, 'nextCursor': str(start + limit) if start + limit < total else None})
 
 
-class TutorDetailView(APIView):
+class TutorDetailView(PublicAPIView):
     def get(self, request, tutor_id):
         return Response(tutor_json(visible_tutor(request, tutor_id)))
 
 
-class TutorSlotsView(APIView):
+class TutorSlotsView(PublicAPIView):
     def get(self, request, tutor_id):
         tutor = visible_tutor(request, tutor_id)
         try:
@@ -197,26 +188,43 @@ class ExceptionDetailView(APIView):
 
 
 class PhotoView(APIView):
+    throttle_scope = 'upload'
     def post(self, request):
         my_tutor(request)
         return Response({'url': save_photo(request)})
 
 
 class DocumentsView(APIView):
+    throttle_scope = 'upload'
+
     def get(self, request):
-        return Response([document_json(d) for d in my_tutor(request).documents.all()])
+        return Response([document_json(d, request) for d in my_tutor(request).documents.all()])
 
     def post(self, request):
-        tutor = my_tutor(request)
-        title = str(request.data.get('title', '')).strip()
-        file = request.FILES.get('file')
-        if not title:
-            raise ApiError('Назовите документ')
-        if file is not None:
-            if file.size > 10_000_000:
-                raise ApiError('Файл больше 10 МБ')
-            ext = os.path.splitext(file.name)[1].lower()
-            if ext not in ('.pdf', '.jpg', '.jpeg', '.png', '.webp'):
-                raise ApiError('Подойдут PDF и изображения')
-        doc = TutorDocument.objects.create(tutor=tutor, title=title[:200], file=file, status='checking')
-        return Response(document_json(doc), status=201)
+        from .documents import upload_document
+        return Response(document_json(upload_document(request), request), status=201)
+
+
+from core.views import APIView as AuthenticatedAPIView
+
+
+class DocumentFileView(AuthenticatedAPIView):
+    def get(self, request, document_id):
+        from django.http import FileResponse
+        from core.perm import require_user
+        user = require_user(request)
+        query = TutorDocument.objects.all()
+        if user.role != 'admin':
+            query = query.filter(tutor__user=user)
+        doc = query.filter(pk=document_id).first()
+        if doc is None or not doc.file:
+            raise not_found('Документ не найден')
+        try:
+            stream = doc.file.open('rb')
+        except FileNotFoundError:
+            raise not_found('Документ не найден')
+        ext = os.path.splitext(doc.file.name)[1].lower()
+        response = FileResponse(stream, as_attachment=True, filename=f'document-{doc.pk}{ext}')
+        response['Cache-Control'] = 'no-store'
+        response['X-Content-Type-Options'] = 'nosniff'
+        return response

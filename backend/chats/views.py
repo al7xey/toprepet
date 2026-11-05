@@ -1,16 +1,17 @@
 from core.inputs import boolean_input
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
+from rest_framework import serializers
 from django.utils import timezone
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from core.views import APIView
 
 from core.errors import ApiError, not_found
 from core.perm import require_role, require_user
 from core.utils import iso
 from notifications.service import notify, notify_admins
 from services.contacts import CONTACTS_MESSAGE, has_contacts
-from services.images import save_photo
+from services.images import normalize_photo
 from tutors.models import Tutor
 
 from .models import Conversation, Message
@@ -29,19 +30,22 @@ def conversation_json(c, user) -> dict:
     return data
 
 
-def message_json(m, peer_read_at=None, viewer_id=None) -> dict:
+def message_json(m, peer_read_at=None, viewer_id=None, request=None) -> dict:
     """`read`: для своих сообщений — собеседник открыл диалог после отправки; чужие считаются прочитанными."""
     own = viewer_id is not None and m.author_id == viewer_id
     read = bool(peer_read_at and m.at <= peer_read_at) if own else True
     data = {'id': m.id, 'conversationId': m.conversation_id, 'authorId': m.author_id, 'kind': m.kind, 'text': m.text, 'at': iso(m.at), 'read': read}
-    if m.image:
-        data['imageUrl'] = m.image
+    if m.attachment and request:
+        data['imageUrl'] = request.build_absolute_uri(f'/conversations/{m.conversation_id}/messages/{m.pk}/image')
+    elif m.image:
+        # Legacy public files must be migrated; do not advertise public URLs.
+        data['imageUrl'] = request.build_absolute_uri(f'/conversations/{m.conversation_id}/messages/{m.pk}/image') if request else None
     if m.card:
         data['card'] = m.card
     return data
 
 
-def mine(user, conversation_id: str) -> Conversation:
+def mine(user, conversation_id: str, *, lock=False) -> Conversation:
     query = Conversation.objects.select_related('tutor', 'student')
     if user.role == 'student':
         query = query.filter(student=user)
@@ -49,6 +53,8 @@ def mine(user, conversation_id: str) -> Conversation:
         query = query.filter(tutor__user=user)
     else:
         query = query.none()
+    if lock:
+        query = query.select_for_update(of=('self',))
     c = query.filter(id=conversation_id).first()
     if c is None:
         raise not_found('Диалог не найден')
@@ -76,20 +82,35 @@ class ConversationView(APIView):
         return Response(conversation_json(mine(user, conversation_id), user))
 
 
+class MessagePageIn(serializers.Serializer):
+    before = serializers.CharField(max_length=40, required=False)
+    limit = serializers.IntegerField(min_value=1, max_value=100, default=100)
+
+
 class MessagesView(APIView):
+    throttle_scope = 'message'
+
     def get(self, request, conversation_id):
         user = require_user(request)
         c = mine(user, conversation_id)
-        now = timezone.now()
-        side = {'unread_tutor': 0, 'tutor_read_at': now} if user.role == 'tutor' else {'unread_student': 0, 'student_read_at': now}
+        parsed = MessagePageIn(data=request.query_params)
+        parsed.is_valid(raise_exception=True)
+        data = parsed.validated_data
+        query = c.messages.all()
+        if data.get('before'):
+            anchor = query.filter(pk=data['before']).first()
+            if anchor is None:
+                raise not_found('Сообщение не найдено')
+            query = query.filter(Q(at__lt=anchor.at) | Q(at=anchor.at, id__lt=anchor.id))
+        page = list(query.order_by('-at', '-id')[:data['limit']])
+        page.reverse()
         peer_read_at = c.student_read_at if user.role == 'tutor' else c.tutor_read_at
-        Conversation.objects.filter(id=c.id).update(**side)
-        return Response([message_json(m, peer_read_at, user.id) for m in c.messages.all()])
+        return Response([message_json(m, peer_read_at, user.id, request) for m in page])
 
     @transaction.atomic
     def post(self, request, conversation_id):
         user = require_user(request)
-        c = mine(user, conversation_id)
+        c = mine(user, conversation_id, lock=True)
         if c.blocked:
             raise ApiError('Диалог заблокирован: писать в него нельзя', 403, 'blocked')
         text = str(request.data.get('text', '')).strip()
@@ -100,8 +121,13 @@ class MessagesView(APIView):
             raise ApiError('Сообщение слишком длинное')
         if text and has_contacts(text):
             raise ApiError(CONTACTS_MESSAGE)
-        image = save_photo(request) if has_file else ''
-        m = Message.objects.create(conversation=c, author=user, kind='photo' if image else 'text', text=text, image=image)
+        from django.core.files.base import ContentFile
+        import uuid
+        m = Message(conversation=c, author=user, kind='photo' if has_file else 'text', text=text)
+        if has_file:
+            data, ext = normalize_photo(request.FILES['file'])
+            m.attachment.save(uuid.uuid4().hex + '.' + ext, ContentFile(data), save=False)
+        m.save()
         text = text or 'Фото'
         mine_side = user.role == 'tutor'
         Conversation.objects.filter(id=c.id).update(last_message=text[:300], updated_at=timezone.now(), **({'unread_student': F('unread_student') + 1} if mine_side else {'unread_tutor': F('unread_tutor') + 1}))
@@ -109,14 +135,14 @@ class MessagesView(APIView):
         recipient, unread = (c.student, c.unread_student) if mine_side else (c.tutor.user, c.unread_tutor)
         if unread == 1:  # одно уведомление на серию сообщений
             notify(recipient, 'message', 'Новое сообщение', f'{user.name}: {text[:120]}', f'/me/chats/{c.id}' if mine_side else f'/tutor/chats/{c.id}')
-        return Response(message_json(m, None, user.id), status=201)
+        return Response(message_json(m, None, user.id, request), status=201)
 
 
 class MessageView(APIView):
     @transaction.atomic
     def delete(self, request, conversation_id, message_id):
         user = require_user(request)
-        c = mine(user, conversation_id)
+        c = mine(user, conversation_id, lock=True)
         m = c.messages.filter(id=message_id, author=user).exclude(kind='event').first()
         if not m:
             raise ApiError('Можно удалить только своё сообщение', 404, 'not_found')
@@ -127,15 +153,57 @@ class MessageView(APIView):
 
 
 class ReportView(APIView):
+    throttle_scope = 'report'
+
+    @transaction.atomic
     def post(self, request, conversation_id):
         user = require_user(request)
-        c = mine(user, conversation_id)
+        c = mine(user, conversation_id, lock=True)
         reason = str(request.data.get('reason', '')).strip()
         if not reason:
             raise ApiError('Выберите причину жалобы')
-        c.reports = [*c.reports, {'by': user.id, 'reason': reason[:300], 'at': iso(timezone.now())}]
+        c.reports = [*c.reports[-19:], {'by': user.id, 'reason': reason[:300], 'at': iso(timezone.now())}]
         if boolean_input(request.data, 'block', default=False):
             c.blocked = True
         c.save(update_fields=['reports', 'blocked'])
         notify_admins('message', 'Жалоба на диалог', f'{c.student.name} и {c.tutor.name}: {reason[:120]}', None)
         return Response(status=204)
+
+
+class ReadView(APIView):
+    @transaction.atomic
+    def post(self, request, conversation_id):
+        user = require_user(request)
+        c = mine(user, conversation_id, lock=True)
+        through = request.data.get('throughMessageId')
+        if through is not None and (not isinstance(through, str) or len(through) > 40):
+            raise ApiError('Неверный идентификатор сообщения')
+        anchor = c.messages.filter(pk=through).first() if through else c.messages.order_by('-at', '-id').first()
+        if through and anchor is None:
+            raise not_found('Сообщение не найдено')
+        side_name = 'tutor' if user.role == 'tutor' else 'student'
+        previous = getattr(c, side_name + '_read_at')
+        cutoff = max(anchor.at, previous) if anchor and previous else anchor.at if anchor else timezone.now()
+        unread = c.messages.filter(at__gt=cutoff, author__isnull=False).exclude(author=user).count()
+        Conversation.objects.filter(pk=c.pk).update(**{'unread_' + side_name: unread, side_name + '_read_at': cutoff})
+        return Response(status=204)
+
+
+class ImageView(APIView):
+    def get(self, request, conversation_id, message_id):
+        from django.http import FileResponse
+        user = require_user(request)
+        c = mine(user, conversation_id)
+        m = c.messages.filter(pk=message_id).first()
+        if m is None or not m.attachment:
+            raise not_found('Фото не найдено')
+        try:
+            stream = m.attachment.open('rb')
+        except FileNotFoundError:
+            raise not_found('Фото не найдено')
+        ext = m.attachment.name.rsplit('.', 1)[-1].lower()
+        mime = {'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png', 'webp': 'image/webp'}.get(ext)
+        if not mime:
+            stream.close()
+            raise not_found('Фото не найдено')
+        return FileResponse(stream, content_type=mime)

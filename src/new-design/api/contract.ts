@@ -66,7 +66,8 @@ export interface Api {
   listConversations(): Promise<Conversation[]>; // GET /me/conversations
   openConversation(tutorId: Id): Promise<Conversation>; // POST /conversations
   getConversation(id: Id): Promise<Conversation>; // GET /conversations/:id
-  listMessages(id: Id): Promise<Message[]>; // GET /conversations/:id/messages
+  markConversationRead(id: Id, throughMessageId?: Id): Promise<void>;
+  listMessages(id: Id, page?: { before?: Id; limit?: number }): Promise<Message[]>; // GET /conversations/:id/messages
   sendMessage(id: Id, text: string): Promise<Message>; // POST /conversations/:id/messages
   sendPhoto(id: Id, file: File, caption?: string): Promise<Message>; // POST /conversations/:id/messages (multipart: file, text)
   deleteMessage(id: Id, messageId: Id): Promise<void>; // DELETE /conversations/:id/messages/:messageId (только своё сообщение)
@@ -107,6 +108,7 @@ export interface Api {
   adminResolveDispute(id: Id, outcome: 'refund' | 'pay'): Promise<Dispute>; // POST /admin/disputes/:id/resolve
   adminReviewQueue(): Promise<Review[]>; // GET /admin/reviews
   adminModerateReview(id: Id, approve: boolean): Promise<Review>; // POST /admin/reviews/:id
+  adminModerateDocument(id: Id, approve: boolean): Promise<TutorDocument>;
   adminProfileQueue(): Promise<AdminProfile[]>; // GET /admin/profiles
   adminModerateProfile(tutorId: Id, approve: boolean, note?: string): Promise<TutorProfileDraft>; // POST /admin/profiles/:tutorId
 }

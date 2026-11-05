@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 
 from core.ids import ShortIdField
+from services.private_storage import PrivateDocumentStorage
 
 
 def student_price(price: int) -> int:
@@ -62,7 +63,7 @@ class TutorDocument(models.Model):
     id = ShortIdField('d')
     tutor = models.ForeignKey(Tutor, on_delete=models.CASCADE, related_name='documents')
     title = models.CharField(max_length=200)
-    file = models.FileField(upload_to='documents/', null=True, blank=True)
+    file = models.FileField(upload_to='documents/', storage=PrivateDocumentStorage(), null=True, blank=True)
     status = models.CharField(max_length=10, default='checking')
     created_at = models.DateTimeField(auto_now_add=True)
 

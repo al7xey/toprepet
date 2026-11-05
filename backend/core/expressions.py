@@ -26,7 +26,8 @@ class ArraySubjectMatches(Func):
         else:
             rows = f'json_each({expr}) AS item'
             prefix = f'substr({value}, 1, length(item.value))'
-        return f'EXISTS(SELECT 1 FROM {rows} WHERE item.value <> \'\' AND {prefix} = item.value)', [*expr_params, *value_params]
+        # Compiler SQL only; user values stay in params (regression tested).
+        return f'EXISTS(SELECT 1 FROM {rows} WHERE item.value <> \'\' AND {prefix} = item.value)', [*expr_params, *value_params]  # nosec B608
 
 
 class ArrayIncludes(ArraySubjectMatches):
@@ -34,4 +35,5 @@ class ArrayIncludes(ArraySubjectMatches):
         expr, expr_params = compiler.compile(self.source_expressions[0])
         value, value_params = compiler.compile(self.source_expressions[1])
         rows = f'jsonb_array_elements_text({expr}) AS item(value)' if connection.vendor == 'postgresql' else f'json_each({expr}) AS item'
-        return f'EXISTS(SELECT 1 FROM {rows} WHERE item.value = {value})', [*expr_params, *value_params]
+        # Compiler SQL only; user values stay in params (regression tested).
+        return f'EXISTS(SELECT 1 FROM {rows} WHERE item.value = {value})', [*expr_params, *value_params]  # nosec B608

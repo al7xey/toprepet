@@ -1,8 +1,8 @@
+import re
 from core.inputs import boolean_input
-from django.db.models import Q
 from django.utils import timezone
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from core.views import APIView
 
 from core.errors import ApiError
 from core.perm import require_role, require_user
@@ -17,7 +17,10 @@ class BookingView(APIView):
         user = require_user(request)
         data = BookingIn(data=request.data)
         data.is_valid(raise_exception=True)
-        lesson = services.create_booking(user, data.validated_data, request.headers.get('Idempotency-Key', '')[:64])
+        key = request.headers.get('Idempotency-Key', '')
+        if key and not re.fullmatch(r'[A-Za-z0-9._:-]{1,64}', key):
+            raise ApiError('Неверный ключ повторного запроса')
+        lesson = services.create_booking(user, data.validated_data, key)
         return Response(lesson_json(lesson, user), status=201)
 
 

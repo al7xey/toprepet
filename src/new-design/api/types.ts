@@ -301,7 +301,7 @@ export interface TutorProfileDraft {
   moderationNote?: string | null;
 }
 
-export interface TutorDocument { id: Id; title: string; status: 'uploaded' | 'checking' | 'approved' | 'rejected' }
+export interface TutorDocument { downloadUrl?: string | null; id: Id; title: string; status: 'uploaded' | 'checking' | 'approved' | 'rejected' }
 
 export interface StudentSummary { id: Id; name: string; note: string; lessonsCount: number; nextLesson: IsoDate | null }
 export interface TutorSummary { tutorId: Id; name: string; photo: string; subject: string; lessonsCount: number; lastLesson: IsoDate | null }
@@ -309,4 +309,4 @@ export interface TutorSummary { tutorId: Id; name: string; photo: string; subjec
 export interface AdminCancellation { lessonId: Id; tutorName: string; studentName: string; by: Role; reason: string; at: IsoDate; late: boolean }
 
 /** Анкета в очереди на проверку (админка). */
-export interface AdminProfile { tutorId: Id; email: string; submittedAt: IsoDate; profile: TutorProfileDraft }
+export interface AdminProfile { documents?: TutorDocument[]; tutorId: Id; email: string; submittedAt: IsoDate; profile: TutorProfileDraft }

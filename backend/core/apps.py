@@ -17,4 +17,5 @@ class CoreConfig(AppConfig):
     name = 'core'
 
     def ready(self):
+        from . import checks  # noqa: F401 - register deployment checks
         connection_created.connect(sqlite_functions, dispatch_uid='core.sqlite_functions')

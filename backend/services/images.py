@@ -13,8 +13,7 @@ MAX_PHOTO_BYTES = 10_000_000
 MAX_PHOTO_PIXELS = 20_000_000
 
 
-def save_photo(request) -> str:
-    file = request.FILES.get('file')
+def normalize_photo(file):
     if not file:
         raise ApiError('Выберите файл')
     if file.size > MAX_PHOTO_BYTES:
@@ -37,5 +36,10 @@ def save_photo(request) -> str:
                 clean.save(output, format=fmt.upper(), **({'quality': 85} if fmt != 'png' else {}))
     except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError, Image.DecompressionBombWarning):
         raise ApiError('Нужна картинка: JPG, PNG или WebP.')
-    name = default_storage.save(f'photos/{uuid.uuid4().hex}.{"jpg" if fmt == "jpeg" else fmt}', ContentFile(output.getvalue()))
+    return output.getvalue(), ('jpg' if fmt == 'jpeg' else fmt)
+
+
+def save_photo(request) -> str:
+    data, ext = normalize_photo(request.FILES.get('file'))
+    name = default_storage.save(f'photos/{uuid.uuid4().hex}.{ext}', ContentFile(data))
     return request.build_absolute_uri(default_storage.url(name))

@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from core.views import APIView
 
 from core.perm import require_user
 from core.utils import iso

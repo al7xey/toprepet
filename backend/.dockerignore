@@ -1,6 +1,13 @@
 .venv
+.env
+.env.*
+__pycache__
+**/__pycache__
+*.pyc
 db.sqlite3
 media
+private-media
 staticfiles
-__pycache__
-*.pyc
+.pytest_cache
+.coverage
+htmlcov

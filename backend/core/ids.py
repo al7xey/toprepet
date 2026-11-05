@@ -4,7 +4,7 @@ from django.db import models
 
 
 def new_id(prefix: str) -> str:
-    return f'{prefix}-{secrets.token_hex(4)}'
+    return f'{prefix}-{secrets.token_hex(16)}'
 
 
 class ShortIdField(models.CharField):

@@ -25,6 +25,7 @@ def test_each_side_sees_the_other_as_peer(world):
 def test_reading_resets_unread_and_sending_updates_the_dialog(world):
     olga, tutor = world['olga'], world['tutor']
     assert len(olga.get_ok('/conversations/c-1/messages')) == 5
+    olga.post_ok('/conversations/c-1/read', {}, 204)
     assert olga.get_ok('/me/conversations')[0]['unread'] == 0
     sent = olga.post_ok('/conversations/c-1/messages', {'text': 'Здравствуйте! Есть время в среду?'}, 201)
     assert sent['kind'] == 'text' and sent['authorId'] == 'u-student'
@@ -44,7 +45,7 @@ def test_contacts_are_blocked_in_messages(world):
 
 def test_foreign_dialogs_are_hidden(world):
     stranger = Api()
-    stranger.post_ok('/auth/signup', {'role': 'student', 'name': 'Пётр', 'email': 'petr.c@mail.ru', 'password': 'password1'}, 201)
+    stranger.post_ok('/auth/signup', {'role': 'student', 'name': 'Пётр', 'email': 'petr.c@mail.ru', 'password': 'Strong-local-test-42!'}, 201)
     for method, path in (('get', '/conversations/c-1'), ('get', '/conversations/c-1/messages'), ('post', '/conversations/c-1/messages')):
         assert stranger.call(method, path, {'text': 'привет'}).status_code == 404
     assert stranger.get_ok('/me/conversations') == []
@@ -74,6 +75,7 @@ def test_message_is_read_after_the_other_side_opens_the_dialog(world):
     assert sent['read'] is False
     mine = [m for m in olga.get_ok('/conversations/c-1/messages') if m['id'] == sent['id']][0]
     assert mine['read'] is False  # собеседник ещё не открывал диалог
+    tutor.post_ok('/conversations/c-1/read', {}, 204)
     tutor.get_ok('/conversations/c-1/messages')
     mine = [m for m in olga.get_ok('/conversations/c-1/messages') if m['id'] == sent['id']][0]
     assert mine['read'] is True
@@ -90,7 +92,7 @@ def test_photo_message(world, settings, tmp_path):
     ok = world['olga'].post('/conversations/c-1/messages', {'file': SimpleUploadedFile('a.png', buf.getvalue(), 'image/png'), 'text': 'Вот задание'}, format='multipart')
     assert ok.status_code == 201
     body = ok.json()
-    assert body['kind'] == 'photo' and body['imageUrl'].endswith('.png') and body['text'] == 'Вот задание'
+    assert body['kind'] == 'photo' and body['imageUrl'].endswith('/image') and body['text'] == 'Вот задание'
     bad = world['olga'].post('/conversations/c-1/messages', {'file': SimpleUploadedFile('a.png', b'not an image', 'image/png')}, format='multipart')
     assert bad.status_code == 400
 

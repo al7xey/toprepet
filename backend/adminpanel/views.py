@@ -1,9 +1,11 @@
 from core.inputs import boolean_input
 from django.db import transaction
+from django.db.models import Exists, OuterRef, Q
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from core.views import AdminAPIView as APIView
 
 from core.errors import ApiError, not_found
+from core.audit import record
 from core.perm import require_role
 from core.utils import iso
 from lessons import services as lesson_services
@@ -13,8 +15,8 @@ from notifications.service import notify
 from reviews import services as review_services
 from reviews.models import Review
 from reviews.views import review_json
-from tutors.models import Tutor
-from tutors.serializers import profile_json
+from tutors.models import Tutor, TutorDocument
+from tutors.serializers import profile_json, document_json
 
 
 class Cancellations(APIView):
@@ -50,14 +52,15 @@ class ReviewQueue(APIView):
 class ModerateReview(APIView):
     def post(self, request, review_id):
         require_role(request, 'admin')
-        return Response(review_json(review_services.moderate(review_id, boolean_input(request.data, 'approve'))))
+        return Response(review_json(review_services.moderate(review_id, boolean_input(request.data, 'approve'), actor=request.user)))
 
 
 class ProfileQueue(APIView):
     def get(self, request):
         require_role(request, 'admin')
-        tutors = Tutor.objects.filter(status='review').select_related('user').order_by('submitted_at')
-        return Response([{'tutorId': t.id, 'email': t.user.email if t.user else '', 'submittedAt': iso(t.submitted_at or t.created_at), 'profile': profile_json(t)} for t in tutors])
+        checking = TutorDocument.objects.filter(tutor=OuterRef('pk'), status='checking')
+        tutors = Tutor.objects.annotate(documents_pending=Exists(checking)).filter(Q(status='review') | Q(documents_pending=True)).select_related('user').prefetch_related('documents').order_by('submitted_at')
+        return Response([{'tutorId': t.id, 'email': t.user.email if t.user else '', 'submittedAt': iso(t.submitted_at or t.created_at), 'profile': profile_json(t), 'documents': [document_json(d, request) for d in t.documents.all()]} for t in tutors])
 
 
 class ModerateProfile(APIView):
@@ -76,5 +79,14 @@ class ModerateProfile(APIView):
         tutor.status = 'published' if approve else 'draft'
         tutor.moderation_note = '' if approve else comment
         tutor.save(update_fields=['status', 'moderation_note'])
+        record(request.user, 'profile.moderate', tutor.pk, tutor.status)
         notify(tutor.user, 'system', 'Анкета опубликована' if approve else 'Анкету нужно доработать', 'Теперь ученики видят вас в каталоге.' if approve else comment, '/tutor/profile')
         return Response(profile_json(tutor))
+
+
+class ModerateDocument(APIView):
+    def post(self, request, document_id):
+        from tutors.documents import moderate_document
+        admin = require_role(request, 'admin')
+        doc = moderate_document(admin, document_id, boolean_input(request.data, 'approve'))
+        return Response(document_json(doc, request))

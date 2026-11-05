@@ -1,5 +1,4 @@
 import io
-from datetime import timedelta
 
 import pytest
 from django.core.management import call_command
@@ -8,7 +7,7 @@ from django.utils import timezone
 from PIL import Image
 
 from conftest import Api
-from tutors.models import Tutor, student_price
+from tutors.models import student_price
 
 
 @pytest.fixture
@@ -40,7 +39,7 @@ def test_catalog_filters_sorting_and_pagination(api, demo):
 
 
 def test_draft_profile_is_not_public_but_visible_to_its_owner(api, demo):
-    api.post_ok('/auth/signup', {'role': 'tutor', 'name': 'Ирина', 'email': 'irina.t@mail.ru', 'password': 'password1'}, 201)
+    api.post_ok('/auth/signup', {'role': 'tutor', 'name': 'Ирина', 'email': 'irina.t@mail.ru', 'password': 'Strong-local-test-42!'}, 201)
     tutor_id = api.get_ok('/auth/me')['tutorId']
     assert api.get_ok(f'/tutors/{tutor_id}')['status'] == 'draft'
     assert tutor_id not in [t['id'] for t in api.get_ok('/tutors', {'limit': 50})['items']]
@@ -84,7 +83,7 @@ def test_profile_edit_rejects_contacts_and_requires_remoderation(api, demo):
 
 
 def test_new_profile_goes_to_review_and_needs_schedule(api, demo):
-    api.post_ok('/auth/signup', {'role': 'tutor', 'name': 'Ирина', 'email': 'irina.t@mail.ru', 'password': 'password1'}, 201)
+    api.post_ok('/auth/signup', {'role': 'tutor', 'name': 'Ирина', 'email': 'irina.t@mail.ru', 'password': 'Strong-local-test-42!'}, 201)
     assert 'Заполните' in api.call('post', '/tutor/profile/submit').json()['message']
     api.call('patch', '/tutor/profile', {'headline': 'Математика', 'about': 'Преподаю математику десять лет', 'subjects': ['Математика'], 'price': 1500, 'introMinutes': 15}, 200)
     assert 'расписании' in api.call('post', '/tutor/profile/submit').json()['message']
@@ -112,7 +111,7 @@ def test_photo_and_document_upload_rules(api, demo, settings, tmp_path):
     assert ok.status_code == 200 and ok.json()['url'].endswith('.png')
     fake = api.post('/tutor/photo', {'file': SimpleUploadedFile('a.png', b'not an image', 'image/png')}, format='multipart')
     assert fake.status_code == 400
-    doc = api.post('/tutor/documents', {'title': 'Диплом магистра', 'file': SimpleUploadedFile('d.pdf', b'%PDF-1.4', 'application/pdf')}, format='multipart')
+    doc = api.post('/tutor/documents', {'title': 'Диплом магистра', 'file': SimpleUploadedFile('d.pdf', b'%PDF-1.4\n1 0 obj\n<<>>\nendobj\n%%EOF', 'application/pdf')}, format='multipart')
     assert doc.status_code == 201 and doc.json()['status'] == 'checking'
     assert any(d['title'] == 'Диплом магистра' for d in api.get_ok('/tutor/documents'))
     exe = api.post('/tutor/documents', {'title': 'Вирус', 'file': SimpleUploadedFile('d.exe', b'MZ', 'application/octet-stream')}, format='multipart')

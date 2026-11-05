@@ -18,8 +18,8 @@ def expire_unconfirmed(now) -> int:
     count = 0
     for lesson in Lesson.objects.filter(status='pending', confirm_by__lt=now).select_related('tutor', 'student'):
         with transaction.atomic():
-            lesson = Lesson.objects.select_for_update().select_related('tutor', 'student').get(id=lesson.id)
-            if lesson.status != 'pending':
+            lesson = Lesson.objects.select_for_update(of=('self',)).select_related('tutor', 'student').get(id=lesson.id)
+            if lesson.status != 'pending' or not lesson.confirm_by or lesson.confirm_by >= now:
                 continue
             lesson.status = 'expired'
             money.release(lesson)
@@ -35,7 +35,7 @@ def auto_complete(now) -> int:
     for lesson in Lesson.objects.filter(status='confirmed'):
         if lesson.end + AUTO_COMPLETE_AFTER < now:
             # A dispute or cancellation may have been saved since this row was read.
-            count += Lesson.objects.filter(pk=lesson.pk, status='confirmed').update(status='completed')
+            count += Lesson.objects.filter(pk=lesson.pk, status='confirmed', start=lesson.start, duration_min=lesson.duration_min).update(status='completed')
     return count
 
 
@@ -75,4 +75,6 @@ def expire_requests(now) -> int:
 
 def run_all() -> dict:
     now = timezone.now()
+    from core.models import RateLimitBucket
+    RateLimitBucket.objects.filter(expires_at__lt=now - timedelta(days=1)).delete()
     return {'expired_lessons': expire_unconfirmed(now), 'auto_completed': auto_complete(now), 'payouts': pay_out(now), 'expired_requests': expire_requests(now)}

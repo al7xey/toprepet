@@ -1,3 +1,6 @@
+import logging
+
+from django.core.exceptions import RequestDataTooBig, TooManyFieldsSent, TooManyFilesSent
 from rest_framework import status
 from rest_framework.exceptions import APIException, AuthenticationFailed, NotAuthenticated, PermissionDenied, ValidationError
 from rest_framework.response import Response
@@ -26,6 +29,8 @@ def _first_message(detail) -> str:
 
 
 def exception_handler(exc, context):
+    if isinstance(exc, (RequestDataTooBig, TooManyFieldsSent, TooManyFilesSent)):
+        return Response({'message': 'Запрос слишком большой', 'code': 'request_too_large'}, status=413)
     if isinstance(exc, ApiError):
         return Response({'message': exc.message, 'code': exc.code}, status=exc.status_code)
     if isinstance(exc, (NotAuthenticated, AuthenticationFailed)):
@@ -37,6 +42,10 @@ def exception_handler(exc, context):
     response = drf_handler(exc, context)
     if response is not None:
         response.data = {'message': _first_message(response.data.get('detail', response.data)) if isinstance(response.data, dict) else GENERIC, 'code': None}
+    if response is None:
+        request = context.get('request')
+        logging.getLogger('security').error('Unhandled %s request_id=%s', type(exc).__name__, getattr(request, 'request_id', 'unknown'))
+        return Response({'message': GENERIC, 'code': 'internal_error'}, status=500)
     return response
 
 
@@ -46,3 +55,13 @@ def not_found(message: str = 'Не найдено') -> ApiError:
 
 def forbidden(message: str = 'Нет доступа') -> ApiError:
     return ApiError(message, 403, 'forbidden')
+
+
+def bad_request(request, exception):
+    from django.http import JsonResponse
+    return JsonResponse({'message': 'Неверный запрос', 'code': 'bad_request'}, status=400)
+
+
+def server_error(request):
+    from django.http import JsonResponse
+    return JsonResponse({'message': GENERIC, 'code': 'internal_error'}, status=500)

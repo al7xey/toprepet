@@ -6,7 +6,7 @@ class SessionAuth(BaseAuthentication):
 
     def authenticate(self, request):
         user = getattr(request._request, 'user', None)
-        if user is None or not user.is_authenticated:
+        if user is None or not user.is_authenticated or not user.is_active:
             return None
         return (user, None)
 

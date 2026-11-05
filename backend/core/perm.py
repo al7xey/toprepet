@@ -3,7 +3,7 @@ from .errors import ApiError, forbidden
 
 def require_user(request):
     user = getattr(request, 'user', None)
-    if not user or not user.is_authenticated:
+    if not user or not user.is_authenticated or not user.is_active:
         raise ApiError('Войдите, чтобы продолжить', 401, 'unauthorized')
     return user
 

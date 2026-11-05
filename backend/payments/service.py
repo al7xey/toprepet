@@ -1,5 +1,4 @@
 """Движение денег по уроку: заморозка → списание → выплата либо возврат. Каждая операция пишется в историю ученика."""
-from django.db import transaction
 from django.utils import timezone
 
 from .models import Card, PaymentRecord

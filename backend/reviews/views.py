@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from core.views import APIView, PublicAPIView
 
 from core.errors import not_found
 from core.perm import require_role, require_user
@@ -15,7 +15,7 @@ def review_json(r) -> dict:
             'text': r.text, 'status': r.status, 'createdAt': iso(r.created_at), 'reply': r.reply or None}
 
 
-class TutorReviewsView(APIView):
+class TutorReviewsView(PublicAPIView):
     def get(self, request, tutor_id):
         if not Tutor.objects.filter(id=tutor_id, status='published').exists():
             raise not_found('Анкета не найдена')
@@ -30,7 +30,7 @@ class LessonReviewView(APIView):
         return Response(review_json(review), status=201)
 
 
-class ReviewView(APIView):
+class ReviewView(PublicAPIView):
     def get(self, request, review_id):
         user = require_user(request) if request.user and request.user.is_authenticated else None
         review = Review.objects.select_related('tutor', 'lesson').filter(id=review_id).first()

@@ -28,3 +28,23 @@ test('демонстрационный режим предупреждает о 
   await page.goto('/');
   await expect(page.getByLabel('Демонстрационный режим')).toContainText('Не вводите настоящие данные карты');
 });
+
+test('переписка загружается страницами, старая история доступна по кнопке', async ({ page }) => {
+  await login(page, 'student');
+  await page.evaluate(() => {
+    const state = JSON.parse(localStorage.getItem('toprepet-mock-v3')!);
+    for (let i = 0; i < 220; i++) state.messages.push({
+      id: 'history-' + String(i).padStart(4, '0'), conversationId: 'c-1',
+      authorId: 'u-student', kind: 'text', text: 'История для проверки ' + i,
+      at: new Date(Date.now() - (220 - i) * 1000).toISOString(), read: true,
+    });
+    localStorage.setItem('toprepet-mock-v3', JSON.stringify(state));
+  });
+  await page.goto('/me/chats/c-1');
+  await expect(page.locator('.tg-msg')).toHaveCount(100);
+  await page.getByRole('button', { name: 'Предыдущие сообщения' }).click();
+  await expect(page.locator('.tg-msg')).toHaveCount(200);
+  await page.getByRole('button', { name: 'Предыдущие сообщения' }).click();
+  await expect(page.getByText('История для проверки 0', { exact: true })).toHaveCount(1);
+  await expect(page.getByRole('button', { name: 'Предыдущие сообщения' })).toHaveCount(0);
+});

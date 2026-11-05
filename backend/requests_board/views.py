@@ -6,7 +6,7 @@ from django.db.models import Count
 from django.utils import timezone
 from django.utils.timezone import localtime
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from core.views import APIView
 
 from chats.service import direct_message
 from core.errors import ApiError, forbidden, not_found
@@ -69,13 +69,19 @@ class RequestsView(APIView):
         """Лента открытых заявок, только для вошедших. Репетитор видит заявки по предметам своей анкеты."""
         user = require_user(request)
         subject = request.query_params.get('subject')
-        items = list(StudyRequest.objects.filter(status='open', expires_at__gt=timezone.now()).select_related('student').annotate(response_count=Count('responses')))
-        if user.role == 'tutor':
-            mine = tutor_subjects(user)
-            items = [r for r in items if visible_to_tutor(r, mine)]
-        if subject:
-            items = [r for r in items if subject in request_subjects(r)]
-        return Response([request_json(r, short_name=True) for r in items[:100]])
+        items = StudyRequest.objects.filter(status='open', expires_at__gt=timezone.now()).select_related('student').annotate(response_count=Count('responses'))
+        mine = tutor_subjects(user) if user.role == 'tutor' else None
+        result = []
+        for item in items.iterator(chunk_size=100):
+            if mine is not None and not visible_to_tutor(item, mine):
+                continue
+            if subject and subject not in request_subjects(item):
+                continue
+            result.append(request_json(item, short_name=True))
+            if len(result) == 100:
+                break
+        return Response(result)
+
 
     @transaction.atomic
     def post(self, request):
@@ -101,13 +107,15 @@ class RequestsView(APIView):
         budget = d.get('budgetMax')
         budget_min = d.get('budgetMin')
         for value in (budget, budget_min):
-            if value is not None and (not isinstance(value, int) or isinstance(value, bool) or value < 0):
-                raise ApiError('Бюджет — целое число рублей')
+            if value is not None and (not isinstance(value, int) or isinstance(value, bool) or not 0 <= value <= 1_000_000):
+                raise ApiError('Бюджет — целое число от 0 до 1 000 000 рублей')
         if budget is not None and budget_min is not None and budget_min > budget:
             raise ApiError('Нижняя граница бюджета больше верхней')
         schedule = d.get('schedule') or []
         if not isinstance(schedule, list) or not all(isinstance(s, str) for s in schedule):
             raise ApiError('Неверное удобное время')
+        from accounts.models import User
+        User.objects.select_for_update(no_key=True).get(pk=user.pk)
         if StudyRequest.objects.filter(student=user, status='open', expires_at__gt=timezone.now()).count() >= MAX_OPEN:
             raise ApiError(f'Одновременно можно держать до {MAX_OPEN} открытых заявок. Закройте ненужные.', 409, 'too_many')
         r = StudyRequest.objects.create(student=user, subject=subject[:120], subjects=subjects, custom_subject=custom, goal=str(d.get('goal', ''))[:200], level=str(d.get('level', ''))[:120], budget_min=budget_min, budget_max=budget,
@@ -125,15 +133,18 @@ class RequestDetailView(APIView):
     def get(self, request, request_id):
         user = require_user(request)
         r = StudyRequest.objects.select_related('student').filter(id=request_id).first()
-        if r is None or (user.role == 'student' and r.student_id != user.id):
+        if r is None or (user.role == 'student' and r.student_id != user.id) or (user.role == 'tutor' and (effective_status(r) != 'open' or not visible_to_tutor(r, tutor_subjects(user)))):
             raise not_found('Заявка не найдена')
         return Response(request_json(r, short_name=user.role != 'admin' and r.student_id != user.id))
 
 
 class CloseRequestView(APIView):
+    @transaction.atomic
     def post(self, request, request_id):
         user = require_role(request, 'student')
-        r = own_request(user, request_id)
+        r = StudyRequest.objects.select_for_update().filter(pk=request_id, student=user).first()
+        if r is None:
+            raise not_found('Заявка не найдена')
         if effective_status(r) != 'open':
             raise ApiError('Заявка уже закрыта')
         r.status = 'closed'
@@ -150,7 +161,7 @@ class ResponsesView(APIView):
     @transaction.atomic
     def post(self, request, request_id):
         tutor = my_tutor(request)
-        r = StudyRequest.objects.select_for_update().select_related('student').filter(id=request_id).first()
+        r = StudyRequest.objects.select_for_update(of=('self',)).select_related('student').filter(id=request_id).first()
         if r is None:
             raise not_found('Заявка не найдена')
         if tutor.status != 'published':
@@ -165,7 +176,7 @@ class ResponsesView(APIView):
         if has_contacts(message):
             raise ApiError(CONTACTS_MESSAGE)
         price = request.data.get('price')
-        if not isinstance(price, int) or isinstance(price, bool) or price < 300:
+        if not isinstance(price, int) or isinstance(price, bool) or price < 300 or price > 100000:
             raise ApiError('Укажите цену от 300 ₽')
         if RequestResponse.objects.filter(request=r, tutor=tutor).exists():
             raise ApiError('Вы уже откликнулись на эту заявку', 409, 'already_responded')

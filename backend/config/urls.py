@@ -8,6 +8,19 @@ def health(_request):
     return JsonResponse({'ok': True})
 
 
+def readiness(_request):
+    from django.db import connection, DatabaseError
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT 1')
+            cursor.fetchone()
+    except DatabaseError:
+        return JsonResponse({'ok': False}, status=503)
+    response = JsonResponse({'ok': True})
+    response['Cache-Control'] = 'no-store'
+    return response
+
+
 def email_token(request):
     from core.testmail import last_token
 
@@ -16,6 +29,7 @@ def email_token(request):
 
 urlpatterns = [
     path('health', health),
+    path('ready', readiness),
     path('', include('accounts.urls')),
     path('', include('tutors.urls')),
     path('', include('lessons.urls')),
@@ -26,3 +40,6 @@ urlpatterns = [
     path('', include('chats.urls')),
     path('', include('adminpanel.urls')),
 ] + ([path('_test/email-token', email_token)] if settings.EXPOSE_TEST_ENDPOINTS else []) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler400 = 'core.errors.bad_request'
+handler500 = 'core.errors.server_error'

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
-import type { AdminProfile } from '../../api/types';
+import type { AdminProfile, TutorDocument } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
 import { Avatar, Button, Card, EmptyState, FormError, Modal, PageHeader, QueryView, Rows, Tags, TextArea, useToast } from '../../ui';
@@ -33,16 +33,34 @@ function Item({ item, onDone }: { item: AdminProfile; onDone: () => void }) {
       <div className="trk-exrow"><div className="trk-exrow"><Avatar name={p.name} photo={p.photo} size={56} /><div><b>{p.name}</b><br /><span className="muted">{p.headline || 'Без заголовка'}</span></div></div></div>
       <Rows rows={[['Почта', item.email || '—'], ['Цена за час', rub(p.price)], ['Знакомство', `${p.introMinutes} мин`], ['Фото', p.photo ? 'Загружено' : 'Нет фото']]} />
       <Tags items={p.subjects} />
+      {item.documents?.map((doc) => <Document key={doc.id} document={doc} />)}
       <p className="cap">{p.about}</p>
       <FormError error={moderate.error && !rejecting ? moderate.error : null} />
-      <div className="trk-actions">
+      {p.status === 'review' && <div className="trk-actions">
         <Button size="s" icon="check" onClick={() => void act(true)} loading={moderate.pending && !rejecting}>Опубликовать</Button>
         <Button size="s" variant="fill" onClick={() => setRejecting(true)}>Вернуть на доработку</Button>
-      </div>
+      </div>}
       <Modal open={rejecting} onClose={() => setRejecting(false)} title="Что нужно исправить?" footer={<><Button variant="fill" onClick={() => setRejecting(false)}>Отмена</Button><Button onClick={() => void act(false)} loading={moderate.pending}>Отправить репетитору</Button></>}>
         <TextArea label="Комментарий" rows={4} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Например: загрузите фото, где хорошо видно лицо" />
         <FormError error={moderate.error} />
       </Modal>
     </Card>
   );
+}
+
+
+function Document({ document }: { document: TutorDocument }) {
+  const [doc, setDoc] = useState(document);
+  const action = useMutation((approve: boolean) => api.adminModerateDocument(doc.id, approve));
+  const decide = async (approve: boolean) => { const next = await action.run(approve); if (next) setDoc(next); };
+  return <div className="g8">
+    <b>{doc.title}</b>
+    {doc.downloadUrl && <a href={doc.downloadUrl} target="_blank" rel="noopener noreferrer">Скачать документ</a>}
+    <span className="muted">{doc.status === 'checking' ? 'Ожидает проверки' : doc.status === 'approved' ? 'Проверен' : 'Отклонён'}</span>
+    {doc.status === 'checking' && doc.downloadUrl && <div className="trk-actions">
+      <Button size="s" loading={action.pending} onClick={() => void decide(true)}>Подтвердить документ</Button>
+      <Button size="s" variant="line" disabled={action.pending} onClick={() => void decide(false)}>Отклонить документ</Button>
+    </div>}
+    <FormError error={action.error} />
+  </div>;
 }

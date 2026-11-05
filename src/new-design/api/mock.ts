@@ -595,12 +595,20 @@ export function createMockApi(): Api {
       return delay(c);
     },
     async getConversation(id) { return delay(peerView(myConversation(id))); },
-    async listMessages(id) {
+    async markConversationRead(id, throughMessageId) {
       const s = load(); const c = myConversation(id); const uid = me().id; c.unread = 0;
-      const list = s.messages.filter((m) => m.conversationId === id);
-      for (const m of list) if (m.authorId !== uid) m.read = true; // собеседник прочитал бы мои сообщения так же
-      save();
-      return delay(list.map((m) => ({ ...m, read: m.authorId === uid ? Boolean(m.read) : true })));
+      const anchor = s.messages.find((m) => m.id === throughMessageId && m.conversationId === id);
+      if (throughMessageId && !anchor) throw new ApiError('Сообщение не найдено', 404);
+      const until = anchor?.at;
+      for (const m of s.messages.filter((m) => m.conversationId === id)) if (m.authorId !== uid && (!until || m.at <= until)) m.read = true;
+      save(); return delay(undefined);
+    },
+    async listMessages(id, page) {
+      const s = load(); myConversation(id); const uid = me().id;
+      const list = s.messages.filter((m) => m.conversationId === id).sort((a, b) => a.at.localeCompare(b.at) || a.id.localeCompare(b.id));
+      const end = page?.before ? list.findIndex((m) => m.id === page.before) : list.length;
+      if (end < 0) throw new ApiError('Сообщение не найдено', 404);
+      return delay(list.slice(Math.max(0, end - (page?.limit ?? 100)), end).map((m) => ({ ...m, read: m.authorId === uid ? Boolean(m.read) : true })));
     },
     async sendMessage(id, text) {
       const u = me(); const s = load();
@@ -731,9 +739,18 @@ export function createMockApi(): Api {
       if (approve) note(tutorUserId(review.tutorId), 'review', 'Новый отзыв', `${review.authorName}: оценка ${review.rating}`, '/tutor/reviews');
       save(); return delay(review);
     },
+    async adminModerateDocument(id, approve) {
+      if (me().role !== 'admin') fail('Нет доступа', 403);
+      const s = load();
+      const doc = Object.values(s.documents).flat().find((d) => d.id === id);
+      if (!doc) throw new ApiError('Документ не найден', 404);
+      if (doc.status !== 'checking') throw new ApiError('Документ уже проверен', 409);
+      doc.status = approve ? 'approved' : 'rejected'; save();
+      return delay(doc);
+    },
     async adminProfileQueue() {
       const s = load();
-      return delay(s.tutors.filter((t) => t.status === 'review').map((t): AdminProfile => ({ tutorId: t.id, email: s.users.find((u) => u.tutorId === t.id)?.email ?? '', submittedAt: iso(Date.now()), profile: s.profiles[t.id] ?? profileOf(t) })));
+      return delay(s.tutors.filter((t) => t.status === 'review' || s.documents[t.id]?.some((d) => d.status === 'checking')).map((t): AdminProfile => ({ tutorId: t.id, email: s.users.find((u) => u.tutorId === t.id)?.email ?? '', submittedAt: iso(Date.now()), profile: s.profiles[t.id] ?? profileOf(t), documents: s.documents[t.id] ?? [] })));
     },
     async adminModerateProfile(tutorId, approve, comment) {
       const s = load(); const t = s.tutors.find((x) => x.id === tutorId); if (!t) fail('Анкета не найдена', 404);

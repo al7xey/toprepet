@@ -96,12 +96,12 @@ export function defineScenarios(title: string, make: () => ScenarioContext) {
     });
 
     it('новый ученик: регистрация, подтверждение почты, онбординг, запись на знакомство и отмена', async () => {
-      const created = await api.signup({ role: 'student', name: 'Мария', email: 'maria.test@mail.ru', password: 'password1' });
+      const created = await api.signup({ role: 'student', name: 'Мария', email: 'maria.test@mail.ru', password: 'Strong-local-test-42!' });
       expect(created.emailVerified).toBe(false);
       expect(created.onboarded).toBe(false);
       expect((await api.verifyEmail(await verifyToken('maria.test@mail.ru'))).emailVerified).toBe(true);
       expect((await api.completeOnboarding({ forWhom: 'Для себя', subjects: ['Математика'], goal: 'Экзамен' })).onboarded).toBe(true);
-      await expect(api.signup({ role: 'student', name: 'Мария', email: 'MARIA.test@mail.ru', password: 'password1' })).rejects.toThrow(/уже есть/);
+      await expect(api.signup({ role: 'student', name: 'Мария', email: 'MARIA.test@mail.ru', password: 'Strong-local-test-42!' })).rejects.toThrow(/уже есть/);
       const candidates = (await api.listTutors({ limit: 20 })).items.filter((t) => t.introMinutes > 0);
       const t = candidates[0];
       const slot = await freeSlot(t, 9);
@@ -112,7 +112,7 @@ export function defineScenarios(title: string, make: () => ScenarioContext) {
     });
 
     it('новый репетитор: черновик, расписание, публикация и запись к нему', async () => {
-      const created = await api.signup({ role: 'tutor', name: 'Ирина', email: 'irina.test@mail.ru', password: 'password1' });
+      const created = await api.signup({ role: 'tutor', name: 'Ирина', email: 'irina.test@mail.ru', password: 'Strong-local-test-42!' });
       expect(created.tutorId).toBeTruthy();
       const draft = await api.getMyProfile();
       expect(draft.status).toBe('draft');
@@ -174,7 +174,7 @@ export function defineScenarios(title: string, make: () => ScenarioContext) {
       await expect(api.sendMessage(chat.id, 'Пишите в t.me/someone')).rejects.toThrow(/запрещены/);
       const sent = await api.sendMessage(chat.id, 'Здравствуйте! Есть время в среду?');
       expect(sent.kind).toBe('text');
-      await api.signup({ role: 'student', name: 'Пётр', email: 'petr.test@mail.ru', password: 'password1' });
+      await api.signup({ role: 'student', name: 'Пётр', email: 'petr.test@mail.ru', password: 'Strong-local-test-42!' });
       await expect(api.getConversation(chat.id)).rejects.toThrow(/не найден/);
       await expect(api.getRequest('r-1')).rejects.toThrow(/не найдена/);
       await api.login('olga@mail.ru', 'demo');
@@ -215,13 +215,13 @@ export function defineScenarios(title: string, make: () => ScenarioContext) {
     });
 
     it('сброс пароля: письмо, новый пароль, вход только с новым', async () => {
-      await api.signup({ role: 'student', name: 'Дарья', email: 'reset.test@mail.ru', password: 'password1' });
+      await api.signup({ role: 'student', name: 'Дарья', email: 'reset.test@mail.ru', password: 'Strong-local-test-42!' });
       await api.logout();
       await api.requestPasswordReset('reset.test@mail.ru');
       const token = await resetToken('reset.test@mail.ru');
       await expect(api.confirmPasswordReset(token, 'short')).rejects.toBeInstanceOf(ApiError);
       await api.confirmPasswordReset(token, 'newpassword1');
-      await expect(api.login('reset.test@mail.ru', 'password1')).rejects.toThrow(/Неверная/);
+      await expect(api.login('reset.test@mail.ru', 'Strong-local-test-42!')).rejects.toThrow(/Неверная/);
       expect((await api.login('reset.test@mail.ru', 'newpassword1')).email).toBe('reset.test@mail.ru');
       await api.logout();
       await expect(api.confirmPasswordReset(token, 'another12345')).rejects.toThrow(/устарела/);

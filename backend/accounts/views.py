@@ -4,23 +4,24 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from rest_framework import permissions
 from rest_framework.response import Response
-from rest_framework.throttling import ScopedRateThrottle
-from rest_framework.views import APIView
+from core.throttling import DatabaseRateThrottle
+from core.views import APIView, PublicAPIView
 
 from core.errors import ApiError
+from core.audit import record
 
-from .mail import send_reset, send_verification
+from .mail import send_reset, send_verification, ensure_mail_available
 from .models import EmailToken, User
 from services.images import save_photo
 
-from .serializers import NOTIFY_DEFAULTS, LoginIn, MePatchIn, OnboardingIn, SignupIn, user_json
+from .serializers import PasswordChangeIn, ResetConfirmIn, EmailIn, TokenIn, NOTIFY_DEFAULTS, LoginIn, MePatchIn, OnboardingIn, SignupIn, user_json
 
 
-class Throttled(APIView):
-    throttle_classes = [ScopedRateThrottle]
+class Throttled(PublicAPIView):
+    throttle_classes = [DatabaseRateThrottle]
     throttle_scope = 'auth'
 
 
@@ -30,30 +31,37 @@ class MeView(APIView):
             raise ApiError('Войдите, чтобы продолжить', 401, 'unauthorized')
         return Response(user_json(request.user))
 
+    @transaction.atomic
     def patch(self, request):
         _require(request)
         data = MePatchIn(data=request.data)
         data.is_valid(raise_exception=True)
-        user = request.user
+        user = User.objects.select_for_update(no_key=True).get(pk=request.user.pk)
+        fields = []
         if 'name' in data.validated_data:
             name = data.validated_data['name'].strip()
             if not name:
                 raise ApiError('Укажите имя')
             user.name = name
+            fields.append('name')
         if 'timezone' in data.validated_data:
             try:
                 ZoneInfo(data.validated_data['timezone'])
             except (ZoneInfoNotFoundError, ValueError):
                 raise ApiError('Неизвестный часовой пояс')
             user.timezone = data.validated_data['timezone']
+            fields.append('timezone')
         if 'notifications' in data.validated_data:
             allowed = {k: v for k, v in data.validated_data['notifications'].items() if k in NOTIFY_DEFAULTS}
             user.notify_prefs = {**(user.notify_prefs or {}), **allowed}
-        user.save()
+            fields.append('notify_prefs')
+        if fields:
+            user.save(update_fields=fields)
         return Response(user_json(user))
 
 
 class MePhotoView(APIView):
+    throttle_scope = 'upload'
     def post(self, request):
         _require(request)
         user = request.user
@@ -63,10 +71,13 @@ class MePhotoView(APIView):
 
 
 class MePasswordView(APIView):
+    @transaction.atomic
     def post(self, request):
         _require(request)
-        user = request.user
-        current, new = str(request.data.get('current', '')), str(request.data.get('password', ''))
+        parsed = PasswordChangeIn(data=request.data)
+        parsed.is_valid(raise_exception=True)
+        user = User.objects.select_for_update(no_key=True).get(pk=request.user.pk)
+        current, new = parsed.validated_data['current'], parsed.validated_data['password']
         if not user.check_password(current):
             raise ApiError('Текущий пароль указан неверно')
         try:
@@ -74,8 +85,9 @@ class MePasswordView(APIView):
         except DjangoValidationError as error:
             raise ApiError(error.messages[0])
         user.set_password(new)
-        user.save()
+        user.save(update_fields=['password'])
         update_session_auth_hash(request._request, user)
+        record(user, 'account.password_change', user.pk)
         return Response({'ok': True})
 
 
@@ -111,7 +123,13 @@ class SignupView(Throttled):
         name = v['name'].strip()
         if not name:
             raise ApiError('Укажите имя')
-        user = User.objects.create_user(email, v['password'], name=name, role=v['role'])
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(email, v['password'], name=name, role=v['role'])
+        except IntegrityError:
+            if User.objects.filter(email=email).exists():
+                raise ApiError('Аккаунт с этой почтой уже есть. Войдите или восстановите пароль.', 409, 'exists')
+            raise
         if user.role == 'tutor':
             from tutors.services import create_draft_profile
             create_draft_profile(user)
@@ -120,13 +138,13 @@ class SignupView(Throttled):
         return Response(user_json(user), status=201)
 
 
-class LogoutView(APIView):
+class LogoutView(PublicAPIView):
     def post(self, request):
         logout(request._request)
         return Response(status=204)
 
 
-class YandexView(APIView):
+class YandexView(PublicAPIView):
     def post(self, request):
         if not (settings.YANDEX_CLIENT_ID and settings.YANDEX_CLIENT_SECRET):
             raise ApiError('Вход через Яндекс ID пока не настроен', 501, 'not_configured')
@@ -135,9 +153,10 @@ class YandexView(APIView):
 
 class PasswordResetView(Throttled):
     def post(self, request):
-        email = str(request.data.get('email', '')).strip().lower()
-        if '@' not in email:
-            raise ApiError('Проверьте адрес почты')
+        parsed = EmailIn(data=request.data)
+        parsed.is_valid(raise_exception=True)
+        email = parsed.validated_data['email'].lower()
+        ensure_mail_available()
         user = User.objects.filter(email=email, is_active=True).first()
         if user:
             send_reset(user, EmailToken.issue(user, EmailToken.RESET, 2))
@@ -147,7 +166,9 @@ class PasswordResetView(Throttled):
 class PasswordResetConfirmView(Throttled):
     @transaction.atomic
     def post(self, request):
-        token, password = str(request.data.get('token', '')), str(request.data.get('password', ''))
+        parsed = ResetConfirmIn(data=request.data)
+        parsed.is_valid(raise_exception=True)
+        token, password = parsed.validated_data['token'], parsed.validated_data['password']
         try:
             validate_password(password)
         except DjangoValidationError as error:
@@ -157,10 +178,12 @@ class PasswordResetConfirmView(Throttled):
             raise ApiError('Ссылка устарела. Запросите письмо ещё раз.', 400, 'token')
         item.user.set_password(password)
         item.user.save(update_fields=['password'])
+        record(item.user, 'account.password_reset', item.user.pk)
         return Response(status=204)
 
 
 class ResendVerificationView(Throttled):
+    permission_classes = [permissions.IsAuthenticated]
     def post(self, request):
         _require(request)
         if not request.user.email_verified:
@@ -171,7 +194,9 @@ class ResendVerificationView(Throttled):
 class VerifyEmailView(Throttled):
     @transaction.atomic
     def post(self, request):
-        item = EmailToken.consume(str(request.data.get('token', '')).strip(), EmailToken.VERIFY)
+        parsed = TokenIn(data=request.data)
+        parsed.is_valid(raise_exception=True)
+        item = EmailToken.consume(parsed.validated_data['token'], EmailToken.VERIFY)
         if not item:
             raise ApiError('Ссылка устарела. Запросите письмо ещё раз.', 400, 'token')
         item.user.email_verified = True

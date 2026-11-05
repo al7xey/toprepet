@@ -3,7 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 from django.core.management import call_command
-from django.db import close_old_connections, connection
+from django.db import close_old_connections, connection, connections
 from django.utils import timezone
 
 from accounts.models import User
@@ -95,7 +95,7 @@ def test_concurrent_retries_use_one_booking():
         try:
             return create_booking(User.objects.get(email='olga@mail.ru'), data, 'parallel-key').pk
         finally:
-            close_old_connections()
+            connections.close_all()
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         ids = list(pool.map(lambda _: book(), range(2)))
