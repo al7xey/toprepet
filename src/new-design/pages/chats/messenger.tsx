@@ -147,9 +147,9 @@ function Thread({ conversation, list, loading, onSent, onRemoved, older, loading
   const hold = useRef<number | null>(null);
   const stopHold = () => { if (hold.current !== null) { window.clearTimeout(hold.current); hold.current = null; } };
   const holdProps = (m: Message) => ({
-    onPointerDown: () => { stopHold(); hold.current = window.setTimeout(() => { hold.current = null; setRemoving(m); }, 450); },
+    onPointerDown: () => { stopHold(); hold.current = window.setTimeout(() => { hold.current = null; remove.reset(); setRemoving(m); }, 450); },
     onPointerUp: stopHold, onPointerLeave: stopHold, onPointerCancel: stopHold, onPointerMove: stopHold,
-    onContextMenu: (e: { preventDefault: () => void }) => { e.preventDefault(); stopHold(); setRemoving(m); },
+    onContextMenu: (e: { preventDefault: () => void }) => { e.preventDefault(); stopHold(); remove.reset(); setRemoving(m); },
   });
   const confirmRemove = async () => {
     if (removing && await remove.run(removing)) { onRemoved(removing.id); setRemoving(null); }
@@ -232,7 +232,7 @@ function Thread({ conversation, list, loading, onSent, onRemoved, older, loading
           );
         })}
       </div>
-      <ConfirmDialog open={Boolean(removing)} onClose={() => setRemoving(null)} onConfirm={() => void confirmRemove()} title="Удалить сообщение?" text="Оно исчезнет у вас и у собеседника." confirmLabel="Удалить" variant="danger" pending={remove.pending} />
+      <ConfirmDialog open={Boolean(removing)} onClose={() => setRemoving(null)} onConfirm={() => void confirmRemove()} title="Удалить сообщение?" text="Оно исчезнет у вас и у собеседника." confirmLabel="Удалить" variant="danger" pending={remove.pending} error={remove.error} />
       {conversation.blocked ? <p className="tg-blocked">Диалог заблокирован: писать в него нельзя.</p> : (
         <form className="tg-compose" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
           {(send.error || sendPhoto.error) && <FormError error={send.error ?? sendPhoto.error} />}

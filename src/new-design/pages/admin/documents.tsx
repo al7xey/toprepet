@@ -44,7 +44,17 @@ export default function DocumentsPage() {
             {page.items.map((doc) => (
               <Card key={doc.id}>
                 <p className="muted">{doc.tutorName}</p>
-                <Document document={doc} />
+                <Document
+                  document={doc}
+                  onModerated={(next) =>
+                    queue.setData((prev) => ({
+                      items: (prev?.items ?? []).map((item) =>
+                        item.id === next.id ? { ...item, ...next } : item,
+                      ),
+                      nextCursor: prev?.nextCursor ?? null,
+                    }))
+                  }
+                />
               </Card>
             ))}
             <div className="trk-actions">

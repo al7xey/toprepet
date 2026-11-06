@@ -13,5 +13,6 @@ urlpatterns = [
     path('tutor/schedule/exceptions', views.ExceptionsView.as_view()),
     path('tutor/schedule/exceptions/<str:date>', views.ExceptionDetailView.as_view()),
     path('tutor/photo', views.PhotoView.as_view()),
+    path('tutor/documents/<str:document_id>', views.DocumentDetailView.as_view()),
     path('tutor/documents', views.DocumentsView.as_view()),
 ]

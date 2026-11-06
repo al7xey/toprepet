@@ -106,6 +106,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     saveException: (item) => request('PUT', `/tutor/schedule/exceptions/${item.date}`, item),
     deleteException: (date) => request('DELETE', `/tutor/schedule/exceptions/${date}`),
     uploadPhoto: async (file) => { const form = new FormData(); form.set('file', await optimizeImage(file)); return post('/tutor/photo', form); },
+    removeDocument: (id) => request('DELETE', `/tutor/documents/${encodeURIComponent(id)}`),
     listDocuments: () => get('/tutor/documents'),
     uploadDocument: (title, file) => { const form = new FormData(); form.set('title', title); form.set('file', file); return post('/tutor/documents', form); },
     listMyStudents: () => get('/tutor/students'),

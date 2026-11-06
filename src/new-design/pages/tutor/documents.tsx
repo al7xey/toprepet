@@ -1,8 +1,12 @@
 import { useState } from 'react';
+import type { TutorDocument } from '../../api/types';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
 import {
+  Button,
+  ConfirmDialog,
+  useToast,
   Card,
   EmptyState,
   FilePick,
@@ -21,6 +25,21 @@ const labels = {
 };
 export default function DocumentsPage() {
   const [title, setTitle] = useState('');
+  const [removing, setRemoving] = useState<TutorDocument | null>(null);
+  const toast = useToast();
+  const remove = useMutation(async (id: string) => {
+    await api.removeDocument(id);
+    return id;
+  });
+  const confirmRemove = async () => {
+    if (!removing) return;
+    const id = await remove.run(removing.id);
+    if (id) {
+      docs.setData((prev) => (prev ?? []).filter((doc) => doc.id !== id));
+      setRemoving(null);
+      toast('Документ удалён');
+    }
+  };
   const docs = useQuery('documents', () => api.listDocuments());
   const upload = useMutation((file: File) =>
     api.uploadDocument(
@@ -43,7 +62,7 @@ export default function DocumentsPage() {
           <TextField
             label="Название документа (необязательно)"
             name="documentTitle"
-          autoComplete="off"
+            autoComplete="off"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             maxLength={200}
@@ -94,20 +113,47 @@ export default function DocumentsPage() {
                     {labels[doc.status]}
                   </Status>
                 </p>
-                {doc.downloadUrl && (
-                  <a
-                    href={doc.downloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <div className="trk-actions">
+                  {doc.downloadUrl && (
+                    <a
+                      href={doc.downloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Скачать документ
+                    </a>
+                  )}
+                  <Button
+                    size="s"
+                    variant="line"
+                    onClick={() => {
+                      remove.reset();
+                      setRemoving(doc);
+                    }}
                   >
-                    Скачать документ
-                  </a>
-                )}
+                    Удалить документ
+                  </Button>
+                </div>
               </Card>
             ))}
           </div>
         )}
       </QueryView>
+      <ConfirmDialog
+        open={!!removing}
+        onClose={() => setRemoving(null)}
+        onConfirm={() => void confirmRemove()}
+        title="Удалить документ?"
+        text={
+          removing?.status === 'approved'
+            ? 'Файл будет удалён. Если это единственный проверенный документ, отметка о проверке исчезнет из анкеты.'
+            : 'Файл будет удалён. При необходимости вы сможете загрузить исправленный документ.'
+        }
+        confirmLabel="Удалить"
+        variant="danger"
+        pending={remove.pending}
+        error={remove.error}
+      />
     </AppLayout>
   );
 }

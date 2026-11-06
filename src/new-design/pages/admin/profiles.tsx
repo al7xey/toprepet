@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Document } from './document';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
-import type { AdminProfile } from '../../api/types';
+import type { AdminProfile, TutorDocument } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
 import { Avatar, Button, Card, EmptyState, FormError, Modal, PageHeader, QueryView, Rows, Tags, TextArea, useToast } from '../../ui';
@@ -10,17 +10,19 @@ import { Avatar, Button, Card, EmptyState, FormError, Modal, PageHeader, QueryVi
 /** Анкеты репетиторов на проверке: опубликовать или вернуть с комментарием. */
 export default function AdminProfilesPage() {
   const queue = useQuery('admin-profiles', () => api.adminProfileQueue());
+  const updateDocument = (next: TutorDocument) => queue.setData((prev) => (prev ?? []).map((item) => ({ ...item, documents: item.documents?.map((doc) => doc.id === next.id ? next : doc) })));
   return (
     <AppLayout role="admin">
       <PageHeader title="Анкеты на проверке" />
+      <div className="trk-actions"><Button variant="line" onClick={queue.reload}>Обновить очередь</Button></div>
       <QueryView query={queue} empty={(items) => items.length === 0 ? <EmptyState icon="school" title="Очередь пуста" text="Новые анкеты появятся здесь после отправки репетитором." /> : null}>
-        {(items) => <div className="trk-list">{items.map((q) => <Item key={q.tutorId} item={q} onDone={queue.reload} />)}</div>}
+        {(items) => <div className="trk-list">{items.map((q) => <Item key={q.tutorId} item={q} onDone={queue.reload} onDocumentChange={updateDocument} />)}</div>}
       </QueryView>
     </AppLayout>
   );
 }
 
-function Item({ item, onDone }: { item: AdminProfile; onDone: () => void }) {
+function Item({ item, onDone, onDocumentChange }: { item: AdminProfile; onDone: () => void; onDocumentChange: (doc: TutorDocument) => void }) {
   const toast = useToast();
   const p = item.profile;
   const [rejecting, setRejecting] = useState(false);
@@ -34,7 +36,7 @@ function Item({ item, onDone }: { item: AdminProfile; onDone: () => void }) {
       <div className="trk-exrow"><div className="trk-exrow"><Avatar name={p.name} photo={p.photo} size={56} /><div><b>{p.name}</b><br /><span className="muted">{p.headline || 'Без заголовка'}</span></div></div></div>
       <Rows rows={[['Почта', item.email || '—'], ['Цена за час', rub(p.price)], ['Знакомство', `${p.introMinutes} мин`], ['Фото', p.photo ? 'Загружено' : 'Нет фото']]} />
       <Tags items={p.subjects} />
-      {item.documents?.map((doc) => <Document key={doc.id} document={doc} />)}
+      {item.documents?.map((doc) => <Document key={doc.id} document={doc} onModerated={onDocumentChange} />)}
       <p className="cap">{p.about}</p>
       <FormError error={moderate.error && !rejecting ? moderate.error : null} />
       {p.status === 'review' && <div className="trk-actions">

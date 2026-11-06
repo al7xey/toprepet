@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon } from './icon';
-import { Button, type ButtonVariant } from './kit';
+import { Button, FormError, type ButtonVariant } from './kit';
 
 /**
  * Модальное окно: на компьютере по центру, на телефоне шторкой снизу. Закрывается по Esc и клику по фону,
@@ -107,10 +107,11 @@ export function Modal({ open, onClose, title, children, footer, width = 520 }: {
 }
 
 /** Подтверждение необратимого действия. */
-export function ConfirmDialog({ open, onClose, onConfirm, title, text, confirmLabel, variant = 'primary', pending }: { open: boolean; onClose: () => void; onConfirm: () => void; title: string; text?: ReactNode; confirmLabel: string; variant?: ButtonVariant; pending?: boolean }) {
+export function ConfirmDialog({ open, onClose, onConfirm, title, text, confirmLabel, variant = 'primary', pending, error }: { open: boolean; onClose: () => void; onConfirm: () => void; title: string; text?: ReactNode; confirmLabel: string; variant?: ButtonVariant; pending?: boolean; error?: string | null }) {
   return (
     <Modal open={open} onClose={onClose} title={title} footer={<><Button variant="line" onClick={onClose}>Не сейчас</Button><Button variant={variant} onClick={onConfirm} loading={pending}>{confirmLabel}</Button></>}>
       {text && <p className="cap">{text}</p>}
+      <FormError error={error} />
     </Modal>
   );
 }

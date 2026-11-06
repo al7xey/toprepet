@@ -75,6 +75,8 @@ def expire_requests(now) -> int:
 
 def run_all() -> dict:
     now = timezone.now()
+    from tutors.documents import cleanup_document_files
+    cleanup_document_files()
     from core.models import RateLimitBucket
     RateLimitBucket.objects.filter(expires_at__lt=now - timedelta(days=1)).delete()
     return {'expired_lessons': expire_unconfirmed(now), 'auto_completed': auto_complete(now), 'payouts': pay_out(now), 'expired_requests': expire_requests(now)}

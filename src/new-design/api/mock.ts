@@ -705,7 +705,22 @@ export function createMockApi(): Api {
     async saveException(item) { const t = myTutor(); const s = load(); s.exceptions[t.id] = [...(s.exceptions[t.id] ?? []).filter((x) => x.date !== item.date), item].sort((a, b) => a.date.localeCompare(b.date)); save(); return delay(s.exceptions[t.id]); },
     async deleteException(date) { const t = myTutor(); const s = load(); s.exceptions[t.id] = (s.exceptions[t.id] ?? []).filter((x) => x.date !== date); save(); return delay(s.exceptions[t.id]); },
     async listDocuments() { const t = myTutor(); return delay(load().documents[t.id] ?? []); },
-    async uploadDocument(title) { const t = myTutor(); const s = load(); const d: TutorDocument = { id: nextId('d'), title, status: 'checking' }; s.documents[t.id] = [...(s.documents[t.id] ?? []), d]; save(); return delay(d, 600); },
+    async removeDocument(id) {
+      const t = myTutor(); const s = load();
+      if (!(s.documents[t.id] ?? []).some((doc) => doc.id === id)) fail('Документ не найден', 404);
+      s.documents[t.id] = s.documents[t.id].filter((doc) => doc.id !== id);
+      t.documentsVerified = s.documents[t.id].some((doc) => doc.status === 'approved');
+      save(); return delay(undefined);
+    },
+    async uploadDocument(title, file) {
+      const t = myTutor(); const s = load(); const documents = s.documents[t.id] ?? [];
+      if (!title.trim() || title.length > 200) fail('Укажите название документа до 200 символов');
+      if (documents.length >= 20) throw new ApiError('Можно загрузить до 20 документов', 409, 'document_limit');
+      if (file.size > 10_000_000) throw new ApiError('Файл больше 10 МБ', 413, 'upload_too_large');
+      if (!/\.(pdf|jpe?g|png|webp)$/i.test(file.name)) fail('Подойдут PDF и изображения');
+      const d: TutorDocument = { id: nextId('d'), title: title.trim(), status: 'checking' };
+      s.documents[t.id] = [...documents, d]; save(); return delay(d, 600);
+    },
     async listMyStudents() {
       const t = myTutor(); const byStudent = new Map<string, Lesson[]>();
       load().lessons.filter((l) => l.tutorId === t.id).forEach((l) => byStudent.set(l.studentId, [...(byStudent.get(l.studentId) ?? []), l]));
@@ -745,7 +760,10 @@ export function createMockApi(): Api {
       const doc = Object.values(s.documents).flat().find((d) => d.id === id);
       if (!doc) throw new ApiError('Документ не найден', 404);
       if (doc.status !== 'checking') throw new ApiError('Документ уже проверен', 409);
-      doc.status = approve ? 'approved' : 'rejected'; save();
+      doc.status = approve ? 'approved' : 'rejected';
+      const tutor = s.tutors.find((t) => (s.documents[t.id] ?? []).some((d) => d.id === id));
+      if (tutor) tutor.documentsVerified = s.documents[tutor.id].some((d) => d.status === 'approved');
+      save();
       return delay(doc);
     },
     async adminDocuments(cursor) {

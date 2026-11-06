@@ -97,7 +97,7 @@ class DocumentQueue(APIView):
         cursor = request.query_params.get('cursor', '')
         if len(cursor) > 40:
             raise ApiError('Неверный курсор')
-        query = TutorDocument.objects.filter(status='checking').select_related('tutor')
+        query = TutorDocument.objects.filter(status='checking').select_related('tutor').only('id', 'title', 'status', 'file', 'tutor__name')
         if cursor:
             query = query.filter(pk__gt=cursor)
         docs = list(query.order_by('pk')[:101])

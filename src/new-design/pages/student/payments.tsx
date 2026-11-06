@@ -64,7 +64,7 @@ function Cards() {
               <Card key={c.id}>
                 <div className="trk-exrow">
                   <div><b>{c.brand} ···· {c.last4}</b>{c.primary && <><br /><span className="muted">Основная</span></>}</div>
-                  <Button size="s" variant="fill" onClick={() => setRemoving(c)}>Удалить</Button>
+                  <Button size="s" variant="fill" onClick={() => { remove.reset(); setRemoving(c); }}>Удалить</Button>
                 </div>
               </Card>
             ))}
@@ -73,7 +73,7 @@ function Cards() {
       </QueryView>
       <FormError error={remove.error} />
       <AddCardModal open={open} onClose={() => setOpen(false)} onAdded={() => { setOpen(false); cards.reload(); toast('Карта добавлена'); }} />
-      <ConfirmDialog open={!!removing} onClose={() => setRemoving(null)} onConfirm={() => void confirmRemove()} title="Удалить карту?" text={removing ? `Карта ${removing.brand} ···· ${removing.last4} будет удалена. Уроки, за которые деньги уже заморожены, не изменятся.` : undefined} confirmLabel="Удалить" variant="danger" pending={remove.pending} />
+      <ConfirmDialog open={!!removing} onClose={() => setRemoving(null)} onConfirm={() => void confirmRemove()} title="Удалить карту?" text={removing ? `Карта ${removing.brand} ···· ${removing.last4} будет удалена. Уроки, за которые деньги уже заморожены, не изменятся.` : undefined} confirmLabel="Удалить" variant="danger" pending={remove.pending} error={remove.error} />
     </Section>
   );
 }

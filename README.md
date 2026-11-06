@@ -82,3 +82,5 @@ bash backend/scripts/contract.sh # те же сценарии против на�
 Описание изменений, проверок и оставшихся внешних интеграций — [docs/hardening.md](docs/hardening.md).
 
 Навыки Codex установлены в [.agents/skills](.agents/skills); источники и версии — [.agents/README.md](.agents/README.md). Реализованные страницы и логика кабинетов — [docs/product-completion.md](docs/product-completion.md).
+
+Повторный общий аудит, исправления и порядок обновления сервера: [docs/general-audit-2026-11-06.md](docs/general-audit-2026-11-06.md).

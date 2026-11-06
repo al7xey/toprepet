@@ -1,17 +1,21 @@
-import { useState } from 'react';
 import { api } from '../../api';
 import { useMutation } from '../../api/hooks';
 import type { TutorDocument } from '../../api/types';
 import { Button, FormError } from '../../ui';
 
-export function Document({ document }: { document: TutorDocument }) {
-  const [doc, setDoc] = useState(document);
+export function Document({
+  document: doc,
+  onModerated,
+}: {
+  document: TutorDocument;
+  onModerated: (doc: TutorDocument) => void;
+}) {
   const action = useMutation((approve: boolean) =>
     api.adminModerateDocument(doc.id, approve),
   );
   const decide = async (approve: boolean) => {
     const next = await action.run(approve);
-    if (next) setDoc(next);
+    if (next) onModerated(next);
   };
   return (
     <div className="g8">

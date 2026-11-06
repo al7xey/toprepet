@@ -8,7 +8,7 @@ from django.db import transaction
 from core.audit import record
 from core.errors import ApiError, not_found
 from core.perm import my_tutor
-from .models import Tutor, TutorDocument
+from .models import Tutor, TutorDocument, DocumentFileDeletion
 
 
 @transaction.atomic
@@ -64,3 +64,43 @@ def moderate_document(admin, document_id, approve):
     doc.save(update_fields=['status'])
     record(admin, 'document.moderate', doc.pk, doc.status)
     return doc
+
+
+@transaction.atomic
+def delete_document(request, document_id):
+    tutor = my_tutor(request)
+    Tutor.objects.select_for_update(no_key=True).get(pk=tutor.pk)
+    doc = TutorDocument.objects.select_for_update().filter(pk=document_id, tutor=tutor).first()
+    if doc is None:
+        raise not_found('Документ не найден')
+    filename = doc.file.name
+    record(request.user, 'document.delete', doc.pk, doc.status)
+    doc.delete()
+    if filename:
+        # Each deletion owns its task, including concurrent legacy shared paths.
+        task = DocumentFileDeletion.objects.create(name=filename)
+        transaction.on_commit(lambda: cleanup_document_deletion(task.pk), robust=True)
+
+
+@transaction.atomic
+def cleanup_document_deletion(task_id):
+    task = DocumentFileDeletion.objects.select_for_update(skip_locked=True).filter(pk=task_id).first()
+    if task is None:
+        return 0
+    # Legacy imports can share paths. Another document must retain its file.
+    if TutorDocument.objects.filter(file=task.name).exists():
+        task.delete()
+        return 0
+    try:
+        TutorDocument._meta.get_field('file').storage.delete(task.name)
+    except OSError as error:
+        import logging
+        logging.getLogger('security').error('Private file cleanup failed task_id=%s error=%s', task.pk, type(error).__name__)
+        return 0  # Keep the task for the next worker run.
+    task.delete()
+    return 1
+
+
+def cleanup_document_files():
+    task_ids = list(DocumentFileDeletion.objects.order_by('created_at', 'pk').values_list('pk', flat=True)[:100])
+    return sum(cleanup_document_deletion(pk) for pk in task_ids)

@@ -1064,3 +1064,12 @@ html{overflow-y:scroll}
 .tr .trk-modal-foot .btn{font-size:17px}
 
 .tr .demo-notice{padding:10px 20px;text-align:center;font-size:13px;line-height:1.5;color:#72310d;background:#fff3e9}
+
+/* Tablet account navigation must not collide with branding or account controls. */
+@media (min-width:761px) and (max-width:1200px){
+  .tr .trk-app .hdr.trk-app-hdr{display:grid;grid-template-columns:minmax(0,1fr) auto;height:auto;gap:8px 20px;padding:12px 0}
+  .tr .trk-app .trk-app-hdr>.logo{grid-column:1;grid-row:1;justify-self:start}
+  .tr .trk-app .trk-app-hdr>.icons{grid-column:2;grid-row:1}
+  .tr .trk-app .trk-app-hdr>nav{grid-column:1/-1;grid-row:2;justify-content:flex-start;flex-wrap:wrap;gap:4px}
+  .tr .trk-app .trk-app-hdr>nav a{padding:8px}
+}

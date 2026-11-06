@@ -205,6 +205,13 @@ class DocumentsView(APIView):
         return Response(document_json(upload_document(request), request), status=201)
 
 
+class DocumentDetailView(APIView):
+    def delete(self, request, document_id):
+        from .documents import delete_document
+        delete_document(request, document_id)
+        return Response(status=204)
+
+
 from core.views import APIView as AuthenticatedAPIView
 
 

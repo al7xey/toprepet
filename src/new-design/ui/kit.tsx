@@ -167,8 +167,8 @@ export function QueryView<T>({ query, children, loading, empty }: { query: Query
   if (query.error && query.data === undefined) return <ErrorState text={query.error} onRetry={query.reload} />;
   if (query.data === undefined) return <>{loading ?? <LoadingList />}</>;
   const emptyView = empty?.(query.data);
-  if (emptyView) return <>{emptyView}</>;
-  return <>{children(query.data)}</>;
+  if (emptyView) return query.error ? <ErrorState text={query.error} onRetry={query.reload} /> : <>{emptyView}</>;
+  return <>{query.error && <ErrorState text={query.error} onRetry={query.reload} />}{children(query.data)}</>;
 }
 
 /* ---------- Люди ---------- */

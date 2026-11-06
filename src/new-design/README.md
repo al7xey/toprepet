@@ -31,7 +31,7 @@
 
 ## Подключение бэкенда
 
-Задать `VITE_API_URL=https://api.toprepet.ru/v1` при сборке. Все методы и адреса — в `api/contract.ts`, форматы — в `api/types.ts`. Сессия — httpOnly cookie, запросы идут с `credentials: 'include'`.
+Задать `VITE_API_URL=https://api.toprepet.ru` при сборке. Все методы и адреса — в `api/contract.ts`, форматы — в `api/types.ts`. Сессия — httpOnly cookie, запросы идут с `credentials: 'include'`.
 
 ## Меню кабинетов и готовность страниц
 В меню и нижней панели показываются только страницы, которые уже собраны: список `READY` в `layout/layouts.tsx`. Собрали новую страницу — добавьте её адрес в `READY`, и кнопка появится сама. Так ни одна кнопка не ведёт на 404.
@@ -53,5 +53,5 @@ No blur (`backdrop-filter`), gradients, glossy highlights or drop shadows anywhe
 
 ## Backend
 
-`VITE_API_URL` включает настоящий сервер (Django, `backend/`, см. `docs/backend.md`); без неё работает мок. Общие сценарии правил продукта лежат в `api/scenarios.ts`: их проходят и мок (`mock.test.ts`), и сервер (`http.contract.test.ts`, запуск `bash backend/scripts/contract.sh`). Меняете правило в моке — меняйте сценарий, и тест покажет, что сервер разошёлся.
+`VITE_API_URL` включает настоящий сервер (Django, `backend/`, см. `docs/backend.md`), без префикса `/v1` при текущем URLconf. Для мока нужно явно задать `VITE_API_MODE=demo`; без обоих вариантов приложение сообщает об ошибке конфигурации. Общие сценарии правил продукта лежат в `api/scenarios.ts`: их проходят и мок (`mock.test.ts`), и сервер (`http.contract.test.ts`, запуск `bash backend/scripts/contract.sh`). Меняете правило в моке — меняйте сценарий, и тест покажет, что сервер разошёлся.
 
