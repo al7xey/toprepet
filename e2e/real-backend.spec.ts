@@ -58,3 +58,22 @@ test('Django: приватное фото чата загружается с coo
   const denied = await request.get(url!);
   expect(denied.status()).toBe(401);
 });
+
+
+test('Django: загрузка и проверка документа через кабинеты', async ({ page, context, request }) => {
+  await login(page, 'tutor');
+  await page.goto('/tutor/documents');
+  await page.locator('input[type=file]').setInputFiles({ name: 'integration-proof.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n1 0 obj\n<<>>\nendobj\n%%EOF') });
+  await expect(page.getByText('integration-proof', { exact: true })).toBeVisible();
+  const file = page.locator('.trk-card').filter({ hasText: 'integration-proof' }).getByRole('link', { name: 'Скачать документ' });
+  const url = await file.getAttribute('href');
+  expect((await request.get(url!)).status()).toBe(401);
+  await context.clearCookies();
+  await login(page, 'admin');
+  await page.goto('/admin/documents');
+  const card = page.locator('.trk-card').filter({ hasText: 'integration-proof' });
+  await card.getByRole('button', { name: 'Подтвердить документ' }).click();
+  await expect(card.getByText('Проверен', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Обновить очередь' }).click();
+  await expect(page.getByText('integration-proof', { exact: true })).toHaveCount(0);
+});

@@ -34,7 +34,7 @@
 .tr .trk-back .i{width:20px;height:20px}
 
 /* Карточки */
-.tr .trk-card{display:grid;gap:16px;align-content:start}
+.tr .trk-card{display:grid;gap:16px;align-content:start;min-width:0;overflow-wrap:anywhere}
 .tr .trk-card.pad-sm{padding:18px}
 .tr .trk-card.pad-md{padding:28px}
 .tr .trk-card.pad-lg{padding:36px}

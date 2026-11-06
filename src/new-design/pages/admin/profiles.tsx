@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Document } from './document';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
-import type { AdminProfile, TutorDocument } from '../../api/types';
+import type { AdminProfile } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
 import { Avatar, Button, Card, EmptyState, FormError, Modal, PageHeader, QueryView, Rows, Tags, TextArea, useToast } from '../../ui';
@@ -13,7 +14,7 @@ export default function AdminProfilesPage() {
     <AppLayout role="admin">
       <PageHeader title="Анкеты на проверке" />
       <QueryView query={queue} empty={(items) => items.length === 0 ? <EmptyState icon="school" title="Очередь пуста" text="Новые анкеты появятся здесь после отправки репетитором." /> : null}>
-        {(items) => <div className="trk-list">{items.map((q) => <Item key={q.tutorId} item={q} onDone={() => queue.setData((prev) => (prev ?? []).filter((x) => x.tutorId !== q.tutorId))} />)}</div>}
+        {(items) => <div className="trk-list">{items.map((q) => <Item key={q.tutorId} item={q} onDone={queue.reload} />)}</div>}
       </QueryView>
     </AppLayout>
   );
@@ -46,21 +47,4 @@ function Item({ item, onDone }: { item: AdminProfile; onDone: () => void }) {
       </Modal>
     </Card>
   );
-}
-
-
-function Document({ document }: { document: TutorDocument }) {
-  const [doc, setDoc] = useState(document);
-  const action = useMutation((approve: boolean) => api.adminModerateDocument(doc.id, approve));
-  const decide = async (approve: boolean) => { const next = await action.run(approve); if (next) setDoc(next); };
-  return <div className="g8">
-    <b>{doc.title}</b>
-    {doc.downloadUrl && <a href={doc.downloadUrl} target="_blank" rel="noopener noreferrer">Скачать документ</a>}
-    <span className="muted">{doc.status === 'checking' ? 'Ожидает проверки' : doc.status === 'approved' ? 'Проверен' : 'Отклонён'}</span>
-    {doc.status === 'checking' && doc.downloadUrl && <div className="trk-actions">
-      <Button size="s" loading={action.pending} onClick={() => void decide(true)}>Подтвердить документ</Button>
-      <Button size="s" variant="line" disabled={action.pending} onClick={() => void decide(false)}>Отклонить документ</Button>
-    </div>}
-    <FormError error={action.error} />
-  </div>;
 }

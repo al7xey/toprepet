@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { Route } from 'react-router-dom';
 import { RequireRole } from '../api/session';
 
+const DocumentsPage = lazy(() => import('../pages/tutor/documents'));
 const TutorLessonsPage = lazy(() => import('../pages/tutor/lessons'));
 const TutorLessonPage = lazy(() => import('../pages/tutor/lesson'));
 const SchedulePage = lazy(() => import('../pages/tutor/schedule'));
@@ -21,6 +22,7 @@ const tutor = (page: React.ReactNode) => <RequireRole role="tutor">{page}</Requi
 /** Кабинет репетитора: уроки, расписание, финансы, ученики, настройки. */
 export const tutorRoutes = (
   <>
+    <Route path="/tutor/documents" element={tutor(<DocumentsPage />)} />
     <Route path="/tutor/lessons" element={tutor(<TutorLessonsPage />)} />
     <Route path="/tutor/lessons/:id" element={tutor(<TutorLessonPage />)} />
     <Route path="/tutor/schedule" element={tutor(<SchedulePage />)} />

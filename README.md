@@ -80,3 +80,5 @@ bash backend/scripts/contract.sh # те же сценарии против на�
 Перед запуском обновлённого API выполните python manage.py migrate. Исторические непустые ключи повторных броней должны быть уникальны для ученика: дубликаты требуют ручного разбора перед миграцией, записи не удаляются автоматически.
 
 Описание изменений, проверок и оставшихся внешних интеграций — [docs/hardening.md](docs/hardening.md).
+
+Навыки Codex установлены в [.agents/skills](.agents/skills); источники и версии — [.agents/README.md](.agents/README.md). Реализованные страницы и логика кабинетов — [docs/product-completion.md](docs/product-completion.md).

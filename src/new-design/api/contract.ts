@@ -103,6 +103,7 @@ export interface Api {
   listMyTutors(): Promise<TutorSummary[]>; // GET /me/tutors
 
   // Администратор
+  adminDocuments(cursor?: string): Promise<{ items: (TutorDocument & { tutorName: string })[]; nextCursor: string | null }>;
   adminCancellations(): Promise<AdminCancellation[]>; // GET /admin/cancellations
   adminDisputes(): Promise<(Dispute & { lesson: Lesson })[]>; // GET /admin/disputes
   adminResolveDispute(id: Id, outcome: 'refund' | 'pay'): Promise<Dispute>; // POST /admin/disputes/:id/resolve

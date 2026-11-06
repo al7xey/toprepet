@@ -90,3 +90,15 @@ class ModerateDocument(APIView):
         admin = require_role(request, 'admin')
         doc = moderate_document(admin, document_id, boolean_input(request.data, 'approve'))
         return Response(document_json(doc, request))
+
+
+class DocumentQueue(APIView):
+    def get(self, request):
+        cursor = request.query_params.get('cursor', '')
+        if len(cursor) > 40:
+            raise ApiError('Неверный курсор')
+        query = TutorDocument.objects.filter(status='checking').select_related('tutor')
+        if cursor:
+            query = query.filter(pk__gt=cursor)
+        docs = list(query.order_by('pk')[:101])
+        return Response({'items': [{**document_json(doc, request), 'tutorName': doc.tutor.name} for doc in docs[:100]], 'nextCursor': docs[99].pk if len(docs) > 100 else None})

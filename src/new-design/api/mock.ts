@@ -591,7 +591,7 @@ export function createMockApi(): Api {
     async openConversation(tutorId) {
       const u = me(); const s = load();
       let c = s.conversations.find((x) => x.tutorId === tutorId && x.studentId === u.id);
-      if (!c) { const t = s.tutors.find((x) => x.id === tutorId); if (!t) fail('Анкета не найдена', 404); c = { id: nextId('c'), peerName: (t as Tutor).name, peerPhoto: (t as Tutor).photo, peerRole: 'tutor', lastMessage: '', updatedAt: iso(Date.now()), unread: 0, tutorId, studentId: u.id }; s.conversations.unshift(c); save(); }
+      if (!c) { const t = s.tutors.find((x) => x.id === tutorId && x.status === 'published'); if (!t) fail('Анкета не найдена', 404); c = { id: nextId('c'), peerName: (t as Tutor).name, peerPhoto: (t as Tutor).photo, peerRole: 'tutor', lastMessage: '', updatedAt: iso(Date.now()), unread: 0, tutorId, studentId: u.id }; s.conversations.unshift(c); save(); }
       return delay(c);
     },
     async getConversation(id) { return delay(peerView(myConversation(id))); },
@@ -747,6 +747,12 @@ export function createMockApi(): Api {
       if (doc.status !== 'checking') throw new ApiError('Документ уже проверен', 409);
       doc.status = approve ? 'approved' : 'rejected'; save();
       return delay(doc);
+    },
+    async adminDocuments(cursor) {
+      if (me().role !== 'admin') fail('Нет доступа', 403);
+      const s = load();
+      const items = s.tutors.flatMap((t) => (s.documents[t.id] ?? []).filter((d) => d.status === 'checking').map((d) => ({ ...d, tutorName: t.name }))).filter((d) => !cursor || d.id > cursor).sort((a, b) => a.id.localeCompare(b.id));
+      return delay({ items: items.slice(0, 100), nextCursor: items.length > 100 ? items[99].id : null });
     },
     async adminProfileQueue() {
       const s = load();

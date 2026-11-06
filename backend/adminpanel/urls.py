@@ -3,6 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('admin/documents', views.DocumentQueue.as_view()),
     path("admin/documents/<str:document_id>", views.ModerateDocument.as_view()),
     path('admin/cancellations', views.Cancellations.as_view()),
     path('admin/disputes', views.Disputes.as_view()),

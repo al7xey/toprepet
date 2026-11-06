@@ -62,3 +62,13 @@ def test_photo_requires_conversation_access_and_stays_out_of_public_storage(worl
     assert picture.status_code == 200 and picture['Content-Type'] == 'image/png'
     assert picture['Cache-Control'] == 'no-store'
     assert b''.join(picture.streaming_content)
+
+
+def test_existing_chat_stays_accessible_while_profile_is_under_review(world):
+    from accounts.models import User
+    from tutors.models import Tutor
+    Tutor.objects.filter(pk='english').update(status='review')
+    assert world.post_ok('/conversations', {'tutorId': 'english'})['id'] == 'c-1'
+    stranger = Api()
+    stranger.force_login(User.objects.create_user('new-chat@example.com', 'strong-test-password', name='New'))
+    assert stranger.call('post', '/conversations', {'tutorId': 'english'}).status_code == 404

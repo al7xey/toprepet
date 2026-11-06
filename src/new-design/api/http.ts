@@ -117,6 +117,7 @@ export function createHttpApi(base: string, fetchImpl: typeof fetch = (...args) 
     adminReviewQueue: () => get('/admin/reviews'),
     adminModerateReview: (id, approve) => post(`/admin/reviews/${id}`, { approve }),
     adminModerateDocument: (id, approve) => post('/admin/documents/' + encodeURIComponent(id), { approve }),
+    adminDocuments: (cursor) => get('/admin/documents' + (cursor ? '?cursor=' + encodeURIComponent(cursor) : '')),
     adminProfileQueue: () => get('/admin/profiles'),
     adminModerateProfile: (tutorId, approve, note) => post(`/admin/profiles/${tutorId}`, { approve, note }),
   };

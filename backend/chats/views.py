@@ -70,7 +70,11 @@ class ConversationsView(APIView):
 
     def post(self, request):
         user = require_role(request, 'student')
-        tutor = Tutor.objects.filter(id=str(request.data.get('tutorId', '')), status='published').first()
+        tutor_id = str(request.data.get('tutorId', ''))
+        existing = Conversation.objects.select_related('tutor', 'student').filter(tutor_id=tutor_id, student=user).first()
+        if existing:
+            return Response(conversation_json(existing, user))
+        tutor = Tutor.objects.filter(id=tutor_id, status='published').first()
         if tutor is None:
             raise not_found('Анкета не найдена')
         return Response(conversation_json(get_or_create_conversation(tutor, user), user))

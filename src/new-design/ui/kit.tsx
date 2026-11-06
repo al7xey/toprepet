@@ -159,7 +159,7 @@ export function Skeleton({ height = 20, width, radius }: { height?: number; widt
 
 /** Список-заглушка на время загрузки. */
 export function LoadingList({ rows = 3, height = 120 }: { rows?: number; height?: number }) {
-  return <div className="trk-stack" aria-busy="true" aria-label="Загрузка">{Array.from({ length: rows }, (_, i) => <Skeleton key={i} height={height} radius={32} />)}</div>;
+  return <section className="trk-stack" aria-live="polite" aria-busy="true" aria-label="Загрузка">{Array.from({ length: rows }, (_, i) => <Skeleton key={i} height={height} radius={32} />)}</section>;
 }
 
 /** Показывает загрузку, ошибку или данные запроса. */

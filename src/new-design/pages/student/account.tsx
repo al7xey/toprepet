@@ -23,6 +23,7 @@ const TUTOR_SECTIONS = [
   { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' },
   { label: 'Доход и выплаты', to: '/tutor/finance', icon: 'wallet' },
   { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' },
+  { label: 'Документы', to: '/tutor/documents', icon: 'doc' },
   { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' },
 ];
 
@@ -82,6 +83,7 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
           </section>
         )}
 
+        {role === 'student' && <nav className="trk-navlist" aria-label="Репетиторы"><Link className="trk-navrow" to="/me/tutors"><Icon name="school" /><span>Мои репетиторы</span><Icon name="right" /></Link></nav>}
         {role === 'tutor' && (
           <nav className="trk-navlist" aria-label="Разделы кабинета">
             {TUTOR_SECTIONS.map((s) => (

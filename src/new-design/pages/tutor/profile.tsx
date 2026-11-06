@@ -65,6 +65,7 @@ export default function TutorProfilePage() {
             {p.status === 'draft' && p.moderationNote && <Note tone="bad" icon="alert" action={<Button size="s" to="/tutor/profile/edit">Исправить</Button>}>Анкету вернули на доработку: {p.moderationNote}</Note>}
             {p.status === 'draft' && !p.moderationNote && <Note tone="info" icon="edit" action={<Button size="s" to="/tutor/profile/edit">Продолжить</Button>}>Анкета ещё не опубликована. Заполните её, и ученики смогут записываться.</Note>}
             <Section title="Документы">
+              <Button to="/tutor/documents" variant="line">Все документы</Button>
               <QueryView query={documents} loading={<span className="muted">Загружаем…</span>} empty={(items) => (items.length ? null : <p className="muted">Документов пока нет. Диплом и сертификаты можно добавить в мастере анкеты.</p>)}>
                 {(items) => <Rows boxed rows={items.map((d) => [d.title, <Status key={d.id} tone={DOC[d.status].tone}>{DOC[d.status].text}</Status>] as [string, ReactNode])} />}
               </QueryView>
