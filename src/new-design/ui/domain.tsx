@@ -20,7 +20,7 @@ export function TutorCard({ tutor, priority }: { priority?: boolean; tutor: Pick
     <Link state={back ? { back } : undefined} className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false}>
       <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 280px, 50vw" alt="" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : undefined} decoding="async" draggable={false} />
       <span className="pl">
-        <b>{tutor.name}{tutor.rating ? <span className="rt"><Icon name="star-on" />{String(tutor.rating).replace('.', ',')}</span> : null}</b>
+        <b><span className="trh-tutor-name">{tutor.name}</span>{tutor.rating ? <span className="rt"><Icon name="star-on" />{String(tutor.rating).replace('.', ',')}</span> : null}</b>
         <span>{tutor.cardSubjects}</span>
         <span className="trh-price">{fromRub(tutor.studentPrice)}</span>
       </span>

@@ -11,6 +11,26 @@ test.describe.configure({ mode: 'serial' });
 test.skip(!process.env.E2E_API_URL, 'нужен E2E_API_URL: запускайте через backend/scripts/e2e.sh');
 test.skip(({ isMobile }) => isMobile, 'сценарий один, на компьютере');
 
+test('Django: ошибка нового поиска скрывает старые карточки и позволяет повторить', async ({ page }) => {
+  await page.goto('/teachers');
+  await expect(page.locator('a.tc').first()).toBeVisible();
+  const failedQuery = 'несуществующий-преподаватель-123456789';
+  const endpoint = (url: URL) => url.pathname === '/tutors' && url.searchParams.get('query') === failedQuery;
+  await page.route(endpoint, (route) => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'Поиск временно недоступен' }) }));
+  await page.getByRole('searchbox').fill(failedQuery);
+  await page.getByRole('button', { name: 'Найти', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Поиск временно недоступен');
+  await expect(page.locator('a.tc')).toHaveCount(0);
+  await page.unroute(endpoint);
+  await page.getByRole('button', { name: 'Повторить', exact: true }).click();
+  await expect(page.getByText('По вашему запросу преподавателей не нашлось', { exact: true })).toBeVisible();
+  await expect(page.locator('a.tc')).toHaveCount(0);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await page.getByRole('searchbox').fill('Алексей');
+  await page.getByRole('button', { name: 'Найти', exact: true }).click();
+  await expect(page.locator('a.tc').first()).toContainText('Алексей');
+});
+
 test('Django: вход → запись → подтверждение репетитором → админ видит отмену', async ({ page, context }) => {
   await page.goto('/login');
   await page.locator('input[type=email]').fill('olga@mail.ru');

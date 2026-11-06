@@ -1,36 +1,18 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { subjects } from '../../../entities/lesson';
-import { api, staticTutors, type Tutor, type TutorFilter } from '../../api';
+import { api, staticTutors, type TutorFilter } from '../../api';
 import { safeChoice, trackGoal } from '../../../shared/lib/analytics';
 import { PublicLayout } from '../../layout/layouts';
 import { readCatalogFilter, writeCatalogFilter } from '../../lib/catalog-filter';
 import { useSession } from '../../api/session';
 import { rv } from '../../reveal';
+import { CatalogMetadata } from '../../../app/catalog-metadata';
+import { CATALOG_PAGE_SIZE as PAGE, listReducer, type ListState } from '../../lib/catalog-list';
 import { Button, Dropdown, EmptyState, ErrorState, FilterMenu, Icon, PageHeader, Skeleton, TutorGrid } from '../../ui';
 
 const SUBJECTS = subjects.filter((s) => s !== 'Другой предмет');
 const SORTS = [{ value: 'recommended', label: 'Рекомендуемые' }, { value: 'price_asc', label: 'Сначала дешевле' }, { value: 'price_desc', label: 'Сначала дороже' }] as const;
-const PAGE = 8;
-
-interface ListState { key: string; items: Tutor[]; total: number | null; cursor: string | null; more: boolean; error: string | null }
-type ListAction =
-  | { type: 'first'; key: string; items: Tutor[]; total: number; cursor: string | null }
-  | { type: 'fail'; key: string; message: string }
-  | { type: 'more-start' }
-  | { type: 'more'; items: Tutor[]; cursor: string | null }
-  | { type: 'more-fail'; message: string };
-
-function listReducer(state: ListState, action: ListAction): ListState {
-  switch (action.type) {
-    case 'first': return { key: action.key, items: action.items, total: action.total, cursor: action.cursor, more: false, error: null };
-    case 'fail': return { ...state, key: action.key, more: false, error: action.message };
-    case 'more-start': return { ...state, more: true, error: null };
-    case 'more': return { ...state, items: [...state.items, ...action.items], cursor: action.cursor, more: false };
-    case 'more-fail': return { ...state, more: false, error: action.message };
-  }
-}
-
 export default function CatalogPage() {
   const { user } = useSession();
   const [params, setParams] = useSearchParams();
@@ -84,6 +66,7 @@ export default function CatalogPage() {
 
   return (
     <PublicLayout tight>
+      <CatalogMetadata tutors={visibleItems} />
       <PageHeader title="Топ репеты" />
 
       <search className="trh-sec trh-tools" {...rv('up', 0.05)}>
@@ -103,8 +86,8 @@ export default function CatalogPage() {
       <section className="trh-sec" aria-label="Преподаватели" aria-busy={loading}>
         {error ? <ErrorState text={error} onRetry={() => setAttempt((value) => value + 1)} /> : null}
         {!loading && total === 0 ? (
-          <EmptyState icon="search" title="По вашему запросу преподавателей не нашлось" text="Попробуйте другое имя, предмет или тему. Или опишите задачу в заявке: подходящие репетиторы откликнутся сами."
-            actions={<><Button onClick={reset}>Показать всех</Button>{user && <Button to="/me/requests/new" variant="line">Создать заявку</Button>}</>} />
+          <EmptyState icon="search" title="По вашему запросу преподавателей не нашлось" text={user?.role === 'student' ? 'Попробуйте другое имя, предмет или тему. Или опишите задачу в заявке: подходящие репетиторы откликнутся сами.' : 'Попробуйте другое имя, предмет или тему.'}
+            actions={<><Button onClick={reset}>Показать всех</Button>{user?.role === 'student' && <Button to="/me/requests/new" variant="line">Создать заявку</Button>}</>} />
         ) : (
           <TutorGrid tutors={visibleItems}>
             {((!fresh && !initialUnfiltered) || (loading && cursor)) && Array.from({ length: 4 }, (_, i) => <Skeleton key={i} height={360} radius={36} />)}

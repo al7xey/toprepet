@@ -56,7 +56,7 @@ function addRouteAssets(html, route) {
   return html.replace('</head>', `${[...new Set(links)].join('\n')}\n</head>`);
 }
 
-const { render, teachers: teacherCatalog } = await import(
+const { render, teachers: teacherCatalog, CATALOG_PAGE_SIZE } = await import(
   pathToFileURL(serverEntryPath).href
 );
 
@@ -202,7 +202,7 @@ function addPageSchema(html, route) {
     url: canonicalForRoute(route),
     mainEntity: {
       '@type': 'ItemList',
-      itemListElement: teacherCatalog.map((teacher, index) => ({
+      itemListElement: teacherCatalog.slice(0, CATALOG_PAGE_SIZE).map((teacher, index) => ({
         '@type': 'ListItem',
         position: index + 1,
         item: {

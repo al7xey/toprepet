@@ -100,6 +100,10 @@ for (const [route, label] of Object.entries(privatePages).filter(([route]) => !r
   if (urls.includes(canonicalForRoute(route))) fail(`${route}: private URL in sitemap`);
 }
 const help = await readFile('dist/help/index.html', 'utf8');
+const catalog = await readFile('dist/teachers/index.html', 'utf8');
+const catalogSchema = [...catalog.matchAll(/<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g)].map((match) => JSON.parse(match[1])).find((schema) => schema['@type'] === 'CollectionPage');
+const catalogCards = [...catalog.matchAll(/<a[^>]*class="tc s"[^>]*href="([^"]+)"[^>]*>/g)].map((match) => new URL(match[1], 'https://toprepet.ru').href);
+if (!catalogCards.length || JSON.stringify(catalogSchema?.mainEntity?.itemListElement.map((entry) => entry.item.url)) !== JSON.stringify(catalogCards)) fail('catalog schema must describe visible prerendered cards');
 if (!help.includes('"@type":"FAQPage"') || !help.includes('"acceptedAnswer"')) fail('help FAQ');
 const llms = await readFile('dist/llms.txt', 'utf8');
 for (const path of ['/teachers/', '/help/', '/legal/', '/blog/']) if (!llms.includes(`https://toprepet.ru${path}`)) fail('llms discovery');

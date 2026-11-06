@@ -5,6 +5,7 @@ import { renderToString } from 'react-dom/server';
 
 import { AppContent } from './app';
 export { teachers } from '../entities/teacher';
+export { CATALOG_PAGE_SIZE } from '../new-design/lib/catalog-list';
 
 async function renderPrelude(url: string) {
   const { prelude, postponed } = await prerenderToNodeStream(
