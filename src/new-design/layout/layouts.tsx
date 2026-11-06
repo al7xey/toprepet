@@ -1,10 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api';
-import { useQuery } from '../api/hooks';
+import { useMutation, useQuery } from '../api/hooks';
 import { homeFor, useSession } from '../api/session';
 import type { Role } from '../api/types';
-import { Avatar, Button, Icon, IconButton } from '../ui';
+import { Avatar, Button, FormError, Icon, IconButton } from '../ui';
 
 const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ');
 
@@ -312,7 +312,7 @@ const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
  */
 export function AppLayout({ role, children, narrow, chat }: { role: Role; children: ReactNode; narrow?: boolean; chat?: 'list' | 'thread' }) {
   const { user, logout } = useSession();
-  const navigate = useNavigate();
+  const exit = useMutation(() => logout());
   const counters = useCounters(role);
   const nav = NAV[role];
   const top = nav.top.filter((item) => ready(item.to));
@@ -325,7 +325,7 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
         <nav className="trh-nav" aria-label="Разделы кабинета">
           {top.map((item) => <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{item.label}</NavLink>)}
         </nav>
-        {role === 'admin' && <span className="icons"><Button size="s" variant="fill" onClick={() => { void logout().then(() => navigate('/')); }}>Выйти</Button></span>}
+        {role === 'admin' && <span className="icons"><Button size="s" variant="fill" loading={exit.pending} onClick={() => { void exit.run(); }}>Выйти</Button></span>}
         {role !== 'admin' && (
           <span className="icons">
             {ready(`${counters.prefix}/notifications`) && <IconButton icon="bell" label="Уведомления" to={`${counters.prefix}/notifications`} badge={counters.notifications} className="trk-hdr-ic" />}
@@ -335,8 +335,9 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
         )}
       </header>
       <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>
+        <FormError error={exit.error} />
         {children}
-        {role === 'admin' && <div className="trk-admin-exit"><Button size="lg" variant="danger" block onClick={() => { void logout().then(() => navigate('/')); }}>Выйти</Button></div>}
+        {role === 'admin' && <div className="trk-admin-exit"><Button size="lg" variant="danger" block loading={exit.pending} onClick={() => { void exit.run(); }}>Выйти</Button></div>}
       </main>
       <TabBar tabs={tabs} />
     </div>

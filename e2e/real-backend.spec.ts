@@ -125,3 +125,44 @@ test('Django: обновление очереди заменяет устаре�
   await expect(row.getByText('Проверен', { exact: true })).toBeVisible();
   await expect(row.getByRole('button', { name: 'Подтвердить документ' })).toHaveCount(0);
 });
+
+test('Django: сбой проверки входа не завершает сессию и допускает повтор', async ({ page }) => {
+  await login(page, 'student');
+  await page.route('**/auth/me', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'Проверка входа временно недоступна' }) }));
+  await page.goto('/me/payments');
+  await expect(page.getByRole('alert')).toContainText('Проверка входа временно недоступна');
+  expect(new URL(page.url()).pathname).toBe('/me/payments');
+  await page.unroute('**/auth/me');
+  await page.getByRole('button', { name: 'Повторить', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Платежи', exact: true })).toBeVisible();
+});
+
+test('Django: отложенный ответ до входа не сбрасывает новую сессию', async ({ page }) => {
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => { release = resolve; });
+  await page.route('**/auth/me', async (route) => { await held; await route.fulfill({ status: 401, contentType: 'application/json', body: '{}' }); });
+  await login(page, 'student');
+  await expect(page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
+  release();
+  // Allow the deliberately delayed initial auth response to finish and React to commit.
+  await page.waitForTimeout(350);
+  await expect(page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
+});
+
+test('Django: ошибка выхода видна и сессия остаётся действующей', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await login(page, 'student');
+  await page.goto('/me/account/settings');
+  await page.route('**/auth/logout', (route) => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'Выход временно недоступен' }) }));
+  await page.getByRole('button', { name: 'Выйти', exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: 'Выйти', exact: true }).click();
+  await expect(dialog).toContainText('Выход временно недоступен');
+  await page.unroute('**/auth/logout');
+  await dialog.getByRole('button', { name: 'Выйти', exact: true }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await page.goto('/me/payments');
+  await expect(page).toHaveURL(/\/login\?next=/);
+  expect(errors).toEqual([]);
+});

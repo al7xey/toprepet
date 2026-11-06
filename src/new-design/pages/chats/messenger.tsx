@@ -225,6 +225,7 @@ function Thread({ conversation, list, loading, onSent, onRemoved, older, loading
                         <Rows boxed rows={m.card.rows.map(([k, v]) => (k === 'Сообщение' || v.includes('\n') ? [k, v, 'block'] as [string, string, 'block'] : [k, v] as [string, string]))} />
                       </div>
                     ) : m.text && <span className="tg-text">{m.text}</span>}
+                    {mine && <IconButton icon="more" label="Удалить своё сообщение" className="tg-message-actions" onClick={() => { stopHold(); remove.reset(); setRemoving(m); }} />}
                     <small>{timeLabel(m.at)}{mine && <Icon name={m.read ? 'ticks' : 'tick'} />}</small>
                   </div>
                 )}

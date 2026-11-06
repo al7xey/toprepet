@@ -1073,3 +1073,9 @@ html{overflow-y:scroll}
   .tr .trk-app .trk-app-hdr>nav{grid-column:1/-1;grid-row:2;justify-content:flex-start;flex-wrap:wrap;gap:4px}
   .tr .trk-app .trk-app-hdr>nav a{padding:8px}
 }
+
+.tr .trk-session-state{width:100%;max-width:640px;margin-inline:auto;padding:48px 16px;min-height:50vh;gap:24px}
+
+/* Existing message actions remain available by pointer, keyboard and assistive technology. */
+.tr .tg-msg.out .tg-message-actions{position:absolute;right:calc(100% + 4px);top:50%;transform:translateY(-50%);opacity:0;pointer-events:none}
+.tr .tg-msg.out:hover .tg-message-actions,.tr .tg-msg.out:focus-within .tg-message-actions{opacity:1;pointer-events:auto}

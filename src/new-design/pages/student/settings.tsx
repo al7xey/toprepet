@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { api } from '../../api';
 import { useMutation } from '../../api/hooks';
 import { useSession } from '../../api/session';
@@ -31,7 +30,6 @@ type View = 'menu' | 'data' | 'password';
 /** Настройки: отдельная страница. Фото, личные данные, пароль, уведомления на почту и выход. */
 export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
   const { user, setUser, logout } = useSession();
-  const navigate = useNavigate();
   const toast = useToast();
   const [view, setView] = useState<View>('menu');
   const [confirmExit, setConfirmExit] = useState(false);
@@ -72,7 +70,7 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
     const updated = await pref.run({ ...prefs, [key]: value });
     if (updated) setUser(updated);
   };
-  const exit = async () => { await logout(); void navigate('/', { replace: true }); };
+  const exit = useMutation(() => logout());
 
   if (view === 'data') {
     return (
@@ -127,8 +125,8 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
           <FormError error={pref.error} />
         </div>
       </Card>
-      <button type="button" className="trk-logout" onClick={() => setConfirmExit(true)}>Выйти</button>
-      <ConfirmDialog open={confirmExit} onClose={() => setConfirmExit(false)} onConfirm={() => void exit()} title="Выйти из аккаунта?" text="Чтобы войти снова, понадобятся почта и пароль." confirmLabel="Выйти" />
+      <button type="button" className="trk-logout" onClick={() => { exit.reset(); setConfirmExit(true); }}>Выйти</button>
+      <ConfirmDialog open={confirmExit} onClose={() => setConfirmExit(false)} onConfirm={() => { void exit.run(); }} title="Выйти из аккаунта?" text="Чтобы войти снова, понадобятся почта и пароль." confirmLabel="Выйти" pending={exit.pending} error={exit.error} />
     </AppLayout>
   );
 }

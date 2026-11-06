@@ -1,0 +1,33 @@
+import { test, expect } from '@playwright/test';
+import { login, expectNoHorizontalScroll } from './helpers';
+test('каталог сохраняет поиск в ссылке и при возврате из анкеты', async ({ page, isMobile }) => {
+  await page.goto('/teachers?query=' + encodeURIComponent('Анастасия') + '&sort=price_desc');
+  await expect(page.getByRole('searchbox')).toHaveValue('Анастасия');
+  await expect(page.locator('a.tc')).toHaveCount(1);
+  await page.locator('a.tc').click();
+  if (isMobile) await page.getByRole('button', { name: 'Назад', exact: true }).click();
+  else await page.getByRole('link', { name: 'Все преподаватели', exact: true }).click();
+  expect(new URL(page.url()).searchParams.get('query')).toBe('Анастасия');
+  await expect(page.getByRole('searchbox')).toHaveValue('Анастасия');
+  await page.getByRole('searchbox').fill('Анна');
+  await page.getByRole('button', { name: 'Найти', exact: true }).click();
+  await expect.poll(() => new URL(page.url()).searchParams.get('query')).toBe('Анна');
+  await expect(page.locator('a.tc').first()).toContainText('Анна');
+  await page.goBack();
+  await expect.poll(() => new URL(page.url()).searchParams.get('query')).toBe('Анастасия');
+  await expect(page.getByRole('searchbox')).toHaveValue('Анастасия');
+});
+test('сообщение удаляется с клавиатуры', async ({ page }) => {
+  await login(page, 'student');
+  await page.goto('/me/chats/c-1');
+  await page.getByRole('textbox', { name: 'Сообщение', exact: true }).fill('Проверка клавиатуры');
+  await page.getByRole('button', { name: 'Отправить', exact: true }).click();
+  const message = page.locator('.tg-msg.out').filter({ hasText: 'Проверка клавиатуры' });
+  const action = message.getByRole('button', { name: 'Удалить своё сообщение' });
+  await action.focus();
+  await expect.poll(() => action.evaluate((node) => getComputedStyle(node).opacity)).toBe('1');
+  await action.press('Enter');
+  await page.getByRole('dialog').getByRole('button', { name: 'Удалить', exact: true }).press('Enter');
+  await expect(message).toHaveCount(0);
+  await expectNoHorizontalScroll(page);
+});

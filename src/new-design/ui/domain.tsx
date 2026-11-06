@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { api } from '../api';
 import { useMutation } from '../api/hooks';
 import type { Card as PayCard, Lesson, Role, Slot, Tutor } from '../api/types';
@@ -14,8 +14,10 @@ import { Button, FormError, Note, Person, Status, TextField, type Tone } from '.
 
 /** Карточка репетитора: фото, имя, предметы, цена третьей строкой. Одна на главной, в каталоге и в подборках. */
 export function TutorCard({ tutor, priority }: { priority?: boolean; tutor: Pick<Tutor, 'id' | 'name' | 'photo' | 'photoSrcSet' | 'cardSubjects' | 'studentPrice' | 'rating'>}) {
+  const { pathname, search } = useLocation();
+  const back = /^\/teachers\/?$/.test(pathname) ? pathname + search : undefined;
   return (
-    <Link className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false}>
+    <Link state={back ? { back } : undefined} className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false}>
       <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 280px, 50vw" alt="" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : undefined} decoding="async" draggable={false} />
       <span className="pl">
         <b>{tutor.name}{tutor.rating ? <span className="rt"><Icon name="star-on" />{String(tutor.rating).replace('.', ',')}</span> : null}</b>

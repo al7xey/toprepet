@@ -26,7 +26,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="trh-hero-media" ref={media}>
-          <img src="/images/hero-slide-3-1200.webp" alt="Ученица занимается за ноутбуком" width={1200} height={900} fetchPriority="high" />
+          <img src="/images/hero-slide-3-1200.webp" srcSet="/images/hero-slide-3-640.webp 640w, /images/hero-slide-3-1200.webp 1200w" sizes="(min-width:1440px) 640px, (min-width:761px) 46vw, calc(100vw - 32px)" alt="Ученица занимается за ноутбуком" width={1200} height={900} fetchPriority="high" />
         </div>
       </section>
 

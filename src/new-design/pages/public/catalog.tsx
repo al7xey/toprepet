@@ -1,9 +1,10 @@
-import { useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { subjects } from '../../../entities/lesson';
 import { api, staticTutors, type Tutor, type TutorFilter } from '../../api';
 import { safeChoice, trackGoal } from '../../../shared/lib/analytics';
 import { PublicLayout } from '../../layout/layouts';
+import { readCatalogFilter, writeCatalogFilter } from '../../lib/catalog-filter';
 import { useSession } from '../../api/session';
 import { rv } from '../../reveal';
 import { Button, Dropdown, EmptyState, ErrorState, FilterMenu, Icon, PageHeader, Skeleton, TutorGrid } from '../../ui';
@@ -32,27 +33,29 @@ function listReducer(state: ListState, action: ListAction): ListState {
 
 export default function CatalogPage() {
   const { user } = useSession();
-  const [input, setInput] = useState('');
-  const [params] = useSearchParams();
-  const [filter, setFilter] = useState<TutorFilter>(() => ({ sort: 'recommended', subject: SUBJECTS.find((s) => s === params.get('subject')), hasIntro: params.get('intro') === '1' || undefined }));
+  const [params, setParams] = useSearchParams();
+  const filter = useMemo(() => readCatalogFilter(params, SUBJECTS), [params]);
+  const setFilter = (next: TutorFilter) => setParams(writeCatalogFilter(params, next));
+  const [attempt, setAttempt] = useState(0);
+  const [searchReset, setSearchReset] = useState(0);
   const [list, dispatch] = useReducer(listReducer, undefined, (): ListState => ({ key: '', items: staticTutors().slice(0, PAGE), total: null, cursor: null, more: false, error: null }));
   const sentinel = useRef<HTMLDivElement>(null);
-  const key = JSON.stringify(filter);
+  const key = JSON.stringify(filter) + attempt;
   const fresh = list.key === key;
   const { items, total, cursor } = list;
   const loading = !fresh || list.more;
-  const error = fresh || list.more === false ? list.error : null;
+  const error = fresh ? list.error : null;
 
   // первая страница при смене фильтров
   useEffect(() => {
     let alive = true;
-    const k = JSON.stringify(filter);
+    const k = key;
     api.listTutors({ ...filter, limit: PAGE }).then(
       (page) => { if (alive) dispatch({ type: 'first', key: k, items: page.items, total: page.total, cursor: page.nextCursor }); },
       (e: Error) => { if (alive) dispatch({ type: 'fail', key: k, message: e.message }); },
     );
     return () => { alive = false; };
-  }, [filter]);
+  }, [filter, key]);
 
   // следующие страницы — автоматически при прокрутке
   useEffect(() => {
@@ -72,19 +75,15 @@ export default function CatalogPage() {
     return () => { alive = false; io.disconnect(); };
   }, [cursor, fresh, filter]);
 
-  const set = (patch: Partial<TutorFilter>) => setFilter((f) => ({ ...f, ...patch, cursor: null }));
-  const reset = () => { setInput(''); setFilter({ sort: filter.sort }); };
+  const set = (patch: Partial<TutorFilter>) => setFilter({ ...filter, ...patch, cursor: null });
+  const reset = () => { setSearchReset((value) => value + 1); setFilter({ sort: filter.sort }); };
 
   return (
     <PublicLayout tight>
       <PageHeader title="Топ репеты" />
 
       <search className="trh-sec trh-tools" {...rv('up', 0.05)}>
-        <form className="search" onSubmit={(e) => { e.preventDefault(); set({ query: input.trim() || undefined }); trackGoal('teacher_search', { has_query: Boolean(input.trim()) }); }}>
-          <Icon name="search" />
-          <input className="ym-disable-keys trh-search-input" type="search" aria-label="Поиск по предмету, теме или имени преподавателя" placeholder="Предмет или имя" value={input} onChange={(e) => setInput(e.target.value)} />
-          <Button type="submit" size="s">Найти</Button>
-        </form>
+        <CatalogSearch key={JSON.stringify([filter.query ?? '', searchReset])} query={filter.query ?? ''} onSearch={(query) => { set({ query: query || undefined }); trackGoal('teacher_search', { has_query: Boolean(query) }); }} />
         <div className="trh-chips">
           <FilterMenu
             active={Boolean(filter.subject || filter.priceMin || filter.priceMax || filter.hasIntro)}
@@ -98,7 +97,7 @@ export default function CatalogPage() {
       </search>
 
       <section className="trh-sec" aria-label="Преподаватели">
-        {error ? <ErrorState text={error} onRetry={() => setFilter((f) => ({ ...f }))} /> : null}
+        {error ? <ErrorState text={error} onRetry={() => setAttempt((value) => value + 1)} /> : null}
         {!loading && total === 0 ? (
           <EmptyState icon="search" title="По вашему запросу преподавателей не нашлось" text="Попробуйте другое имя, предмет или тему. Или опишите задачу в заявке: подходящие репетиторы откликнутся сами."
             actions={<><Button onClick={reset}>Показать всех</Button>{user && <Button to="/me/requests/new" variant="line">Создать заявку</Button>}</>} />
@@ -111,4 +110,14 @@ export default function CatalogPage() {
       </section>
     </PublicLayout>
   );
+}
+
+
+function CatalogSearch({ query, onSearch }: { query: string; onSearch: (query: string) => void }) {
+  const [input, setInput] = useState(query);
+  return <form className="search" onSubmit={(e) => { e.preventDefault(); onSearch(input.trim()); }}>
+    <Icon name="search" />
+    <input className="ym-disable-keys trh-search-input" type="search" autoComplete="off" name="query" aria-label="Поиск по предмету, теме или имени преподавателя" placeholder="Предмет или имя" maxLength={200} value={input} onChange={(e) => setInput(e.target.value)} />
+    <Button type="submit" size="s">Найти</Button>
+  </form>;
 }

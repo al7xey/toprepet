@@ -41,6 +41,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const fromChat = (location.state as { back?: string } | null)?.back;
   // «Записаться» закреплена внизу экрана, а у блока со временем встаёт на своё место
   const ctaSlot = useRef<HTMLDivElement>(null);
+  const heroPhoto = useRef<HTMLImageElement>(null);
   const [docked, setDocked] = useState(false);
   useEffect(() => {
     let frame = 0;
@@ -63,8 +64,9 @@ function Profile({ tutor }: { tutor: Tutor }) {
     if (!meta) return undefined;
     const previous = meta.content;
     let cancelled = false;
-    const img = new Image();
-    img.onload = () => {
+    const img = heroPhoto.current;
+    if (!img) return undefined;
+    const applyColor = () => {
       try {
         const canvas = document.createElement('canvas');
         canvas.width = 24; canvas.height = 4;
@@ -78,8 +80,9 @@ function Profile({ tutor }: { tutor: Tutor }) {
         if (!cancelled) meta.content = `rgb(${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)})`;
       } catch { /* фото с другого адреса нельзя прочитать: оставляем белый */ }
     };
-    img.src = tutor.photo;
-    return () => { cancelled = true; meta.content = previous; };
+    if (img.complete && img.naturalWidth) applyColor();
+    else img.addEventListener('load', applyColor, { once: true });
+    return () => { cancelled = true; img.removeEventListener('load', applyColor); meta.content = previous; };
   }, [tutor.photo]);
   // назад — по истории, если она есть; иначе к каталогу
   const close = () => { if (location.key !== 'default') void navigate(-1); else void navigate('/teachers'); };
@@ -108,12 +111,12 @@ function Profile({ tutor }: { tutor: Tutor }) {
 
   return (
     <PublicLayout tight bareMobile>
-      <div className="trh-pf-backwrap"><BackLink to={fromChat ?? '/teachers'}>{fromChat ? 'К сообщениям' : 'Все преподаватели'}</BackLink></div>
+      <div className="trh-pf-backwrap"><BackLink to={fromChat ?? '/teachers'}>{fromChat && /^\/(me|tutor)\/chats/.test(fromChat) ? 'К сообщениям' : 'Все преподаватели'}</BackLink></div>
       <div className="trh-pf">
         <div className="trh-pf-main">
           <section className="trh-pf-top">
             <div className="trh-pf-photo" {...rv('scale')}>
-              <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 300px, 100vw" alt={`Фото: ${tutor.name}`} fetchPriority="high" decoding="async" />
+              <img ref={heroPhoto} src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 300px, 100vw" alt={`Фото: ${tutor.name}`} fetchPriority="high" decoding="async" />
               <IconButton icon="back" label="Назад" onClick={close} className="trh-pf-back" />
               <IconButton icon="share" label="Поделиться" onClick={share} className="trh-pf-share" />
             </div>
