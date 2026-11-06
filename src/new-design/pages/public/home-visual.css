@@ -5,11 +5,6 @@
 .tr .p-home-intro-art img{display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:contain;background:#fff}
 .tr .p-home-intro-art figcaption{padding:16px 24px;color:var(--muted);font-size:14px}
 .tr .p-home-intro-step{gap:16px}
-@media(min-width:1000px){
-  .tr .p-home-how .trh-steps{grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
-  .tr .p-home-how .trh-steps li{grid-template-columns:minmax(0,1fr);gap:16px;align-content:start;min-height:0}
-  .tr .p-home-how .trh-steps li:not(:last-child)::before{left:64px;top:24px;bottom:auto;width:calc(100% - 40px);height:2px}
-}
 @media(max-width:760px){
   .tr .p-home-subject-links{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .tr .p-home-subject-links .btn{font-size:16px;padding:12px;gap:8px}
