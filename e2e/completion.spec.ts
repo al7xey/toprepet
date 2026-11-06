@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { login, expectNoHorizontalScroll } from './helpers';
 for (const [role, path, title] of [['student', '/me/tutors', 'Мои репетиторы'], ['tutor', '/tutor/documents', 'Документы'], ['admin', '/admin/documents', 'Проверка документов']] as const) {
-  test(`${role}: ${title}`, async ({ page }) => {
+  test(`${role}: ${title}`, async ({ page }, testInfo) => {
     await login(page, role);
     await page.goto(path);
     await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
@@ -10,7 +10,7 @@ for (const [role, path, title] of [['student', '/me/tutors', 'Мои репет�
     await expectNoHorizontalScroll(page);
     const accessibility = await new AxeBuilder({ page }).exclude('.hdr nav a.cur').withTags(['wcag2a', 'wcag2aa']).analyze();
     expect(accessibility.violations).toEqual([]);
-    if (!process.env.CI) await page.screenshot({ path: '/workspace/scratch/completion-' + role + '-' + page.viewportSize()!.width + '.png', fullPage: true });
+    await page.screenshot({ path: testInfo.outputPath('page.png'), fullPage: true });
   });
 }
 
