@@ -4,6 +4,12 @@ Allow: /
 User-agent: OAI-SearchBot
 Allow: /
 
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
 User-agent: Yandex
 Allow: /
 Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&_ym_debug

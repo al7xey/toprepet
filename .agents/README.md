@@ -8,6 +8,8 @@
 | react-best-practices | vercel-labs/agent-skills | React: lazy routes, эффекты, загрузка данных |
 | web-design-guidelines | vercel-labs/agent-skills | доступность, переполнение, формы и мобильная навигация |
 | api-design-principles | wshobson/agents | контракт, пагинация, права доступа, ошибки |
+| seo-audit | coreyhaines31/marketingskills | индексация, метаданные, sitemap и перелинковка |
+| ai-seo | coreyhaines31/marketingskills | GEO: доступный контент, достоверные факты и измерение упоминаний |
 
 Отбор по применимости к React/Vite + Django и популярности репозиториев, а не глобальный рейтинг установок навыков. Число GitHub stars — снимок на дату установки в lock-файле. Сохранены доступные upstream лицензии и авторство; React skill объявляет MIT в SKILL.md.
 

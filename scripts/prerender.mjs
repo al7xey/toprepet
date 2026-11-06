@@ -69,6 +69,7 @@ if (!template.includes(rootPlaceholder)) {
 }
 
 import { routes, titles, descriptions, canonicalForRoute } from './seo-routes.mjs';
+import privatePages from '../src/shared/config/private-seo-pages.json' with { type: 'json' };
 
 const breadcrumbNames = {
   '/help':
@@ -390,11 +391,10 @@ const blogPages = [
   })).map(category => ({ route: blogCategoryPath(category), title: `${category.name} — Блог TopRepet`, description: category.description || `Статьи по теме «${category.name}» в блоге TopRepet.` })),
   ...blog.articles.map(article => ({ route: `/blog/articles/${article.slug}`, title: article.seo_title || `${article.title} — Блог TopRepet`, description: article.seo_description || article.excerpt, article })),
 ];
-const adminRoutes = ['/blog/admin', '/blog/admin/login', '/blog/admin/articles', '/blog/admin/articles/new', '/blog/admin/articles/edit', '/blog/admin/categories'];
-for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: 'Админка блога — TopRepet', description: '', admin: true }))]) {
+for (const page of blogPages) {
   const url = `https://toprepet.ru${page.route}/`;
   const appHtml = await render(page.route);
-  if (!page.admin) trackLastmod(url, appHtml, page.title, page.description);
+  trackLastmod(url, appHtml, page.title, page.description);
   let html = template.replace(rootPlaceholder, `<div id="root" data-prerendered="${page.route}">${appHtml}</div>`);
   html = html.replace(/<title>.*?<\/title>/s, `<title>${escapeMeta(page.title)}</title>`)
     .replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/i, `<meta name="description" content="${escapeMeta(page.description)}" />`);
@@ -413,10 +413,26 @@ for (const page of [...blogPages, ...adminRoutes.map(route => ({ route, title: '
       html = html.replace(/<meta property="og:image:(?:width|height)"[^>]*>/g, '');
     }
   }
-  if (page.admin) html = html.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i, '<meta name="robots" content="noindex,follow" />');
-  else html = html.replace('</head>', `<link rel="canonical" href="${url}" /></head>`);
+  html = html.replace('</head>', `<link rel="canonical" href="${url}" /></head>`);
   html = addRouteAssets(html, page.route);
   const path = resolve('dist', page.route.slice(1), 'index.html');
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, html, 'utf8');
+}
+// Public auth screens and protected route shells need correct metadata before JavaScript.
+// Never prerender private data or add these URLs to the public sitemap.
+for (const [route, label] of Object.entries(privatePages).filter(([route]) => !route.includes(':'))) {
+  const title = `${label} — TopRepet`;
+  const description = `${label} в TopRepet. Доступ к личным данным и действиям зависит от вашего аккаунта.`;
+  let html = template.replace(rootPlaceholder, `<div id="root" data-prerendered="${route}">${await render(route)}</div>`)
+    .replace(/<title>.*?<\/title>/s, `<title>${escapeMeta(title)}</title>`);
+  html = updateMetaContent(html, 'name', 'description', escapeMeta(description));
+  html = updateMetaContent(html, 'name', 'robots', 'noindex,follow');
+  for (const [attribute, key, value] of [['property', 'og:title', title], ['property', 'og:description', description], ['property', 'og:url', canonicalForRoute(route)], ['name', 'twitter:title', title], ['name', 'twitter:description', description]]) {
+    html = updateMetaContent(html, attribute, key, escapeMeta(value));
+  }
+  html = addRouteAssets(html, route);
+  const path = resolve('dist', route.slice(1), 'index.html');
   await mkdir(dirname(path), { recursive: true });
   await writeFile(path, html, 'utf8');
 }
@@ -433,12 +449,13 @@ await mkdir(dirname(legacyTutorPath), { recursive: true });
 await writeFile(legacyTutorPath, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=https://toprepet.ru/for-repetitor/"><link rel="canonical" href="https://toprepet.ru/for-repetitor/"><title>Переход на страницу для репетиторов</title></head><body><p>Страница переехала: <a href="https://toprepet.ru/for-repetitor/">работа репетитором с TopRepet</a>.</p></body></html>`, 'utf8');
 
 // Страницы, которые переехали на новые адреса: статический редирект для поисковиков и внешних ссылок.
-const movedPages = { '/lessons': '/teachers', '/contact': '/help', '/free-intro': '/teachers' };
+const movedPages = { '/lessons': '/teachers', '/contact': '/help', '/free-intro': '/teachers?intro=1' };
 for (const [from, to] of Object.entries(movedPages)) {
-  const destination = canonicalForRoute(to);
+  const destination = to.includes('?') ? canonicalForRoute(to.split('?')[0]) + '?' + to.split('?')[1] : canonicalForRoute(to);
+  const canonical = canonicalForRoute(to.split('?')[0]);
   const path = resolve('dist', from.slice(1), 'index.html');
   await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${destination}"><link rel="canonical" href="${destination}"><title>Страница переехала — TopRepet</title></head><body><p>Страница переехала: <a href="${destination}">открыть новый адрес</a>.</p></body></html>`, 'utf8');
+  await writeFile(path, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${destination}"><link rel="canonical" href="${canonical}"><title>Страница переехала — TopRepet</title></head><body><p>Страница переехала: <a href="${destination}">открыть новый адрес</a>.</p></body></html>`, 'utf8');
 }
 
 for (const route of routes.filter(path => path.startsWith('/teachers/'))) {
@@ -449,8 +466,12 @@ for (const route of routes.filter(path => path.startsWith('/teachers/'))) {
   await writeFile(oldPath, `<!doctype html><html lang="ru"><head><meta charset="UTF-8"><meta name="robots" content="noindex,follow"><meta http-equiv="refresh" content="0;url=${destination}"><link rel="canonical" href="${destination}"><title>Анкета преподавателя переехала — TopRepet</title></head><body><p>Анкета переехала: <a href="${destination}">открыть новый адрес</a>.</p></body></html>`, 'utf8');
 }
 
-const notFoundHtml = addRouteAssets(template, '/this-page-does-not-exist')
+let notFoundHtml = addRouteAssets(template, '/this-page-does-not-exist')
   .replace(rootPlaceholder, `<div id="root">${await render('/this-page-does-not-exist')}</div>`)
   .replace(/<title>.*?<\/title>/s, '<title>Страница не найдена — TopRepet</title>')
   .replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i, '<meta name="robots" content="noindex,follow" />');
+const missingDescription = 'Страница не найдена. Перейдите в каталог репетиторов или обратитесь к разделу помощи TopRepet.';
+for (const [attribute, key, value] of [['name', 'description', missingDescription], ['property', 'og:title', 'Страница не найдена — TopRepet'], ['property', 'og:description', missingDescription], ['name', 'twitter:title', 'Страница не найдена — TopRepet'], ['name', 'twitter:description', missingDescription]]) {
+  notFoundHtml = updateMetaContent(notFoundHtml, attribute, key, value);
+}
 await writeFile(resolve('dist/404.html'), notFoundHtml, 'utf8');

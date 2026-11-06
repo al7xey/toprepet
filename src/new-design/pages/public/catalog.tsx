@@ -45,6 +45,10 @@ export default function CatalogPage() {
   const { items, total, cursor } = list;
   const loading = !fresh || list.more;
   const error = fresh ? list.error : null;
+  // The build snapshot is valid only for the unfiltered catalogue. Never let a
+  // quick click on stale results open an unrelated tutor while filters load.
+  const initialUnfiltered = list.key === '' && !filter.query && !filter.subject && filter.priceMin == null && filter.priceMax == null && !filter.hasIntro && filter.sort === 'recommended';
+  const visibleItems = fresh || initialUnfiltered ? items : [];
 
   // первая страница при смене фильтров
   useEffect(() => {
@@ -96,14 +100,14 @@ export default function CatalogPage() {
         </div>
       </search>
 
-      <section className="trh-sec" aria-label="Преподаватели">
+      <section className="trh-sec" aria-label="Преподаватели" aria-busy={loading}>
         {error ? <ErrorState text={error} onRetry={() => setAttempt((value) => value + 1)} /> : null}
         {!loading && total === 0 ? (
           <EmptyState icon="search" title="По вашему запросу преподавателей не нашлось" text="Попробуйте другое имя, предмет или тему. Или опишите задачу в заявке: подходящие репетиторы откликнутся сами."
             actions={<><Button onClick={reset}>Показать всех</Button>{user && <Button to="/me/requests/new" variant="line">Создать заявку</Button>}</>} />
         ) : (
-          <TutorGrid tutors={items}>
-            {loading && cursor && Array.from({ length: 4 }, (_, i) => <Skeleton key={i} height={360} radius={36} />)}
+          <TutorGrid tutors={visibleItems}>
+            {((!fresh && !initialUnfiltered) || (loading && cursor)) && Array.from({ length: 4 }, (_, i) => <Skeleton key={i} height={360} radius={36} />)}
           </TutorGrid>
         )}
         {cursor && <div ref={sentinel} className="trh-sentinel" aria-hidden="true" />}

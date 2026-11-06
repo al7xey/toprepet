@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { routes, titles, descriptions, canonicalForRoute } from './seo-routes.mjs';
+import privatePages from '../src/shared/config/private-seo-pages.json' with { type: 'json' };
 
 const fail = message => { throw new Error(`SEO: ${message}`); };
 const photos = JSON.parse(await readFile('src/shared/config/teacher-photos.json', 'utf8'));
@@ -83,7 +84,8 @@ if (!robots.includes('Clean-param:') || /Disallow:\s*\/(?:\s|$)/m.test(robots)) 
 for (const [from, to] of [['/lessons', '/teachers'], ['/contact', '/help'], ['/free-intro', '/teachers']]) {
   const html = await readFile(resolve(`dist${from}/index.html`), 'utf8');
   const destination = canonicalForRoute(to);
-  if (!html.includes('noindex,follow') || !html.includes(`content="0;url=${destination}"`) || !html.includes(`rel="canonical" href="${destination}"`)) fail(`${from}: moved page redirect`);
+  const redirect = from === '/free-intro' ? `${destination}?intro=1` : destination;
+  if (!html.includes('noindex,follow') || !html.includes(`content="0;url=${redirect}"`) || !html.includes(`rel="canonical" href="${destination}"`)) fail(`${from}: moved page redirect`);
   if (urls.some(url => url.endsWith(`${from}/`))) fail(`${from}: moved page in sitemap`);
 }
 for (const route of ['/help', '/legal', '/legal/payment-refund', '/legal/terms']) {
@@ -91,3 +93,14 @@ for (const route of ['/help', '/legal', '/legal/payment-refund', '/legal/terms']
   if (!html.includes('class="tr"') || !html.includes('class="hdr surf')) fail(`${route}: new layout`);
   if (/менеджер|20 минут|промокод/i.test(html.match(/<main[\s\S]*?<\/main>/)?.[0] ?? '')) fail(`${route}: removed wording returned`);
 }
+
+for (const [route, label] of Object.entries(privatePages).filter(([route]) => !route.includes(':'))) {
+  const html = await readFile(resolve(`dist${route}/index.html`), 'utf8');
+  if (!html.includes(`<title>${label} — TopRepet</title>`) || !html.includes('noindex,follow') || html.includes('rel="canonical"')) fail(`${route}: private metadata`);
+  if (urls.includes(canonicalForRoute(route))) fail(`${route}: private URL in sitemap`);
+}
+const help = await readFile('dist/help/index.html', 'utf8');
+if (!help.includes('"@type":"FAQPage"') || !help.includes('"acceptedAnswer"')) fail('help FAQ');
+const llms = await readFile('dist/llms.txt', 'utf8');
+for (const path of ['/teachers/', '/help/', '/legal/', '/blog/']) if (!llms.includes(`https://toprepet.ru${path}`)) fail('llms discovery');
+console.log(`SEO: метаданные ${Object.keys(privatePages).length} маршрутов кабинетов/авторизации, FAQ и llms.txt проверены`);

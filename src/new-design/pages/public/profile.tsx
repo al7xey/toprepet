@@ -2,12 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { api, LESSON_MINUTES, staticTutors, type Tutor } from '../../api';
 import { trackGoal } from '../../../shared/lib/analytics';
+import { TutorMetadata } from '../../../app/tutor-metadata';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
 import { minutes, rub, whenLabel } from '../../lib/format';
 import { rv } from '../../reveal';
-import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, Note, QueryView, Rows, Section, SlotPicker, Status, Tags } from '../../ui';
+import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, LoadingList, Note, PageHeader, QueryView, Rows, Section, SlotPicker, Status, Tags } from '../../ui';
 import { NotFoundBody } from './notfound';
 
 const ACH_ICONS = ['target', 'school', 'book'] as const;
@@ -19,10 +20,10 @@ export default function ProfilePage() {
   const tutorQuery = useQuery(`tutor-${id}`, () => api.getTutor(id), initial);
   const tutor = tutorQuery.data;
   if (tutorQuery.status === 404 || (!tutor && !tutorQuery.loading && !tutorQuery.error)) {
-    return <PublicLayout tight><NotFoundBody title="Анкета не найдена" text="Возможно, ссылка устарела или анкета снята с публикации." action={<Button to="/teachers" size="lg">К преподавателям</Button>} /></PublicLayout>;
+    return <PublicLayout tight><TutorMetadata tutor={null} /><NotFoundBody title="Анкета не найдена" text="Возможно, ссылка устарела или анкета снята с публикации." action={<Button to="/teachers" size="lg">К преподавателям</Button>} /></PublicLayout>;
   }
-  if (tutorQuery.error) return <PublicLayout tight><ErrorState text={tutorQuery.error} onRetry={tutorQuery.reload} /></PublicLayout>;
-  if (!tutor) return <PublicLayout tight><div /></PublicLayout>;
+  if (tutorQuery.error) return <PublicLayout tight><PageHeader title="Анкета преподавателя" /><ErrorState text={tutorQuery.error} onRetry={tutorQuery.reload} /></PublicLayout>;
+  if (!tutor) return <PublicLayout tight><PageHeader title="Анкета преподавателя" /><LoadingList rows={3} /></PublicLayout>;
   return <Profile key={id} tutor={tutor} />;
 }
 
@@ -111,6 +112,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
 
   return (
     <PublicLayout tight bareMobile>
+      <TutorMetadata tutor={tutor} />
       <div className="trh-pf-backwrap"><BackLink to={fromChat ?? '/teachers'}>{fromChat && /^\/(me|tutor)\/chats/.test(fromChat) ? 'К сообщениям' : 'Все преподаватели'}</BackLink></div>
       <div className="trh-pf">
         <div className="trh-pf-main">

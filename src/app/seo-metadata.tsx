@@ -1,6 +1,7 @@
 import { useLayoutEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { matchPath, useLocation } from 'react-router-dom';
 import pages from '../shared/config/seo-pages.json';
+import privatePages from '../shared/config/private-seo-pages.json';
 import { articles, articlePath, categories, categoryPath, hasPublished } from '../blog/data';
 import { teachers } from '../entities/teacher';
 
@@ -12,20 +13,22 @@ export function SeoMetadata() {
     const article = articles.find(item => path === articlePath(item).replace(/\/$/, ''));
     const category = categories.find(item => path === categoryPath(item).replace(/\/$/, ''));
     const known = pages[path as keyof typeof pages];
+    const privateTitle = privatePages[path as keyof typeof privatePages] || Object.entries(privatePages).find(([pattern]) => matchPath(pattern, path))?.[1];
     const page = known || (path === '/blog' ? { title: 'Блог TopRepet — статьи об учёбе, ОГЭ и ЕГЭ', description: 'Статьи об учёбе, школьных предметах и подготовке к ОГЭ и ЕГЭ от редакции TopRepet: советы ученикам и родителям.' } : article ? { title: article.seo_title || `${article.title} — Блог TopRepet`, description: article.seo_description || article.excerpt } : category && hasPublished(category) ? { title: `${category.name} — Блог TopRepet`, description: category.description || `Статьи по теме «${category.name}» в блоге TopRepet.` } : undefined);
     const url = path === '/' ? 'https://toprepet.ru/' : `https://toprepet.ru${path}/`;
     const oldCanonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
     const changed = oldCanonical?.href !== url;
-    const title = page?.title || (path.startsWith('/blog/admin') ? 'Админка блога — TopRepet' : 'Страница не найдена — TopRepet');
+    const title = page?.title || (privateTitle ? `${privateTitle} — TopRepet` : 'Страница не найдена — TopRepet');
+    const description = page?.description || (privateTitle ? `${privateTitle} в TopRepet. Доступ к личным данным и действиям зависит от вашего аккаунта.` : 'Страница не найдена. Перейдите в каталог репетиторов или обратитесь к разделу помощи TopRepet.');
     document.title = title;
     const meta = (attribute: 'name' | 'property', key: string, value: string) => {
       let tag = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
       if (!tag) { tag = document.createElement('meta'); tag.setAttribute(attribute, key); document.head.append(tag); }
       tag.content = value;
     };
-    meta('name', 'description', page?.description || '');
+    meta('name', 'description', description);
     meta('name', 'robots', page ? 'index,follow,max-image-preview:large' : 'noindex,follow');
-    for (const [key, value] of [['og:title', title], ['og:description', page?.description || ''], ['og:url', url], ['twitter:title', title], ['twitter:description', page?.description || '']]) meta(key.startsWith('og:') ? 'property' : 'name', key, value);
+    for (const [key, value] of [['og:title', title], ['og:description', description], ['og:url', url], ['twitter:title', title], ['twitter:description', description]]) meta(key.startsWith('og:') ? 'property' : 'name', key, value);
     if (page) {
       const canonical = oldCanonical || document.createElement('link');
       canonical.rel = 'canonical'; canonical.href = url;
@@ -44,7 +47,7 @@ export function SeoMetadata() {
       if (page) {
         const schema = document.createElement('script'); schema.type = 'application/ld+json'; schema.dataset.clientPageSchema = '';
         const person = (item: (typeof teachers)[number]) => ({ '@type': 'Person', name: item.name, jobTitle: item.role, url: `https://toprepet.ru/teachers/${item.id}/`, image: new URL(item.photo, 'https://toprepet.ru').href });
-        schema.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': teacher ? 'ProfilePage' : path === '/teachers' ? 'CollectionPage' : path === '/contact' ? 'ContactPage' : 'WebPage', '@id': `${url}#webpage`, url, name: title, description: page.description, inLanguage: 'ru-RU', isPartOf: { '@id': 'https://toprepet.ru/#website' }, ...(teacher ? { mainEntity: person(teacher) } : path === '/teachers' ? { mainEntity: { '@type': 'ItemList', itemListElement: teachers.map((item, index) => ({ '@type': 'ListItem', position: index + 1, item: person(item) })) } } : {}) });
+        schema.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': teacher ? 'ProfilePage' : path === '/teachers' || category ? 'CollectionPage' : path === '/blog' ? 'Blog' : 'WebPage', '@id': `${url}#webpage`, url, name: title, description: page.description, inLanguage: 'ru-RU', isPartOf: { '@id': 'https://toprepet.ru/#website' }, ...(path === '/' ? { mainEntity: { '@type': 'Service', name: 'Индивидуальные онлайн-занятия с частным репетитором', serviceType: 'Индивидуальные занятия по школьным предметам', broker: { '@id': 'https://toprepet.ru/#organization' }, areaServed: { '@type': 'Country', name: 'Россия' }, availableChannel: { '@type': 'ServiceChannel', serviceUrl: 'https://toprepet.ru/teachers/' } } } : article ? { mainEntity: { '@id': `${url}#article-content` } } : {}), ...(teacher ? { mainEntity: person(teacher) } : path === '/teachers' ? { mainEntity: { '@type': 'ItemList', itemListElement: teachers.map((item, index) => ({ '@type': 'ListItem', position: index + 1, item: person(item) })) } } : {}) });
         document.head.append(schema);
         if (path !== '/') {
           const trail = [{ name: 'Главная', item: 'https://toprepet.ru/' }];
