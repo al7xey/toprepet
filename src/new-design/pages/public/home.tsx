@@ -3,11 +3,9 @@ import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
 import { rv } from '../../reveal';
-import { Button, Faq, Icon, IconButton, Section } from '../../ui';
+import { Button, Faq, Icon, IconButton, Section, Steps } from '../../ui';
 import { TutorShowcase } from '../../ui/tutor-showcase';
-import { subjects } from '../../../entities/lesson';
-import { safeChoice, trackGoal } from '../../../shared/lib/analytics';
-import { STUDENT_FAQ } from './content';
+import { HOW_STEPS, STUDENT_FAQ } from './content';
 import './home-visual.css';
 
 export default function HomePage() {
@@ -34,10 +32,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Section title="С какого предмета начнём?" lead="Выберите направление — покажем анкеты преподавателей по вашему предмету." className="p-home-subjects">
-        <nav className="p-home-subject-links" aria-label="Выбрать предмет">
-          {subjects.slice(0, 6).map((subject) => <Button key={subject} to={`/teachers?${new URLSearchParams({ subject })}`} variant="fill" icon="book" onClick={() => trackGoal('teacher_filter', { subject: safeChoice(subject) })}>{subject}</Button>)}
-        </nav>
+      <Section title="Как всё устроено" id="how">
+        <Steps items={HOW_STEPS} />
       </Section>
 
       <Section

@@ -1,16 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { expectNoHorizontalScroll, login, logout } from './helpers';
 
-test('главная: предметы открывают фильтр, знакомство сохраняет условие', async ({ page }) => {
-  await page.goto('/');
-  const links = await page.getByRole('navigation', { name: 'Выбрать предмет' }).getByRole('link').evaluateAll((nodes) => nodes.map((node) => ({ href: node.getAttribute('href')!, text: node.textContent! })));
-  expect(links).toHaveLength(6);
-  for (const link of links) {
-    await page.goto(link.href);
-    expect(new URL(page.url()).searchParams.get('subject')).toBe(link.text);
-    await expect(page.getByRole('region', { name: 'Преподаватели', exact: true })).toHaveAttribute('aria-busy', 'false');
-    await expect(page.locator('a.tc').first()).toBeVisible();
-  }
+test('главная: знакомство сохраняет условие', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Бесплатное знакомство', exact: true }).click();
   await expect(page).toHaveURL(/intro=1/);
@@ -67,7 +58,7 @@ for (const width of [320, 768, 1440]) {
     const image = page.locator('.p-home-intro-art img');
     await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true);
-    const bounds = await page.locator('.p-home-subject-links .btn, .p-home-intro-layout, .p-home-intro-art').evaluateAll((elements) => elements.map((element) => {
+    const bounds = await page.locator('.p-home-intro-layout, .p-home-intro-art').evaluateAll((elements) => elements.map((element) => {
       const box = element.getBoundingClientRect();
       return box.left >= -1 && box.right <= innerWidth + 1 && element.scrollWidth <= element.clientWidth + 1;
     }));
