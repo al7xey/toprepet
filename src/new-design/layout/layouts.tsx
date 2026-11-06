@@ -301,8 +301,8 @@ const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
     tabs: [{ label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Занятия', to: '/tutor/lessons', icon: 'book', also: ['/tutor/schedule'] }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/tutor/account', icon: 'user', also: ['/tutor/documents', '/tutor/profile', '/tutor/finance', '/tutor/students', '/tutor/reviews', '/tutor/notifications'] }],
   },
   admin: {
-    top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'doc' }, { label: 'Документы', to: '/admin/documents', icon: 'doc' }],
-    tabs: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'doc' }, { label: 'Документы', to: '/admin/documents', icon: 'doc' }],
+    top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }, { label: 'Документы', to: '/admin/documents', icon: 'doc' }],
+    tabs: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }, { label: 'Документы', to: '/admin/documents', icon: 'doc' }],
   },
 };
 
