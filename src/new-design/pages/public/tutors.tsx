@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { api, staticTutors, studentPriceOf } from '../../api';
-import { useSession } from '../../api/session';
+import { homeFor, useSession } from '../../api/session';
 import { useQuery } from '../../api/hooks';
 import { PublicLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
 import { rv } from '../../reveal';
-import { Button, Faq, Panel, Section, Steps, Ticks, TutorGrid } from '../../ui';
+import { Button, Faq, Panel, Section, Steps, Ticks } from '../../ui';
+import { TutorShowcase } from '../../ui/tutor-showcase';
 import { TUTOR_FAQ, TUTOR_STEPS } from './content';
 
 /** Калькулятор: репетитор получает свою цену, ученик платит на 10% больше. */
@@ -30,6 +31,9 @@ function PriceCalc() {
 
 export default function TutorsLandingPage() {
   const { user } = useSession();
+  const entryHref = user ? homeFor(user.role) : '/signup?role=tutor';
+  const entryLabel = user?.role === 'tutor' ? 'Мой кабинет' : user ? 'Перейти в кабинет' : 'Создать анкету';
+  const canReadRequests = user?.role === 'tutor' || user?.role === 'student';
   const first = staticTutors().slice(0, 6);
   const tutors = useQuery('tutors-landing', () => api.listTutors({ limit: 6 }).then((p) => p.items), first);
   return (
@@ -42,12 +46,12 @@ export default function TutorsLandingPage() {
           </h1>
           <p className="trh-hero-lead">TopRepet показывает вашу анкету ученикам, принимает записи и оплату, напоминает об уроках и переводит выплаты.</p>
           <div className="trh-hero-btns">
-            <Button to="/signup?role=tutor" size="lg" className="trh-cta">Создать анкету</Button>
-            {user && <Button to="/requests" variant="warm" size="lg">Заявки учеников</Button>}
+            <Button to={entryHref} size="lg" className="trh-cta">{entryLabel}</Button>
+            {canReadRequests && <Button to="/requests" variant="warm" size="lg">Заявки учеников</Button>}
           </div>
         </div>
         <div className="trh-hero-media">
-          <img src="/images/for-repetitor-hero-1200.webp" alt="Репетиторы TopRepet" width={1200} height={900} fetchPriority="high" />
+          <img src="/images/for-repetitor-hero-1200.webp" srcSet="/images/for-repetitor-hero-640.webp 640w, /images/for-repetitor-hero-1200.webp 1200w" sizes="(min-width:1440px) 640px, (min-width:761px) 46vw, calc(100vw - 32px)" alt="Репетиторы TopRepet" width={1200} height={900} fetchPriority="high" />
         </div>
       </section>
 
@@ -62,7 +66,7 @@ export default function TutorsLandingPage() {
 
       <Section title="Как начать"><Steps items={TUTOR_STEPS} /></Section>
 
-      {user && (
+      {canReadRequests && (
         <Panel>
           <div className="trk-split">
             <div className="trh-sec u-mw560">
@@ -74,13 +78,13 @@ export default function TutorsLandingPage() {
         </Panel>
       )}
 
-      <Section title="Они уже с TopRepet"><TutorGrid tutors={tutors.data ?? first} layout="row" /></Section>
+      <Section title="Они уже с TopRepet"><TutorShowcase query={tutors} /></Section>
 
       <Panel>
         <div className="trh-sec u-start">
           <h2 className="trh-panel-h u-mw620">Хотите получать учеников через TopRepet?</h2>
           <p className="muted u-mw560">Создайте анкету за 15 минут, назначьте цену и откройте расписание. Записи подтверждаете сами. Для выплат понадобится статус самозанятого.</p>
-          <Button to="/signup?role=tutor" size="lg">Создать анкету</Button>
+          <Button to={entryHref} size="lg">{entryLabel}</Button>
         </div>
       </Panel>
 

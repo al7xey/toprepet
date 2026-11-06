@@ -112,11 +112,6 @@
 .tr .tc.s .pl b,.tr .tc.s .pl span,.tr .tc.s .pl .rt.new{color:#111}
 
 /* Появление при прокрутке */
-.tr.rv-on [data-rv]{opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease),transform .9s var(--spring);transition-delay:var(--d,0s)}
-.tr.rv-on [data-rv=scale]{transform:translateY(24px) scale(.95)}
-.tr.rv-on [data-rv=left]{transform:translateX(-36px)}
-.tr.rv-on [data-rv=right]{transform:translateX(36px)}
-.tr.rv-on [data-rv].in{opacity:1;transform:none}
 .tr .trh-teachers>.tc{animation:none}
 
 @media (max-width:760px){
@@ -233,11 +228,6 @@
 
 /* Шаги «Как всё устроено»: как на основном сайте, снизу вверх, линия прорисовывается */
 .tr .trh-steps li::before{transform-origin:top}
-.tr.rv-on [data-rv=seq] li{opacity:0}
-.tr.rv-on [data-rv=seq].in li{animation:tr-rise .85s var(--spring) both;animation-delay:calc(var(--i) * .18s)}
-.tr.rv-on [data-rv=seq].in li i{animation:tr-pop .6s var(--spring) both!important;animation-delay:calc(var(--i) * .18s)!important}
-.tr.rv-on [data-rv=seq].in li::before{animation:tr-growy .9s var(--ease) both;animation-delay:calc(var(--i) * .18s + .25s)}
-@keyframes tr-growy{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 
 /* Плашка карточки: цена третьей строкой */
 .tr .tc.s .pl .trh-price{font-weight:700;font-size:15px;margin-top:3px}

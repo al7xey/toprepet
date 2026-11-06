@@ -11,6 +11,32 @@ test.describe.configure({ mode: 'serial' });
 test.skip(!process.env.E2E_API_URL, 'нужен E2E_API_URL: запускайте через backend/scripts/e2e.sh');
 test.skip(({ isMobile }) => isMobile, 'сценарий один, на компьютере');
 
+test('Django: лендинги показывают ошибку API вместо устаревшей подборки', async ({ page }) => {
+  const endpoint = (url: URL) => url.pathname === '/tutors';
+  for (const path of ['/', '/for-repetitor']) {
+    await page.route(endpoint, (route) => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'Подборка временно недоступна' }) }));
+    await page.goto(path);
+    await expect(page.getByRole('alert')).toContainText('Подборка временно недоступна');
+    await expect(page.locator('a.tc')).toHaveCount(0);
+    await page.unroute(endpoint);
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => { release = resolve; });
+    await page.route(endpoint, async (route) => { await pending; await route.continue(); });
+    await page.getByRole('button', { name: 'Повторить', exact: true }).click();
+    await expect(page.getByRole('region', { name: 'Загрузка', exact: true })).toBeVisible();
+    await expect(page.locator('a.tc')).toHaveCount(0);
+    release();
+    await expect(page.locator('a.tc').first()).toBeVisible();
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await page.unroute(endpoint);
+    await page.route(endpoint, (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ items: [], total: 0, nextCursor: null }) }));
+    await page.goto(path);
+    await expect(page.getByText('Анкеты скоро появятся', { exact: true })).toBeVisible();
+    await expect(page.locator('a.tc')).toHaveCount(0);
+    await page.unroute(endpoint);
+  }
+});
+
 test('Django: ошибка нового поиска скрывает старые карточки и позволяет повторить', async ({ page }) => {
   await page.goto('/teachers');
   await expect(page.locator('a.tc').first()).toBeVisible();
