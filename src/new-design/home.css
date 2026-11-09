@@ -144,6 +144,7 @@
   .tr .trh-page:has(.trh-tools):not(.trk-app){padding-top:32px}
   .tr .trh-page:has(.trh-tools):not(.trk-app)>.hdr{min-height:70px}
   .tr .trh-tools{position:relative}
+  .tr .trh-tools:has(.trh-drop[open]){z-index:30}
   .tr .trh-tools .trh-chips{position:absolute;top:50%;right:124px;transform:translateY(-50%)}
   .tr .trh-tools .search .btn{margin-inline-start:124px}
   .tr .trh-grid{column-gap:24px;row-gap:32px}
