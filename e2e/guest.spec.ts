@@ -19,6 +19,15 @@ test.describe('гость', () => {
     await expect(panel).toHaveCount(0);
     await expect(trigger).toBeFocused();
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+    await page.locator('footer').scrollIntoViewIfNeeded();
+    await trigger.click();
+    const header = await page.locator('.trh-public-nav > header').boundingBox();
+    const openPanel = await panel.boundingBox();
+    expect(openPanel!.y).toBeGreaterThanOrEqual(header!.y + header!.height);
+    await panel.getByRole('link', { name: 'Помощь', exact: true }).click();
+    await expect(page).toHaveURL(/\/help\/?$/);
+    await expect(panel).toHaveCount(0);
   });
 
   test('шапка: одна кнопка «Войти», регистрация есть в меню телефона', async ({ page }) => {

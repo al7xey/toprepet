@@ -24,9 +24,14 @@ test('модальное окно удерживает Tab, блокирует �
   await expect(opener).toBeFocused();
 });
 
-test('демонстрационный режим предупреждает о фиктивных оплатах', async ({ page }) => {
+test('предупреждение о тестовой карте появляется в форме оплаты', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByLabel('Демонстрационный режим')).toContainText('Не вводите настоящие данные карты');
+  await expect(page.getByLabel('Демонстрационный режим')).toHaveCount(0);
+  await login(page, 'student');
+  await page.goto('/me/payments');
+  await page.getByRole('tab', { name: 'Карты', exact: true }).click();
+  await page.getByRole('button', { name: 'Добавить карту', exact: true }).first().click();
+  await expect(page.getByRole('dialog')).toContainText('Не вводите настоящие данные карты');
 });
 
 test('переписка загружается страницами, старая история доступна по кнопке', async ({ page }) => {

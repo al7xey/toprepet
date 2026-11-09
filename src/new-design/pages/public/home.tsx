@@ -56,12 +56,12 @@ export default function HomePage() {
       </Section>
 
       <section className="p-home-trust" aria-labelledby="trust-title">
-        <img src="/images/payment-trust-figma.png" alt="Человек спокойно читает книгу, облокотившись на большой замок" width={716} height={477} loading="lazy" decoding="async" {...rv('left')} />
-        <div className="trh-sec" {...rv('right', 0.1)}>
-          <h2 id="trust-title" className="h2 trh-h2">100% гарантия возврата средств</h2>
-          <p className="cap u-fs18">100% возврат оплаты, если оплаченное занятие не было проведено.</p>
-          <p className="cap">Деньги не переводятся репетитору сразу: их списывают, когда репетитор подтвердит запись, и выплачивают после проведённого занятия. В других спорных ситуациях поддержка поможет разобраться.</p>
-          <div><Button to="/legal/payment-refund/" variant="line">Оплата и возвраты</Button></div>
+        <img src="/images/payment-trust.webp" alt="Человек спокойно читает книгу, облокотившись на большой замок" width={1536} height={1024} loading="lazy" decoding="async" {...rv('scale')} />
+        <div className="trh-sec">
+          <h2 id="trust-title" className="h2 trh-h2" {...rv('up')}>100% гарантия возврата средств</h2>
+          <p className="cap u-fs18" {...rv('up', 0.06)}>100% возврат оплаты, если оплаченное занятие не было проведено.</p>
+          <p className="cap" {...rv('up', 0.12)}>Деньги не переводятся репетитору сразу: их списывают, когда репетитор подтвердит запись, и выплачивают после проведённого занятия. В других спорных ситуациях поддержка поможет разобраться.</p>
+          <div {...rv('up', 0.16)}><Button to="/legal/payment-refund/" variant="line">Оплата и возвраты</Button></div>
         </div>
       </section>
 

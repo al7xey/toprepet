@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('liquid press keeps buttons and neighbouring controls stationary', async ({ page }) => {
+test('pressing a control leaves it and neighbouring controls stationary without a ripple', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/teachers');
   const button = page.getByRole('button', { name: 'Фильтры', exact: true });
@@ -12,24 +12,9 @@ test('liquid press keeps buttons and neighbouring controls stationary', async ({
   expect(before).not.toBeNull();
   await button.hover();
   await page.mouse.down();
-  await expect(button).toHaveClass(/lg-pulse/);
-  for (const delay of [40, 100, 200]) {
-    await page.waitForTimeout(delay);
-    expect(await button.boundingBox()).toEqual(before);
-    expect(await sort.boundingBox()).toEqual(sortBefore);
-  }
-  await page.mouse.move(1, 1);
-  await page.mouse.up();
-  await expect(button).not.toHaveClass(/lg-pulse/);
-});
-
-test('reduced motion removes the decorative pulse', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await page.goto('/teachers');
-  const button = page.getByRole('button', { name: 'Фильтры', exact: true });
-  await button.hover();
-  await page.mouse.down();
-  await expect(button).not.toHaveClass(/lg-pulse/);
+  expect(await button.evaluate(control => getComputedStyle(control, '::before').animationName)).toBe('none');
+  expect(await button.boundingBox()).toEqual(before);
+  expect(await sort.boundingBox()).toEqual(sortBefore);
   await page.mouse.move(1, 1);
   await page.mouse.up();
 });

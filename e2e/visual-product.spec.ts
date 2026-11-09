@@ -28,7 +28,7 @@ test('анимации появляются при прокрутке и отк�
     const original = Element.prototype.animate;
     Object.defineProperty(window, '__reveals', { value: [] });
     Element.prototype.animate = function (...args: Parameters<typeof original>) {
-      if (this.hasAttribute('data-rv') || this.parentElement?.dataset.rv === 'seq') (window as unknown as { __reveals: string[] }).__reveals.push(this.tagName);
+      if (this.hasAttribute('data-rv')) (window as unknown as { __reveals: string[] }).__reveals.push(this.tagName);
       return original.apply(this, args);
     };
   });
@@ -55,10 +55,18 @@ for (const width of [320, 768, 1440]) {
     test.skip(testInfo.project.name !== 'desktop', 'ширины задаются явно');
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/');
-    const image = page.locator('.p-home-intro-art img');
+    const image = page.locator('.p-home-trust img');
     await image.scrollIntoViewIfNeeded();
     await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true);
-    const bounds = await page.locator('.p-home-intro-layout, .p-home-intro-art').evaluateAll((elements) => elements.map((element) => {
+    const hasTransparentCorner = await image.evaluate((node: HTMLImageElement) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 1;
+      const context = canvas.getContext('2d')!;
+      context.drawImage(node, 0, 0, 1, 1, 0, 0, 1, 1);
+      return context.getImageData(0, 0, 1, 1).data[3] === 0;
+    });
+    expect(hasTransparentCorner).toBe(true);
+    const bounds = await page.locator('.p-home-trust, .p-home-trust img').evaluateAll((elements) => elements.map((element) => {
       const box = element.getBoundingClientRect();
       return box.left >= -1 && box.right <= innerWidth + 1 && element.scrollWidth <= element.clientWidth + 1;
     }));

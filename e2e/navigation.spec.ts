@@ -18,20 +18,32 @@ test('нижняя панель ученика: Поиск, Занятия, Ча
 
 test('нижняя панель: пилюлю можно тянуть, открывается пункт, над которым отпустили палец', async ({ page }) => {
   test.skip((page.viewportSize()?.width ?? 1440) > 600, 'нижняя панель только на телефоне');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await login(page, 'student');
   await page.goto('/me/chats');
-  const tabs = page.locator('nav.trk-tabbar a.tab');
+  const bar = page.locator('nav.trk-tabbar');
+  const tabs = bar.locator('a.tab');
+  const lensBlur = () => bar.locator('.tabpill').evaluate((pill) => getComputedStyle(pill, '::before').backdropFilter);
+  await expect.poll(lensBlur).toBe('none');
+  const restingBar = await bar.boundingBox();
   const from = await tabs.nth(2).boundingBox();
   const to = await tabs.nth(3).boundingBox();
   if (!from || !to) throw new Error('нет размеров пунктов панели');
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
   await page.mouse.down();
   // пока палец на панели, пилюля увеличена, а страница не меняется
-  await expect(page.locator('nav.trk-tabbar')).toHaveClass(/press/);
+  await expect(bar).toHaveClass(/press/);
+  await expect.poll(lensBlur).toContain('blur(4px)');
+  expect(await bar.boundingBox()).toEqual(restingBar);
   await page.mouse.move(to.x + to.width / 2, from.y + from.height / 2, { steps: 12 });
   await expect(page).toHaveURL(/\/me\/chats/);
+  await expect(tabs.nth(3)).toHaveClass(/cur/);
+  await expect(tabs.nth(2)).toHaveAttribute('aria-current', 'page');
   await page.mouse.up();
   await expect(page).toHaveURL(/\/me\/account/);
+  await expect(tabs.nth(3)).toHaveAttribute('aria-current', 'page');
+  await expect(bar).not.toHaveClass(/press/);
+  await expect.poll(lensBlur).toBe('none');
 });
 
 test('нижняя панель: пилюля плавно переезжает и ни в какой момент не выходит за панель', async ({ page }) => {

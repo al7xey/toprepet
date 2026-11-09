@@ -17,11 +17,12 @@ export function useReveal(root: RefObject<HTMLElement | null>) {
       if (preference.matches || node.contains(document.activeElement)) return;
       const base = getComputedStyle(node).transform;
       const offset = kind === 'left' ? 'translateX(-16px)' : kind === 'right' ? 'translateX(16px)' : kind === 'scale' ? 'translateY(12px) scale(.985)' : 'translateY(14px)';
-      const interactive = Boolean(node.querySelector('a,button,input,select,textarea,summary,[tabindex]'));
+      const controls = 'a,button,input,select,textarea,summary,[tabindex]';
+      const interactive = node.matches(controls) || Boolean(node.querySelector(controls));
       const animation = node.animate([
         { opacity: 0, transform: interactive ? base : `${offset} ${base === 'none' ? '' : base}` },
         { opacity: 1, transform: base },
-      ], { duration: 420, delay, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
+      ], { duration: kind === 'scale' ? 520 : 420, delay, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
       active.set(node, animation);
       void animation.finished.catch(() => {}).finally(() => { if (active.get(node) === animation) active.delete(node); });
     };
@@ -35,9 +36,7 @@ export function useReveal(root: RefObject<HTMLElement | null>) {
         seen.add(node);
         // The visible server-rendered first screen stays stable during hydration.
         if (alreadyPainted) continue;
-        if (node.dataset.rv === 'seq') {
-          [...node.children].forEach((child, index) => { if (child instanceof HTMLElement) play(child, 'up', Math.min(index * 60, 240)); });
-        } else play(node, node.dataset.rv || 'up', Math.min(Number(node.dataset.rvDelay) || 0, 0.24) * 1000);
+        play(node, node.dataset.rv || 'up', Math.min(Number(node.dataset.rvDelay) || 0, 0.24) * 1000);
       }
     }, { threshold: 0.05 });
     const scan = (node: Element, initial = false) => {

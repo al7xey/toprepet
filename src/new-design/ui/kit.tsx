@@ -218,9 +218,9 @@ export interface StepItem { title: ReactNode; text?: ReactNode; state?: 'done' |
  */
 export function Steps({ items, size = 'md' }: { items: StepItem[]; size?: 'md' | 's' }) {
   return (
-    <ol className={cx('tl trh-steps', size === 's' && 's')} data-rv="seq">
+    <ol className={cx('tl trh-steps', size === 's' && 's')}>
       {items.map((item, index) => (
-        <li key={index} className={item.state && item.state !== 'current' ? item.state : undefined} style={{ '--i': index } as CSSProperties}>
+        <li key={index} className={item.state && item.state !== 'current' ? item.state : undefined} {...rv('up', (index % 4) * 0.05, { '--i': index } as CSSProperties)}>
           <i>{index + 1}</i>
           <div><h3>{item.title}</h3>{item.text && <p>{item.text}</p>}</div>
         </li>

@@ -42,7 +42,7 @@
 
 ## Liquid Glass
 
-Источник интерфейса — [страница Liquid Glass в исходном макете](https://www.figma.com/design/z5laXdV2X4IQyFEaasZSK3/Untitled?node-id=61-2). Белые рабочие поверхности отделены от стеклянных шапок, поиска, подписей поверх портретов, меню и нижней панели. Общие материалы и оптика находятся в `ui/liquid-glass.css` и `ui/liquid-glass.tsx`. При нажатии движется только декоративный блик.
+Источник интерфейса — [страница Liquid Glass в исходном макете](https://www.figma.com/design/z5laXdV2X4IQyFEaasZSK3/Untitled?node-id=61-2). Белые рабочие поверхности отделены от стеклянных шапок, поиска, подписей поверх портретов, меню и нижней панели. Общие материалы и оптика находятся в `ui/liquid-glass.css` и `ui/liquid-glass.tsx`. Появление блоков при прокрутке управляется `reveal.ts` и учитывает системное уменьшение движения.
 
 ## Stage 5: reviews, disputes, payments, notifications, admin
 

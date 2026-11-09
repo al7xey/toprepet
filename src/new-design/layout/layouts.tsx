@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useMutation, useQuery } from '../api/hooks';
@@ -11,17 +11,15 @@ const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ')
 const DRAG_PX = 6; // на сколько сдвинуть палец, чтобы нажатие стало перетаскиванием
 const MOVE_MS = 480; // дольше всего пилюля переезжает к новому пункту
 
-/** Где пилюля стояла в последний раз: страницы собирают панель заново, а пилюля должна ехать от старого места, а не появляться на новом. */
-let lastPillLeft: number | null = null;
+// Keep the lens position across route layouts that remount the tab bar.
+let lastPill: { left: number; cellWidth: number; tabs: string } | null = null;
 
 /** Положение и ширина каждого пункта относительно внутреннего края панели. Берём из вёрстки, поэтому слева и справа всё симметрично. */
 function cellsOf(host: HTMLElement) {
   const box = host.getBoundingClientRect();
-  const scale = box.width / host.offsetWidth || 1; // панель на миг увеличивается под пальцем: возвращаем мерки к исходным
-  const origin = box.left + host.clientLeft * scale;
   return Array.from(host.querySelectorAll<HTMLElement>('a.tab'), (tab) => {
     const r = tab.getBoundingClientRect();
-    return { left: (r.left - origin) / scale, width: r.width / scale };
+    return { left: r.left - box.left, width: r.width };
   });
 }
 
@@ -32,19 +30,17 @@ function cellsOf(host: HTMLElement) {
  */
 function TabBar({ tabs }: { tabs: NavItem[] }) {
   const { pathname } = useLocation();
-  const { user } = useSession();
   const navigate = useNavigate();
   const bar = useRef<HTMLElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
-  const gesture = useRef<{ x: number; moved: boolean } | null>(null);
+  const gesture = useRef<{ id: number; x: number; moved: boolean } | null>(null);
+  const motion = useRef<{ animation: Animation; dest: number; width: number } | null>(null);
   const swallowClick = useRef(false);
   const placed = useRef(false);
   const [width, setWidth] = useState(0);
   const [dragIndex, setDragIndex] = useState<number | null>(null); // пункт под пальцем: подсвечивает значок
-  const [pending, setPending] = useState<{ index: number; at: string } | null>(null); // куда едем, пока адрес ещё не сменился
-  const current = tabs.findIndex((t) => [t.to, ...(t.also ?? [])].some((to) => pathname === to || pathname.startsWith(`${to}/`)));
-  // после отпускания пилюля сразу едет к выбранному пункту, а не возвращается назад в ожидании смены адреса
-  const target = pending && pending.at === pathname ? pending.index : current;
+  const tabSet = tabs.map((tab) => tab.to).join('|');
+  const target = tabs.findIndex((t) => [t.to, ...(t.also ?? [])].some((to) => pathname === to || pathname.startsWith(`${to}/`)));
   const shown = dragIndex ?? target;
 
   // палец в долях пункта: 0 — первый пункт, n−1 — последний
@@ -54,40 +50,51 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     const cells = cellsOf(el);
     if (cells.length < 2) return 0;
     const box = el.getBoundingClientRect();
-    const scale = box.width / el.offsetWidth || 1;
-    const x = (clientX - box.left) / scale - el.clientLeft;
+    const x = clientX - box.left;
     const step = cells[1].left - cells[0].left;
     return Math.min(Math.max((x - cells[0].left - cells[0].width / 2) / step, 0), cells.length - 1);
   };
   const leftOf = (cells: { left: number }[], pos: number) => cells[0].left + pos * (cells.length > 1 ? cells[1].left - cells[0].left : 0);
 
   // пилюля плавно едет к краю dest; в середине пути растянута от старого места до нового и не выходит за панель
-  const glide = (dest: number, w: number, from?: number) => {
+  const glide = useCallback((dest: number, w: number) => {
     const el = pill.current;
-    if (!el) return;
-    const live = from ?? (placed.current ? parseFloat(getComputedStyle(el).left) : (lastPillLeft ?? Number.NaN));
-    el.getAnimations().forEach((a) => a.cancel());
+    const host = bar.current;
+    if (!el || !host) return;
+    if (motion.current?.dest === dest && motion.current.width === w) return;
+    const style = placed.current ? getComputedStyle(el) : null;
+    const live = style ? parseFloat(style.left) : (lastPill?.tabs === tabSet && lastPill.cellWidth === w ? lastPill.left : dest);
+    const liveWidth = style ? parseFloat(style.width) : w;
+    motion.current?.animation.cancel();
+    motion.current = null;
+    delete host.dataset.settling;
     el.style.width = `${w}px`;
     el.style.left = `${dest}px`;
     placed.current = true;
-    lastPillLeft = dest;
-    if (Number.isNaN(live) || Math.abs(live - dest) < 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    lastPill = { left: dest, cellWidth: w, tabs: tabSet };
+    if ((Math.abs(live - dest) < 1 && Math.abs(liveWidth - w) < 1) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const dist = Math.abs(dest - live);
+    const stretch = Math.max(liveWidth, w + dist * .9);
     const anim = el.animate(
-      [{ left: `${live}px`, width: `${w}px` }, { left: `${Math.min(live, dest)}px`, width: `${w + dist * 0.9}px`, offset: 0.5 }, { left: `${dest}px`, width: `${w}px` }],
+      [{ left: `${live}px`, width: `${liveWidth}px` }, { left: `${Math.min(live, dest)}px`, width: `${stretch}px`, offset: 0.5 }, { left: `${dest}px`, width: `${w}px` }],
       { duration: Math.round(Math.min(MOVE_MS, 260 + dist * 1.1)), easing: 'cubic-bezier(.32,.72,0,1)' },
     );
-    // пока пилюля едет, запоминаем, где она сейчас: если страница пересоберёт панель, новая пилюля продолжит путь с этого места
-    lastPillLeft = live;
+    motion.current = { animation: anim, dest, width: w };
+    host.dataset.settling = '';
+    lastPill = { left: live, cellWidth: w, tabs: tabSet };
     const sample = () => {
-      if (!el.isConnected) return;
-      const now = parseFloat(getComputedStyle(el).left);
-      if (!Number.isNaN(now)) lastPillLeft = now;
-      if (anim.playState === 'running') requestAnimationFrame(sample);
-      else lastPillLeft = dest;
+      if (!el.isConnected || motion.current?.animation !== anim) return;
+      if (anim.playState === 'running') {
+        lastPill = { left: parseFloat(getComputedStyle(el).left), cellWidth: w, tabs: tabSet };
+        requestAnimationFrame(sample);
+      } else {
+        lastPill = { left: dest, cellWidth: w, tabs: tabSet };
+        motion.current = null;
+        delete host.dataset.settling;
+      }
     };
     requestAnimationFrame(sample);
-  };
+  }, [tabSet]);
   // пилюля идёт за пальцем без анимации и без перерисовки страницы
   const follow = (pos: number) => {
     const el = pill.current;
@@ -95,31 +102,36 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     if (!el || !host) return;
     const cells = cellsOf(host);
     if (!cells.length) return;
-    el.getAnimations().forEach((a) => a.cancel());
+    motion.current?.animation.cancel();
+    motion.current = null;
+    delete host.dataset.settling;
     const left = leftOf(cells, pos);
     el.style.width = `${cells[0].width}px`;
     el.style.left = `${left}px`;
-    lastPillLeft = left;
+    placed.current = true;
+    lastPill = { left, cellWidth: cells[0].width, tabs: tabSet };
   };
 
   const finish = () => { gesture.current = null; setDragIndex(null); };
 
   const onPointerDown = (e: PointerEvent) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    gesture.current = { x: e.clientX, moved: false };
+    if (!e.isPrimary || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    gesture.current = { id: e.pointerId, x: e.clientX, moved: false };
     bar.current?.setPointerCapture(e.pointerId);
     // под пальцем пилюля сразу увеличивается и плавно подъезжает к нажатому пункту
     const index = Math.round(posAt(e.clientX));
     setDragIndex(index);
     const host = bar.current;
-    if (host && index !== target) {
+    if (host) {
       const cells = cellsOf(host);
-      if (cells.length) glide(leftOf(cells, index), cells[0].width);
+      if (!cells.length) return;
+      if (target < 0) follow(index);
+      else glide(leftOf(cells, index), cells[0].width);
     }
   };
   const onPointerMove = (e: PointerEvent) => {
     const g = gesture.current;
-    if (!g) return;
+    if (g?.id !== e.pointerId) return;
     if (!g.moved && Math.abs(e.clientX - g.x) > DRAG_PX) g.moved = true;
     if (!g.moved) return;
     const pos = posAt(e.clientX);
@@ -128,17 +140,23 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     setDragIndex((prev) => (prev === index ? prev : index));
   };
   const onPointerUp = (e: PointerEvent) => {
-    if (!gesture.current) return;
+    if (gesture.current?.id !== e.pointerId) return;
     const index = Math.round(posAt(e.clientX));
     const to = tabs[index];
     finish();
     // и нажатие, и перетаскивание открывают раздел здесь; обычный клик по ссылке после этого не нужен
     swallowClick.current = true;
     window.setTimeout(() => { swallowClick.current = false; }, 0);
-    if (to && index !== target) { setPending({ index, at: pathname }); void navigate(to.to); return; }
-    // отпустили на прежнем пункте: пилюля плавно возвращается на место
-    const host = bar.current;
-    if (host) { const cells = cellsOf(host); if (cells.length) glide(leftOf(cells, target), cells[0].width); }
+    const cells = bar.current ? cellsOf(bar.current) : [];
+    if (cells[index]) glide(cells[index].left, cells[index].width);
+    if (to && pathname !== to.to) void navigate(to.to);
+  };
+
+  const onCancel = (e: PointerEvent) => {
+    if (gesture.current?.id !== e.pointerId) return;
+    finish();
+    const cells = bar.current ? cellsOf(bar.current) : [];
+    if (cells[target]) glide(cells[target].left, cells[target].width);
   };
   // обработчики вешаем на элемент в эффекте: nav сам по себе не интерактивен
   useEffect(() => {
@@ -149,14 +167,16 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     el.addEventListener('pointerdown', onPointerDown);
     el.addEventListener('pointermove', onPointerMove);
     el.addEventListener('pointerup', onPointerUp);
-    el.addEventListener('pointercancel', finish);
+    el.addEventListener('pointercancel', onCancel);
+    el.addEventListener('lostpointercapture', onCancel);
     el.addEventListener('contextmenu', onContext);
     el.addEventListener('click', onClick, true);
     return () => {
       el.removeEventListener('pointerdown', onPointerDown);
       el.removeEventListener('pointermove', onPointerMove);
       el.removeEventListener('pointerup', onPointerUp);
-      el.removeEventListener('pointercancel', finish);
+      el.removeEventListener('pointercancel', onCancel);
+      el.removeEventListener('lostpointercapture', onCancel);
       el.removeEventListener('contextmenu', onContext);
       el.removeEventListener('click', onClick, true);
     };
@@ -176,15 +196,15 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     if (!host || target < 0 || gesture.current) return;
     const cells = cellsOf(host);
     if (cells.length) glide(leftOf(cells, target), cells[0].width);
-  }, [target, width, tabs.length]);
+  }, [target, width, glide]);
 
   return (
     <nav ref={bar} className={cx('tabbar trk-tabbar', tabs.length === 5 && 'five', dragIndex !== null && 'press')} aria-label="Разделы" style={{ '--n': tabs.length } as CSSProperties}>
-      {target >= 0 && <span ref={pill} className="tabpill" aria-hidden="true" />}
+      <span ref={pill} className="tabpill" hidden={shown < 0} aria-hidden="true" />
       {tabs.map((t, i) => (
-        <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', i === shown && 'cur')}>
-          {t.icon === 'user' ? <Avatar name={user?.name ?? '•'} photo={user?.photo} size={30} /> : <Icon name={t.icon} />}<span className="trk-sr">{t.label}{t.badge ? ', есть новые' : ''}</span>{t.badge ? <span className="dot" aria-hidden="true" /> : null}
-        </NavLink>
+        <Link key={t.to} to={t.to} draggable={false} aria-current={i === target ? 'page' : undefined} className={cx('tab', i === shown && 'cur')}>
+          <Icon name={t.icon} /><span className="trk-sr">{t.label}{t.badge ? ', есть новые' : ''}</span>{t.badge ? <span className="dot" aria-hidden="true" /> : null}
+        </Link>
       ))}
     </nav>
   );
@@ -223,7 +243,7 @@ function SessionActions({ block }: { block?: boolean }) {
   return <Button size={block ? 'lg' : 's'} block={block} to="/login">Войти</Button>;
 }
 
-/** Публичные страницы: стеклянная шапка, контент, подвал; на телефоне меню открывается отдельным экраном. */
+/** Публичные страницы: стеклянная шапка с мобильной панелью меню, контент и подвал. */
 export function PublicLayout({ children, tight, bareMobile, narrow, hideSignIn }: { children: ReactNode; tight?: boolean; bareMobile?: boolean; narrow?: boolean; hideSignIn?: boolean }) {
   const { pathname } = useLocation();
   const { user } = useSession();
@@ -257,23 +277,24 @@ export function PublicLayout({ children, tight, bareMobile, narrow, hideSignIn }
   return (
     <>
       <div className={cx('wash trh-page', tight && 'trh-tight', bareMobile && 'trh-bare')}>
-        {/* шапка одна и та же при открытом меню: логотип и кнопка не сдвигаются, меню открывается под ней */}
-        <header className={cx('hdr surf trh-hdr', menu && 'trh-hdr-open')}>
-          <Logo />
-          <nav className="trh-nav" aria-label="Основная навигация">
-            {PUBLIC_NAV.map(([label, to]) => <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{label}</NavLink>)}
-          </nav>
-          {!hideSignIn && <span className="fr trh-actions"><SessionActions /></span>}
-          <button ref={menuButton} type="button" className="btn btn-icon trh-burger" aria-label={menu ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={menu} aria-controls={menu ? 'public-menu' : undefined} onClick={() => setMenu(!menu)}><Icon name={menu ? 'x' : 'menu'} /></button>
-        </header>
-        {menu && (
-          <div id="public-menu" ref={menuPanel} className="trh-menu">
-            <nav className="trh-menu-list" aria-label="Меню">
-              {[...PUBLIC_NAV, ...(user ? [['Заявки учеников', '/requests']] : []), ['Помощь', '/help'], ...(user ? [] : [['Регистрация', '/signup']])].map(([label, to]) => <Link key={to} to={to}>{label}<Icon name="right" /></Link>)}
+        <div className="trh-public-nav">
+          <header className="hdr surf trh-hdr">
+            <Logo />
+            <nav className="trh-nav" aria-label="Основная навигация">
+              {PUBLIC_NAV.map(([label, to]) => <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{label}</NavLink>)}
             </nav>
-            <div className="g10 u-mt-auto"><SessionActions block /></div>
-          </div>
-        )}
+            {!hideSignIn && <span className="fr trh-actions"><SessionActions /></span>}
+            <button ref={menuButton} type="button" className="btn btn-icon trh-burger" aria-label={menu ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={menu} aria-controls={menu ? 'public-menu' : undefined} onClick={() => setMenu(!menu)}><Icon name={menu ? 'x' : 'menu'} /></button>
+          </header>
+          {menu && (
+            <div id="public-menu" ref={menuPanel} className="trh-menu">
+              <nav className="trh-menu-list" aria-label="Меню">
+                {[...PUBLIC_NAV, ...(user ? [['Заявки учеников', '/requests']] : []), ['Помощь', '/help'], ...(user ? [] : [['Регистрация', '/signup']])].map(([label, to]) => <Link key={to} to={to} onClick={() => setMenu(false)}>{label}<Icon name="right" /></Link>)}
+              </nav>
+              <div className="g10 u-mt-auto"><SessionActions block /></div>
+            </div>
+          )}
+        </div>
         <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>{children}</main>
         <Footer />
       </div>

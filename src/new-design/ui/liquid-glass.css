@@ -1,6 +1,7 @@
 .tr {
   --lg-glass: rgb(255 255 255 / 40%);
   --lg-caption: rgb(255 255 255 / 75%);
+  --lg-button: rgb(255 255 255 / 68%);
   --lg-dense: rgb(255 255 255 / 90%);
   --lg-edge: rgb(255 255 255 / 85%);
   --lg-shadow: 0 6px 18px rgb(32 40 56 / 9%);
@@ -9,19 +10,126 @@
 .tr .wash.trh-page { background: #fff; }
 html:has(.tr) { scrollbar-gutter: stable; }
 
-.tr :is(.hdr.surf, .trk-tabbar, .trk-tabbar.five, .trh-tools .search, .trh-tools .chipf.ico) {
+.tr :is(.hdr.surf, .trh-tools .search, .trh-tools .chipf.ico) {
   background: var(--lg-glass);
   box-shadow: inset 0 1px 0 var(--lg-edge), inset 0 -1px 0 rgb(32 40 56 / 8%), var(--lg-shadow);
   backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
+  -webkit-backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
 }
 
 .tr .trh-tools .chipf.ico {
   box-shadow: inset 0 0 0 1px var(--line);
 }
 
+.tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft), .trk-iconbtn:not(.trk-addbtn)) {
+  background: var(--lg-button);
+  box-shadow: inset 0 1px 1px white, inset 0 0 0 1px var(--line), 0 2px 6px rgb(32 40 56 / 7%);
+  backdrop-filter: blur(5px) var(--lg-optics, saturate(1));
+  -webkit-backdrop-filter: blur(5px) var(--lg-optics, saturate(1));
+}
+
+.tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft), .trk-iconbtn:not(.trk-addbtn)):where(:hover) {
+  background: rgb(255 255 255 / 84%);
+  box-shadow: inset 0 1px 1px white, inset 0 0 0 1px var(--line), 0 3px 9px rgb(32 40 56 / 10%);
+}
+
+.tr .hdr.surf:not(.m) .trh-burger,
+.tr .hdr.surf:not(.m) .trh-burger:hover {
+  background: rgb(255 255 255 / 62%);
+  box-shadow: inset 0 1px 1px white, inset 0 0 0 1px var(--lg-edge), 0 2px 8px rgb(32 40 56 / 12%);
+  backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
+  -webkit-backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
+}
+
+.tr .trk-tabbar, .tr .trk-tabbar.five {
+  height: 58px;
+  padding: 5px;
+  gap: 0;
+  border-radius: 29px;
+  background: transparent;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* A separate background lets the lens extend beyond the bar without clipping. */
+.tr .trk-tabbar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: inherit;
+  background: rgb(243 245 248 / 60%);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 12%);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+}
+
+.tr .trk-tabbar:is(.press, [data-settling])::before {
+  background: rgb(255 255 255 / 55%);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 14%), inset 0 1px 0 var(--lg-edge);
+  -webkit-backdrop-filter: blur(22px) var(--lg-optics, saturate(1));
+  backdrop-filter: blur(22px) var(--lg-optics, saturate(1));
+}
+
+.tr .trk-tabbar .tab, .tr .trk-tabbar .tab.cur {
+  z-index: 1;
+  align-content: center;
+  min-height: 48px;
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+}
+
+.tr .trk-tabbar .tab .i { width: 28px; height: 28px; }
+.tr .trk-tabbar .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.tr .trk-tabbar .tab .dot {
+  width: 7px;
+  height: 7px;
+  min-width: 0;
+  padding: 0;
+  top: 12px;
+  left: calc(50% + 8px);
+}
+
 .tr .trk-tabbar .tabpill {
-  background: var(--lg-glass);
-  box-shadow: inset 0 1px 0 var(--lg-edge), 0 2px 6px rgb(32 40 56 / 9%);
+  position: absolute;
+  inset: 5px auto 5px 5px;
+  pointer-events: none;
+}
+
+.tr .trk-tabbar .tabpill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 55%);
+  transition: inset 200ms var(--lg-spring), background-color 160ms, box-shadow 160ms;
+}
+
+.tr .trk-tabbar[data-settling] .tabpill::before {
+  inset: -8px -8px;
+  background: rgb(255 255 255 / 60%);
+  box-shadow: inset 0 1px 0 white, 0 6px 16px rgb(0 0 0 / 14%);
+}
+
+.tr .trk-tabbar.press .tabpill::before {
+  inset: -16px -18.5px;
+  background: rgb(255 255 255 / 35%);
+  -webkit-backdrop-filter: blur(4px) saturate(1.2);
+  backdrop-filter: blur(4px) saturate(1.2);
+  box-shadow: inset 0 2px 6px rgb(255 255 255 / 90%), 0 6px 16px rgb(0 0 0 / 14%);
+}
+
+@media (hover: hover) {
+  .tr .trk-tabbar:not(.press) .tab:not(.cur):hover { background: rgb(255 255 255 / 40%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tr .trk-tabbar .tabpill::before { transition: none; }
+  .tr .trk-tabbar.press .tabpill::before { inset: 0; }
 }
 
 .tr :is(.tc.s, .trh-teachers .tc) .pl {
@@ -29,6 +137,7 @@ html:has(.tr) { scrollbar-gutter: stable; }
   background: var(--lg-caption);
   box-shadow: inset 0 0 0 1px var(--lg-edge);
   backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
+  -webkit-backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
 }
 
 .tr .tc .pl :is(.trh-tutor-name, .trh-price) { color: var(--ink); }
@@ -37,15 +146,32 @@ html:has(.tr) { scrollbar-gutter: stable; }
   background: var(--lg-dense);
   box-shadow: inset 0 1px 0 var(--lg-edge), var(--lg-shadow);
   backdrop-filter: blur(12px) var(--lg-optics, saturate(1));
+  -webkit-backdrop-filter: blur(12px) var(--lg-optics, saturate(1));
+}
+
+@media (max-width: 760px) {
+  .tr .trh-public-nav > .hdr.surf { background: rgb(255 255 255 / 84%); }
+  .tr .trh-public-nav:has(.trh-menu) > .hdr.surf { background: rgb(255 255 255 / 94%); }
+  .tr .trh-public-nav .trh-menu { background: rgb(255 255 255 / 97%); }
 }
 
 .tr :is(.card, .lesson, .trk-rows.boxed) { background: #fff; }
 .lg-filter-definitions { position: fixed; width: 0; height: 0; pointer-events: none; overflow: hidden; }
 
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
-  .tr.tr :is(.hdr.surf, .trk-tabbar, .trh-tools .search, .trh-tools .chipf.ico, .tc .pl, .trk-modal, .trh-fpage, .trh-menu, .trh-drop-menu) {
+  .tr.tr :is(.hdr.surf, .hdr.surf:not(.m) .trh-burger, .trh-tools .search, .trh-tools .chipf.ico, .tc .pl, .trk-modal, .trh-fpage, .trh-menu, .trh-drop-menu),
+  .tr.tr .trk-tabbar::before,
+  .tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft), .trk-iconbtn:not(.trk-addbtn)) {
     background: Canvas;
     backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     box-shadow: inset 0 0 0 1px CanvasText;
+  }
+
+  .tr.tr .trk-tabbar .tabpill::before {
+    background: Canvas;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: inset 0 0 0 2px CanvasText;
   }
 }

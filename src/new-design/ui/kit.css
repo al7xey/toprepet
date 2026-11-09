@@ -169,7 +169,7 @@
   .tr .trk-modal-foot .btn{width:100%}
   .tr .trk-app{padding-bottom:110px}
   .tr .trk-app .trk-app-hdr{display:none}
-  .tr .trk-app .trk-tabbar{display:grid;position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:auto;z-index:50}
+  .tr .trk-app .trk-tabbar{display:grid;position:fixed;inset:auto 0 calc(14px + env(safe-area-inset-bottom,0px));margin-inline:auto;width:min(318px,calc(100% - 32px));z-index:50}
   .tr .trk-pagehead-actions{width:100%}
 }
 .tr .trk-split{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:20px}
@@ -558,7 +558,6 @@
 
 /* ---- v11: меню не сдвигает шапку, заявки и занятые слоты ---- */
 /* при открытом меню шапка остаётся поверх списка */
-.tr .hdr.surf.trh-hdr-open{z-index:70}
 /* после входа контент кабинета ниже: на телефоне шапки нет, заголовок не должен прилипать к краю */
 @media(max-width:760px){.tr .trk-app{padding-top:32px}}
 
@@ -631,7 +630,6 @@
   .tr .hdr.surf:not(.m){height:70px;margin-block:8px -8px}
   .tr .hdr.surf:not(.m) .trh-actions .btn{min-height:52px}
   .tr .hdr.surf:not(.m) .trh-burger{width:52px;min-width:52px;height:52px}
-  .tr .trh-menu{padding-top:102px}
   .tr main .btn.btn-s:not(.btn-icon){min-height:48px}
   .tr .btn.btn-lg{min-height:52px}
 }
@@ -648,17 +646,6 @@
 .tr .trk-note-title{display:block;font-size:16px}
 .tr .trk-note-line{display:block;margin-top:2px}
 
-/* v36: нижняя панель — «жидкое стекло»: задняя плашка темнее, подвижная пилюля светлее, значок под пилюлей оранжевый */
-.tr .trk-tabbar,.tr .trk-tabbar.five{background:#fff;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid rgb(255 255 255 / 60%);border-radius:999px;box-shadow:0 6px 18px rgb(0 0 0 / 12%);padding:5px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .35s var(--spring)}
-.tr .trk-tabbar.press{transform:scale(1.03)}
-.tr .trk-tabbar .tab{z-index:1;align-content:center;min-height:46px;padding:0;border-radius:999px;background:transparent;color:var(--ink);transition:color .25s}
-.tr .trk-tabbar .tab .i{width:26px;height:26px;transition:none}
-.tr .trk-tabbar .tab.cur{background:transparent;color:var(--ink)}
-.tr .trk-tabbar .tab.cur .i{background:var(--ink)}
-.tr .trk-tabbar .tabpill{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px) / var(--n));border-radius:999px;background:rgb(255 255 255 / 55%);transition:transform .3s var(--spring),box-shadow .3s;pointer-events:none;z-index:0}
-.tr .trk-tabbar.press .tabpill{transform:scale(1.1,1.08);box-shadow:0 8px 18px rgb(32 40 56 / 16%),inset 0 1px 0 rgb(255 255 255 / 90%),inset 0 0 0 1px rgb(255 255 255 / 40%)}
-@media (prefers-reduced-motion:reduce){.tr .trk-tabbar,.tr .trk-tabbar .tabpill{transition:none}}
-@media (max-width:760px){.tr .trk-app .trk-tabbar{left:0;right:0;margin-inline:auto;width:min(300px,calc(100% - 48px))}}
 @media (max-width:760px){
   .tr .tg-rows{padding:0}
   .tr .tg-row{padding:10px 0}
@@ -746,7 +733,6 @@ html{overflow-y:scroll}
 /* v33: единые размеры и стили. Без анимаций появления и наведения, компактные карточки и кнопки, понятные кнопки и подписи */
 .tr .trh-hero-h .trh-ln>span,.tr .trh-hero-lead,.tr .trh-hero-btns,.tr .trh-benefits,.tr .trh-hero-media>img,.tr .tcg>*,.tr .tab.cur .i,.tr .tab .dot,.tr .cnt2,.tr .side .cnt{animation:none!important}
 .tr .trh-hero-h .trh-ln>span{transform:none}
-.tr .trk-tabbar .tab,.tr .trk-tabbar .tab .i{transition:none}
 .tr .card,.tr .lesson{border-radius:20px;transition:none}
 .tr .trk-card.pad-sm{padding:16px}
 .tr .trk-card.pad-md,.tr .trk-card.pad-lg{padding:18px}
@@ -881,28 +867,15 @@ html{overflow-y:scroll}
 .tr .trk-settings-who{display:flex;align-items:center;gap:14px}
 .tr .trk-navrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;text-align:left;cursor:pointer}
 
-/* v38: значки в меню чёрные; выбранный и наведённый становятся чуть жирнее. Меню крупнее. Стрелка «назад» того же размера, что стрелка перехода */
-.tr .trk-tabbar .tab.cur{background:transparent;color:var(--ink)}
-.tr .trk-tabbar .tab.cur .i,.tr .trk-tabbar .tab:hover .i{background:var(--ink)}
+/* Значок выбранной вкладки выделен более плотным штрихом. */
 .tr .trk-tabbar .tab.cur .i-book,.tr .trk-tabbar .tab:hover .i-book{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.100' stroke-linecap='round' stroke-linejoin='round'><path d='M2.500 5.500C5 4 8.500 4 12 6.500c3.500-2.500 7-2.500 9.500-1v13c-2.500-1.500-6-1.500-9.500 1-3.500-2.500-7-2.500-9.500-1z'/><path d='M12 6.500v13'/></g></svg>")}
 .tr .trk-tabbar .tab.cur .i-user,.tr .trk-tabbar .tab:hover .i-user{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.300' stroke-linecap='round'><circle cx='12' cy='8.500' r='4'/><path d='M4.500 20c.9-3.700 3.800-5.800 7.500-5.800s6.600 2.100 7.500 5.800'/></g></svg>")}
 .tr .trk-tabbar .tab.cur .i-chat-bubble,.tr .trk-tabbar .tab:hover .i-chat-bubble{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='2.300' stroke-linecap='round' stroke-linejoin='round' d='M12 3.500c4.700 0 8.500 3.300 8.500 7.500s-3.800 7.500-8.500 7.500c-1 0-2-.2-2.900-.5L4.500 20l1.200-3.600C4.300 15.100 3.500 13.200 3.500 11c0-4.200 3.800-7.500 8.500-7.500z'/></svg>")}
 .tr .trk-tabbar .tab.cur .i-circle-check,.tr .trk-tabbar .tab:hover .i-circle-check{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.300' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M8 12.500l2.800 2.800L16 9.500'/></g></svg>")}
 .tr .trk-tabbar .tab.cur .i-search,.tr .trk-tabbar .tab:hover .i-search{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><g fill='none' stroke='black' stroke-width='2.500' stroke-linecap='round'><circle cx='11' cy='11' r='6.500'/><path d='M16 16l4.500 4.500'/></g></svg>")}
-.tr .trk-tabbar .tab{min-height:54px}
-.tr .trk-tabbar .tab .i{width:30px;height:30px}
-@media (max-width:760px){.tr .trk-app .trk-tabbar{width:min(340px,calc(100% - 40px))}}
 .tr .trk-back,.tr .trk-back:hover{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;color:var(--ink)}
 .tr .trk-back .i{width:22px;height:22px}
 .tr .trk-pagehead{gap:12px}
-
-/* v39: меню чуть меньше и ниже; пилюля не выходит за панель */
-.tr .trk-tabbar,.tr .trk-tabbar.five{overflow:hidden}
-.tr .trk-tabbar.press{transform:scale(1.015)}
-.tr .trk-tabbar .tab{min-height:46px}
-.tr .trk-tabbar .tab .i{width:26px;height:26px}
-.tr .trk-tabbar.press .tabpill{transform:scale(1.05,1.04)}
-@media (max-width:760px){.tr .trk-app .trk-tabbar{width:min(318px,calc(100% - 44px));bottom:calc(14px + env(safe-area-inset-bottom,0px))}}
 
 /* v40: заголовок по центру там, где есть стрелка «назад» (она слева, в одной строке); непрочитанное — маленькая точка без числа */
 .tr .trk-pagehead.has-back .trk-pagehead-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px}
@@ -910,11 +883,6 @@ html{overflow-y:scroll}
 .tr .trk-pagehead.has-back .trk-pagehead-text{justify-items:center;text-align:center;max-width:none}
 .tr .trk-pagehead.has-back .trk-pagehead-actions{justify-self:end}
 .tr .trk-badge:empty,.tr .trk-app .trk-badge:empty,.tr .trk-hdr-ic .trk-badge:empty{width:11px;height:11px;min-width:11px;padding:0;top:3px;right:3px;box-shadow:0 0 0 2px #fff}
-.tr .trk-tabbar .tab .dot{width:11px;height:11px;min-width:0;padding:0;font-size:0;top:10px;left:calc(50% + 9px);box-shadow:0 0 0 2px rgb(255 255 255 / 85%)}
-
-/* v41: пилюля только на своём месте — без перехода по left и без подпрыгивания */
-.tr .trk-tabbar .tabpill{will-change:left,width;transition:box-shadow .25s,transform .25s var(--spring)}
-.tr .trk-tabbar.press .tabpill{transform:scale(1.03,1.03)}
 
 /* v42: заголовок со стрелкой не наезжает на широкие кнопки справа; текст заметок идёт обычным потоком */
 .tr .trk-pagehead.has-back .trk-pagehead-row:has(.trk-pagehead-actions){grid-template-columns:auto minmax(0,1fr) auto}
@@ -923,11 +891,6 @@ html{overflow-y:scroll}
 .tr .trk-pagehead.has-back .trk-pagehead-row{align-items:start}
 .tr .trk-pagehead.has-back .trk-pagehead-text h1{min-height:44px;display:flex;align-items:center;justify-content:center}
 
-/* v43: пилюля увеличивается под пальцем и идёт за ним; точка уведомления — справа сверху от самого значка */
-.tr .trk-tabbar.press .tabpill{transform:scale(1.1,1.08);box-shadow:0 8px 18px rgb(32 40 56 / 16%),inset 0 1px 0 rgb(255 255 255 / 90%),inset 0 0 0 1px rgb(255 255 255 / 40%)}
-.tr .trk-tabbar.press{transform:none}
-.tr .trk-tabbar .tab .dot{width:10px;height:10px;top:8px;left:calc(50% + 13px);box-shadow:none;background:var(--accent)}
-.tr .trk-tabbar .tab .dot{width:7px;height:7px;top:12px;left:calc(50% + 8px)}
 
 /* v44: окна, чекбокс с галочкой, круглый крестик, ровные кнопки в окнах, ховер без серого, карточки выбора с оранжевой иконкой */
 .tr .trk-modal{animation-fill-mode:backwards}
@@ -1063,7 +1026,6 @@ html{overflow-y:scroll}
 .tr .trh-fpage-foot .btn{font-size:18.7px}
 .tr .trk-modal-foot .btn{font-size:17px}
 
-.tr .demo-notice{padding:10px 20px;text-align:center;font-size:13px;line-height:1.5;color:#72310d;background:#fff3e9}
 
 /* Tablet account navigation must not collide with branding or account controls. */
 @media (min-width:761px) and (max-width:1200px){

@@ -13,11 +13,11 @@ import { Button, FormError, Note, Person, Status, TextField, type Tone } from '.
 /* ---------- Репетиторы ---------- */
 
 /** Карточка репетитора: фото, имя, предметы, цена третьей строкой. Одна на главной, в каталоге и в подборках. */
-export function TutorCard({ tutor, priority }: { priority?: boolean; tutor: Pick<Tutor, 'id' | 'name' | 'photo' | 'photoSrcSet' | 'cardSubjects' | 'studentPrice' | 'rating'>}) {
+export function TutorCard({ tutor, priority, revealDelay = 0 }: { priority?: boolean; revealDelay?: number; tutor: Pick<Tutor, 'id' | 'name' | 'photo' | 'photoSrcSet' | 'cardSubjects' | 'studentPrice' | 'rating'>}) {
   const { pathname, search } = useLocation();
   const back = /^\/teachers\/?$/.test(pathname) ? pathname + search : undefined;
   return (
-    <Link state={back ? { back } : undefined} className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false}>
+    <Link state={back ? { back } : undefined} className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false} {...rv('up', revealDelay)}>
       <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 280px, 50vw" alt="" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : undefined} decoding="async" draggable={false} />
       <span className="pl">
         <b><span className="trh-tutor-name">{tutor.name}</span>{tutor.rating ? <span className="rt"><Icon name="star-on" />{String(tutor.rating).replace('.', ',')}</span> : null}</b>
@@ -32,7 +32,7 @@ export function TutorCard({ tutor, priority }: { priority?: boolean; tutor: Pick
 export function TutorGrid({ tutors, layout = 'grid', children }: { tutors: Parameters<typeof TutorCard>[0]['tutor'][]; layout?: 'grid' | 'row'; children?: ReactNode }) {
   return (
     <div className={layout === 'row' ? 'tcg trh-teachers' : 'tcg trh-grid'}>
-      {tutors.map((t, index) => <TutorCard key={t.id} tutor={t} priority={layout === 'row' || index < 8} />)}
+      {tutors.map((t, index) => <TutorCard key={t.id} tutor={t} priority={layout === 'row' || index < 8} revealDelay={(index % 4) * 0.045} />)}
       {children}
     </div>
   );
@@ -158,7 +158,7 @@ export function AddCardModal({ open, onClose, onAdded }: { open: boolean; onClos
   };
   return (
     <Modal open={open} onClose={onClose} title="Новая карта" footer={<><Button variant="fill" onClick={onClose}>Отмена</Button><Button onClick={save} loading={add.pending}>Сохранить карту</Button></>}>
-      <Note tone="plain" icon="lock">Демо-режим: карта не списывается. Попробуйте номер 4000 0000 0000 0002.</Note>
+      {api.mode === 'mock' && <Note tone="plain" icon="lock">Не вводите настоящие данные карты. Для проверки используйте номер 4000 0000 0000 0002.</Note>}
       <TextField label="Номер карты" inputMode="numeric" autoComplete="cc-number" placeholder="0000 0000 0000 0000" value={number} onChange={(e) => setNumber(e.target.value)} />
       <div className="trk-two">
         <TextField label="Срок" autoComplete="cc-exp" placeholder="ММ/ГГ" value={expiry} onChange={(e) => setExpiry(e.target.value)} />
