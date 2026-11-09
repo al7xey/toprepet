@@ -2,7 +2,7 @@ import { api, staticTutors } from '../../api';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
-import { Button, Faq, Icon, IconButton, Panel, Section, Steps } from '../../ui';
+import { Button, Faq, Icon, IconButton, Section, Steps } from '../../ui';
 import { TutorShowcase } from '../../ui/tutor-showcase';
 import { HOW_STEPS, STUDENT_FAQ } from './content';
 import './home-visual.css';
@@ -32,7 +32,7 @@ export default function HomePage() {
       </section>
 
       <Section title="Как всё устроено" id="how">
-        <Steps items={HOW_STEPS} />
+        <Steps items={HOW_STEPS} revealOnScroll />
       </Section>
 
       <Section
@@ -51,7 +51,7 @@ export default function HomePage() {
             </li>
           ))}
         </ol>
-        <div><Button to="/teachers?intro=1" size="lg">Бесплатное знакомство</Button></div>
+        <Button to="/teachers?intro=1" size="lg" block>Бесплатное знакомство</Button>
       </Section>
 
       <section className="p-home-trust" aria-labelledby="trust-title">
@@ -62,12 +62,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Panel>
-        <div className="trh-sec u-start">
-          <h2 className="trh-h2 u-mw600">Вы репетитор? Найдём для вас учеников</h2>
-          <Button to="/for-repetitor/" size="lg">Стать топ-репетом</Button>
-        </div>
-      </Panel>
+      <Section title="Вы репетитор? Найдём для вас учеников">
+        <Button to="/for-repetitor/" size="lg" block>Стать топ-репетом</Button>
+      </Section>
 
       <Section title="Вопросы и ответы">
         <Faq items={STUDENT_FAQ} />

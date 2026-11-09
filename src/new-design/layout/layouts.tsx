@@ -9,10 +9,10 @@ import { Avatar, Button, FormError, Icon, IconButton } from '../ui';
 const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ');
 
 const DRAG_PX = 6; // на сколько сдвинуть палец, чтобы нажатие стало перетаскиванием
-const MOVE_MS = 480; // дольше всего пилюля переезжает к новому пункту
+const MOVE_MS = 340;
 
-// Keep the lens position across route layouts that remount the tab bar.
-let lastPill: { left: number; width: number; cellWidth: number; tabs: string } | null = null;
+// Keep the indicator position across route layouts that remount the tab bar.
+let lastPill: { left: number; cellWidth: number; tabs: string } | null = null;
 
 /** Положение и ширина каждого пункта относительно внутреннего края панели. Берём из вёрстки, поэтому слева и справа всё симметрично. */
 function cellsOf(host: HTMLElement) {
@@ -23,11 +23,7 @@ function cellsOf(host: HTMLElement) {
   });
 }
 
-/**
- * Нижняя панель «жидкое стекло». Прозрачная пилюля выбранного раздела переезжает к новому пункту,
- * на ходу растягиваясь, как капля. Под пальцем она увеличивается и идёт за ним влево и вправо:
- * пока палец на панели, страница не меняется и ничего не пересобирается, раздел открывается при отпускании.
- */
+/** Нижняя панель со стеклянным индикатором. При горизонтальном жесте он следует за пальцем, вкладка открывается при отпускании. */
 function TabBar({ tabs }: { tabs: NavItem[] }) {
   const { pathname } = useLocation();
   const { user } = useSession();
@@ -53,7 +49,6 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
   };
   const leftOf = (cells: { left: number }[], pos: number) => cells[0].left + pos * (cells.length > 1 ? cells[1].left - cells[0].left : 0);
 
-  // пилюля плавно едет к краю dest; в середине пути растянута от старого места до нового и не выходит за панель
   const glide = useCallback((dest: number, w: number) => {
     const el = pill.current;
     const host = bar.current;
@@ -62,30 +57,24 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     const bounds = placed.current && Math.abs(parseFloat(el.style.width) - w) < .1 ? el.getBoundingClientRect() : null;
     const previous = !placed.current && lastPill?.tabs === tabSet && lastPill.cellWidth === w ? lastPill : null;
     const live = bounds ? bounds.left - host.getBoundingClientRect().left : previous?.left ?? dest;
-    const liveWidth = bounds?.width ?? previous?.width ?? w;
-    const at = (left: number, width: number) => ({ transform: `translateX(${left}px) scaleX(${width / w})` });
+    const at = (left: number) => ({ transform: `translateX(${left}px)` });
     motion.current?.animation.cancel();
     motion.current = null;
-    delete host.dataset.settling;
     el.style.width = `${w}px`;
-    el.style.transform = at(dest, w).transform;
+    el.style.transform = at(dest).transform;
     placed.current = true;
-    lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
-    if ((Math.abs(live - dest) < 1 && Math.abs(liveWidth - w) < 1) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    lastPill = { left: dest, cellWidth: w, tabs: tabSet };
+    if (Math.abs(live - dest) < 1 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const dist = Math.abs(dest - live);
-    const middle = live + (dest - live) * (dest >= live ? .22 : .78);
-    const stretch = Math.min(host.clientWidth - middle - 5, Math.max(liveWidth, w + Math.min(dist * .46, 104)));
-    const duration = Math.round(Math.min(MOVE_MS, 260 + dist * 1.1));
-    const peak = .48;
+    const duration = Math.round(Math.min(MOVE_MS, 215 + dist * .6));
     const anim = el.animate(
-      [at(live, liveWidth), { ...at(middle, stretch), offset: peak }, at(dest, w)],
-      { duration, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'both' },
+      [at(live), at(dest)],
+      { duration, easing: 'cubic-bezier(.22,.65,.25,1)', fill: 'both' },
     );
     anim.pause();
     anim.currentTime = 0;
     motion.current = { animation: anim, dest, width: w };
-    host.dataset.settling = '';
-    lastPill = { left: live, width: liveWidth, cellWidth: w, tabs: tabSet };
+    lastPill = { left: live, cellWidth: w, tabs: tabSet };
     let elapsed = 0;
     let previousFrame: number | undefined;
     // Cap each step so a slow route render cannot skip most of the glide in one frame.
@@ -96,28 +85,20 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
       if (elapsed >= duration) {
         anim.cancel();
         motion.current = null;
-        lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
-        delete host.dataset.settling;
+        lastPill = { left: dest, cellWidth: w, tabs: tabSet };
         return;
       }
       anim.currentTime = elapsed;
       const progress = anim.effect?.getComputedTiming().progress ?? 0;
-      const fraction = progress < peak ? progress / peak : (progress - peak) / (1 - peak);
-      const left = progress < peak ? live + (middle - live) * fraction : middle + (dest - middle) * fraction;
-      const width = progress < peak ? liveWidth + (stretch - liveWidth) * fraction : stretch + (w - stretch) * fraction;
-      lastPill = { left, width, cellWidth: w, tabs: tabSet };
+      lastPill = { left: live + (dest - live) * progress, cellWidth: w, tabs: tabSet };
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
   }, [tabSet]);
 
-  useLayoutEffect(() => {
-    const host = bar.current;
-    return () => {
-      motion.current?.animation.cancel();
-      motion.current = null;
-      if (host) delete host.dataset.settling;
-    };
+  useLayoutEffect(() => () => {
+    motion.current?.animation.cancel();
+    motion.current = null;
   }, [tabSet]);
   // пилюля идёт за пальцем без анимации и без перерисовки страницы
   const follow = (pos: number, cells: ReturnType<typeof cellsOf>) => {
@@ -125,12 +106,11 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     if (!el || !cells.length) return;
     motion.current?.animation.cancel();
     motion.current = null;
-    if (bar.current) delete bar.current.dataset.settling;
     const left = leftOf(cells, pos);
     el.style.width = `${cells[0].width}px`;
     el.style.transform = `translateX(${left}px)`;
     placed.current = true;
-    lastPill = { left, width: cells[0].width, cellWidth: cells[0].width, tabs: tabSet };
+    lastPill = { left, cellWidth: cells[0].width, tabs: tabSet };
   };
 
   const finish = () => { gesture.current = null; setDragIndex(null); };
@@ -146,9 +126,7 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     host.setPointerCapture(e.pointerId);
     const index = Math.round(posAt(e.clientX, active));
     active.offset = e.clientX - active.bounds.left - cells[index].left - cells[index].width / 2;
-    setDragIndex(index);
-    if (target < 0) follow(index, cells);
-    else glide(leftOf(cells, index), cells[0].width);
+    if (target >= 0) setDragIndex(target);
   };
   const onPointerMove = (e: PointerEvent) => {
     const g = gesture.current;

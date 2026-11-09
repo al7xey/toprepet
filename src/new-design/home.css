@@ -26,7 +26,7 @@
 .tr .trh-teachers>.tc:nth-child(n+5){display:none}
 .tr .trh-teachers .tc{aspect-ratio:4/5}
 
-.tr .trh-intro{max-width:760px}
+.tr .trh-intro > ol{max-width:760px}
 .tr .trh-panel{padding:44px}
 .tr .trh-panel-h{font-size:30px;letter-spacing:-0.035em}
 .tr .trh-panel-in{max-width:560px}

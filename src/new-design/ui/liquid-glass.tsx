@@ -3,7 +3,7 @@ import './liquid-glass.css';
 
 const NS = 'http://www.w3.org/2000/svg';
 const SURFACES = [
-  '.hdr.surf', '.trh-burger', '.trk-tabbar', '.trk-tabbar .tabpill', '.trh-tools .search', '.trh-tools .chipf.ico',
+  '.hdr.surf', '.trh-burger', '.trk-tabbar', '.trh-tools .search', '.trh-tools .chipf.ico',
   '.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft)', '.trk-iconbtn:not(.trk-addbtn)',
   '.trh-drop-menu', '.trk-modal', '.trh-fpage', '.trh-menu', '.tc.s .pl', '.tg-compose-row',
 ].join(',');
@@ -57,13 +57,9 @@ export function LiquidGlassEffects() {
     const cache = new Map<string, string>();
     const update = (entry: ResizeObserverEntry) => {
       const element = entry.target as HTMLElement;
-      const pill = element.classList.contains('tabpill');
-      const box = pill ? entry.contentRect : element.getBoundingClientRect();
-      if (box.width < 2 || box.height < 2) return;
-      // Include the overhang of the pressed lens defined in the stylesheet.
-      const width = box.width + (pill ? 16 : 0);
-      const height = box.height + (pill ? 32 : 0);
-      const radius = pill ? 40 : parseFloat(getComputedStyle(element).borderTopLeftRadius) || 28;
+      const { width, height } = element.getBoundingClientRect();
+      if (width < 2 || height < 2) return;
+      const radius = parseFloat(getComputedStyle(element).borderTopLeftRadius) || 28;
       const key = `${Math.round(width)}:${Math.round(height)}:${Math.round(radius)}`;
       let id = cache.get(key);
       if (!id) {
@@ -86,7 +82,7 @@ export function LiquidGlassEffects() {
         displacement.setAttribute('yChannelSelector', 'G');
         filter.append(image, displacement); defs.append(filter); cache.set(key, id);
       }
-      element.style.setProperty(pill ? '--lg-lens-optics' : '--lg-optics', `url("#${id}")`);
+      element.style.setProperty('--lg-optics', `url("#${id}")`);
     };
     const resize = new ResizeObserver(entries => entries.forEach(update));
     const scan = () => {
@@ -102,10 +98,7 @@ export function LiquidGlassEffects() {
     return () => {
       mutations.disconnect(); resize.disconnect(); svg.remove();
       document.querySelectorAll<HTMLElement>('.tr').forEach(host => { delete host.dataset.glassOptics; });
-      observed.forEach(element => {
-        element.style.removeProperty('--lg-optics');
-        element.style.removeProperty('--lg-lens-optics');
-      });
+      observed.forEach(element => element.style.removeProperty('--lg-optics'));
     };
   }, []);
   return null;

@@ -1,4 +1,4 @@
-import { useId, useState, type CSSProperties, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import type { Query } from '../api/hooks';
 import { initial } from '../lib/format';
@@ -220,9 +220,23 @@ export interface StepItem { title: ReactNode; text?: ReactNode; state?: 'done' |
  * Нумерованные шаги с линией (главная, «Для репетиторов», «Что будет дальше»).
  * size="s" — компактный вариант для карточек.
  */
-export function Steps({ items, size = 'md' }: { items: StepItem[]; size?: 'md' | 's' }) {
+export function Steps({ items, size = 'md', revealOnScroll }: { items: StepItem[]; size?: 'md' | 's'; revealOnScroll?: boolean }) {
+  const list = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    if (!revealOnScroll || !list.current || typeof IntersectionObserver === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const threshold = .22;
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.intersectionRatio < threshold) continue;
+        entry.target.setAttribute('data-step-visible', '');
+        observer.unobserve(entry.target);
+      }
+    }, { threshold });
+    for (const step of list.current.children) observer.observe(step);
+    return () => observer.disconnect();
+  }, [revealOnScroll]);
   return (
-    <ol className={cx('tl trh-steps', size === 's' && 's')}>
+    <ol ref={list} className={cx('tl trh-steps', size === 's' && 's')}>
       {items.map((item, index) => (
         <li key={index} className={item.state && item.state !== 'current' ? item.state : undefined} style={{ '--i': index } as CSSProperties}>
           <i>{index + 1}</i>

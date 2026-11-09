@@ -6,3 +6,14 @@
   .tr .p-home-trust{gap:24px}
   .tr .p-home-trust>img,.tr .p-home-trust>div{flex-basis:300px}
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .tr #how .trh-steps > [data-step-visible] {
+    animation: tr-step-arrive 480ms var(--lg-spring) calc(var(--i, 0) * 55ms) backwards;
+  }
+}
+
+@keyframes tr-step-arrive {
+  from { opacity: .45; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}

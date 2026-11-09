@@ -24,11 +24,19 @@ html:has(.tr) { scrollbar-gutter: stable; }
 }
 .tr.tr :is(.trk-iconbtn.trk-back, .trk-month-nav) .i { width: 22px; height: 22px; }
 
-.tr :is(.hdr.surf, .trh-tools .search) {
+.tr .hdr.surf {
   background: var(--lg-glass);
   box-shadow: inset 0 1px 0 var(--lg-edge), inset 0 0 0 1px var(--lg-rim);
   -webkit-backdrop-filter: blur(14px) var(--lg-optics, saturate(1.3));
   backdrop-filter: blur(14px) var(--lg-optics, saturate(1.3));
+}
+
+.tr .trh-tools .search {
+  background: var(--lg-button);
+  border: 1px solid var(--line);
+  box-shadow: none;
+  -webkit-backdrop-filter: blur(10px) var(--lg-optics, saturate(1.25));
+  backdrop-filter: blur(10px) var(--lg-optics, saturate(1.25));
 }
 
 /* Actions and selection controls share the same glass, rim and feedback. */
@@ -55,12 +63,6 @@ html:has(.tr) { scrollbar-gutter: stable; }
     --lg-control-fill: rgb(255 255 255 / 94%);
     --lg-control-rim: rgb(41 58 81 / 21%);
   }
-}
-
-.tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft, .btn-icon),
-  .trk-iconbtn:not(.trk-addbtn), .hdr.surf .trh-burger, .chipf, .opt,
-  .trk-slots :is(.date, .slot), .trk-month-nav, .trh-drop-menu button):where(:active:not(:disabled)) {
-  --lg-control-fill: rgb(224 231 241 / 82%);
 }
 
 .tr.tr :is(.opt.on, .chipf.on, .trh-drop-menu button.on) {
@@ -116,32 +118,14 @@ html:has(.tr) { scrollbar-gutter: stable; }
   padding: 5px;
   gap: 0;
   border-radius: 29px;
-  background: transparent;
+  background: rgb(247 248 250 / 85%);
+  box-shadow: none;
+  -webkit-backdrop-filter: blur(12px) var(--lg-optics, saturate(1.25));
+  backdrop-filter: blur(12px) var(--lg-optics, saturate(1.25));
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-}
-
-/* A separate background lets the lens extend beyond the bar without clipping. */
-.tr .trk-tabbar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  border-radius: inherit;
-  border: 1px solid rgb(255 255 255 / 64%);
-  background: rgb(255 255 255 / 87%);
-  border-color: rgb(32 40 56 / 8%);
-  -webkit-backdrop-filter: blur(10px) saturate(1.25);
-  backdrop-filter: blur(10px) saturate(1.25);
-}
-
-.tr .trk-tabbar:is(.press, [data-settling])::before {
-  background: rgb(255 255 255 / 74%);
-  -webkit-backdrop-filter: blur(14px) var(--lg-optics, saturate(1.3));
-  backdrop-filter: blur(14px) var(--lg-optics, saturate(1.3));
 }
 
 .tr .trk-tabbar .tab, .tr .trk-tabbar .tab.cur {
@@ -169,49 +153,13 @@ html:has(.tr) { scrollbar-gutter: stable; }
 .tr .trk-tabbar .tabpill {
   position: absolute;
   inset: 5px auto 5px 0;
-  transform-origin: left center;
   pointer-events: none;
-}
-
-.tr .trk-tabbar .tabpill::before {
-  content: '';
-  position: absolute;
-  inset: 0;
   border-radius: 999px;
   background: linear-gradient(155deg, rgb(255 255 255 / 86%), rgb(237 241 246 / 72%));
-  transition: transform 260ms var(--lg-spring), opacity 160ms;
 }
-
-.tr .trk-tabbar[data-settling] .tabpill::before { transform: scaleY(1.33); }
-.tr .trk-tabbar.press .tabpill::before { opacity: 0; }
-
-.tr .trk-tabbar .tabpill::after {
-  content: '';
-  position: absolute;
-  inset: -16px -8px;
-  box-sizing: border-box;
-  border-radius: 40px;
-  opacity: 0;
-  transform: scale(.67, .6);
-  background: rgb(255 255 255 / 35%);
-  border: 1px solid rgb(122 148 174 / 26%);
-  border-top-color: rgb(255 255 255 / 94%);
-  box-shadow: inset 0 1px 6px rgb(255 255 255 / 85%);
-  -webkit-backdrop-filter: blur(4px) var(--lg-lens-optics, saturate(1.35));
-  backdrop-filter: blur(4px) var(--lg-lens-optics, saturate(1.35));
-  transition: transform 280ms var(--lg-spring), opacity 180ms ease-out;
-}
-
-.tr .trk-tabbar.press .tabpill::after { opacity: 1; transform: none; }
 
 @media (hover: hover) {
   .tr .trk-tabbar:not(.press) .tab:not(.cur):hover { background: rgb(255 255 255 / 55%); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tr .trk-tabbar .tabpill::before { transition: none; }
-  .tr .trk-tabbar .tabpill::after { display: none; }
-  .tr .trk-tabbar.press .tabpill::before { opacity: 1; }
 }
 
 .tr :is(.tc.s, .trh-teachers .tc) .pl {
@@ -261,12 +209,12 @@ html:has(.tr) { scrollbar-gutter: stable; }
     box-shadow: inset 0 0 0 1px CanvasText;
   }
 
-  .tr.tr .trk-tabbar::before,
-  .tr.tr .trk-tabbar .tabpill::after,
-  .tr.tr .trk-tabbar .tabpill::before {
+  .tr.tr .trk-tabbar,
+  .tr.tr .trk-tabbar .tabpill {
     background: Canvas;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    border: 1px solid CanvasText;
+    outline: 1px solid CanvasText;
+    outline-offset: -1px;
   }
 }

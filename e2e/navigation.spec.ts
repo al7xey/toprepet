@@ -25,32 +25,33 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   await page.goto('/me/chats');
   const bar = page.locator('nav.trk-tabbar');
   const tabs = bar.locator('a.tab');
-  const lens = () => bar.locator('.tabpill').evaluate((pill) => {
-    const { opacity, height, backdropFilter } = getComputedStyle(pill, '::after');
-    return { opacity, height, backdropFilter };
+  const indicator = () => bar.locator('.tabpill').evaluate((pill) => {
+    const { width, height } = pill.getBoundingClientRect();
+    return { width, height, lens: getComputedStyle(pill, '::after').content };
   });
-  expect(await lens()).toMatchObject({ opacity: '0', height: '80px' });
-  expect(await bar.evaluate((element) => getComputedStyle(element, '::before').boxShadow)).toBe('none');
+  const restingIndicator = await indicator();
+  expect(restingIndicator).toMatchObject({ lens: 'none' });
+  await expect(bar).toHaveCSS('box-shadow', 'none');
   const restingBar = await bar.boundingBox();
   const from = await tabs.nth(2).boundingBox();
   const to = await tabs.nth(3).boundingBox();
   if (!from || !to) throw new Error('нет размеров пунктов панели');
   await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2);
   await page.mouse.down();
-  // пока палец на панели, пилюля увеличена, а страница не меняется
+  // Индикатор сохраняет размер во время жеста, страница открывается при отпускании.
   await expect(bar).toHaveClass(/press/);
-  await expect.poll(async () => (await lens()).opacity).toBe('1');
-  expect((await lens()).backdropFilter).toContain('blur(4px)');
+  expect(await indicator()).toEqual(restingIndicator);
   expect(await bar.boundingBox()).toEqual(restingBar);
   await page.mouse.move(to.x + to.width / 2, from.y + from.height / 2, { steps: 12 });
   await expect(page).toHaveURL(/\/me\/chats/);
   await expect(tabs.nth(3)).toHaveClass(/cur/);
   await expect(tabs.nth(2)).toHaveAttribute('aria-current', 'page');
+  expect(await indicator()).toEqual(restingIndicator);
   await page.mouse.up();
   await expect(page).toHaveURL(/\/me\/account/);
   await expect(tabs.nth(3)).toHaveAttribute('aria-current', 'page');
   await expect(bar).not.toHaveClass(/press/);
-  await expect.poll(async () => (await lens()).opacity).toBe('0');
+  expect(await indicator()).toEqual(restingIndicator);
 
   const profile = await tabs.nth(3).boundingBox();
   const lessons = await tabs.nth(1).boundingBox();

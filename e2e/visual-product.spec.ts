@@ -22,9 +22,14 @@ test('публичные CTA соответствуют роли пользов�
   }
 });
 
-test('главная: заголовки не анимируются при прокрутке', async ({ page }) => {
+test('главная: шаги появляются при прокрутке, заголовки остаются неподвижными', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/');
+  const steps = page.locator('#how .trh-steps > li');
+  for (const step of await steps.all()) {
+    await step.scrollIntoViewIfNeeded();
+    await expect(step).toHaveCSS('animation-name', 'tr-step-arrive');
+  }
   const heading = page.getByRole('heading', { name: 'Познакомьтесь до первого занятия', exact: true });
   await heading.scrollIntoViewIfNeeded();
   await expect(heading).toHaveCSS('opacity', '1');
@@ -35,6 +40,14 @@ test('главная: заголовки не анимируются при пр
     return false;
   });
   expect(animations).toBe(false);
+  for (const name of ['Бесплатное знакомство', 'Стать топ-репетом']) {
+    const bounds = await page.getByRole('link', { name, exact: true }).evaluate(button => {
+      const box = button.getBoundingClientRect();
+      const container = button.parentElement!.getBoundingClientRect();
+      return { left: box.left - container.left, right: container.right - box.right };
+    });
+    expect(bounds).toEqual({ left: 0, right: 0 });
+  }
   await expect(page.getByRole('link', { name: 'Оплата и возвраты', exact: true })).toHaveCount(0);
   await expectNoHorizontalScroll(page);
 });

@@ -1,22 +1,40 @@
 import { expect, test } from '@playwright/test';
 
-test('pressing a control leaves it and neighbouring controls stationary without a ripple', async ({ page }) => {
+test('pressing a control leaves its fill and the surrounding layout unchanged on touch', async ({ page, browserName }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/teachers');
   const button = page.getByRole('button', { name: 'Фильтры', exact: true });
   const sort = page.locator('summary[title="Сортировка"]');
   await expect(button).toBeVisible();
+  await expect(page.locator('.trh-tools .search')).toHaveCSS('border-top-width', '1px');
   await page.evaluate(() => document.fonts.ready);
   const before = await button.boundingBox();
   const sortBefore = await sort.boundingBox();
-  expect(before).not.toBeNull();
-  await button.hover();
-  await page.mouse.down();
+  if (!before) throw new Error('Missing filter button bounds');
+  const touch = testInfo.project.use.hasTouch && browserName === 'chromium'
+    ? await page.context().newCDPSession(page)
+    : null;
+  const fill = () => button.evaluate(control => getComputedStyle(control).background);
+  const initialFill = await fill();
+  if (touch) {
+    await touch.send('Input.dispatchTouchEvent', {
+      type: 'touchStart', touchPoints: [{ x: before.x + before.width / 2, y: before.y + before.height / 2 }],
+    });
+    expect(await fill()).toBe(initialFill);
+  } else {
+    await button.hover();
+    await page.mouse.down();
+  }
   expect(await button.evaluate(control => getComputedStyle(control, '::before').animationName)).toBe('none');
   expect(await button.boundingBox()).toEqual(before);
   expect(await sort.boundingBox()).toEqual(sortBefore);
-  await page.mouse.move(1, 1);
-  await page.mouse.up();
+  if (touch) {
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchCancel', touchPoints: [] });
+    await touch.detach();
+  } else {
+    await page.mouse.move(1, 1);
+    await page.mouse.up();
+  }
 });
 
 test('page canvas is white and opening filters preserves the trigger position', async ({ page }) => {
