@@ -5,7 +5,7 @@ import { useSession } from '../../api/session';
 import type { Notification } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { ago } from '../../lib/format';
-import { Card, EmptyState, Icon, IconButton, PageHeader, QueryView } from '../../ui';
+import { Card, EmptyState, Icon, IconButton, PageHeader, QueryView, UnreadDot } from '../../ui';
 
 const ICON: Record<Notification['kind'], string> = { lesson: 'book', request: 'circle-check', message: 'chat-bubble', payment: 'card', review: 'star', system: 'info' };
 
@@ -30,7 +30,7 @@ export default function NotificationsPage() {
   };
   return (
     <AppLayout role={role}>
-      <PageHeader title="Уведомления" back={{ to: role === 'tutor' ? '/tutor/account' : '/me/account', label: 'Профиль' }} actions={unread ? <IconButton icon="checks" label="Прочитать все" onClick={() => void markAll()} className="trh-more" /> : undefined} />
+      <PageHeader title="Уведомления" back={{ to: role === 'tutor' ? '/tutor/account' : '/me/account', label: 'Профиль' }} actions={unread ? <IconButton icon="checks" label="Прочитать все" onClick={() => void markAll()} /> : undefined} />
       <QueryView query={list} empty={(items) => items.length === 0 ? <EmptyState icon="bell" title="Пока тихо" text="Здесь появятся ответы на заявки, подтверждения уроков и сообщения." /> : null}>
         {(items) => (
           <div className="trk-list">
@@ -38,8 +38,7 @@ export default function NotificationsPage() {
               const body = (
                 <>
                   <span className="trk-note-ic"><Icon name={ICON[n.kind]} /></span>
-                  <span className="trk-note-text"><b>{n.title}</b><span>{n.text}</span><small>{ago(n.at)}</small></span>
-                  {!n.read && <span className="trk-note-dot" aria-label="Новое" />}
+                  <span className="trk-note-text"><b>{n.title}{!n.read && <UnreadDot />}</b><span>{n.text}</span><small>{ago(n.at)}</small></span>
                 </>
               );
               return <Card key={n.id} pad="sm">{n.link ? <Link className="trk-note-row" to={n.link} state={{ from: pathname }} onClick={() => open(n)}>{body}</Link> : <div className="trk-note-row">{body}</div>}</Card>;

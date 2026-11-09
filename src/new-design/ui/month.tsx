@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Icon } from './icon';
+import { IconButton } from './kit';
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -26,9 +26,9 @@ export function MonthCalendar({ value, onChange, markOf }: { value: string | nul
   return (
     <div className="trk-month">
       <div className="trk-month-head">
-        <button type="button" className="trk-month-nav" aria-label="Предыдущий месяц" disabled={!canGoBack} onClick={() => shift(-1)}><Icon name="left" /></button>
+        <IconButton className="trk-month-nav" icon="left" label="Предыдущий месяц" disabled={!canGoBack} onClick={() => shift(-1)} />
         <b className="trk-month-title">{title}</b>
-        <button type="button" className="trk-month-nav" aria-label="Следующий месяц" onClick={() => shift(1)}><Icon name="right" /></button>
+        <IconButton className="trk-month-nav" icon="right" label="Следующий месяц" onClick={() => shift(1)} />
       </div>
       <div className="trk-month-grid">
         {WEEKDAYS.map((w) => <span key={w} className="trk-month-wd" aria-hidden="true">{w}</span>)}

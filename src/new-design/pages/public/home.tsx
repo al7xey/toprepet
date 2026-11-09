@@ -37,7 +37,7 @@ export default function HomePage() {
 
       <Section
         title="Топ репеты"
-        action={<IconButton icon="arrow" label="Все репетиторы" to="/teachers" className="trh-more" />}
+        action={<IconButton icon="arrow" label="Все репетиторы" to="/teachers" />}
       >
         <TutorShowcase query={tutors} />
       </Section>

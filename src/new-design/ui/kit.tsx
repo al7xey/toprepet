@@ -47,20 +47,20 @@ export function Button({ children, variant = 'primary', size = 'md', block, icon
 }
 
 /** Круглая кнопка со значком (уведомления, назад, закрыть). */
-export function IconButton({ icon, label, to, onClick, surf, badge, className }: { icon: string; label: string; to?: string; onClick?: () => void; surf?: boolean; badge?: number | boolean; className?: string }) {
+export function IconButton({ icon, label, to, onClick, surf, badge, className, type = 'button', disabled }: { icon: string; label: string; to?: string; onClick?: () => void; surf?: boolean; badge?: number | boolean; className?: string; type?: 'button' | 'submit'; disabled?: boolean }) {
   // все круглые кнопки-значки в одном стиле: белый круг с тонкой рамкой; оранжевый плюс и кнопки поверх фото остаются как есть
   const cls = cx('trk-iconbtn', surf && 'surf', !surf && !className?.includes('trk-addbtn') && 'trk-round', className);
   // непрочитанное показываем точкой, без числа: так принято в современных приложениях
   const dot = badge ? <span className="trk-badge" aria-hidden="true" /> : null;
-  if (to) return <Link className={cls} to={to} aria-label={label} data-unread={typeof badge === 'number' ? badge : undefined}><Icon name={icon} />{dot}</Link>;
-  return <button type="button" className={cls} onClick={onClick} aria-label={label}><Icon name={icon} />{dot}</button>;
+  if (to && !disabled) return <Link className={cls} to={to} aria-label={label} data-unread={typeof badge === 'number' ? badge : undefined}><Icon name={icon} />{dot}</Link>;
+  return <button type={type} className={cls} onClick={onClick} aria-label={label} disabled={disabled}><Icon name={icon} />{dot}</button>;
 }
 
 /** Круглая стрелка «назад»: одна на всех страницах. Подпись остаётся для скринридеров. */
-export function BackLink({ to, children }: { to: string; children: ReactNode }) {
+export function BackLink({ to, children, className }: { to: string; children: ReactNode; className?: string }) {
   // если на страницу пришли по ссылке с другой страницы кабинета (например, из уведомления в профиле), «назад» возвращает туда
   const from = (useLocation().state as { from?: string } | null)?.from;
-  return <Link className="trk-iconbtn trk-back" to={from ?? to} aria-label={typeof children === 'string' ? children : 'Назад'}><Icon name="back" /></Link>;
+  return <IconButton icon="back" to={from ?? to} label={typeof children === 'string' ? children : 'Назад'} className={cx('trk-back', className)} />;
 }
 
 /* ---------- Заголовки и секции ---------- */
@@ -115,6 +115,10 @@ export function Panel({ children, className }: { children: ReactNode; className?
 /* ---------- Статусы и сообщения ---------- */
 
 export type Tone = 'ok' | 'wait' | 'neutral' | 'bad' | 'info';
+
+export function UnreadDot({ label = 'Новое' }: { label?: string }) {
+  return <span className="trk-note-dot"><span className="trk-sr">{label}</span></span>;
+}
 
 export function Status({ tone, icon, children }: { tone: Tone; icon?: string; children: ReactNode }) {
   return <span className={`st st-${tone}`}>{icon && <Icon name={icon} />}{children}</span>;
@@ -356,11 +360,11 @@ export function Checkbox({ checked, onChange, children }: { checked: boolean; on
   );
 }
 
-export function Switch({ checked, onChange, title, text }: { checked: boolean; onChange: (v: boolean) => void; title: ReactNode; text?: ReactNode }) {
+export function Switch({ checked, onChange, title, text, disabled }: { checked: boolean; onChange: (v: boolean) => void; title: ReactNode; text?: ReactNode; disabled?: boolean }) {
   return (
     <label className="trk-switch-row">
       <span className="trk-switch-text"><b>{title}</b>{text && <span className="muted sm">{text}</span>}</span>
-      <input type="checkbox" role="switch" aria-checked={checked} className="trk-sr" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <input type="checkbox" role="switch" aria-checked={checked} className="trk-sr" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} />
       <span className={cx('switch', checked && 'on')} aria-hidden="true" />
     </label>
   );
@@ -424,22 +428,24 @@ export const Divider = ({ children }: { children?: ReactNode }) => <div classNam
 
 /** Круглая стрелка «смотреть все» рядом с заголовком секции. */
 export function ArrowLink({ to, label }: { to: string; label: string }) {
-  return <Link className="arrow-btn" to={to} aria-label={label}><Icon name="arrow" /></Link>;
+  return <IconButton icon="arrow" label={label} to={to} />;
 }
 
 /** Выбор файла: кнопка-метка с настоящим input[type=file] внутри (работает с клавиатуры). */
-export function FilePick({ children, accept, onPick, loading, icon = 'upload', round }: { children: ReactNode; accept?: string; onPick: (file: File) => void; loading?: boolean; icon?: string; /** Круглая кнопка только со значком: оранжевый плюс («add») или белый круг («edit»). */ round?: 'add' | 'edit' }) {
+export function FilePick({ children, accept, onPick, loading, icon = 'upload', round, preview }: { children: ReactNode; accept?: string; onPick: (file: File) => void; loading?: boolean; icon?: string; round?: 'add' | 'edit'; preview?: ReactNode }) {
+  const input = <input type="file" className="trk-sr" accept={accept} disabled={loading} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ''; if (file) onPick(file); }} />;
+  if (preview) return <label className="trk-filepick trk-filepick-preview">{input}<span className="trk-sr">{children}</span>{preview}</label>;
   if (round) {
     return (
       <label className={cx('trk-iconbtn trk-filepick-round', round === 'add' ? 'trk-addbtn' : 'trk-round', loading && 'is-loading')} title={typeof children === 'string' ? children : undefined}>
-        <input type="file" className="trk-sr" accept={accept} disabled={loading} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ''; if (file) onPick(file); }} />
+        {input}
         <span className="trk-sr">{children}</span><Icon name={loading ? 'clock' : icon} />
       </label>
     );
   }
   return (
     <label className={cx('btn btn-line trk-filepick', loading && 'is-loading')}>
-      <input type="file" className="trk-sr" accept={accept} disabled={loading} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ''; if (file) onPick(file); }} />
+      {input}
       <Icon name={icon} />{loading ? 'Загружаем…' : children}
     </label>
   );

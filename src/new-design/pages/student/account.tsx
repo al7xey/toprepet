@@ -6,7 +6,7 @@ import { useSession } from '../../api/session';
 import type { PaymentKind } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { ago, count, dateLong, rub } from '../../lib/format';
-import { Avatar, Button, Card, Icon, IconButton, Modal, Note, PageHeader, Status, useToast, type Tone } from '../../ui';
+import { Avatar, Button, Card, Icon, IconButton, Modal, Note, PageHeader, Status, useToast, type Tone, UnreadDot } from '../../ui';
 import { RequestCard } from '../requests/parts';
 import { RequestWizard } from '../requests/new';
 
@@ -33,7 +33,7 @@ function BlockHead({ title, add, all }: { title: string; add?: { label: string; 
     <div className="trk-block-head">
       <h2 className="trk-blocktitle trh-h1">{title}</h2>
       {add && <IconButton icon="plus" label={add.label} onClick={add.onClick} className="trk-addbtn" />}
-      <IconButton icon="arrow" label={all.label} to={all.to} className="trh-more" />
+      <IconButton icon="arrow" label={all.label} to={all.to} />
     </div>
   );
 }
@@ -60,15 +60,17 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
     <AppLayout role={role}>
       <PageHeader title="Профиль" actions={<IconButton icon="settings" label="Настройки" to={settingsTo} />} />
       <div className="trk-account">
-        <Link to={settingsTo} className="card trk-card pad-sm trk-account-hero" aria-label="Настройки профиля">
-          <Avatar name={user?.name ?? '•'} photo={user?.photo ?? undefined} size={56} />
-          <div className="trk-account-who">
-            <h2 className="trk-account-name">{user?.name}</h2>
-            <span className="muted">{user?.email}</span>
-            <span className="muted sm">{count(done, 'занятие', 'занятия', 'занятий')} · {count(reviews.data?.length ?? 0, 'отзыв', 'отзыва', 'отзывов')}</span>
-          </div>
-          <Icon name="right" />
-        </Link>
+        <Card pad="sm" className="trk-account-hero">
+          <Link to={settingsTo} className="trk-account-identity" aria-label="Настройки профиля">
+            <Avatar name={user?.name ?? '•'} photo={user?.photo} size={56} />
+            <div className="trk-account-who">
+              <h2 className="trk-account-name">{user?.name}</h2>
+              <span className="muted">{user?.email}</span>
+              <span className="muted sm">{count(done, 'занятие', 'занятия', 'занятий')} · {count(reviews.data?.length ?? 0, 'отзыв', 'отзыва', 'отзывов')}</span>
+            </div>
+          </Link>
+          <Button variant="line" size="s" to={`${settingsTo}?section=data`}>Изменить</Button>
+        </Card>
 
         {role === 'student' && (
           <section className="trk-block" aria-label="Мои заявки">
@@ -83,7 +85,7 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
           </section>
         )}
 
-        {role === 'student' && <nav className="trk-navlist" aria-label="Репетиторы"><Link className="trk-navrow" to="/me/tutors"><Icon name="school" /><span>Мои репетиторы</span><Icon name="right" /></Link></nav>}
+        {role === 'student' && <nav className="trk-navlist" aria-label="Репетиторы"><Link className="trk-navrow" to="/me/tutors"><Icon name="book" /><span>Мои репетиторы</span><Icon name="right" /></Link></nav>}
         {role === 'tutor' && (
           <nav className="trk-navlist" aria-label="Разделы кабинета">
             {TUTOR_SECTIONS.map((s) => (
@@ -102,9 +104,8 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
                   notes.setData((prev) => (prev ?? []).map((x) => (x.id === n.id ? { ...x, read: true } : x)));
                   void api.markNotificationRead(n.id).then(() => window.dispatchEvent(new Event('tr:notes')));
                 }}>
-                  <span className="trk-notice-text"><b>{n.title}</b><span>{n.text}</span></span>
+                  <span className="trk-notice-text"><b>{n.title}{!n.read && <UnreadDot />}</b><span>{n.text}</span></span>
                   <small>{ago(n.at)}</small>
-                  {!n.read && <span className="trk-note-dot" aria-label="Новое" />}
                 </Link>
               ))}
             </div>

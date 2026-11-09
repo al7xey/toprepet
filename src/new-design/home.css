@@ -9,7 +9,8 @@
 .tr .trh-hero{display:flex;flex-wrap:wrap;gap:56px;align-items:center}
 .tr .trh-hero-text{flex:1 1 520px;min-width:0;max-width:580px;display:grid;gap:32px}
 .tr .trh-hero-h{font-size:40px}
-.tr .trh-hero-btns{display:flex;flex-wrap:wrap;gap:14px}
+.tr .trh-hero-btns{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,205px),1fr));gap:14px}
+.tr .trh-hero-btns .btn{width:100%;white-space:normal;text-align:center}
 .tr .trh-hero-media{position:relative;flex:1 1 520px;min-width:0}
 .tr .trh-hero-media>img{width:100%;height:auto;display:block;border-radius:40px}
 .tr .trh-badge{position:absolute;border-radius:999px;display:flex;align-items:center;font-weight:700;font-size:15px}
@@ -55,8 +56,8 @@
   .tr .trh-hero-h{order:1;font-size:30px}
   .tr .trh-hero-media{order:2}
   .tr .trh-hero-text .benefits{order:3}
-  .tr .trh-hero-btns{order:4;display:flex;gap:8px}
-  .tr .trh-hero-btns .btn{white-space:normal;text-align:center}
+  .tr .trh-hero-btns{order:4;grid-template-columns:1fr;gap:10px}
+  .tr .trh-hero-btns .btn{width:100%;justify-self:stretch;white-space:normal;text-align:center}
   .tr .trh-hero-media>img{border-radius:28px}
   .tr .trh-badge{font-size:13px}
   .tr .trh-badge-a{left:6%;top:8%}
@@ -71,7 +72,7 @@
   .tr .trh-teachers{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:4px 16px 12px;scrollbar-width:none;scroll-padding-left:16px}
   .tr .trh-teachers::-webkit-scrollbar{display:none}
   .tr .trh-teachers>.tc:nth-child(n+5){display:block}
-  .tr .trh-teachers>.tc{flex:0 0 236px;aspect-ratio:3/4;scroll-snap-align:start;animation:none}
+  .tr .trh-teachers>.tc{flex:0 0 216px;aspect-ratio:3/4;scroll-snap-align:start;animation:none}
   .tr .trh-teachers .tc .pl{left:10px;right:10px;bottom:10px;padding:10px 14px 11px}
   .tr .trh-teachers .tc .pl b{font-size:17px}
   .tr .trh-teachers .tc .pl span{font-size:13px}
@@ -151,7 +152,7 @@
   .tr .trh-tools .trh-chips{position:absolute;top:50%;right:124px;transform:translateY(-50%)}
   .tr .trh-tools .search .btn{margin-inline-start:124px}
   .tr .trh-grid{column-gap:24px;row-gap:32px}
-  .tr .trh-grid>.tc{aspect-ratio:3/4;border-radius:44px}
+  .tr .trh-grid>.tc{aspect-ratio:4/5;border-radius:40px}
   .tr .trh-grid>.tc .pl{inset:auto 14px 14px;min-height:114px;border-radius:34px;padding:14px 18px;align-content:center;gap:5px}
 }
 
@@ -162,7 +163,7 @@
   .tr .trh-drop-menu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:60vh;border-radius:32px}
   .tr .trh-sort-t{display:none}
   .tr .trh-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  .tr .trh-grid>.tc{aspect-ratio:3/4;border-radius:32px}
+  .tr .trh-grid>.tc{aspect-ratio:4/5;border-radius:30px}
   .tr .trh-grid .tc.s .pl{left:8px;right:8px;bottom:8px;padding:8px 12px 9px;border-radius:22px}
   .tr .trh-grid .tc.s .pl b{font-size:15px;gap:6px}
   .tr .trh-grid .tc.s .pl b .rt{font-size:12px}

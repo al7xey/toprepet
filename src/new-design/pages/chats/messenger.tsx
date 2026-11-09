@@ -1,13 +1,13 @@
 import { usePolling } from '../../lib/usePolling';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { Link, NavLink, useLocation, useParams } from 'react-router-dom';
+import { Link, NavLink, useParams } from 'react-router-dom';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import type { Conversation, Message, Role } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
-import { ago, timeLabel } from '../../lib/format';
-import { Avatar, Button, Checkbox, ConfirmDialog, EmptyState, FormError, Icon, IconButton, Modal, OptionChips, Rows, useToast } from '../../ui';
+import { timeLabel } from '../../lib/format';
+import { Avatar, BackLink, Button, Checkbox, ConfirmDialog, EmptyState, FormError, Icon, IconButton, Modal, OptionChips, Rows, useToast, UnreadDot } from '../../ui';
 
 type Side = Extract<Role, 'student' | 'tutor'>;
 
@@ -19,9 +19,7 @@ const dayKey = (iso: string) => new Date(iso).toDateString();
 function dayLabel(iso: string) {
   const d = new Date(iso);
   const today = new Date();
-  const yesterday = new Date(Date.now() - 86_400_000);
   if (d.toDateString() === today.toDateString()) return 'Сегодня';
-  if (d.toDateString() === yesterday.toDateString()) return 'Вчера';
   return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
 }
 
@@ -55,10 +53,7 @@ export function Messenger({ role }: { role: Side }) {
                   <b>{c.peerName}</b>
                   <span>{c.lastMessage || 'Диалог пока пуст'}</span>
                 </span>
-                <span className="tg-row-meta">
-                  <small>{ago(c.updatedAt)}</small>
-                  {c.unread > 0 && <span className="tg-unread">{c.unread}</span>}
-                </span>
+                {c.unread > 0 && <UnreadDot label="Непрочитано" />}
               </NavLink>
             ))}
           </nav>
@@ -74,7 +69,6 @@ export function Messenger({ role }: { role: Side }) {
 }
 
 function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: string; onRead: () => void }) {
-  const cameFrom = (useLocation().state as { from?: string } | null)?.from;
   const conversation = useQuery(`chat-${id}`, () => api.getConversation(id));
   const messages = useQuery(`messages-${id}`, () => api.listMessages(id));
   const [older, setOlder] = useState<Message[]>([]);
@@ -115,7 +109,7 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
   return (
     <>
       <header className="tg-head">
-        <Link to={cameFrom ?? base} className="tg-back trk-iconbtn trk-round" aria-label="Назад к списку"><Icon name="back" /></Link>
+        <BackLink to={base} className="tg-back">Назад к списку</BackLink>
         {role === 'student' ? (
           <Link className="tg-peer" to={`/teachers/${c.tutorId}`} state={{ back: `${base}/${c.id}` }} aria-label={`Анкета: ${c.peerName}`}>
             <Avatar name={c.peerName} photo={c.peerPhoto} size={44} />
@@ -239,10 +233,10 @@ function Thread({ conversation, list, loading, onSent, onRemoved, older, loading
           {(send.error || sendPhoto.error) && <FormError error={send.error ?? sendPhoto.error} />}
           <div className="tg-compose-row">
             <input ref={fileInput} type="file" accept="image/*" className="trk-sr" tabIndex={-1} aria-hidden="true" onChange={(e) => void pickPhoto(e.target.files?.[0])} />
-            <button type="button" className="tg-attach" aria-label="Прикрепить фото" disabled={sendPhoto.pending} onClick={() => fileInput.current?.click()}><Icon name="attach" /></button>
+            <IconButton className="tg-attach" icon="attach" label="Прикрепить фото" disabled={sendPhoto.pending} onClick={() => fileInput.current?.click()} />
             <textarea ref={input} rows={1} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKey}
               aria-label="Сообщение" placeholder="Сообщение" className="tg-input" />
-            <button type="submit" className="tg-send" aria-label="Отправить" disabled={!text.trim() || send.pending}><Icon name="arrow-up" /></button>
+            <IconButton type="submit" className="tg-send" icon="arrow-up" label="Отправить" disabled={!text.trim() || send.pending} />
           </div>
         </form>
       )}

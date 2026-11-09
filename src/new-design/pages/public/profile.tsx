@@ -110,7 +110,6 @@ function Profile({ tutor }: { tutor: Tutor }) {
                 </div>
               </div>
               <p className="trh-pf-intro">{tutor.intro}</p>
-              {tutor.subjects.length > 0 && <Tags items={tutor.subjects} />}
             </div>
           </section>
 

@@ -51,7 +51,7 @@ export function StudentCard({ name, photo, sub, children, small }: { name: strin
 
 const STATUS: Record<Lesson['status'], { tone: Tone; icon: string; student: string; tutor: string }> = {
   pending: { tone: 'wait', icon: 'clock', student: 'Ждёт подтверждения', tutor: 'Нужно подтвердить' },
-  confirmed: { tone: 'ok', icon: 'check', student: 'Подтверждён', tutor: 'Подтверждён' },
+  confirmed: { tone: 'ok', icon: 'circle-check', student: 'Подтверждён', tutor: 'Подтверждён' },
   declined: { tone: 'bad', icon: 'x', student: 'Отклонён', tutor: 'Вы отклонили' },
   expired: { tone: 'neutral', icon: 'clock', student: 'Не подтверждён вовремя', tutor: 'Время на ответ вышло' },
   cancelled: { tone: 'bad', icon: 'x', student: 'Отменён', tutor: 'Отменён' },

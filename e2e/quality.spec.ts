@@ -104,12 +104,19 @@ test.describe('телефон: шапка, кнопки, анкета', () => {
       expect(Math.round(header!.x), `${url}: левый отступ шапки`).toBe(Math.round(title!.x));
       expect(Math.round(390 - header!.x - header!.width), `${url}: правый отступ шапки`).toBe(Math.round(title!.x));
     }
+    await page.setViewportSize({ width: 320, height: 844 });
     await page.goto('/');
     const burger = page.getByRole('button', { name: 'Открыть меню' });
     const before = await burger.boundingBox();
     expect(before?.width).toBe(before?.height);
+    const signIn = await page.locator('.trh-actions .btn').boundingBox();
+    expect(before!.x - signIn!.x - signIn!.width).toBeCloseTo(8, 0);
     const create = page.getByRole('link', { name: 'Создать заявку' });
-    expect((await create.boundingBox())!.width).toBeLessThan(358);
+    const find = page.getByRole('link', { name: 'Найти репетитора', exact: true }).first();
+    const createBox = await create.boundingBox();
+    const findBox = await find.boundingBox();
+    expect(createBox?.width).toBe(findBox?.width);
+    expect(createBox?.height).toBe(findBox?.height);
     await create.click();
     await expect(page).toHaveURL(/login/);
     await expect(burger).toBeVisible();

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { api } from '../../api';
 import { useMutation } from '../../api/hooks';
 import { useSession } from '../../api/session';
@@ -31,7 +32,10 @@ type View = 'menu' | 'data' | 'password';
 export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
   const { user, setUser, logout } = useSession();
   const toast = useToast();
-  const [view, setView] = useState<View>('menu');
+  const [params, setParams] = useSearchParams();
+  const section = params.get('section');
+  const view: View = section === 'data' || section === 'password' ? section : 'menu';
+  const setView = (next: View) => setParams(next === 'menu' ? {} : { section: next }, { replace: true });
   const [confirmExit, setConfirmExit] = useState(false);
   const [name, setName] = useState(user?.name ?? '');
   const [timezone, setTimezone] = useState(user?.timezone ?? 'Europe/Moscow');
@@ -78,6 +82,11 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
         <PageHeader title="Личные данные" back={{ onClick: () => setView('menu'), label: 'Назад к настройкам' }} />
         <Card>
           <div className="trk-form">
+            <div className="trk-settings-who">
+              <Avatar name={user?.name ?? '•'} photo={user?.photo} size={64} />
+              <FilePick accept="image/*" loading={photo.pending} onPick={(file) => void changePhoto(file)}>Изменить фото</FilePick>
+            </div>
+            <FormError error={photo.error} />
             <TextField label="Имя" value={name} onChange={(e) => setName(e.target.value)} error={nameError} autoComplete="name" />
             <TextField label="Почта" value={user?.email ?? ''} readOnly hint="Почту изменить нельзя: она нужна для входа" />
             <SelectField label="Часовой пояс" value={timezone} onChange={(e) => setTimezone(e.target.value)} options={ZONES} hint="В этом поясе показываем время уроков" />
@@ -108,9 +117,8 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
       <PageHeader title="Настройки" back={{ to: profileTo, label: 'Профиль' }} />
       <Card>
         <div className="trk-settings-who">
-          <Avatar name={user?.name ?? '•'} photo={user?.photo ?? undefined} size={64} />
+          <FilePick accept="image/*" loading={photo.pending} onPick={(file) => void changePhoto(file)} preview={<Avatar name={user?.name ?? '•'} photo={user?.photo} size={64} />}>Изменить фото</FilePick>
           <div className="trk-account-who"><h2 className="trk-account-name">{user?.name}</h2><span className="muted">{user?.email}</span></div>
-          <FilePick round={user?.photo ? 'edit' : 'add'} icon={user?.photo ? 'edit' : 'plus'} accept="image/*" loading={photo.pending} onPick={(file) => void changePhoto(file)}>{user?.photo ? 'Сменить фото' : 'Загрузить фото'}</FilePick>
         </div>
         <FormError error={photo.error} />
       </Card>
@@ -121,11 +129,11 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
       <Card>
         <div className="trk-form">
           <h2 className="trk-cardtitle">Уведомления на почту</h2>
-          {PREFS.map((p) => <Switch key={p.key} checked={prefs[p.key]} onChange={(v) => void setPref(p.key, v)} title={p.title} text={p.text} />)}
+          {PREFS.map((p) => <Switch key={p.key} checked={prefs[p.key]} onChange={(v) => void setPref(p.key, v)} title={p.title} text={p.text} disabled={pref.pending} />)}
           <FormError error={pref.error} />
         </div>
       </Card>
-      <button type="button" className="trk-logout" onClick={() => { exit.reset(); setConfirmExit(true); }}>Выйти</button>
+      <Button variant="line" size="lg" onClick={() => { exit.reset(); setConfirmExit(true); }}>Выйти</Button>
       <ConfirmDialog open={confirmExit} onClose={() => setConfirmExit(false)} onConfirm={() => { void exit.run(); }} title="Выйти из аккаунта?" text="Чтобы войти снова, понадобятся почта и пароль." confirmLabel="Выйти" pending={exit.pending} error={exit.error} />
     </AppLayout>
   );

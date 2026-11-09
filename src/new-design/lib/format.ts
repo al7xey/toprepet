@@ -21,7 +21,7 @@ export const timeLabel = (value: string | Date) => d(value).toLocaleTimeString('
 export const whenLabel = (value: string | Date) => `${dayLabel(value)}, ${timeLabel(value)}`;
 /** «16 октября 2026» */
 export const dateLong = (value: string | Date) => d(value).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-/** «2 часа назад», «вчера», «16 окт» */
+/** «2 часа назад», «16 окт» */
 export const ago = (value: string | Date) => {
   const diff = Date.now() - d(value).getTime();
   const min = Math.round(diff / 60_000);
@@ -29,7 +29,6 @@ export const ago = (value: string | Date) => {
   if (min < 60) return `${min} ${plural(min, 'минуту', 'минуты', 'минут')} назад`;
   const h = Math.round(min / 60);
   if (h < 24) return `${h} ${plural(h, 'час', 'часа', 'часов')} назад`;
-  if (h < 48) return 'вчера';
   return dayLabel(value);
 };
 /** Время до события: «через 2 часа», «через 3 дня». */

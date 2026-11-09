@@ -24,7 +24,7 @@ export default function MyTutorsPage() {
         empty={(items) =>
           items.length ? null : (
             <EmptyState
-              icon="school"
+              icon="book"
               title="Репетиторов пока нет"
               text="Здесь появятся репетиторы, к которым вы записались."
               actions={<Button to="/teachers">Найти репетитора</Button>}

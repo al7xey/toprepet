@@ -74,7 +74,7 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     if ((Math.abs(live - dest) < 1 && Math.abs(liveWidth - w) < 1) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const dist = Math.abs(dest - live);
     const middle = live + (dest - live) * (dest >= live ? .22 : .78);
-    const stretch = Math.min(host.clientWidth - middle - 5, Math.max(liveWidth, w + Math.min(dist * .68, 170)));
+    const stretch = Math.min(host.clientWidth - middle - 5, Math.max(liveWidth, w + Math.min(dist * .46, 104)));
     const duration = Math.round(Math.min(MOVE_MS, 260 + dist * 1.1));
     const peak = .48;
     const anim = el.animate(
