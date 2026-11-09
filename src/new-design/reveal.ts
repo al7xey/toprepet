@@ -16,13 +16,13 @@ export function useReveal(root: RefObject<HTMLElement | null>) {
     const play = (node: HTMLElement, kind: string, delay: number) => {
       if (preference.matches || node.contains(document.activeElement)) return;
       const base = getComputedStyle(node).transform;
-      const offset = kind === 'left' ? 'translateX(-16px)' : kind === 'right' ? 'translateX(16px)' : kind === 'scale' ? 'translateY(12px) scale(.985)' : 'translateY(14px)';
+      const offset = kind === 'left' ? 'translateX(-20px)' : kind === 'right' ? 'translateX(20px)' : kind === 'scale' ? 'translateY(16px) scale(.975)' : 'translateY(18px)';
       const controls = 'a,button,input,select,textarea,summary,[tabindex]';
       const interactive = node.matches(controls) || Boolean(node.querySelector(controls));
       const animation = node.animate([
-        { opacity: 0, transform: interactive ? base : `${offset} ${base === 'none' ? '' : base}` },
+        { opacity: interactive ? .78 : .44, transform: interactive ? base : `${offset} ${base === 'none' ? '' : base}` },
         { opacity: 1, transform: base },
-      ], { duration: kind === 'scale' ? 520 : 420, delay, easing: 'cubic-bezier(.2,.7,.2,1)', fill: 'backwards' });
+      ], { duration: kind === 'scale' ? 960 : 740, delay, easing: 'cubic-bezier(.23,.72,.24,1)', fill: 'backwards' });
       active.set(node, animation);
       void animation.finished.catch(() => {}).finally(() => { if (active.get(node) === animation) active.delete(node); });
     };

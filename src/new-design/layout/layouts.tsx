@@ -9,10 +9,10 @@ import { Avatar, Button, FormError, Icon, IconButton } from '../ui';
 const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ');
 
 const DRAG_PX = 6; // на сколько сдвинуть палец, чтобы нажатие стало перетаскиванием
-const MOVE_MS = 480; // дольше всего пилюля переезжает к новому пункту
+const MOVE_MS = 780; // дольше всего пилюля переезжает к новому пункту
 
 // Keep the lens position across route layouts that remount the tab bar.
-let lastPill: { left: number; cellWidth: number; tabs: string } | null = null;
+let lastPill: { left: number; width: number; cellWidth: number; tabs: string } | null = null;
 
 /** Положение и ширина каждого пункта относительно внутреннего края панели. Берём из вёрстки, поэтому слева и справа всё симметрично. */
 function cellsOf(host: HTMLElement) {
@@ -30,6 +30,7 @@ function cellsOf(host: HTMLElement) {
  */
 function TabBar({ tabs }: { tabs: NavItem[] }) {
   const { pathname } = useLocation();
+  const { user } = useSession();
   const navigate = useNavigate();
   const bar = useRef<HTMLElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
@@ -60,35 +61,39 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
   const glide = useCallback((dest: number, w: number) => {
     const el = pill.current;
     const host = bar.current;
-    if (!el || !host) return;
+    if (!el || !host || w <= 0) return;
     if (motion.current?.dest === dest && motion.current.width === w) return;
-    const style = placed.current ? getComputedStyle(el) : null;
-    const live = style ? parseFloat(style.left) : (lastPill?.tabs === tabSet && lastPill.cellWidth === w ? lastPill.left : dest);
-    const liveWidth = style ? parseFloat(style.width) : w;
+    const bounds = placed.current && Math.abs(parseFloat(el.style.width) - w) < .1 ? el.getBoundingClientRect() : null;
+    const previous = !placed.current && lastPill?.tabs === tabSet && lastPill.cellWidth === w ? lastPill : null;
+    const live = bounds ? bounds.left - host.getBoundingClientRect().left : previous?.left ?? dest;
+    const liveWidth = bounds?.width ?? previous?.width ?? w;
+    const at = (left: number, width: number) => ({ transform: `translateX(${left}px) scaleX(${width / w})` });
     motion.current?.animation.cancel();
     motion.current = null;
     delete host.dataset.settling;
     el.style.width = `${w}px`;
-    el.style.left = `${dest}px`;
+    el.style.transform = at(dest, w).transform;
     placed.current = true;
-    lastPill = { left: dest, cellWidth: w, tabs: tabSet };
+    lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
     if ((Math.abs(live - dest) < 1 && Math.abs(liveWidth - w) < 1) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const dist = Math.abs(dest - live);
-    const stretch = Math.max(liveWidth, w + dist * .9);
+    const middle = live + (dest - live) * (dest > live ? .26 : .72);
+    const stretch = Math.min(host.clientWidth - middle - 5, Math.max(liveWidth, w + Math.min(dist * .4, 42)));
     const anim = el.animate(
-      [{ left: `${live}px`, width: `${liveWidth}px` }, { left: `${Math.min(live, dest)}px`, width: `${stretch}px`, offset: 0.5 }, { left: `${dest}px`, width: `${w}px` }],
-      { duration: Math.round(Math.min(MOVE_MS, 260 + dist * 1.1)), easing: 'cubic-bezier(.32,.72,0,1)' },
+      [at(live, liveWidth), { ...at(middle, stretch), offset: .34, easing: 'cubic-bezier(.24,.72,.2,1)' }, at(dest, w)],
+      { duration: Math.round(Math.min(MOVE_MS, 460 + dist * 1.3)), easing: 'cubic-bezier(.28,.64,.22,1)' },
     );
     motion.current = { animation: anim, dest, width: w };
     host.dataset.settling = '';
-    lastPill = { left: live, cellWidth: w, tabs: tabSet };
+    lastPill = { left: live, width: liveWidth, cellWidth: w, tabs: tabSet };
     const sample = () => {
       if (!el.isConnected || motion.current?.animation !== anim) return;
       if (anim.playState === 'running') {
-        lastPill = { left: parseFloat(getComputedStyle(el).left), cellWidth: w, tabs: tabSet };
+        const transform = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+        lastPill = { left: transform.m41, width: w * transform.a, cellWidth: w, tabs: tabSet };
         requestAnimationFrame(sample);
       } else {
-        lastPill = { left: dest, cellWidth: w, tabs: tabSet };
+        lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
         motion.current = null;
         delete host.dataset.settling;
       }
@@ -107,9 +112,9 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     delete host.dataset.settling;
     const left = leftOf(cells, pos);
     el.style.width = `${cells[0].width}px`;
-    el.style.left = `${left}px`;
+    el.style.transform = `translateX(${left}px)`;
     placed.current = true;
-    lastPill = { left, cellWidth: cells[0].width, tabs: tabSet };
+    lastPill = { left, width: cells[0].width, cellWidth: cells[0].width, tabs: tabSet };
   };
 
   const finish = () => { gesture.current = null; setDragIndex(null); };
@@ -203,7 +208,8 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
       <span ref={pill} className="tabpill" hidden={shown < 0} aria-hidden="true" />
       {tabs.map((t, i) => (
         <Link key={t.to} to={t.to} draggable={false} aria-current={i === target ? 'page' : undefined} className={cx('tab', i === shown && 'cur')}>
-          <Icon name={t.icon} /><span className="trk-sr">{t.label}{t.badge ? ', есть новые' : ''}</span>{t.badge ? <span className="dot" aria-hidden="true" /> : null}
+          {t.icon === 'user' && user ? <Avatar name={user.name} photo={user.photo} size={28} /> : <Icon name={t.icon} />}
+          <span className="trk-sr">{t.label}{t.badge ? ', есть новые' : ''}</span>{t.badge ? <span className="dot" aria-hidden="true" /> : null}
         </Link>
       ))}
     </nav>
@@ -337,11 +343,11 @@ const ready = (to: string) => READY.some((p) => to === p || to.startsWith(`${p}/
 const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   student: {
     top: [{ label: 'Найти репетитора', to: '/teachers', icon: 'search' }, { label: 'Мои уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Платежи', to: '/me/payments', icon: 'card' }],
-    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'book' }, { label: 'Чаты', to: '/me/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/me/account', icon: 'user', also: ['/me/tutors', '/me/requests', '/me/payments', '/me/notifications'] }],
+    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'school' }, { label: 'Чаты', to: '/me/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/me/account', icon: 'user', also: ['/me/tutors', '/me/requests', '/me/payments', '/me/notifications'] }],
   },
   tutor: {
     top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
-    tabs: [{ label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Занятия', to: '/tutor/lessons', icon: 'book', also: ['/tutor/schedule'] }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/tutor/account', icon: 'user', also: ['/tutor/documents', '/tutor/profile', '/tutor/finance', '/tutor/students', '/tutor/reviews', '/tutor/notifications'] }],
+    tabs: [{ label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Занятия', to: '/tutor/lessons', icon: 'school', also: ['/tutor/schedule'] }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/tutor/account', icon: 'user', also: ['/tutor/documents', '/tutor/profile', '/tutor/finance', '/tutor/students', '/tutor/reviews', '/tutor/notifications'] }],
   },
   admin: {
     top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }, { label: 'Документы', to: '/admin/documents', icon: 'doc' }],

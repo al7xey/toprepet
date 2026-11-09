@@ -3,16 +3,16 @@
 }
 
 /* Keep the hit region and label stationary. Only the reflection moves. */
-.tr :is(.btn, .trk-iconbtn, .chipf, .opt) {
+.tr :is(.btn, .trk-iconbtn, .chipf, .opt, .trk-slots .date, .trk-slots .slot, .trk-month-nav, .trk-month-day, .seg a, .trk-tabs button) {
   position: relative;
   transform: none !important;
   translate: none;
   scale: none;
-  transition: background-color 180ms, color 180ms, box-shadow 180ms;
+  transition: --lg-control-fill 320ms var(--lg-spring), --lg-control-rim 320ms var(--lg-spring), background-color 320ms, color 250ms, box-shadow 320ms;
 }
 
 .tr :is(.trk-modal, .trh-drop-menu, dialog.trh-fpage, .trh-menu) {
-  animation: lg-surface-arrive 280ms var(--lg-spring) backwards;
+  animation: lg-surface-arrive 520ms var(--lg-spring) backwards;
 }
 
 .tr :is(.trk-modal, .trh-drop-menu, dialog.trh-fpage, .trh-menu)::before {
@@ -23,10 +23,16 @@
   border-radius: 2px;
   pointer-events: none;
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 35%, transparent), transparent);
-  animation: lg-rim-reflection 280ms var(--lg-spring) both;
+  animation: lg-rim-reflection 640ms var(--lg-spring) both;
 }
 
 @keyframes lg-surface-arrive { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .tr .trk-slots .slots { animation: lg-options-arrive 460ms var(--lg-spring) both; }
+}
+
+@keyframes lg-options-arrive { from { opacity: .66; } to { opacity: 1; } }
 
 @keyframes lg-rim-reflection {
   0% { opacity: 0; transform: translateX(-22%) scaleX(.5); }
@@ -39,7 +45,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tr :is(.btn, .trk-iconbtn, .chipf, .opt, .trk-modal, .trh-drop-menu, .trh-fpage, .trh-menu),
+  .tr :is(.btn, .trk-iconbtn, .chipf, .opt, .trk-slots .date, .trk-slots .slot, .trk-month-nav, .trk-month-day, .seg a, .trk-tabs button, .trk-modal, .trh-drop-menu, .trh-fpage, .trh-menu),
   .tr :is(.trk-modal, .trh-drop-menu, dialog.trh-fpage, .trh-menu)::before,
   .tr .trk-input-box::after {
     animation: none !important;

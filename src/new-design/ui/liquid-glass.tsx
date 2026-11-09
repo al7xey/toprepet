@@ -5,7 +5,7 @@ const NS = 'http://www.w3.org/2000/svg';
 const SURFACES = [
   '.hdr.surf', '.trh-burger', '.trk-tabbar', '.trh-tools .search', '.trh-tools .chipf.ico',
   '.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft)', '.trk-iconbtn:not(.trk-addbtn)',
-  '.tc .pl', '.trh-drop-menu', '.trk-modal', '.trh-fpage', '.trh-menu',
+  '.tc .pl', '.trh-drop-menu', '.trk-modal', '.trh-fpage', '.trh-menu', '.trh-pf-lens',
 ].join(',');
 
 /** Rounded lens normal map. Only the rim refracts; the reading area stays stable. */

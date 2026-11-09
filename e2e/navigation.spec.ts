@@ -8,6 +8,8 @@ test('нижняя панель ученика: Поиск, Занятия, Ча
   const tabs = page.locator('nav.trk-tabbar a.tab');
   await expect(tabs).toHaveCount(4);
   await expect(tabs.nth(1)).toContainText('Занятия');
+  await expect(tabs.nth(1).locator('.i-school')).toBeVisible();
+  await expect(tabs.last().locator('.avatar')).toBeVisible();
   await tabs.nth(1).click();
   await expect(page).toHaveURL(/\/me\/lessons/);
   await expect(tabs.nth(1)).toHaveClass(/cur/);
@@ -23,8 +25,12 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   await page.goto('/me/chats');
   const bar = page.locator('nav.trk-tabbar');
   const tabs = bar.locator('a.tab');
-  const lensBlur = () => bar.locator('.tabpill').evaluate((pill) => getComputedStyle(pill, '::before').backdropFilter);
-  await expect.poll(lensBlur).toBe('none');
+  const lens = () => bar.locator('.tabpill').evaluate((pill) => {
+    const { backdropFilter, boxShadow, transform } = getComputedStyle(pill, '::before');
+    return { backdropFilter, boxShadow, scale: transform === 'none' ? 1 : new DOMMatrixReadOnly(transform).m22 };
+  });
+  expect(await lens()).toMatchObject({ backdropFilter: 'blur(5px) saturate(1.55)', boxShadow: 'none', scale: 1 });
+  expect(await bar.evaluate((element) => getComputedStyle(element, '::before').boxShadow)).toBe('none');
   const restingBar = await bar.boundingBox();
   const from = await tabs.nth(2).boundingBox();
   const to = await tabs.nth(3).boundingBox();
@@ -33,7 +39,7 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   await page.mouse.down();
   // пока палец на панели, пилюля увеличена, а страница не меняется
   await expect(bar).toHaveClass(/press/);
-  await expect.poll(lensBlur).toContain('blur(4px)');
+  await expect.poll(async () => (await lens()).scale).toBeGreaterThan(1.15);
   expect(await bar.boundingBox()).toEqual(restingBar);
   await page.mouse.move(to.x + to.width / 2, from.y + from.height / 2, { steps: 12 });
   await expect(page).toHaveURL(/\/me\/chats/);
@@ -43,7 +49,7 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   await expect(page).toHaveURL(/\/me\/account/);
   await expect(tabs.nth(3)).toHaveAttribute('aria-current', 'page');
   await expect(bar).not.toHaveClass(/press/);
-  await expect.poll(lensBlur).toBe('none');
+  await expect.poll(async () => (await lens()).scale).toBe(1);
 });
 
 test('нижняя панель: пилюля плавно переезжает и ни в какой момент не выходит за панель', async ({ page }) => {

@@ -1,4 +1,4 @@
-import { useId, useState, type CSSProperties, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
+import { useId, useState, type CSSProperties, type InputHTMLAttributes, type KeyboardEvent, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import type { Query } from '../api/hooks';
 import { initial } from '../lib/format';
@@ -37,10 +37,11 @@ export interface ButtonProps {
 export function Button({ children, variant = 'primary', size = 'md', block, icon, iconAfter, to, href, onClick, type = 'button', disabled, loading, className, style, ...rest }: ButtonProps) {
   const cls = cx('btn', `btn-${variant}`, size === 'lg' && 'btn-lg', size === 's' && 'btn-s', block && 'btn-block', loading && 'trk-loading', className);
   const inner = (<>{icon && <Icon name={icon} />}{children}{iconAfter && <Icon name={iconAfter} />}</>);
-  if (to && !disabled) return <Link className={cls} to={to} style={style} aria-label={rest['aria-label']} onClick={onClick}>{inner}</Link>;
-  if (href && !disabled) return <a className={cls} href={href} target="_blank" rel="noreferrer" style={style} aria-label={rest['aria-label']}>{inner}</a>;
+  const inactive = disabled || loading;
+  if (to && !inactive) return <Link className={cls} to={to} style={style} aria-label={rest['aria-label']} onClick={onClick}>{inner}</Link>;
+  if (href && !inactive) return <a className={cls} href={href} target="_blank" rel="noreferrer" style={style} aria-label={rest['aria-label']} onClick={onClick}>{inner}</a>;
   return (
-    <button type={type} className={cls} onClick={onClick} disabled={disabled || loading} aria-busy={loading || undefined} style={style} aria-label={rest['aria-label']}>
+    <button type={type} className={cls} onClick={onClick} disabled={inactive} aria-busy={loading || undefined} style={style} aria-label={rest['aria-label']}>
       {inner}
     </button>
   );
@@ -243,12 +244,28 @@ export function Ticks({ items }: { items: ReactNode[] }) {
   return <ul className="ticks">{items.map((t, i) => <li key={i}><span className="trk-dot" aria-hidden="true" />{t}</li>)}</ul>;
 }
 
+export function onChoiceTabKey(event: KeyboardEvent<HTMLButtonElement>) {
+  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+  const list = event.currentTarget.closest('[role="tablist"]');
+  if (!list) return;
+  const tabs = Array.from(list.querySelectorAll<HTMLButtonElement>('button[role="tab"]:not(:disabled)'));
+  const index = tabs.indexOf(event.currentTarget);
+  if (index < 0) return;
+  const next = event.key === 'ArrowLeft' ? (index - 1 + tabs.length) % tabs.length
+    : event.key === 'ArrowRight' ? (index + 1) % tabs.length
+    : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : -1;
+  if (next < 0) return;
+  event.preventDefault();
+  tabs[next].focus();
+  tabs[next].click();
+}
+
 /** Сегментный переключатель вкладок. */
 export function Tabs<T extends string>({ items, value, onChange, wide }: { items: { value: T; label: string; count?: number }[]; value: T; onChange: (v: T) => void; wide?: boolean }) {
   return (
     <div className={cx('seg trk-tabs', wide && 'wide')} role="tablist">
       {items.map((item) => (
-        <button key={item.value} type="button" role="tab" aria-selected={item.value === value} className={item.value === value ? 'on' : undefined} onClick={() => onChange(item.value)}>
+        <button key={item.value} type="button" role="tab" aria-selected={item.value === value} tabIndex={item.value === value ? 0 : -1} className={item.value === value ? 'on' : undefined} onKeyDown={onChoiceTabKey} onClick={() => onChange(item.value)}>
           {item.label}{item.count ? <span className="cnt2">{item.count}</span> : null}
         </button>
       ))}

@@ -1,44 +1,102 @@
+@property --lg-control-fill { syntax: '<color>'; inherits: false; initial-value: #fff; }
+@property --lg-control-rim { syntax: '<color>'; inherits: false; initial-value: transparent; }
+
 .tr {
+  --lg-canvas: #eef1f5;
+  --lg-active-ink: #9b3816;
+  --lg-rim: rgb(41 58 81 / 13%);
+  --lg-selection: rgb(255 224 205 / 66%);
   --lg-glass: rgb(255 255 255 / 40%);
   --lg-caption: rgb(255 255 255 / 75%);
-  --lg-button: rgb(255 255 255 / 68%);
+  --lg-button: rgb(255 255 255 / 77%);
   --lg-dense: rgb(255 255 255 / 90%);
   --lg-edge: rgb(255 255 255 / 85%);
   --lg-shadow: 0 6px 18px rgb(32 40 56 / 9%);
 }
 
-.tr .wash.trh-page { background: #fff; }
+.tr, .tr .wash.trh-page { background: var(--lg-canvas); }
 html:has(.tr) { scrollbar-gutter: stable; }
 
-.tr :is(.hdr.surf, .trh-tools .search, .trh-tools .chipf.ico) {
+.tr :is(.hdr.surf, .trh-tools .search) {
   background: var(--lg-glass);
-  box-shadow: inset 0 1px 0 var(--lg-edge), inset 0 -1px 0 rgb(32 40 56 / 8%), var(--lg-shadow);
-  backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
-  -webkit-backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
+  box-shadow: inset 0 1px 0 var(--lg-edge), inset 0 0 0 1px var(--lg-rim), var(--lg-shadow);
+  -webkit-backdrop-filter: blur(14px) var(--lg-optics, saturate(1.3));
+  backdrop-filter: blur(14px) var(--lg-optics, saturate(1.3));
 }
 
-.tr .trh-tools .chipf.ico {
-  box-shadow: inset 0 0 0 1px var(--line);
+/* Actions and selection controls share the same glass, rim and feedback. */
+.tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft, .btn-icon),
+  .trk-iconbtn:not(.trk-addbtn), .hdr.surf .trh-burger, .chipf, .opt,
+  .trk-slots :is(.date, .slot), .trk-month-nav, select.trk-input, .trk-hour select,
+  .trh-drop-menu button, .trh-pf-intro-tag) {
+  --lg-control-fill: var(--lg-button);
+  --lg-control-rim: var(--lg-rim);
+  color: var(--ink);
+  background: linear-gradient(160deg, rgb(255 255 255 / 42%), transparent 62%), var(--lg-control-fill);
+  border-color: transparent;
+  box-shadow: inset 0 1px 0 var(--lg-edge), inset 0 0 0 1px var(--lg-control-rim);
+  -webkit-backdrop-filter: blur(8px) var(--lg-optics, saturate(1.3));
+  backdrop-filter: blur(8px) var(--lg-optics, saturate(1.3));
 }
 
-.tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft), .trk-iconbtn:not(.trk-addbtn)) {
-  background: var(--lg-button);
-  box-shadow: inset 0 1px 1px white, inset 0 0 0 1px var(--line), 0 2px 6px rgb(32 40 56 / 7%);
-  backdrop-filter: blur(5px) var(--lg-optics, saturate(1));
-  -webkit-backdrop-filter: blur(5px) var(--lg-optics, saturate(1));
+@media (hover: hover) {
+  .tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft, .btn-icon),
+    .trk-iconbtn:not(.trk-addbtn), .hdr.surf .trh-burger, .chipf, .opt,
+    .trk-slots :is(.date, .slot), .trk-month-nav, .trh-drop-menu button):where(:hover:not(:disabled)) {
+    --lg-control-fill: rgb(255 255 255 / 94%);
+    --lg-control-rim: rgb(41 58 81 / 21%);
+  }
 }
 
-.tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft), .trk-iconbtn:not(.trk-addbtn)):where(:hover) {
-  background: rgb(255 255 255 / 84%);
-  box-shadow: inset 0 1px 1px white, inset 0 0 0 1px var(--line), 0 3px 9px rgb(32 40 56 / 10%);
+.tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft, .btn-icon),
+  .trk-iconbtn:not(.trk-addbtn), .hdr.surf .trh-burger, .chipf, .opt,
+  .trk-slots :is(.date, .slot), .trk-month-nav, .trh-drop-menu button):where(:active:not(:disabled)) {
+  --lg-control-fill: rgb(224 231 241 / 82%);
 }
 
-.tr .hdr.surf:not(.m) .trh-burger,
-.tr .hdr.surf:not(.m) .trh-burger:hover {
-  background: rgb(255 255 255 / 62%);
-  box-shadow: inset 0 1px 1px white, inset 0 0 0 1px var(--lg-edge), 0 2px 8px rgb(32 40 56 / 12%);
-  backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
-  -webkit-backdrop-filter: blur(4px) var(--lg-optics, saturate(1));
+.tr :is(.seg, .trk-tabs) {
+  gap: 3px;
+  padding: 4px;
+  border-radius: 24px;
+  background: rgb(31 48 72 / 6%);
+  box-shadow: inset 0 0 0 1px var(--lg-rim);
+}
+.tr :is(.seg a, .trk-tabs button) { border-radius: 20px; }
+.tr.tr :is(.opt.on, .chipf.on, .trk-slots .slot.sel, .trk-slots .date.sel, .trk-month-day.on, .seg a.on,
+  .trk-tabs button.on, .trh-drop-menu button.on) {
+  --lg-control-fill: var(--lg-selection);
+  --lg-control-rim: rgb(172 66 24 / 44%);
+  color: var(--lg-active-ink);
+  background: linear-gradient(155deg, rgb(255 255 255 / 74%), transparent 72%), var(--lg-control-fill);
+  box-shadow: inset 0 1px 0 white, inset 0 0 0 1px var(--lg-control-rim);
+  -webkit-backdrop-filter: blur(8px) saturate(1.25);
+  backdrop-filter: blur(8px) saturate(1.25);
+}
+.tr .trk-month-day { border-radius: 18px; }
+.tr .trk-month-day.today:not(.on) { color: var(--lg-active-ink); box-shadow: inset 0 0 0 1px var(--lg-rim); }
+.tr .opt.on::before { animation: none; }
+.tr .trk-check > i {
+  border: 1px solid var(--lg-rim);
+  background: linear-gradient(145deg, white, rgb(255 255 255 / 56%));
+}
+.tr .trk-check.on > i {
+  border-color: rgb(172 66 24 / 44%);
+  color: var(--lg-active-ink);
+  background: linear-gradient(145deg, #fff3eb, #ffd9c3);
+}
+.tr .trk-switch-row .switch { background: rgb(40 56 76 / 20%); }
+.tr .trk-switch-row .switch.on { background: #b84e24; }
+.tr .trk-switch-row .switch::after {
+  left: 2px;
+  border: 1px solid rgb(255 255 255 / 85%);
+  background: linear-gradient(145deg, #fff, rgb(255 255 255 / 76%));
+  transition: transform 380ms var(--lg-spring);
+}
+.tr .trk-switch-row .switch.on::after { left: 2px; transform: translateX(20px); }
+.tr :is(.trk-check, .trk-switch-row) input:focus-visible + :is(i, .switch) { outline: 2px solid var(--lg-active-ink); outline-offset: 2px; }
+.tr :is(.trk-month-nav, .trk-month-day, .trk-slots .date, .trk-slots .slot, .seg a, .trk-tabs button):focus-visible {
+  outline: 2px solid var(--lg-active-ink);
+  outline-offset: -2px;
 }
 
 .tr .trk-tabbar, .tr .trk-tabbar.five {
@@ -61,17 +119,10 @@ html:has(.tr) { scrollbar-gutter: stable; }
   z-index: -1;
   pointer-events: none;
   border-radius: inherit;
-  background: rgb(243 245 248 / 60%);
-  box-shadow: 0 6px 18px rgb(0 0 0 / 12%);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-}
-
-.tr .trk-tabbar:is(.press, [data-settling])::before {
-  background: rgb(255 255 255 / 55%);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 14%), inset 0 1px 0 var(--lg-edge);
-  -webkit-backdrop-filter: blur(22px) var(--lg-optics, saturate(1));
-  backdrop-filter: blur(22px) var(--lg-optics, saturate(1));
+  border: 1px solid rgb(68 87 111 / 14%);
+  background: linear-gradient(150deg, rgb(255 255 255 / 80%), transparent 62%), rgb(255 255 255 / 51%);
+  -webkit-backdrop-filter: blur(13px) var(--lg-optics, saturate(1.45));
+  backdrop-filter: blur(13px) var(--lg-optics, saturate(1.45));
 }
 
 .tr .trk-tabbar .tab, .tr .trk-tabbar .tab.cur {
@@ -84,6 +135,10 @@ html:has(.tr) { scrollbar-gutter: stable; }
 }
 
 .tr .trk-tabbar .tab .i { width: 28px; height: 28px; }
+.tr .trk-tabbar .tab.cur { color: var(--lg-active-ink); }
+.tr .trk-tabbar .tab.cur .i { background: currentColor; }
+.tr .trk-tabbar .tab .avatar { border: 1px solid rgb(255 255 255 / 86%); }
+.tr .trk-tabbar .tab.cur .avatar { outline: 1.5px solid var(--lg-active-ink); outline-offset: 2px; }
 .tr .trk-tabbar .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .tr .trk-tabbar .tab .dot {
   width: 7px;
@@ -96,7 +151,8 @@ html:has(.tr) { scrollbar-gutter: stable; }
 
 .tr .trk-tabbar .tabpill {
   position: absolute;
-  inset: 5px auto 5px 5px;
+  inset: 5px auto 5px 0;
+  transform-origin: left center;
   pointer-events: none;
 }
 
@@ -104,32 +160,28 @@ html:has(.tr) { scrollbar-gutter: stable; }
   content: '';
   position: absolute;
   inset: 0;
+  border: 1px solid rgb(68 87 111 / 18%);
+  border-top-color: rgb(255 255 255 / 95%);
   border-radius: 999px;
-  background: rgb(255 255 255 / 55%);
-  transition: inset 200ms var(--lg-spring), background-color 160ms, box-shadow 160ms;
+  background: linear-gradient(145deg, rgb(255 255 255 / 94%), rgb(255 255 255 / 36%) 60%, rgb(255 255 255 / 73%));
+  -webkit-backdrop-filter: blur(5px) saturate(1.55);
+  backdrop-filter: blur(5px) saturate(1.55);
+  transition: transform 470ms var(--lg-spring), border-color 380ms var(--lg-spring);
 }
 
-.tr .trk-tabbar[data-settling] .tabpill::before {
-  inset: -8px -8px;
-  background: rgb(255 255 255 / 60%);
-  box-shadow: inset 0 1px 0 white, 0 6px 16px rgb(0 0 0 / 14%);
-}
-
+.tr .trk-tabbar[data-settling] .tabpill::before { transform: scale(1.025, 1.08); }
 .tr .trk-tabbar.press .tabpill::before {
-  inset: -16px -18.5px;
-  background: rgb(255 255 255 / 35%);
-  -webkit-backdrop-filter: blur(4px) saturate(1.2);
-  backdrop-filter: blur(4px) saturate(1.2);
-  box-shadow: inset 0 2px 6px rgb(255 255 255 / 90%), 0 6px 16px rgb(0 0 0 / 14%);
+  transform: scale(1.16, 1.28);
+  border-color: rgb(255 255 255 / 92%);
 }
 
 @media (hover: hover) {
-  .tr .trk-tabbar:not(.press) .tab:not(.cur):hover { background: rgb(255 255 255 / 40%); }
+  .tr .trk-tabbar:not(.press) .tab:not(.cur):hover { background: rgb(255 255 255 / 55%); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tr .trk-tabbar .tabpill::before { transition: none; }
-  .tr .trk-tabbar.press .tabpill::before { inset: 0; }
+  .tr .trk-tabbar.press .tabpill::before { transform: none; }
 }
 
 .tr :is(.tc.s, .trh-teachers .tc) .pl {
@@ -160,18 +212,18 @@ html:has(.tr) { scrollbar-gutter: stable; }
 
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
   .tr.tr :is(.hdr.surf, .hdr.surf:not(.m) .trh-burger, .trh-tools .search, .trh-tools .chipf.ico, .tc .pl, .trk-modal, .trh-fpage, .trh-menu, .trh-drop-menu),
-  .tr.tr .trk-tabbar::before,
-  .tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft), .trk-iconbtn:not(.trk-addbtn)) {
+  .tr.tr :is(.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft, .btn-icon), .trk-iconbtn:not(.trk-addbtn), .hdr.surf .trh-burger, .chipf, .opt, .trk-slots :is(.date, .slot), .trk-month-nav, .trk-month-day.on, .seg .on, select.trk-input, .trk-hour select, .trh-drop-menu button) {
     background: Canvas;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     box-shadow: inset 0 0 0 1px CanvasText;
   }
 
+  .tr.tr .trk-tabbar::before,
   .tr.tr .trk-tabbar .tabpill::before {
     background: Canvas;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    box-shadow: inset 0 0 0 2px CanvasText;
+    border: 1px solid CanvasText;
   }
 }

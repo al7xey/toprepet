@@ -19,9 +19,9 @@ test('pressing a control leaves it and neighbouring controls stationary without 
   await page.mouse.up();
 });
 
-test('page canvas is white and opening filters preserves the trigger position', async ({ page }) => {
+test('page canvas contrasts with white glass and opening filters preserves the trigger position', async ({ page }) => {
   await page.goto('/teachers');
-  await expect(page.locator('.trh-page')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(page.locator('.trh-page')).toHaveCSS('background-color', 'rgb(238, 241, 245)');
   const button = page.getByRole('button', { name: 'Фильтры', exact: true });
   const before = await button.boundingBox();
   await button.click();

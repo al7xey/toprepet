@@ -10,8 +10,9 @@ import { minutes, rub, whenLabel } from '../../lib/format';
 import { rv } from '../../reveal';
 import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, LoadingList, Note, PageHeader, QueryView, Rows, Section, SlotPicker, Status, Tags } from '../../ui';
 import { NotFoundBody } from './notfound';
+import './profile.css';
 
-const ACH_ICONS = ['target', 'school', 'book'] as const;
+const ACH_ICONS = ['school', 'target', 'star-on'] as const;
 
 /** Анкета репетитора: данные, календарь записи, цены, отзывы. Карточка записи справа (на телефоне — панель снизу). */
 export default function ProfilePage() {
@@ -42,7 +43,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const fromChat = (location.state as { back?: string } | null)?.back;
   // «Записаться» закреплена внизу экрана, а у блока со временем встаёт на своё место
   const ctaSlot = useRef<HTMLDivElement>(null);
-  const heroPhoto = useRef<HTMLImageElement>(null);
+  const calendar = useRef<HTMLDivElement>(null);
   const [docked, setDocked] = useState(false);
   useEffect(() => {
     let frame = 0;
@@ -59,32 +60,6 @@ function Profile({ tutor }: { tutor: Tutor }) {
     window.addEventListener('resize', onScroll);
     return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (frame) cancelAnimationFrame(frame); };
   }, []);
-  // полоса браузера над страницей берёт цвет верха фотографии, чтобы фото казалось идущим до самого края
-  useEffect(() => {
-    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-    if (!meta) return undefined;
-    const previous = meta.content;
-    let cancelled = false;
-    const img = heroPhoto.current;
-    if (!img) return undefined;
-    const applyColor = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = 24; canvas.height = 4;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight * 0.04, 0, 0, 24, 4);
-        const data = ctx.getImageData(0, 0, 24, 4).data;
-        let r = 0; let g = 0; let b = 0;
-        for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i + 1]; b += data[i + 2]; }
-        const n = data.length / 4;
-        if (!cancelled) meta.content = `rgb(${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)})`;
-      } catch { /* фото с другого адреса нельзя прочитать: оставляем белый */ }
-    };
-    if (img.complete && img.naturalWidth) applyColor();
-    else img.addEventListener('load', applyColor, { once: true });
-    return () => { cancelled = true; img.removeEventListener('load', applyColor); meta.content = previous; };
-  }, [tutor.photo]);
   // назад — по истории, если она есть; иначе к каталогу
   const close = () => { if (location.key !== 'default') void navigate(-1); else void navigate('/teachers'); };
   const share = () => {
@@ -95,10 +70,14 @@ function Profile({ tutor }: { tutor: Tutor }) {
 
   const bookHref = (kind: 'regular' | 'intro') => `/book/${tutor.id}?kind=${kind}${start ? `&start=${encodeURIComponent(start)}` : ''}`;
   const write = () => navigate(`/me/chats/new?tutor=${tutor.id}`);
+  const showCalendar = () => calendar.current?.scrollIntoView({
+    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+    block: 'center',
+  });
 
   const booking = (
-    <div className="card sum" {...rv('right', 0.1)}>
-      <h2 className="trk-cardtitle">Запись</h2>
+    <div className="card sum trh-pf-booking" {...rv('right', 0.1)}>
+      <h2 className="trk-cardtitle"><span className="trh-pf-lens"><Icon name="cal" /></span>Запись</h2>
       <Rows boxed rows={[['Репетитор', tutor.name], ['Занятие', minutes(lessonMinutes)], ['Когда', start ? whenLabel(start) : 'Выберите время'], ...(tutor.introMinutes ? [['Знакомство', `${minutes(tutor.introMinutes)}, бесплатно`] as [string, string]] : [])]} />
       <div className="fr fb"><span>Цена за {minutes(lessonMinutes)}</span><b className="tn trk-price-xl">{rub(lessonPrice)}</b></div>
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
@@ -116,15 +95,15 @@ function Profile({ tutor }: { tutor: Tutor }) {
       <div className="trh-pf-backwrap"><BackLink to={fromChat ?? '/teachers'}>{fromChat && /^\/(me|tutor)\/chats/.test(fromChat) ? 'К сообщениям' : 'Все преподаватели'}</BackLink></div>
       <div className="trh-pf">
         <div className="trh-pf-main">
-          <section className="trh-pf-top">
-            <div className="trh-pf-photo" {...rv('scale')}>
-              <img ref={heroPhoto} src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 300px, 100vw" alt={`Фото: ${tutor.name}`} fetchPriority="high" decoding="async" />
+          <section className="trh-pf-top" aria-labelledby="tutor-name">
+            <div className="trh-pf-photo">
+              <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 300px, 100vw" alt={`Фото: ${tutor.name}`} fetchPriority="high" decoding="async" />
               <IconButton icon="back" label="Назад" onClick={close} className="trh-pf-back" />
               <IconButton icon="share" label="Поделиться" onClick={share} className="trh-pf-share" />
             </div>
             <div className="trh-pf-sheet">
               <div className="trh-sec">
-                <h1 className="trh-h1">{tutor.name}</h1>
+                <h1 className="trh-h1" id="tutor-name">{tutor.name}</h1>
                 <p className="muted trh-pf-role">{tutor.headline}</p>
                 <div className="fr fw u-gap8">
                   {tutor.documentsVerified && <Status tone="ok" icon="shield">Документы проверены</Status>}
@@ -132,6 +111,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
                 </div>
               </div>
               <p className="trh-pf-intro">{tutor.intro}</p>
+              {tutor.subjects.length > 0 && <Tags items={tutor.subjects} />}
             </div>
           </section>
 
@@ -140,7 +120,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
             <ul className="ach">
               {tutor.achievements.filter((item) => item.title.trim() || item.text.trim()).map((item, index) => (
                 <li key={item.title} {...rv('up', index * 0.08)}>
-                  <span className="ic-sq"><Icon name={ACH_ICONS[index % ACH_ICONS.length]} /></span>
+                  <span className="trh-pf-lens"><Icon name={ACH_ICONS[index % ACH_ICONS.length]} /></span>
                   <div>{item.title.trim() && <b>{item.title}</b>}{item.text.trim() && <span className="d">{item.text}</span>}</div>
                 </li>
               ))}
@@ -165,13 +145,16 @@ function Profile({ tutor }: { tutor: Tutor }) {
           </Section>
 
           <hr className="rule" />
-          <Section title="Свободное время">
-            {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} />}
-          </Section>
+          <div className="trh-pf-calendar" ref={calendar}>
+            <Section title={<><span className="trh-pf-lens"><Icon name="clock" /></span>Свободное время</>}>
+              {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} />}
+            </Section>
+          </div>
           {!isTutorAccount && (
             <div className="trh-pf-cta-slot" ref={ctaSlot}>
               <div className={`trh-pf-cta${docked ? ' docked' : ''}`}>
-                <Button to={start ? bookHref('regular') : undefined} onClick={start ? () => trackGoal('book_start', { kind: 'regular' }) : () => document.querySelector('.trk-slots')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>Записаться</Button>
+                <Button to={start ? bookHref('regular') : undefined} onClick={start ? () => trackGoal('book_start', { kind: 'regular' }) : showCalendar}>Записаться</Button>
+                <IconButton icon="chat-bubble" label="Написать репетитору" onClick={write} />
               </div>
             </div>
           )}

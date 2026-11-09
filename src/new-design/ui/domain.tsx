@@ -8,7 +8,7 @@ import { useNow } from '../lib/useNow';
 import { rv } from '../reveal';
 import { Icon } from './icon';
 import { Modal } from './overlay';
-import { Button, FormError, Note, Person, Status, TextField, type Tone } from './kit';
+import { Button, FormError, Note, onChoiceTabKey, Person, Status, TextField, type Tone } from './kit';
 
 /* ---------- Репетиторы ---------- */
 
@@ -109,7 +109,7 @@ export function SlotPicker({ slots, value, values, onChange, days = 7, loading }
   }, [slots, days]);
   const selectedDay = value ? new Date(value).toDateString() : null;
   const [day, setDay] = useState<string | null>(null);
-  const current = day ?? selectedDay ?? byDay[0]?.[0] ?? null;
+  const current = [day, selectedDay].find((key) => byDay.some(([available]) => available === key)) ?? byDay[0]?.[0] ?? null;
   const list = byDay.find(([k]) => k === current)?.[1] ?? [];
 
   if (loading) return <div className="trk-slot-skel" aria-busy="true"><span className="skel" /><span className="skel" /></div>;
@@ -121,13 +121,13 @@ export function SlotPicker({ slots, value, values, onChange, days = 7, loading }
         {byDay.map(([key, items]) => {
           const date = new Date(items[0].start);
           return (
-            <button key={key} type="button" role="tab" aria-selected={key === current} className={`date${key === current ? ' sel' : ''}`} onClick={() => setDay(key)}>
+            <button key={key} type="button" role="tab" aria-selected={key === current} tabIndex={key === current ? 0 : -1} className={`date${key === current ? ' sel' : ''}`} onKeyDown={onChoiceTabKey} onClick={() => setDay(key)}>
               <small>{date.toLocaleDateString('ru-RU', { weekday: 'short' }).replace('.', '')}</small><b>{date.getDate()}</b>
             </button>
           );
         })}
       </div>
-      <div className="slots trh-slots" aria-label={current ? dayLabel(list[0]?.start ?? new Date()) : undefined}>
+      <div key={current} className="slots trh-slots" aria-label={list[0] ? dayLabel(list[0].start) : undefined}>
         {list.map((s) => (
           <button key={s.start} type="button" className={`slot${(values ? values.includes(s.start) : s.start === value) ? ' sel' : ''}`} aria-pressed={values ? values.includes(s.start) : s.start === value} onClick={() => onChange(s.start)}>
             {timeLabel(s.start)}
