@@ -3,7 +3,7 @@ import './liquid-glass.css';
 
 const NS = 'http://www.w3.org/2000/svg';
 const SURFACES = [
-  '.hdr.surf', '.trh-burger', '.trk-tabbar', '.trh-tools .search', '.trh-tools .chipf.ico',
+  '.hdr.surf', '.trh-burger', '.trk-tabbar', '.trk-tabbar .tabpill', '.trh-tools .search', '.trh-tools .chipf.ico',
   '.btn:is(.btn-line, .btn-fill, .btn-warm, .btn-soft)', '.trk-iconbtn:not(.trk-addbtn)',
   '.trh-drop-menu', '.trk-modal', '.trh-fpage', '.trh-menu',
 ].join(',');
@@ -55,14 +55,19 @@ export function LiquidGlassEffects() {
     svg.append(defs); document.body.append(svg);
     const observed = new Set<HTMLElement>();
     const cache = new Map<string, string>();
-    const update = (element: HTMLElement) => {
-      const box = element.getBoundingClientRect();
+    const update = (entry: ResizeObserverEntry) => {
+      const element = entry.target as HTMLElement;
+      const pill = element.classList.contains('tabpill');
+      const box = pill ? entry.contentRect : element.getBoundingClientRect();
       if (box.width < 2 || box.height < 2) return;
-      const radius = parseFloat(getComputedStyle(element).borderTopLeftRadius) || 28;
-      const key = `${Math.round(box.width)}:${Math.round(box.height)}:${Math.round(radius)}`;
+      // The pressed lens overhangs the resting capsule by 18.5px horizontally and 16px vertically.
+      const width = box.width + (pill ? 37 : 0);
+      const height = box.height + (pill ? 32 : 0);
+      const radius = pill ? 40 : parseFloat(getComputedStyle(element).borderTopLeftRadius) || 28;
+      const key = `${Math.round(width)}:${Math.round(height)}:${Math.round(radius)}`;
       let id = cache.get(key);
       if (!id) {
-        const map = lensMap(box.width, box.height, radius);
+        const map = lensMap(width, height, radius);
         if (!map) return;
         id = `tr-lens-${cache.size}`;
         const filter = document.createElementNS(NS, 'filter');
@@ -81,9 +86,9 @@ export function LiquidGlassEffects() {
         displacement.setAttribute('yChannelSelector', 'G');
         filter.append(image, displacement); defs.append(filter); cache.set(key, id);
       }
-      element.style.setProperty('--lg-optics', `url("#${id}")`);
+      element.style.setProperty(pill ? '--lg-lens-optics' : '--lg-optics', `url("#${id}")`);
     };
-    const resize = new ResizeObserver(entries => entries.forEach(entry => update(entry.target as HTMLElement)));
+    const resize = new ResizeObserver(entries => entries.forEach(update));
     const scan = () => {
       document.querySelectorAll<HTMLElement>('.tr').forEach(host => { host.dataset.glassOptics = 'refraction'; });
       for (const element of document.querySelectorAll<HTMLElement>(SURFACES)) if (element.closest('.tr') && !observed.has(element)) {
@@ -97,7 +102,10 @@ export function LiquidGlassEffects() {
     return () => {
       mutations.disconnect(); resize.disconnect(); svg.remove();
       document.querySelectorAll<HTMLElement>('.tr').forEach(host => { delete host.dataset.glassOptics; });
-      observed.forEach(element => element.style.removeProperty('--lg-optics'));
+      observed.forEach(element => {
+        element.style.removeProperty('--lg-optics');
+        element.style.removeProperty('--lg-lens-optics');
+      });
     };
   }, []);
   return null;

@@ -35,7 +35,7 @@ function Detail({ request, responses, onChange }: { request: StudyRequest; respo
       <PageHeader title="Заявка" back={{ to: '/me/requests', label: 'Мои заявки' }} />
       {request.status === 'booked' && <Note tone="ok">Вы записались по этой заявке. Уроки — в разделе «Занятия».</Note>}
       {request.status === 'expired' && <Note tone="plain" icon="clock">Срок заявки истёк. Создайте новую, если помощь ещё нужна.</Note>}
-      <Section title={`Отклики${responses.data?.length ? ` · ${responses.data.length}` : ''}`}>
+      <Section title="Отклики">
         <QueryView
           query={responses}
           loading={<LoadingList rows={2} height={180} />}

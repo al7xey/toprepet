@@ -55,8 +55,8 @@
   .tr .trh-hero-h{order:1;font-size:30px}
   .tr .trh-hero-media{order:2}
   .tr .trh-hero-text .benefits{order:3}
-  .tr .trh-hero-btns{order:4;display:grid;gap:12px}
-  .tr .trh-hero-btns .btn{width:100%;white-space:normal;text-align:center}
+  .tr .trh-hero-btns{order:4;display:flex;gap:8px}
+  .tr .trh-hero-btns .btn{white-space:normal;text-align:center}
   .tr .trh-hero-media>img{border-radius:28px}
   .tr .trh-badge{font-size:13px}
   .tr .trh-badge-a{left:6%;top:8%}

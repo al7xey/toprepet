@@ -9,7 +9,7 @@ import { Avatar, Button, FormError, Icon, IconButton } from '../ui';
 const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ');
 
 const DRAG_PX = 6; // на сколько сдвинуть палец, чтобы нажатие стало перетаскиванием
-const MOVE_MS = 520; // дольше всего пилюля переезжает к новому пункту
+const MOVE_MS = 480; // дольше всего пилюля переезжает к новому пункту
 
 // Keep the lens position across route layouts that remount the tab bar.
 let lastPill: { left: number; width: number; cellWidth: number; tabs: string } | null = null;
@@ -66,19 +66,21 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     const at = (left: number, width: number) => ({ transform: `translateX(${left}px) scaleX(${width / w})` });
     motion.current?.animation.cancel();
     motion.current = null;
+    delete host.dataset.settling;
     el.style.width = `${w}px`;
     el.style.transform = at(dest, w).transform;
     placed.current = true;
     lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
     if ((Math.abs(live - dest) < 1 && Math.abs(liveWidth - w) < 1) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const dist = Math.abs(dest - live);
-    const middle = live + (dest - live) * .56;
-    const stretch = Math.min(host.clientWidth - middle - 5, Math.max(liveWidth, w + Math.min(dist * .16, 20)));
+    const middle = live + (dest - live) * (dest >= live ? .22 : .78);
+    const stretch = Math.min(host.clientWidth - middle - 5, Math.max(liveWidth, w + Math.min(dist * .68, 170)));
     const anim = el.animate(
-      [at(live, liveWidth), { ...at(middle, stretch), offset: .56 }, at(dest, w)],
-      { duration: Math.round(Math.min(MOVE_MS, 310 + dist * .85)), easing: 'cubic-bezier(.26,.64,.23,1)' },
+      [at(live, liveWidth), { ...at(middle, stretch), offset: .48 }, at(dest, w)],
+      { duration: Math.round(Math.min(MOVE_MS, 260 + dist * 1.1)), easing: 'cubic-bezier(.32,.72,0,1)' },
     );
     motion.current = { animation: anim, dest, width: w };
+    host.dataset.settling = '';
     lastPill = { left: live, width: liveWidth, cellWidth: w, tabs: tabSet };
     // Retain the last painted position when a lazy route replaces the bar mid-transition.
     const sample = () => {
@@ -92,12 +94,17 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
       if (motion.current?.animation !== anim) return;
       lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
       motion.current = null;
+      delete host.dataset.settling;
     };
   }, [tabSet]);
 
-  useLayoutEffect(() => () => {
-    motion.current?.animation.cancel();
-    motion.current = null;
+  useLayoutEffect(() => {
+    const host = bar.current;
+    return () => {
+      motion.current?.animation.cancel();
+      motion.current = null;
+      if (host) delete host.dataset.settling;
+    };
   }, [tabSet]);
   // пилюля идёт за пальцем без анимации и без перерисовки страницы
   const follow = (pos: number, cells: ReturnType<typeof cellsOf>) => {
@@ -105,6 +112,7 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     if (!el || !cells.length) return;
     motion.current?.animation.cancel();
     motion.current = null;
+    if (bar.current) delete bar.current.dataset.settling;
     const left = leftOf(cells, pos);
     el.style.width = `${cells[0].width}px`;
     el.style.transform = `translateX(${left}px)`;
@@ -143,7 +151,7 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     const g = gesture.current;
     if (g?.id !== e.pointerId) return;
     if (e.clientY < g.bounds.top - 20 || e.clientY > g.bounds.bottom + 20) { onCancel(e); return; }
-    const index = Math.round(posAt(e.clientX, g));
+    const index = Math.round(posAt(e.clientX - (g.moved ? g.offset : 0), g));
     const to = tabs[index];
     finish();
     // и нажатие, и перетаскивание открывают раздел здесь; обычный клик по ссылке после этого не нужен

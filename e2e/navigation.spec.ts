@@ -26,10 +26,10 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   const bar = page.locator('nav.trk-tabbar');
   const tabs = bar.locator('a.tab');
   const lens = () => bar.locator('.tabpill').evaluate((pill) => {
-    const { backdropFilter, boxShadow, transform } = getComputedStyle(pill, '::before');
-    return { backdropFilter, boxShadow, scale: transform === 'none' ? 1 : new DOMMatrixReadOnly(transform).m22 };
+    const { opacity, height, backdropFilter } = getComputedStyle(pill, '::after');
+    return { opacity, height, backdropFilter };
   });
-  expect(await lens()).toMatchObject({ backdropFilter: 'blur(5px) saturate(1.55)', boxShadow: 'none', scale: 1 });
+  expect(await lens()).toMatchObject({ opacity: '0', height: '80px' });
   expect(await bar.evaluate((element) => getComputedStyle(element, '::before').boxShadow)).toBe('none');
   const restingBar = await bar.boundingBox();
   const from = await tabs.nth(2).boundingBox();
@@ -39,7 +39,8 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   await page.mouse.down();
   // пока палец на панели, пилюля увеличена, а страница не меняется
   await expect(bar).toHaveClass(/press/);
-  await expect.poll(async () => (await lens()).scale).toBeGreaterThan(1.08);
+  await expect.poll(async () => (await lens()).opacity).toBe('1');
+  expect((await lens()).backdropFilter).toContain('blur(4px)');
   expect(await bar.boundingBox()).toEqual(restingBar);
   await page.mouse.move(to.x + to.width / 2, from.y + from.height / 2, { steps: 12 });
   await expect(page).toHaveURL(/\/me\/chats/);
@@ -49,7 +50,7 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   await expect(page).toHaveURL(/\/me\/account/);
   await expect(tabs.nth(3)).toHaveAttribute('aria-current', 'page');
   await expect(bar).not.toHaveClass(/press/);
-  await expect.poll(async () => (await lens()).scale).toBe(1);
+  await expect.poll(async () => (await lens()).opacity).toBe('0');
 
   const profile = await tabs.nth(3).boundingBox();
   const lessons = await tabs.nth(1).boundingBox();

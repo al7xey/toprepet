@@ -525,10 +525,6 @@
   .tr .hdr.surf:not(.m) .trh-burger{order:3;margin-left:6px;width:46px;min-width:46px;height:46px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px #f0d9c8;padding:0}
   .tr .hdr.surf:not(.m) .trh-burger:hover{background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8}
   .tr .hdr.surf:not(.m) .trh-burger .i{width:24px;height:24px;color:var(--ink)}
-  /* самостоятельные кнопки одинаково широкие, высота 52 px */
-  .tr main .btn:not(.btn-icon):not(.search .btn){width:100%;min-height:52px;justify-content:center}
-  .tr main .btn.btn-s:not(.btn-icon){min-height:44px}
-  .tr main .trk-actions{display:grid;gap:10px;grid-template-columns:minmax(0,1fr)}
   /* анкета без «назад» и без своей шапки: шапка общая */
   .tr .trh-pf-backwrap{display:none}
   .tr .trh-pf-back{display:none}
@@ -1042,15 +1038,14 @@ html{overflow-y:scroll}
 .tr .tg-msg.out .tg-message-actions{position:absolute;right:calc(100% + 4px);top:50%;transform:translateY(-50%);opacity:0;pointer-events:none}
 .tr .tg-msg.out:hover .tg-message-actions,.tr .tg-msg.out:focus-within .tg-message-actions{opacity:1;pointer-events:auto}
 
-/* Shared scale for compact actions and page headings. */
+/* Shared scale for actions and page headings. */
 .tr {
-  --tr-button-label: 16px;
-  --tr-button-height: 44px;
-  --tr-button-small: 40px;
-  --tr-button-large: 46px;
-  --tr-primary-fill: #d04104;
-  --tr-page-title: 32px;
-  --tr-section-title: 24px;
+  --tr-button-label: 17px;
+  --tr-button-height: 48px;
+  --tr-button-small: 44px;
+  --tr-button-large: 52px;
+  --tr-page-title: 34px;
+  --tr-section-title: 26px;
 }
 .tr .trh-h1,
 .tr .trk-blocktitle.trh-h1 { font-size: var(--tr-page-title); font-weight: 700; line-height: 1.14; letter-spacing: -.035em; }
@@ -1060,23 +1055,35 @@ html{overflow-y:scroll}
 .tr .trh-pf-text,
 .tr .trh-pf-intro { font-size: 16px; line-height: 1.6; }
 
-.tr .btn.btn-s { --tr-action-height: var(--tr-button-small); --tr-action-padding: 0 14px; --tr-action-label: 15px; }
-.tr .btn.btn-lg { --tr-action-height: var(--tr-button-large); --tr-action-padding: 7px 16px; }
+.tr .btn.btn-s { --tr-action-height: var(--tr-button-small); --tr-action-padding: 0 14px; --tr-action-label: 16px; }
+.tr .btn.btn-lg { --tr-action-height: var(--tr-button-large); --tr-action-padding: 8px 18px; }
+.tr .btn.btn-primary { --tr-action-label: 19px; }
 .tr :is(.btn:not(.btn-icon), .hdr .btn:not(.btn-icon), main .btn:not(.btn-icon):not(.search .btn), .trk-modal-foot .btn, .trh-fpage-foot .btn) {
   min-height: var(--tr-action-height, var(--tr-button-height));
   height: auto;
   padding: var(--tr-action-padding, 0 16px);
   font-size: var(--tr-action-label, var(--tr-button-label));
   font-weight: 700;
+  max-width: 100%;
 }
-.tr .trh-tools .search .btn { --tr-action-height: 40px; --tr-action-padding: 0 16px; }
-.tr .btn.btn-primary { background: var(--tr-primary-fill); }
-.tr .btn.btn-primary:hover:not(:disabled) { background: #bd3903; }
+.tr .trh-tools .search .btn { --tr-action-height: 44px; --tr-action-padding: 0 16px; }
+.tr .btn.btn-primary, .tr .btn.btn-primary:hover:not(:disabled) { background: var(--accent); }
+.tr .btn:not(.btn-block, .btn-icon) { justify-self: start; }
 
 @media (max-width: 760px) {
-  .tr { --tr-page-title: 26px; --tr-section-title: 21px; }
+  .tr { --tr-page-title: 28px; --tr-section-title: 23px; }
   .tr .trh-public-nav > .hdr.surf:not(.m) { gap: 4px; }
-  .tr .trh-public-nav > .hdr.surf:not(.m) .trh-actions .btn { min-height: 44px; padding-inline: 15px; font-size: var(--tr-button-label); }
-  .tr .trh-public-nav > .hdr.surf:not(.m) .trh-burger { width: 44px; min-width: 44px; height: 44px; margin-left: 0; }
+  .tr .trh-public-nav > .hdr.surf:not(.m) .trh-actions .btn { min-height: 46px; padding-inline: 14px; }
+  .tr .trh-public-nav > .hdr.surf:not(.m) .trh-burger {
+    flex: 0 0 48px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
+    margin-left: 0;
+    border-radius: 50%;
+  }
+  .tr .trh-public-nav > .hdr.surf:not(.m):not(:has(.trh-actions)) .trh-burger { margin-left: auto; }
   .tr .trh-pf-cta-slot { min-height: var(--tr-button-height); }
+  .tr .trh-pf-cta .btn { width: 100%; }
 }

@@ -34,16 +34,16 @@ test.describe('качество: доступность и вёрстка', () =
     });
   }
 
-  test('размеры заголовков: 32/26 у страницы, 24/21 у раздела', async ({ page }) => {
+  test('размеры заголовков: 34/28 у страницы, 26/23 у раздела', async ({ page }) => {
     const phone = isPhone(page);
     for (const url of ['/teachers/', '/help/', '/legal/terms/', '/login']) {
       await page.goto(url);
       const h1 = await page.locator('h1').first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-      expect(h1, `${url} h1`).toBe(phone ? 26 : 32);
+      expect(h1, `${url} h1`).toBe(phone ? 28 : 34);
     }
     await page.goto('/help/');
     const h2 = await page.locator('h2.trh-h2').first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-    expect(h2).toBe(phone ? 21 : 24);
+    expect(h2).toBe(phone ? 23 : 26);
   });
 
   test('телефон: кнопки и поля не меньше 36 px по высоте, основные кнопки не меньше 44', async ({ page }) => {
@@ -94,7 +94,7 @@ test.describe('ссылки', () => {
 });
 
 test.describe('телефон: шапка, кнопки, анкета', () => {
-  test('отступы шапки равны отступам контента, кнопки одной ширины, ховер без обводки', async ({ page }) => {
+  test('шапка выровнена по контенту, круглый бургер сохраняет положение при переходе ко входу', async ({ page }) => {
     test.skip(!isPhone(page), 'только телефон');
     for (const url of ['/teachers/', '/help/', '/for-repetitor/']) {
       await page.goto(url);
@@ -104,9 +104,16 @@ test.describe('телефон: шапка, кнопки, анкета', () => {
       expect(Math.round(header!.x), `${url}: левый отступ шапки`).toBe(Math.round(title!.x));
       expect(Math.round(390 - header!.x - header!.width), `${url}: правый отступ шапки`).toBe(Math.round(title!.x));
     }
-    await page.goto('/for-repetitor/');
-    const widths = await page.locator('main .btn:not(.btn-icon)').evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().width > 0).map((e) => Math.round(e.getBoundingClientRect().width)));
-    expect(new Set(widths.filter((w) => w > 100)).size, `ширина кнопок: ${widths}`).toBeLessThanOrEqual(2);
+    await page.goto('/');
+    const burger = page.getByRole('button', { name: 'Открыть меню' });
+    const before = await burger.boundingBox();
+    expect(before?.width).toBe(before?.height);
+    const create = page.getByRole('link', { name: 'Создать заявку' });
+    expect((await create.boundingBox())!.width).toBeLessThan(358);
+    await create.click();
+    await expect(page).toHaveURL(/login/);
+    await expect(burger).toBeVisible();
+    expect((await burger.boundingBox())!.x).toBeCloseTo(before!.x, 0);
   });
 
   test('анкета: кнопка «назад» на фото возвращает в каталог, шапки сайта нет', async ({ page }) => {
