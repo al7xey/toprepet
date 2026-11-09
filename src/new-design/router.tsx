@@ -1,7 +1,6 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { SessionProvider } from './api/session';
-import { useReveal } from './reveal';
 import { adminRoutes } from './routes/admin';
 import { authRoutes } from './routes/auth';
 import { publicRoutes } from './routes/public';
@@ -26,11 +25,9 @@ function ScrollToTop() {
 }
 
 export function NewApp() {
-  const root = useRef<HTMLDivElement>(null);
-  useReveal(root);
   return (
     <SessionProvider>
-      <div className="tr" ref={root}>
+      <div className="tr">
         <LiquidGlassEffects />
         <ToastProvider>
           <ScrollToTop />

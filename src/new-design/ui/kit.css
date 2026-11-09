@@ -1041,3 +1041,42 @@ html{overflow-y:scroll}
 /* Existing message actions remain available by pointer, keyboard and assistive technology. */
 .tr .tg-msg.out .tg-message-actions{position:absolute;right:calc(100% + 4px);top:50%;transform:translateY(-50%);opacity:0;pointer-events:none}
 .tr .tg-msg.out:hover .tg-message-actions,.tr .tg-msg.out:focus-within .tg-message-actions{opacity:1;pointer-events:auto}
+
+/* Shared scale for compact actions and page headings. */
+.tr {
+  --tr-button-label: 16px;
+  --tr-button-height: 44px;
+  --tr-button-small: 40px;
+  --tr-button-large: 46px;
+  --tr-primary-fill: #d04104;
+  --tr-page-title: 32px;
+  --tr-section-title: 24px;
+}
+.tr .trh-h1,
+.tr .trk-blocktitle.trh-h1 { font-size: var(--tr-page-title); font-weight: 700; line-height: 1.14; letter-spacing: -.035em; }
+.tr .trh-h2,
+.tr .trk-modal-head .trk-cardtitle { font-size: var(--tr-section-title); font-weight: 700; line-height: 1.2; letter-spacing: -.025em; }
+.tr .trh-sec > .cap,
+.tr .trh-pf-text,
+.tr .trh-pf-intro { font-size: 16px; line-height: 1.6; }
+
+.tr .btn.btn-s { --tr-action-height: var(--tr-button-small); --tr-action-padding: 0 14px; --tr-action-label: 15px; }
+.tr .btn.btn-lg { --tr-action-height: var(--tr-button-large); --tr-action-padding: 7px 16px; }
+.tr :is(.btn:not(.btn-icon), .hdr .btn:not(.btn-icon), main .btn:not(.btn-icon):not(.search .btn), .trk-modal-foot .btn, .trh-fpage-foot .btn) {
+  min-height: var(--tr-action-height, var(--tr-button-height));
+  height: auto;
+  padding: var(--tr-action-padding, 0 16px);
+  font-size: var(--tr-action-label, var(--tr-button-label));
+  font-weight: 700;
+}
+.tr .trh-tools .search .btn { --tr-action-height: 40px; --tr-action-padding: 0 16px; }
+.tr .btn.btn-primary { background: var(--tr-primary-fill); }
+.tr .btn.btn-primary:hover:not(:disabled) { background: #bd3903; }
+
+@media (max-width: 760px) {
+  .tr { --tr-page-title: 26px; --tr-section-title: 21px; }
+  .tr .trh-public-nav > .hdr.surf:not(.m) { gap: 4px; }
+  .tr .trh-public-nav > .hdr.surf:not(.m) .trh-actions .btn { min-height: 44px; padding-inline: 15px; font-size: var(--tr-button-label); }
+  .tr .trh-public-nav > .hdr.surf:not(.m) .trh-burger { width: 44px; min-width: 44px; height: 44px; margin-left: 0; }
+  .tr .trh-pf-cta-slot { min-height: var(--tr-button-height); }
+}

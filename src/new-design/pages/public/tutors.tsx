@@ -4,7 +4,6 @@ import { homeFor, useSession } from '../../api/session';
 import { useQuery } from '../../api/hooks';
 import { PublicLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
-import { rv } from '../../reveal';
 import { Button, Faq, Panel, Section, Steps, Ticks } from '../../ui';
 import { TutorShowcase } from '../../ui/tutor-showcase';
 import { TUTOR_FAQ, TUTOR_STEPS } from './content';
@@ -14,7 +13,7 @@ function PriceCalc() {
   const [price, setPrice] = useState(2000);
   const student = studentPriceOf(price);
   return (
-    <div className="card trk-card pad-md trk-calc" {...rv('right', 0.1)}>
+    <div className="card trk-card pad-md trk-calc">
       <span className="muted md">Пример для одного занятия</span>
       <label className="trk-calc-row">
         <span className="muted">Вы назначаете цену</span>
@@ -56,7 +55,7 @@ export default function TutorsLandingPage() {
       </section>
 
       <section className="trk-split trk-price" aria-labelledby="price-title">
-        <div className="trh-sec" {...rv('up', 0, { flex: '1 1 420px', minWidth: 0 })}>
+        <div className="trh-sec" style={{ flex: '1 1 420px', minWidth: 0 }}>
           <h2 id="price-title" className="h2 trh-h2">Вы берёте столько, сколько напишете</h2>
           <p className="cap u-fs18">Назначьте цену занятия сами. Мы добавим 10% сервиса сверху: ученик заплатит чуть больше, а вы получите ровно свою цену.</p>
           <Ticks items={['Всего 10% комиссии, и её платит ученик', 'В анкете сразу видно, сколько заплатит ученик', 'Выплата после занятия, в течение 24 часов']} />

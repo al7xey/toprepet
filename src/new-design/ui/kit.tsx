@@ -2,7 +2,6 @@ import { useId, useState, type CSSProperties, type InputHTMLAttributes, type Key
 import { Link, useLocation } from 'react-router-dom';
 import type { Query } from '../api/hooks';
 import { initial } from '../lib/format';
-import { rv } from '../reveal';
 import { Icon } from './icon';
 
 export { Icon };
@@ -69,7 +68,7 @@ export function BackLink({ to, children }: { to: string; children: ReactNode }) 
 /** Заголовок страницы: 32 px на компьютере, 26 px на телефоне. Одна h1 на странице. */
 export function PageHeader({ title, lead, back, actions, center }: { title: ReactNode; lead?: ReactNode; back?: { to?: string; onClick?: () => void; label: string }; actions?: ReactNode; center?: boolean }) {
   return (
-    <header className={cx('trk-pagehead', center && 'center', back && 'has-back')} {...rv('up')}>
+    <header className={cx('trk-pagehead', center && 'center', back && 'has-back')}>
       <div className="trk-pagehead-row">
         {back && (back.to ? <BackLink to={back.to}>{back.label}</BackLink> : <IconButton icon="back" label={back.label} onClick={back.onClick} className="trk-back" />)}
         <div className="trk-pagehead-text">
@@ -88,12 +87,12 @@ export function Section({ title, action, lead, children, id, className }: { titl
   return (
     <section className={cx('trh-sec', className)} id={id} aria-labelledby={title ? headingId : undefined}>
       {(title || action) && (
-        <div className="sec-h" {...rv('up')}>
+        <div className="sec-h">
           {title && <h2 id={headingId} className="h2 trh-h2">{title}</h2>}
           {action}
         </div>
       )}
-      {lead && <p className="cap" {...rv('up', 0.05)}>{lead}</p>}
+      {lead && <p className="cap">{lead}</p>}
       {children}
     </section>
   );
@@ -104,13 +103,13 @@ export const CardTitle = ({ children }: { children: ReactNode }) => <h3 classNam
 
 /* ---------- Поверхности ---------- */
 
-export function Card({ children, className, pad = 'md', as = 'div', reveal = true, style }: { children: ReactNode; className?: string; pad?: 'sm' | 'md' | 'lg'; as?: 'div' | 'section' | 'article' | 'aside'; reveal?: boolean; style?: CSSProperties }) {
+export function Card({ children, className, pad = 'md', as = 'div', style }: { children: ReactNode; className?: string; pad?: 'sm' | 'md' | 'lg'; as?: 'div' | 'section' | 'article' | 'aside'; style?: CSSProperties }) {
   const Tag = as;
-  return <Tag className={cx('card', 'trk-card', `pad-${pad}`, className)} {...(reveal ? rv('up', 0, style) : { style })}>{children}</Tag>;
+  return <Tag className={cx('card', 'trk-card', `pad-${pad}`, className)} style={style}>{children}</Tag>;
 }
 
 export function Panel({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cx('panel', 'trh-panel', className)} {...rv('scale')}>{children}</div>;
+  return <div className={cx('panel', 'trh-panel', className)}>{children}</div>;
 }
 
 /* ---------- Статусы и сообщения ---------- */
@@ -134,7 +133,7 @@ export function Note({ tone = 'info', icon, children, action }: { tone?: 'info' 
 
 export function EmptyState({ icon = 'inbox', title, text, actions }: { icon?: string; title: string; text?: ReactNode; actions?: ReactNode }) {
   return (
-    <div className="empty trk-empty" {...rv('scale')}>
+    <div className="empty trk-empty">
       <Icon name={icon} />
       <b>{title}</b>
       {text && <span>{text}</span>}
@@ -221,7 +220,7 @@ export function Steps({ items, size = 'md' }: { items: StepItem[]; size?: 'md' |
   return (
     <ol className={cx('tl trh-steps', size === 's' && 's')}>
       {items.map((item, index) => (
-        <li key={index} className={item.state && item.state !== 'current' ? item.state : undefined} {...rv('up', (index % 4) * 0.05, { '--i': index } as CSSProperties)}>
+        <li key={index} className={item.state && item.state !== 'current' ? item.state : undefined} style={{ '--i': index } as CSSProperties}>
           <i>{index + 1}</i>
           <div><h3>{item.title}</h3>{item.text && <p>{item.text}</p>}</div>
         </li>
@@ -233,8 +232,8 @@ export function Steps({ items, size = 'md' }: { items: StepItem[]; size?: 'md' |
 export function Faq({ items }: { items: [string, ReactNode][] }) {
   return (
     <div className="faq">
-      {items.map(([q, a], index) => (
-        <details key={q} {...rv('up', index * 0.05)}><summary>{q}<Icon name="plus" /></summary><p>{a}</p></details>
+      {items.map(([q, a]) => (
+        <details key={q}><summary>{q}<Icon name="plus" /></summary><p>{a}</p></details>
       ))}
     </div>
   );
@@ -276,9 +275,10 @@ export function Tabs<T extends string>({ items, value, onChange, wide }: { items
 /** Прогресс многошагового мастера. */
 export function WizardProgress({ step, total, label }: { step: number; total: number; label?: string }) {
   return (
-    <div className="trk-progress" aria-label={`Шаг ${step} из ${total}`}>
+    <div className="trk-progress">
+      <progress className="trk-sr" aria-label={label ?? 'Заполнение формы'} value={step} max={total} aria-valuetext={`Шаг ${step} из ${total}`} />
       {label && <span className="mini">{label}</span>}
-      <div className="prog">{Array.from({ length: total }, (_, i) => <i key={i} className={i < step ? 'on' : undefined} />)}</div>
+      <div className="prog" aria-hidden="true">{Array.from({ length: total }, (_, i) => <i key={i} className={i < step ? 'on' : undefined} />)}</div>
     </div>
   );
 }
@@ -405,8 +405,8 @@ export function ChoiceCards<T extends string>({ options, value, onChange, column
   return (
     <fieldset className={cx('trk-choices trk-fieldset', `c${columns}`)}>
       {label && <legend className="trk-sr">{label}</legend>}
-      {options.map((o, index) => (
-        <label key={o.value} className={cx('trk-choice', value === o.value && 'on')} {...rv('up', index * 0.06)}>
+      {options.map((o) => (
+        <label key={o.value} className={cx('trk-choice', value === o.value && 'on')}>
           <input type="radio" className="trk-sr" name={name} value={o.value} checked={value === o.value} onChange={() => onChange(o.value)} />
           {o.icon && <span className="ic-sq"><Icon name={o.icon} /></span>}
           <span className="trk-choice-text"><b>{o.title}</b>{o.text && <span>{o.text}</span>}</span>

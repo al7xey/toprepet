@@ -7,7 +7,6 @@ import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
 import { minutes, rub, whenLabel } from '../../lib/format';
-import { rv } from '../../reveal';
 import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, LoadingList, Note, PageHeader, QueryView, Rows, Section, SlotPicker, Status, Tags } from '../../ui';
 import { NotFoundBody } from './notfound';
 import './profile.css';
@@ -76,7 +75,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
   });
 
   const booking = (
-    <div className="card sum trh-pf-booking" {...rv('right', 0.1)}>
+    <div className="card sum trh-pf-booking">
       <h2 className="trk-cardtitle">Запись</h2>
       <Rows boxed rows={[['Репетитор', tutor.name], ['Занятие', minutes(lessonMinutes)], ['Когда', start ? whenLabel(start) : 'Выберите время'], ...(tutor.introMinutes ? [['Знакомство', `${minutes(tutor.introMinutes)}, бесплатно`] as [string, string]] : [])]} />
       <div className="fr fb"><span>Цена за {minutes(lessonMinutes)}</span><b className="tn trk-price-xl">{rub(lessonPrice)}</b></div>
@@ -119,7 +118,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
           <Section title="Образование и достижения">
             <ul className="ach">
               {tutor.achievements.filter((item) => item.title.trim() || item.text.trim()).map((item, index) => (
-                <li key={item.title} {...rv('up', index * 0.08)}>
+                <li key={item.title}>
                   <span className="trh-pf-ach-icon"><Icon name={ACH_ICONS[index % ACH_ICONS.length]} /></span>
                   <div>{item.title.trim() && <b>{item.title}</b>}{item.text.trim() && <span className="d">{item.text}</span>}</div>
                 </li>
@@ -129,16 +128,16 @@ function Profile({ tutor }: { tutor: Tutor }) {
 
           <hr className="rule" />
           <div className="trh-pf-two">
-            <Section title="Опыт"><div {...rv('up', 0.05)}><Tags items={[tutor.experience]} /></div></Section>
-            <Section title="С чем поможет"><div {...rv('up', 0.05)}><Tags items={tutor.helpTopics} /></div></Section>
+            <Section title="Опыт"><div><Tags items={[tutor.experience]} /></div></Section>
+            <Section title="С чем поможет"><div><Tags items={tutor.helpTopics} /></div></Section>
           </div>
 
           <hr className="rule" />
-          <Section title="Как проходят занятия"><p className="cap trh-pf-text" {...rv('up', 0.05)}>{tutor.approach}</p></Section>
+          <Section title="Как проходят занятия"><p className="cap trh-pf-text">{tutor.approach}</p></Section>
 
           <hr className="rule" />
           <Section title="Цены">
-            <div {...rv('up', 0.05)}>
+            <div>
               {tutor.introMinutes > 0 && <div className="rowline"><span><b>Знакомство</b><br /><span className="muted">{minutes(tutor.introMinutes)}, один раз</span></span><b className="u-ok">бесплатно</b></div>}
               <div className="rowline"><span><b>Занятие</b><br /><span className="muted">{minutes(lessonMinutes)}</span></span><b className="tn">{rub(lessonPrice)}</b></div>
             </div>
@@ -154,7 +153,6 @@ function Profile({ tutor }: { tutor: Tutor }) {
             <div className="trh-pf-cta-slot" ref={ctaSlot}>
               <div className={`trh-pf-cta${docked ? ' docked' : ''}`}>
                 <Button to={start ? bookHref('regular') : undefined} onClick={start ? () => trackGoal('book_start', { kind: 'regular' }) : showCalendar}>Записаться</Button>
-                <IconButton icon="chat-bubble" label="Написать репетитору" onClick={write} />
               </div>
             </div>
           )}

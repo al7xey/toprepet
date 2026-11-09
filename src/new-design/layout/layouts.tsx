@@ -79,19 +79,25 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
       { duration: Math.round(Math.min(MOVE_MS, 310 + dist * .85)), easing: 'cubic-bezier(.26,.64,.23,1)' },
     );
     motion.current = { animation: anim, dest, width: w };
-    anim.onfinish = () => { if (motion.current?.animation === anim) motion.current = null; };
-  }, [tabSet]);
-
-  useLayoutEffect(() => {
-    const el = pill.current;
-    return () => {
-      const running = motion.current;
-      if (!el || !running) return;
+    lastPill = { left: live, width: liveWidth, cellWidth: w, tabs: tabSet };
+    // Retain the last painted position when a lazy route replaces the bar mid-transition.
+    const sample = () => {
+      if (!el.isConnected || motion.current?.animation !== anim || anim.playState !== 'running') return;
       const matrix = new DOMMatrixReadOnly(getComputedStyle(el).transform);
-      lastPill = { left: matrix.m41, width: running.width * matrix.a, cellWidth: running.width, tabs: tabSet };
-      running.animation.cancel();
+      lastPill = { left: matrix.m41, width: w * matrix.a, cellWidth: w, tabs: tabSet };
+      requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+    anim.onfinish = () => {
+      if (motion.current?.animation !== anim) return;
+      lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
       motion.current = null;
     };
+  }, [tabSet]);
+
+  useLayoutEffect(() => () => {
+    motion.current?.animation.cancel();
+    motion.current = null;
   }, [tabSet]);
   // пилюля идёт за пальцем без анимации и без перерисовки страницы
   const follow = (pos: number, cells: ReturnType<typeof cellsOf>) => {

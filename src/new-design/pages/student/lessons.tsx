@@ -23,7 +23,7 @@ export default function LessonsPage() {
             : <EmptyState icon="cal" title="Прошедших уроков пока нет" text="Здесь появятся состоявшиеся и отменённые уроки." />
         ))}
       >
-        {(items) => <div className="trk-list">{items.map((l, i) => <LessonCard key={l.id} lesson={l} role="student" delay={i * 0.05} />)}</div>}
+        {(items) => <div className="trk-list">{items.map((l) => <LessonCard key={l.id} lesson={l} role="student" />)}</div>}
       </QueryView>
     </AppLayout>
   );

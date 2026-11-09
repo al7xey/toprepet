@@ -22,31 +22,20 @@ test('публичные CTA соответствуют роли пользов�
   }
 });
 
-test('анимации появляются при прокрутке и отключаются при уменьшении движения', async ({ page }) => {
+test('главная: заголовки не анимируются при прокрутке', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await page.addInitScript(() => {
-    const original = Element.prototype.animate;
-    Object.defineProperty(window, '__reveals', { value: [] });
-    Element.prototype.animate = function (...args: Parameters<typeof original>) {
-      if (this.hasAttribute('data-rv')) (window as unknown as { __reveals: string[] }).__reveals.push(this.tagName);
-      return original.apply(this, args);
-    };
-  });
   await page.goto('/');
-  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  await page.getByRole('heading', { name: 'Познакомьтесь до первого занятия', exact: true }).scrollIntoViewIfNeeded();
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __reveals: string[] }).__reveals.length)).toBeGreaterThan(0);
-  const beforeNavigation = await page.evaluate(() => (window as unknown as { __reveals: string[] }).__reveals.length);
-  await page.getByRole('link', { name: 'Бесплатное знакомство', exact: true }).click();
-  await expect(page).toHaveURL(/intro=1/);
-  await expect.poll(() => page.evaluate(() => (window as unknown as { __reveals: string[] }).__reveals.length)).toBeGreaterThan(beforeNavigation);
-  await page.emulateMedia({ reducedMotion: 'reduce' });
-  await expect.poll(() => page.evaluate(() => document.getAnimations().length)).toBe(0);
-  await page.getByRole('link', { name: 'TopRepet, главная', exact: true }).first().click();
-  await expect(page.getByRole('heading', { name: 'Познакомьтесь до первого занятия', exact: true })).toHaveCSS('opacity', '1');
-  await page.reload();
-  await page.getByRole('heading', { name: 'Вопросы и ответы', exact: true }).scrollIntoViewIfNeeded();
-  expect(await page.evaluate(() => (window as unknown as { __reveals: string[] }).__reveals.length)).toBe(0);
+  const heading = page.getByRole('heading', { name: 'Познакомьтесь до первого занятия', exact: true });
+  await heading.scrollIntoViewIfNeeded();
+  await expect(heading).toHaveCSS('opacity', '1');
+  const animations = await heading.evaluate((element) => {
+    for (let node: Element | null = element; node; node = node.parentElement) {
+      if (node.getAnimations().some((animation) => animation.playState === 'running')) return true;
+    }
+    return false;
+  });
+  expect(animations).toBe(false);
+  await expect(page.getByRole('link', { name: 'Оплата и возвраты', exact: true })).toHaveCount(0);
   await expectNoHorizontalScroll(page);
 });
 

@@ -5,7 +5,6 @@ import { useMutation } from '../api/hooks';
 import type { Card as PayCard, Lesson, Role, Slot, Tutor } from '../api/types';
 import { dayLabel, fromRub, minutes, rub, timeLabel, until, whenLabel } from '../lib/format';
 import { useNow } from '../lib/useNow';
-import { rv } from '../reveal';
 import { Icon } from './icon';
 import { Modal } from './overlay';
 import { Button, FormError, Note, onChoiceTabKey, Person, Status, TextField, type Tone } from './kit';
@@ -13,15 +12,15 @@ import { Button, FormError, Note, onChoiceTabKey, Person, Status, TextField, typ
 /* ---------- Репетиторы ---------- */
 
 /** Карточка репетитора: фото, имя, предметы, цена третьей строкой. Одна на главной, в каталоге и в подборках. */
-export function TutorCard({ tutor, priority, revealDelay = 0 }: { priority?: boolean; revealDelay?: number; tutor: Pick<Tutor, 'id' | 'name' | 'photo' | 'photoSrcSet' | 'cardSubjects' | 'studentPrice' | 'rating'>}) {
+export function TutorCard({ tutor, priority }: { priority?: boolean; tutor: Pick<Tutor, 'id' | 'name' | 'photo' | 'photoSrcSet' | 'cardSubjects' | 'studentPrice' | 'rating'>}) {
   const { pathname, search } = useLocation();
   const back = /^\/teachers\/?$/.test(pathname) ? pathname + search : undefined;
   return (
-    <Link state={back ? { back } : undefined} className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false} {...rv('up', revealDelay)}>
+    <Link state={back ? { back } : undefined} className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false}>
       <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 280px, 50vw" alt="" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : undefined} decoding="async" draggable={false} />
       <span className="pl">
-        <b className="trh-tutor-subject">{tutor.cardSubjects}</b>
-        <span className="trh-tutor-meta"><span className="trh-tutor-name">{tutor.name}</span>{tutor.rating ? <span className="rt"><Icon name="star-on" />{String(tutor.rating).replace('.', ',')}</span> : null}</span>
+        <b><span className="trh-tutor-name">{tutor.name}</span>{tutor.rating ? <span className="rt"><Icon name="star-on" />{String(tutor.rating).replace('.', ',')}</span> : null}</b>
+        <span>{tutor.cardSubjects}</span>
         <span className="trh-price">{fromRub(tutor.studentPrice)}</span>
       </span>
     </Link>
@@ -32,7 +31,7 @@ export function TutorCard({ tutor, priority, revealDelay = 0 }: { priority?: boo
 export function TutorGrid({ tutors, layout = 'grid', children }: { tutors: Parameters<typeof TutorCard>[0]['tutor'][]; layout?: 'grid' | 'row'; children?: ReactNode }) {
   return (
     <div className={layout === 'row' ? 'tcg trh-teachers' : 'tcg trh-grid'}>
-      {tutors.map((t, index) => <TutorCard key={t.id} tutor={t} priority={layout === 'row' || index < 8} revealDelay={(index % 4) * 0.045} />)}
+      {tutors.map((t, index) => <TutorCard key={t.id} tutor={t} priority={layout === 'row' || index < 8} />)}
       {children}
     </div>
   );
@@ -75,10 +74,10 @@ export const lessonTitle = (l: Lesson) => (l.kind === 'intro' ? 'Бесплат�
 export const lessonHref = (l: Lesson, role: Role) => (role === 'tutor' ? `/tutor/lessons/${l.id}` : `/me/lessons/${l.id}`);
 
 /** Карточка урока в списках ученика и репетитора. */
-export function LessonCard({ lesson, role, actions, delay = 0 }: { lesson: Lesson; role: Role; actions?: ReactNode; delay?: number }) {
+export function LessonCard({ lesson, role, actions }: { lesson: Lesson; role: Role; actions?: ReactNode }) {
   const who = role === 'tutor' ? { name: lesson.studentName, photo: lesson.studentPhoto } : { name: lesson.tutorName, photo: lesson.tutorPhoto };
   return (
-    <article className="lesson trk-lesson" {...rv('up', delay)}>
+    <article className="lesson trk-lesson">
       <Link className="trk-lesson-link" to={lessonHref(lesson, role)} aria-label={`${lessonTitle(lesson)}, ${whenLabel(lesson.start)}`} />
       <div className="lesson-when"><b className="tn">{whenLabel(lesson.start)}</b><span>{lessonTitle(lesson)} · {minutes(lesson.durationMin)}</span></div>
       <Person name={who.name} photo={who.photo} sub={lesson.status === 'pending' && lesson.confirmBy && role === 'tutor' ? `Ответьте ${until(lesson.confirmBy)}` : lesson.kind === 'intro' ? 'Знакомство бесплатно' : rub(role === 'tutor' ? lesson.tutorPrice : lesson.price)} />

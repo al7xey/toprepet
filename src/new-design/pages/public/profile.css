@@ -10,15 +10,15 @@
 .tr .trh-pf-top .trh-pf-photo .trk-iconbtn {
   position: absolute;
   top: 12px;
-  width: 54px;
-  height: 54px;
-  min-width: 54px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   padding: 0;
   border: 0;
   border-radius: 50%;
   box-shadow: none;
 }
-.tr .trh-pf-top .trh-pf-photo .trk-iconbtn .i { width: 27px; height: 27px; }
+.tr .trh-pf-top .trh-pf-photo .trk-iconbtn .i { width: 22px; height: 22px; }
 .tr .trh-pf-top .trh-pf-photo .trh-pf-share { display: grid; right: 12px; }
 .tr .trh-pf-ach-icon { display: grid; place-items: center; width: 40px; height: 40px; color: var(--ink); }
 .tr .trh-pf-ach-icon .i { width: 25px; height: 25px; }
@@ -50,8 +50,6 @@
     border-radius: 32px 32px 0 0;
     background: white;
   }
-  .tr .trh-pf-cta { display: grid; grid-template-columns: 1fr 48px; align-items: center; gap: 8px; }
-  .tr .trh-pf-cta .trk-iconbtn { width: 48px; height: 48px; }
 }
 
 @media (max-width: 760px) and (prefers-reduced-motion: no-preference) {

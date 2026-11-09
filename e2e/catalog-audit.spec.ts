@@ -68,10 +68,11 @@ test('длинные данные анкеты не создают горизо�
     await expect(card).toContainText('А'.repeat(100));
     const name = card.locator('.trh-tutor-name');
     await expect(card.locator('.rt')).toHaveText('4,9');
-    expect(await card.locator('.trh-tutor-subject').evaluate((subject) => {
-      const name = subject.parentElement!.querySelector('.trh-tutor-name')!;
-      return parseFloat(getComputedStyle(subject).fontSize) > parseFloat(getComputedStyle(name).fontSize);
-    }), 'предмет крупнее имени').toBe(true);
+    expect(await name.evaluate((element) => {
+      const text = getComputedStyle(element);
+      const row = getComputedStyle(element.parentElement!);
+      return text.fontSize === row.fontSize && text.color === row.color;
+    }), 'имя сохраняет типографику существующей карточки').toBe(true);
     expect(await name.evaluate((element) => element.getBoundingClientRect().right <= element.parentElement!.getBoundingClientRect().right)).toBe(true);
     await expectNoHorizontalScroll(page);
   }

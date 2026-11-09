@@ -69,8 +69,8 @@ export default function TutorLessonsPage() {
       {pending.length > 0 && (
         <Section title="Ждут подтверждения">
           <div className="trk-list">
-            {pending.map((l, i) => (
-              <LessonCard key={l.id} lesson={l} role="tutor" delay={i * 0.05} actions={<>
+            {pending.map((l) => (
+              <LessonCard key={l.id} lesson={l} role="tutor" actions={<>
                 <Button size="s" onClick={() => answer(l)} loading={busy === l.id}>Подтвердить</Button>
                 <Button size="s" variant="fill" onClick={() => setDeclining(l)}>Отклонить</Button>
               </>} />
@@ -90,8 +90,8 @@ export default function TutorLessonsPage() {
       >
         {(items) => (
           <div className="trk-list">
-            {items.map((l, i) => (
-              <LessonCard key={l.id} lesson={l} role="tutor" delay={i * 0.05} actions={ended(l) ? <>
+            {items.map((l) => (
+              <LessonCard key={l.id} lesson={l} role="tutor" actions={ended(l) ? <>
                 <Button size="s" onClick={() => mark(l, 'happened')} loading={busy === l.id}>Урок состоялся</Button>
                 <Button size="s" variant="fill" onClick={() => mark(l, 'no_show_student')}>Ученик не пришёл</Button>
               </> : undefined} />

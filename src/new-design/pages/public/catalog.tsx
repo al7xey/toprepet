@@ -6,7 +6,6 @@ import { safeChoice, trackGoal } from '../../../shared/lib/analytics';
 import { PublicLayout } from '../../layout/layouts';
 import { readCatalogFilter, writeCatalogFilter } from '../../lib/catalog-filter';
 import { useSession } from '../../api/session';
-import { rv } from '../../reveal';
 import { CatalogMetadata } from '../../../app/catalog-metadata';
 import { CATALOG_PAGE_SIZE as PAGE, listReducer, type ListState } from '../../lib/catalog-list';
 import { Button, Dropdown, EmptyState, ErrorState, FilterMenu, Icon, PageHeader, Skeleton, TutorGrid } from '../../ui';
@@ -69,7 +68,7 @@ export default function CatalogPage() {
       <CatalogMetadata tutors={visibleItems} />
       <PageHeader title="Топ репеты" />
 
-      <search className="trh-sec trh-tools" {...rv('up', 0.05)}>
+      <search className="trh-sec trh-tools">
         <CatalogSearch key={JSON.stringify([filter.query ?? '', searchReset])} query={filter.query ?? ''} onSearch={(query) => { set({ query: query || undefined }); trackGoal('teacher_search', { has_query: Boolean(query) }); }} />
         <div className="trh-chips">
           <FilterMenu

@@ -2,7 +2,6 @@ import { api, staticTutors } from '../../api';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
-import { rv } from '../../reveal';
 import { Button, Faq, Icon, IconButton, Panel, Section, Steps } from '../../ui';
 import { TutorShowcase } from '../../ui/tutor-showcase';
 import { HOW_STEPS, STUDENT_FAQ } from './content';
@@ -45,29 +44,27 @@ export default function HomePage() {
 
       <Section title="Познакомьтесь до первого занятия" className="trh-intro">
         <ol className="g16">
-          {([['target', 'Определим цель', 'Разберёмся, с чем нужна помощь.'], ['cal', 'Согласуем формат', 'Обсудим график и удобный темп.'], ['checks', 'Составим план', 'Определим, с чего начать занятия.']] as const).map(([icon, title, text], index) => (
-            <li key={title} className="fr p-home-intro-step" {...rv('up', index * 0.08)}>
+          {([['target', 'Определим цель', 'Разберёмся, с чем нужна помощь.'], ['cal', 'Согласуем формат', 'Обсудим график и удобный темп.'], ['checks', 'Составим план', 'Определим, с чего начать занятия.']] as const).map(([icon, title, text]) => (
+            <li key={title} className="fr p-home-intro-step">
               <span className="ic-sq"><Icon name={icon} /></span>
               <div className="g4"><b className="u-fs18">{title}</b><span className="muted">{text}</span></div>
             </li>
           ))}
         </ol>
-        <div {...rv('up', 0.1)}><Button to="/teachers?intro=1" size="lg">Бесплатное знакомство</Button></div>
+        <div><Button to="/teachers?intro=1" size="lg">Бесплатное знакомство</Button></div>
       </Section>
 
       <section className="p-home-trust" aria-labelledby="trust-title">
-        <img src="/images/payment-trust.webp" alt="Человек спокойно читает книгу, облокотившись на большой замок" width={1536} height={1024} loading="lazy" decoding="async" {...rv('scale')} />
+        <img src="/images/payment-trust.webp" alt="Человек спокойно читает книгу, облокотившись на большой замок" width={1536} height={1024} loading="lazy" decoding="async" />
         <div className="trh-sec">
-          <h2 id="trust-title" className="h2 trh-h2" {...rv('up')}>100% гарантия возврата средств</h2>
-          <p className="cap u-fs18" {...rv('up', 0.06)}>100% возврат оплаты, если оплаченное занятие не было проведено.</p>
-          <p className="cap" {...rv('up', 0.12)}>Деньги не переводятся репетитору сразу: их списывают, когда репетитор подтвердит запись, и выплачивают после проведённого занятия. В других спорных ситуациях поддержка поможет разобраться.</p>
-          <div {...rv('up', 0.16)}><Button to="/legal/payment-refund/" variant="line">Оплата и возвраты</Button></div>
+          <h2 id="trust-title" className="h2 trh-h2">100% гарантия возврата средств</h2>
+          <p className="cap">Если оплаченное занятие не состоялось, вернём деньги полностью. Оплата списывается после подтверждения записи, а репетитор получает её после занятия. В спорной ситуации поможет поддержка.</p>
         </div>
       </section>
 
       <Panel>
         <div className="trh-sec u-start">
-          <h2 className="trh-panel-h u-mw600">Вы репетитор? Найдём для вас учеников</h2>
+          <h2 className="trh-h2 u-mw600">Вы репетитор? Найдём для вас учеников</h2>
           <Button to="/for-repetitor/" size="lg">Стать топ-репетом</Button>
         </div>
       </Panel>
