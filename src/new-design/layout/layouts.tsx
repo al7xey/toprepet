@@ -75,27 +75,40 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     const dist = Math.abs(dest - live);
     const middle = live + (dest - live) * (dest >= live ? .22 : .78);
     const stretch = Math.min(host.clientWidth - middle - 5, Math.max(liveWidth, w + Math.min(dist * .68, 170)));
+    const duration = Math.round(Math.min(MOVE_MS, 260 + dist * 1.1));
+    const peak = .48;
     const anim = el.animate(
-      [at(live, liveWidth), { ...at(middle, stretch), offset: .48 }, at(dest, w)],
-      { duration: Math.round(Math.min(MOVE_MS, 260 + dist * 1.1)), easing: 'cubic-bezier(.32,.72,0,1)' },
+      [at(live, liveWidth), { ...at(middle, stretch), offset: peak }, at(dest, w)],
+      { duration, easing: 'cubic-bezier(.32,.72,0,1)', fill: 'both' },
     );
+    anim.pause();
+    anim.currentTime = 0;
     motion.current = { animation: anim, dest, width: w };
     host.dataset.settling = '';
     lastPill = { left: live, width: liveWidth, cellWidth: w, tabs: tabSet };
-    // Retain the last painted position when a lazy route replaces the bar mid-transition.
-    const sample = () => {
-      if (!el.isConnected || motion.current?.animation !== anim || anim.playState !== 'running') return;
-      const matrix = new DOMMatrixReadOnly(getComputedStyle(el).transform);
-      lastPill = { left: matrix.m41, width: w * matrix.a, cellWidth: w, tabs: tabSet };
-      requestAnimationFrame(sample);
+    let elapsed = 0;
+    let previousFrame: number | undefined;
+    // Cap each step so a slow route render cannot skip most of the glide in one frame.
+    const frame = (now: number) => {
+      if (!el.isConnected || motion.current?.animation !== anim) return;
+      elapsed = Math.min(duration, elapsed + Math.min(now - (previousFrame ?? now), 36));
+      previousFrame = now;
+      if (elapsed >= duration) {
+        anim.cancel();
+        motion.current = null;
+        lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
+        delete host.dataset.settling;
+        return;
+      }
+      anim.currentTime = elapsed;
+      const progress = anim.effect?.getComputedTiming().progress ?? 0;
+      const fraction = progress < peak ? progress / peak : (progress - peak) / (1 - peak);
+      const left = progress < peak ? live + (middle - live) * fraction : middle + (dest - middle) * fraction;
+      const width = progress < peak ? liveWidth + (stretch - liveWidth) * fraction : stretch + (w - stretch) * fraction;
+      lastPill = { left, width, cellWidth: w, tabs: tabSet };
+      requestAnimationFrame(frame);
     };
-    requestAnimationFrame(sample);
-    anim.onfinish = () => {
-      if (motion.current?.animation !== anim) return;
-      lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
-      motion.current = null;
-      delete host.dataset.settling;
-    };
+    requestAnimationFrame(frame);
   }, [tabSet]);
 
   useLayoutEffect(() => {
