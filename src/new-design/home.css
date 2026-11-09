@@ -239,9 +239,12 @@
 /* Общий компонент шагов. */
 .tr .trh-steps li::before{transform-origin:top}
 
-/* Плашка карточки: цена третьей строкой */
-.tr .tc.s .pl .trh-price{font-weight:700;font-size:15px;margin-top:3px}
-.tr .tc.s .pl b .trh-tutor-name{min-width:0;flex:1;font:inherit;color:inherit}
+/* Предмет отвечает на вопрос, подходит ли преподаватель, до имени и цены. */
+.tr .tc.s .pl .trh-tutor-subject{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font-size:clamp(14px,1.45vw,19px);font-weight:800;line-height:1.2}
+.tr .tc.s .pl .trh-tutor-meta{display:flex;justify-content:space-between;align-items:center;gap:6px;min-width:0;margin-top:3px}
+.tr .tc.s .pl .trh-tutor-name{min-width:0;color:var(--muted);font-size:13px}
+.tr .tc.s .pl .trh-tutor-meta .rt{flex:none;color:var(--ink);font-size:12px}
+.tr .tc.s .pl .trh-price{font-weight:650;font-size:13px;margin-top:2px}
 
 /* Фильтры: белое стекло */
 .tr .trh-chips .chipf,.tr .trh-chips summary.chipf{background:#fff;border:0;box-shadow:inset 0 0 0 1.5px var(--line);transition:transform .3s var(--spring),box-shadow .25s}

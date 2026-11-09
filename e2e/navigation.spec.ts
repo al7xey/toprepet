@@ -8,7 +8,7 @@ test('нижняя панель ученика: Поиск, Занятия, Ча
   const tabs = page.locator('nav.trk-tabbar a.tab');
   await expect(tabs).toHaveCount(4);
   await expect(tabs.nth(1)).toContainText('Занятия');
-  await expect(tabs.nth(1).locator('.i-school')).toBeVisible();
+  await expect(tabs.nth(1).locator('.i-book')).toBeVisible();
   await expect(tabs.last().locator('.avatar')).toBeVisible();
   await tabs.nth(1).click();
   await expect(page).toHaveURL(/\/me\/lessons/);
@@ -39,7 +39,7 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   await page.mouse.down();
   // пока палец на панели, пилюля увеличена, а страница не меняется
   await expect(bar).toHaveClass(/press/);
-  await expect.poll(async () => (await lens()).scale).toBeGreaterThan(1.15);
+  await expect.poll(async () => (await lens()).scale).toBeGreaterThan(1.08);
   expect(await bar.boundingBox()).toEqual(restingBar);
   await page.mouse.move(to.x + to.width / 2, from.y + from.height / 2, { steps: 12 });
   await expect(page).toHaveURL(/\/me\/chats/);
@@ -50,6 +50,16 @@ test('нижняя панель: пилюлю можно тянуть, откр�
   await expect(tabs.nth(3)).toHaveAttribute('aria-current', 'page');
   await expect(bar).not.toHaveClass(/press/);
   await expect.poll(async () => (await lens()).scale).toBe(1);
+
+  const profile = await tabs.nth(3).boundingBox();
+  const lessons = await tabs.nth(1).boundingBox();
+  if (!profile || !lessons) throw new Error('нет размеров пунктов панели');
+  await page.mouse.move(profile.x + profile.width / 2, profile.y + profile.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(lessons.x + lessons.width / 2, profile.y - 40);
+  await page.mouse.up();
+  await expect(bar).not.toHaveClass(/press/);
+  await expect(page).toHaveURL(/\/me\/account/);
 });
 
 test('нижняя панель: пилюля плавно переезжает и ни в какой момент не выходит за панель', async ({ page }) => {

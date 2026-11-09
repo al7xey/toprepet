@@ -9,7 +9,7 @@ import { Avatar, Button, FormError, Icon, IconButton } from '../ui';
 const cx = (...p: (string | false | undefined)[]) => p.filter(Boolean).join(' ');
 
 const DRAG_PX = 6; // на сколько сдвинуть палец, чтобы нажатие стало перетаскиванием
-const MOVE_MS = 780; // дольше всего пилюля переезжает к новому пункту
+const MOVE_MS = 520; // дольше всего пилюля переезжает к новому пункту
 
 // Keep the lens position across route layouts that remount the tab bar.
 let lastPill: { left: number; width: number; cellWidth: number; tabs: string } | null = null;
@@ -34,7 +34,7 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
   const navigate = useNavigate();
   const bar = useRef<HTMLElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
-  const gesture = useRef<{ id: number; x: number; moved: boolean } | null>(null);
+  const gesture = useRef<{ id: number; x: number; offset: number; moved: boolean; bounds: DOMRect; cells: ReturnType<typeof cellsOf> } | null>(null);
   const motion = useRef<{ animation: Animation; dest: number; width: number } | null>(null);
   const swallowClick = useRef(false);
   const placed = useRef(false);
@@ -45,13 +45,9 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
   const shown = dragIndex ?? target;
 
   // палец в долях пункта: 0 — первый пункт, n−1 — последний
-  const posAt = (clientX: number) => {
-    const el = bar.current;
-    if (!el) return Math.max(target, 0);
-    const cells = cellsOf(el);
+  const posAt = (clientX: number, { bounds, cells }: NonNullable<typeof gesture.current>) => {
     if (cells.length < 2) return 0;
-    const box = el.getBoundingClientRect();
-    const x = clientX - box.left;
+    const x = clientX - bounds.left;
     const step = cells[1].left - cells[0].left;
     return Math.min(Math.max((x - cells[0].left - cells[0].width / 2) / step, 0), cells.length - 1);
   };
@@ -70,46 +66,39 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
     const at = (left: number, width: number) => ({ transform: `translateX(${left}px) scaleX(${width / w})` });
     motion.current?.animation.cancel();
     motion.current = null;
-    delete host.dataset.settling;
     el.style.width = `${w}px`;
     el.style.transform = at(dest, w).transform;
     placed.current = true;
     lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
     if ((Math.abs(live - dest) < 1 && Math.abs(liveWidth - w) < 1) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const dist = Math.abs(dest - live);
-    const middle = live + (dest - live) * (dest > live ? .26 : .72);
-    const stretch = Math.min(host.clientWidth - middle - 5, Math.max(liveWidth, w + Math.min(dist * .4, 42)));
+    const middle = live + (dest - live) * .56;
+    const stretch = Math.min(host.clientWidth - middle - 5, Math.max(liveWidth, w + Math.min(dist * .16, 20)));
     const anim = el.animate(
-      [at(live, liveWidth), { ...at(middle, stretch), offset: .34, easing: 'cubic-bezier(.24,.72,.2,1)' }, at(dest, w)],
-      { duration: Math.round(Math.min(MOVE_MS, 460 + dist * 1.3)), easing: 'cubic-bezier(.28,.64,.22,1)' },
+      [at(live, liveWidth), { ...at(middle, stretch), offset: .56 }, at(dest, w)],
+      { duration: Math.round(Math.min(MOVE_MS, 310 + dist * .85)), easing: 'cubic-bezier(.26,.64,.23,1)' },
     );
     motion.current = { animation: anim, dest, width: w };
-    host.dataset.settling = '';
-    lastPill = { left: live, width: liveWidth, cellWidth: w, tabs: tabSet };
-    const sample = () => {
-      if (!el.isConnected || motion.current?.animation !== anim) return;
-      if (anim.playState === 'running') {
-        const transform = new DOMMatrixReadOnly(getComputedStyle(el).transform);
-        lastPill = { left: transform.m41, width: w * transform.a, cellWidth: w, tabs: tabSet };
-        requestAnimationFrame(sample);
-      } else {
-        lastPill = { left: dest, width: w, cellWidth: w, tabs: tabSet };
-        motion.current = null;
-        delete host.dataset.settling;
-      }
+    anim.onfinish = () => { if (motion.current?.animation === anim) motion.current = null; };
+  }, [tabSet]);
+
+  useLayoutEffect(() => {
+    const el = pill.current;
+    return () => {
+      const running = motion.current;
+      if (!el || !running) return;
+      const matrix = new DOMMatrixReadOnly(getComputedStyle(el).transform);
+      lastPill = { left: matrix.m41, width: running.width * matrix.a, cellWidth: running.width, tabs: tabSet };
+      running.animation.cancel();
+      motion.current = null;
     };
-    requestAnimationFrame(sample);
   }, [tabSet]);
   // пилюля идёт за пальцем без анимации и без перерисовки страницы
-  const follow = (pos: number) => {
+  const follow = (pos: number, cells: ReturnType<typeof cellsOf>) => {
     const el = pill.current;
-    const host = bar.current;
-    if (!el || !host) return;
-    const cells = cellsOf(host);
-    if (!cells.length) return;
+    if (!el || !cells.length) return;
     motion.current?.animation.cancel();
     motion.current = null;
-    delete host.dataset.settling;
     const left = leftOf(cells, pos);
     el.style.width = `${cells[0].width}px`;
     el.style.transform = `translateX(${left}px)`;
@@ -121,32 +110,34 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
 
   const onPointerDown = (e: PointerEvent) => {
     if (!e.isPrimary || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    gesture.current = { id: e.pointerId, x: e.clientX, moved: false };
-    bar.current?.setPointerCapture(e.pointerId);
-    // под пальцем пилюля сразу увеличивается и плавно подъезжает к нажатому пункту
-    const index = Math.round(posAt(e.clientX));
-    setDragIndex(index);
     const host = bar.current;
-    if (host) {
-      const cells = cellsOf(host);
-      if (!cells.length) return;
-      if (target < 0) follow(index);
-      else glide(leftOf(cells, index), cells[0].width);
-    }
+    if (!host) return;
+    const cells = cellsOf(host);
+    if (!cells.length) return;
+    const active = { id: e.pointerId, x: e.clientX, offset: 0, moved: false, bounds: host.getBoundingClientRect(), cells };
+    gesture.current = active;
+    host.setPointerCapture(e.pointerId);
+    const index = Math.round(posAt(e.clientX, active));
+    active.offset = e.clientX - active.bounds.left - cells[index].left - cells[index].width / 2;
+    setDragIndex(index);
+    if (target < 0) follow(index, cells);
+    else glide(leftOf(cells, index), cells[0].width);
   };
   const onPointerMove = (e: PointerEvent) => {
     const g = gesture.current;
     if (g?.id !== e.pointerId) return;
     if (!g.moved && Math.abs(e.clientX - g.x) > DRAG_PX) g.moved = true;
     if (!g.moved) return;
-    const pos = posAt(e.clientX);
-    follow(pos);
+    const pos = posAt(e.clientX - g.offset, g);
+    follow(pos, g.cells);
     const index = Math.round(pos);
     setDragIndex((prev) => (prev === index ? prev : index));
   };
   const onPointerUp = (e: PointerEvent) => {
-    if (gesture.current?.id !== e.pointerId) return;
-    const index = Math.round(posAt(e.clientX));
+    const g = gesture.current;
+    if (g?.id !== e.pointerId) return;
+    if (e.clientY < g.bounds.top - 20 || e.clientY > g.bounds.bottom + 20) { onCancel(e); return; }
+    const index = Math.round(posAt(e.clientX, g));
     const to = tabs[index];
     finish();
     // и нажатие, и перетаскивание открывают раздел здесь; обычный клик по ссылке после этого не нужен
@@ -343,11 +334,11 @@ const ready = (to: string) => READY.some((p) => to === p || to.startsWith(`${p}/
 const NAV: Record<Role, { top: NavItem[]; tabs: NavItem[] }> = {
   student: {
     top: [{ label: 'Найти репетитора', to: '/teachers', icon: 'search' }, { label: 'Мои уроки', to: '/me/lessons', icon: 'cal' }, { label: 'Заявки', to: '/me/requests', icon: 'list' }, { label: 'Платежи', to: '/me/payments', icon: 'card' }],
-    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'school' }, { label: 'Чаты', to: '/me/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/me/account', icon: 'user', also: ['/me/tutors', '/me/requests', '/me/payments', '/me/notifications'] }],
+    tabs: [{ label: 'Поиск', to: '/teachers', icon: 'search' }, { label: 'Занятия', to: '/me/lessons', icon: 'book' }, { label: 'Чаты', to: '/me/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/me/account', icon: 'user', also: ['/me/tutors', '/me/requests', '/me/payments', '/me/notifications'] }],
   },
   tutor: {
     top: [{ label: 'Уроки', to: '/tutor/lessons', icon: 'cal' }, { label: 'Расписание', to: '/tutor/schedule', icon: 'clock' }, { label: 'Ученики', to: '/tutor/students', icon: 'person-plus' }, { label: 'Заявки', to: '/tutor/requests', icon: 'list' }, { label: 'Финансы', to: '/tutor/finance', icon: 'wallet' }, { label: 'Отзывы', to: '/tutor/reviews', icon: 'star' }, { label: 'Анкета', to: '/tutor/profile', icon: 'user' }],
-    tabs: [{ label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Занятия', to: '/tutor/lessons', icon: 'school', also: ['/tutor/schedule'] }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/tutor/account', icon: 'user', also: ['/tutor/documents', '/tutor/profile', '/tutor/finance', '/tutor/students', '/tutor/reviews', '/tutor/notifications'] }],
+    tabs: [{ label: 'Заявки', to: '/tutor/requests', icon: 'circle-check' }, { label: 'Занятия', to: '/tutor/lessons', icon: 'book', also: ['/tutor/schedule'] }, { label: 'Чаты', to: '/tutor/chats', icon: 'chat-bubble' }, { label: 'Профиль', to: '/tutor/account', icon: 'user', also: ['/tutor/documents', '/tutor/profile', '/tutor/finance', '/tutor/students', '/tutor/reviews', '/tutor/notifications'] }],
   },
   admin: {
     top: [{ label: 'Споры', to: '/admin/disputes', icon: 'flag' }, { label: 'Отмены', to: '/admin/cancellations', icon: 'cal' }, { label: 'Отзывы', to: '/admin/reviews', icon: 'star' }, { label: 'Анкеты', to: '/admin/profiles', icon: 'school' }, { label: 'Документы', to: '/admin/documents', icon: 'doc' }],

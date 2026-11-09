@@ -77,7 +77,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
 
   const booking = (
     <div className="card sum trh-pf-booking" {...rv('right', 0.1)}>
-      <h2 className="trk-cardtitle"><span className="trh-pf-lens"><Icon name="cal" /></span>Запись</h2>
+      <h2 className="trk-cardtitle">Запись</h2>
       <Rows boxed rows={[['Репетитор', tutor.name], ['Занятие', minutes(lessonMinutes)], ['Когда', start ? whenLabel(start) : 'Выберите время'], ...(tutor.introMinutes ? [['Знакомство', `${minutes(tutor.introMinutes)}, бесплатно`] as [string, string]] : [])]} />
       <div className="fr fb"><span>Цена за {minutes(lessonMinutes)}</span><b className="tn trk-price-xl">{rub(lessonPrice)}</b></div>
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
@@ -120,7 +120,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
             <ul className="ach">
               {tutor.achievements.filter((item) => item.title.trim() || item.text.trim()).map((item, index) => (
                 <li key={item.title} {...rv('up', index * 0.08)}>
-                  <span className="trh-pf-lens"><Icon name={ACH_ICONS[index % ACH_ICONS.length]} /></span>
+                  <span className="trh-pf-ach-icon"><Icon name={ACH_ICONS[index % ACH_ICONS.length]} /></span>
                   <div>{item.title.trim() && <b>{item.title}</b>}{item.text.trim() && <span className="d">{item.text}</span>}</div>
                 </li>
               ))}
@@ -146,7 +146,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
 
           <hr className="rule" />
           <div className="trh-pf-calendar" ref={calendar}>
-            <Section title={<><span className="trh-pf-lens"><Icon name="clock" /></span>Свободное время</>}>
+            <Section title="Свободное время">
               {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} />}
             </Section>
           </div>

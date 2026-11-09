@@ -2,7 +2,7 @@
 
 .blog-root { color-scheme:light; --ink:#202838; --muted:#756a68; --orange:#f26a2e; --line:#f0e2d8; --surface:#fff; --header-height:80px; --space-xs:8px; --space-sm:16px; --space-md:24px; --space-lg:40px; --space-xl:64px; }
 .blog-root { scroll-behavior:smooth; }
-.blog-root { margin:0; min-width:0; overflow-x:clip; background:#eef1f5; color:var(--ink); font-family:"Manrope Variable",Arial,sans-serif; font-weight:450; }
+.blog-root { margin:0; min-width:0; overflow-x:clip; background:#fff; color:var(--ink); font-family:"Manrope Variable",Arial,sans-serif; font-weight:450; }
 .blog-root button,.blog-root input,.blog-root textarea,.blog-root select { font:inherit; }
 .blog-root button { cursor:pointer; }
 .blog-root :focus-visible { outline:3px solid var(--orange); outline-offset:3px; }
