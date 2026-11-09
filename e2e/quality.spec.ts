@@ -16,8 +16,6 @@ async function check(page: import('@playwright/test').Page, url: string) {
   // блоки плавно проявляются при появлении: пока идёт проявление, axe видит полупрозрачный текст
   await page.waitForTimeout(1800);
   const result = await new AxeBuilder({ page })
-    // выбранный пункт шапки — фирменный ярко-оранжевый по решению владельца (контраст ниже AA), остальное проверяем
-    .exclude('.hdr nav a.cur')
     .withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(result.violations.map((v) => `${v.id}: ${v.nodes[0]?.target.join(' ')}`), `${url}: нарушения доступности`).toEqual([]);
   await expectNoHorizontalScroll(page);
@@ -25,6 +23,7 @@ async function check(page: import('@playwright/test').Page, url: string) {
 
 test.describe('качество: доступность и вёрстка', () => {
   test('гостевые страницы: 0 нарушений axe, нет горизонтальной прокрутки', async ({ page }) => {
+    test.setTimeout(180_000); // Full accessibility scans cover 16 routes, not one page.
     for (const url of GUEST_PAGES) await check(page, url);
   });
 

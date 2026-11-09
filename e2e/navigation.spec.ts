@@ -117,7 +117,7 @@ test('репетитор: в нижней панели есть «Профиль
   await login(page, 'tutor');
   await page.goto('/tutor/lessons');
   const tabs = page.locator('nav.trk-tabbar a.tab');
-  await expect(tabs.last()).toHaveText('Профиль');
+  await expect(tabs.last()).toHaveAccessibleName('Профиль');
   await tabs.last().click();
   await expect(page).toHaveURL(/\/tutor\/account/);
   await expect(page.locator('nav.trk-tabbar a.tab', { hasText: 'Доход' })).toHaveCount(0);

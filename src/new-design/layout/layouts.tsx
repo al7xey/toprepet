@@ -32,6 +32,7 @@ function cellsOf(host: HTMLElement) {
  */
 function TabBar({ tabs }: { tabs: NavItem[] }) {
   const { pathname } = useLocation();
+  const { user } = useSession();
   const navigate = useNavigate();
   const bar = useRef<HTMLElement>(null);
   const pill = useRef<HTMLSpanElement>(null);
@@ -182,7 +183,7 @@ function TabBar({ tabs }: { tabs: NavItem[] }) {
       {target >= 0 && <span ref={pill} className="tabpill" aria-hidden="true" />}
       {tabs.map((t, i) => (
         <NavLink key={t.to} to={t.to} draggable={false} className={cx('tab', i === shown && 'cur')}>
-          <Icon name={t.icon} /><span className="trk-sr">{t.label}{t.badge ? ', есть новые' : ''}</span>{t.badge ? <span className="dot" aria-hidden="true" /> : null}
+          {t.icon === 'user' ? <Avatar name={user?.name ?? '•'} photo={user?.photo} size={30} /> : <Icon name={t.icon} />}<span className="trk-sr">{t.label}{t.badge ? ', есть новые' : ''}</span>{t.badge ? <span className="dot" aria-hidden="true" /> : null}
         </NavLink>
       ))}
     </nav>
@@ -230,6 +231,27 @@ export function PublicLayout({ children, tight, bareMobile, narrow, hideSignIn }
   const [menuAt, setMenuAt] = useState<string | null>(null);
   const menu = menuAt === pathname;
   const setMenu = (open: boolean) => setMenuAt(open ? pathname : null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const menuPanel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menu) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setMenuAt(null);
+      menuButton.current?.focus();
+    };
+    const outside = (event: PointerEvent) => {
+      if (!(event.target instanceof Node) || menuPanel.current?.contains(event.target) || menuButton.current?.contains(event.target)) return;
+      setMenuAt(null);
+    };
+    document.addEventListener('keydown', close);
+    document.addEventListener('pointerdown', outside);
+    return () => {
+      document.removeEventListener('keydown', close);
+      document.removeEventListener('pointerdown', outside);
+    };
+  }, [menu]);
   // вошедшие ученик и репетитор остаются в своей оболочке: «Найти репетитора» не выбрасывает на экран до входа
   if (user && user.role !== 'admin' && /^\/(teachers|help|requests)(\/|$)/.test(pathname)) return <AppLayout role={user.role}>{children}</AppLayout>;
   return (
@@ -242,15 +264,15 @@ export function PublicLayout({ children, tight, bareMobile, narrow, hideSignIn }
             {PUBLIC_NAV.map(([label, to]) => <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{label}</NavLink>)}
           </nav>
           {!hideSignIn && <span className="fr trh-actions"><SessionActions /></span>}
-          <button type="button" className="btn btn-icon trh-burger" aria-label={menu ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={menu} onClick={() => setMenu(!menu)}><Icon name={menu ? 'x' : 'menu'} /></button>
+          <button ref={menuButton} type="button" className="btn btn-icon trh-burger" aria-label={menu ? 'Закрыть меню' : 'Открыть меню'} aria-expanded={menu} aria-controls={menu ? 'public-menu' : undefined} onClick={() => setMenu(!menu)}><Icon name={menu ? 'x' : 'menu'} /></button>
         </header>
         {menu && (
-          <dialog open className="trh-menu" aria-modal="true" aria-label="Меню">
+          <div id="public-menu" ref={menuPanel} className="trh-menu">
             <nav className="trh-menu-list" aria-label="Меню">
               {[...PUBLIC_NAV, ...(user ? [['Заявки учеников', '/requests']] : []), ['Помощь', '/help'], ...(user ? [] : [['Регистрация', '/signup']])].map(([label, to]) => <Link key={to} to={to}>{label}<Icon name="right" /></Link>)}
             </nav>
             <div className="g10 u-mt-auto"><SessionActions block /></div>
-          </dialog>
+          </div>
         )}
         <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>{children}</main>
         <Footer />

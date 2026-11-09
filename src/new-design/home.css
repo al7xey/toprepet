@@ -31,8 +31,7 @@
 .tr .trh-panel-in{max-width:560px}
 
 /* Экран меню на телефоне */
-.tr dialog.trh-menu{border:0;margin:0;max-width:none;max-height:none;width:auto;height:auto;color:inherit}
-.tr .trh-menu{position:fixed;inset:0;z-index:60;overflow:auto;padding:96px 16px 24px;display:flex;flex-direction:column;gap:24px;background:#fff}
+.tr .trh-menu{position:fixed;inset:0 0 auto;z-index:60;max-height:100dvh;overflow:auto;overscroll-behavior:contain;margin:0;padding:96px 16px 24px;display:flex;flex-direction:column;gap:24px;background:#fff;color:inherit}
 .tr .trh-menu-list{display:grid;margin-top:8px}
 .tr .trh-menu-list a{display:flex;justify-content:space-between;align-items:center;min-height:60px;padding:0 6px;font-size:22px;font-weight:650;letter-spacing:-0.02em;border-top:1px solid var(--line)}
 .tr .trh-menu-list a:first-child{border-top:0}
@@ -138,6 +137,19 @@
 .tr .trh-drop-menu .i{width:18px;height:18px;color:var(--accent)}
 .tr .trh-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
 .tr .trh-grid>.tc{aspect-ratio:4/5;animation:none}
+
+/* Desktop catalog composition from the Liquid Glass reference. */
+@media (min-width:1000px){
+  html:has(.trh-tools){scrollbar-gutter:stable both-edges}
+  .tr .trh-page:has(.trh-tools):not(.trk-app){padding-top:32px}
+  .tr .trh-page:has(.trh-tools):not(.trk-app)>.hdr{min-height:70px}
+  .tr .trh-tools{position:relative}
+  .tr .trh-tools .trh-chips{position:absolute;top:50%;right:124px;transform:translateY(-50%)}
+  .tr .trh-tools .search .btn{margin-inline-start:124px}
+  .tr .trh-grid{column-gap:24px;row-gap:32px}
+  .tr .trh-grid>.tc{aspect-ratio:3/4;border-radius:44px}
+  .tr .trh-grid>.tc .pl{inset:auto 14px 14px;min-height:114px;border-radius:34px;padding:14px 18px;align-content:center;gap:5px}
+}
 
 @media (max-width:760px){
   .tr .trh-h1{font-size:30px}

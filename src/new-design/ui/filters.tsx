@@ -8,16 +8,26 @@ export function Dropdown<T extends string | number>({ label, icon, value, option
   const ref = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const outside = (e: PointerEvent) => { if (!ref.current?.contains(e.target as Node)) ref.current?.removeAttribute('open'); };
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') ref.current?.removeAttribute('open'); };
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && ref.current?.open) {
+        e.preventDefault();
+        ref.current.removeAttribute('open');
+        ref.current.querySelector('summary')?.focus();
+      }
+    };
     document.addEventListener('pointerdown', outside);
     document.addEventListener('keydown', esc);
     return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', esc); };
   }, []);
-  const pick = (v: T | null) => { onChange(v); ref.current?.removeAttribute('open'); };
+  const pick = (v: T | null) => {
+    onChange(v);
+    ref.current?.removeAttribute('open');
+    ref.current?.querySelector('summary')?.focus();
+  };
   const current = options.find((o) => o.value === value);
   return (
     <details className="trh-drop" ref={ref}>
-      <summary className={`chipf${value !== null && allLabel ? ' on' : ''}${iconOnly ? ' ico' : ''}`} aria-label={label} title={label}>
+      <summary className={`chipf${value !== null && allLabel ? ' on' : ''}${iconOnly ? ' ico' : ''}`} aria-label={iconOnly && current ? `${label}: ${current.label}` : label} title={label}>
         {icon && <Icon name={icon} />}{iconOnly ? null : <>{current?.label ?? label}<Icon name="down" /></>}
       </summary>
       <div className={`trh-drop-menu surf-strong${align === 'right' ? ' right' : ''}`}>
@@ -64,15 +74,31 @@ export function FilterMenu({ subject, price, bonus, onReset, active }: {
   active: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
-    if (!open) return;
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('keydown', esc);
+    const element = dialog.current;
+    if (!open || !element) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const overflowBefore = document.documentElement.style.overflow;
+    // Native modal semantics keep focus inside and make the page underneath inert.
+    element.showModal();
     document.documentElement.style.overflow = 'hidden';
-    return () => { document.removeEventListener('keydown', esc); document.documentElement.style.overflow = ''; };
+    return () => {
+      element.close();
+      document.documentElement.style.overflow = overflowBefore;
+      if (previous?.isConnected) previous.focus();
+    };
   }, [open]);
   const page = open && (
-    <dialog open className="trh-fpage" aria-modal="true" aria-label="Фильтры">
+    <dialog ref={dialog} className="trh-fpage" aria-modal="true" aria-label="Фильтры" onCancel={(event) => { event.preventDefault(); setOpen(false); }} onKeyDown={(event) => {
+      if (event.key !== 'Tab') return;
+      const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('button,input,select,textarea,a[href],[tabindex]')]
+        .filter((node) => node.tabIndex >= 0 && !node.matches(':disabled') && node.getClientRects().length > 0);
+      const first = controls[0];
+      const last = controls.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }}>
       <div className="trh-fpage-head">
         <h2>Фильтры</h2>
         <button type="button" className="trk-iconbtn trk-round" aria-label="Закрыть фильтры" onClick={() => setOpen(false)}><Icon name="x" /></button>
@@ -106,7 +132,7 @@ export function FilterMenu({ subject, price, bonus, onReset, active }: {
   );
   return (
     <>
-      <button type="button" className="chipf ico trh-filters" aria-label="Фильтры" title="Фильтры" aria-haspopup="dialog" onClick={() => setOpen(true)}>
+      <button type="button" className="chipf ico trh-filters" aria-label="Фильтры" title="Фильтры" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
         <Icon name="filter" />{active && <span className="trh-filters-dot" aria-hidden="true" />}
       </button>
       {page && createPortal(page, document.querySelector('.tr') ?? document.body)}

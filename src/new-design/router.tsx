@@ -14,6 +14,8 @@ import { ToastProvider } from './ui';
 import './tr.css';
 import './home.css';
 import './ui/kit.css';
+import { LiquidGlassEffects } from './ui/liquid-glass';
+import { LiquidMotion } from './ui/liquid-motion';
 
 const NotFoundPage = lazy(() => import('./pages/public/notfound'));
 
@@ -30,6 +32,8 @@ export function NewApp() {
   return (
     <SessionProvider>
       <div className="tr" ref={root}>
+        <LiquidGlassEffects />
+        <LiquidMotion />
         <ToastProvider>
           {api.mode === 'mock' && <aside className="demo-notice" aria-label="Демонстрационный режим">Демонстрационная версия. Записи и оплаты не отправляются. Не вводите настоящие данные карты.</aside>}
           <ScrollToTop />

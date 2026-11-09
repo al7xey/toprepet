@@ -2,6 +2,25 @@ import { expect, test } from '@playwright/test';
 import { expectNoHorizontalScroll, isPhone } from './helpers';
 
 test.describe('гость', () => {
+  test('мобильное меню: Escape закрывает панель и возвращает фокус', async ({ page }) => {
+    test.skip(!isPhone(page), 'только телефон');
+    await page.goto('/teachers/');
+    const trigger = page.getByRole('button', { name: 'Открыть меню', exact: true });
+    await trigger.focus();
+    await page.keyboard.press('Enter');
+    const panel = page.locator('#public-menu');
+    await expect(panel).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Закрыть меню' })).toHaveAttribute('aria-expanded', 'true');
+    const rect = await panel.boundingBox();
+    expect(rect!.height).toBeLessThan(page.viewportSize()!.height);
+    await page.keyboard.press('Tab');
+    await expect(panel.getByRole('link', { name: 'Репетиторы', exact: true })).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(panel).toHaveCount(0);
+    await expect(trigger).toBeFocused();
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
+
   test('шапка: одна кнопка «Войти», регистрация есть в меню телефона', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('header a', { hasText: 'Войти' })).toHaveCount(1);

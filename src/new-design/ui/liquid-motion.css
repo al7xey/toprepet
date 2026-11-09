@@ -1,0 +1,77 @@
+.tr {
+  --lg-spring: cubic-bezier(.22, .8, .25, 1);
+  --lg-pulse-duration: 480ms;
+  --lg-pulse-tint: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+/* Keep the hit region and label stationary. Only the reflection moves. */
+.tr :is(.btn, .trk-iconbtn, .chipf, .opt) {
+  position: relative;
+  transform: none !important;
+  translate: none;
+  scale: none;
+  transition: background-color 180ms, color 180ms, box-shadow 180ms;
+}
+
+.tr :is(.btn-primary, .btn-danger, .btn-ink) {
+  --lg-pulse-tint: rgb(255 255 255 / 60%);
+}
+
+.tr :is(.btn, .trk-iconbtn, .chipf, .opt).lg-pulse::before {
+  content: '';
+  display: block;
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(ellipse at var(--lg-pulse-x, 50%) var(--lg-pulse-y, 50%), transparent 30%, var(--lg-pulse-tint) 45%, transparent 64%);
+  opacity: 0;
+  animation: lg-lens-pulse var(--lg-pulse-duration) var(--lg-spring) both;
+}
+
+@keyframes lg-lens-pulse {
+  0% { opacity: 0; transform: scale(.7); }
+  25% { opacity: .6; transform: scale(.96); }
+  65% { opacity: .25; transform: scale(1.03); }
+  100% { opacity: 0; transform: scale(1.08); }
+}
+
+.tr :is(.trk-modal, .trh-drop-menu, dialog.trh-fpage, .trh-menu) {
+  animation: lg-surface-arrive 280ms var(--lg-spring) backwards;
+}
+
+.tr :is(.trk-modal, .trh-drop-menu, dialog.trh-fpage, .trh-menu)::before {
+  content: '';
+  position: absolute;
+  inset: 2px 24px auto;
+  height: 2px;
+  border-radius: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 35%, transparent), transparent);
+  animation: lg-rim-reflection 280ms var(--lg-spring) both;
+}
+
+@keyframes lg-surface-arrive { from { opacity: 0; } to { opacity: 1; } }
+
+@keyframes lg-rim-reflection {
+  0% { opacity: 0; transform: translateX(-22%) scaleX(.5); }
+  34% { opacity: .8; }
+  100% { opacity: 0; transform: translateX(22%) scaleX(.5); }
+}
+
+.tr .trk-input-box:focus-within::after {
+  transition: box-shadow 180ms var(--lg-spring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tr :is(.btn, .trk-iconbtn, .chipf, .opt, .trk-tabbar, .tabpill, .trk-modal, .trh-drop-menu, .trh-fpage, .trh-menu),
+  .tr .lg-pulse::before,
+  .tr :is(.trk-modal, .trh-drop-menu, dialog.trh-fpage, .trh-menu)::before,
+  .tr .trk-input-box::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .tr .trk-tabbar.press .tabpill { transform: none; }
+  .tr :is(.trk-modal, .trh-drop-menu, dialog.trh-fpage, .trh-menu)::before { content: none; }
+}

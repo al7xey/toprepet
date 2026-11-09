@@ -65,7 +65,7 @@ export function BackLink({ to, children }: { to: string; children: ReactNode }) 
 
 /* ---------- Заголовки и секции ---------- */
 
-/** Заголовок страницы: 40 px на компьютере, 30 px на телефоне. Одна h1 на странице. */
+/** Заголовок страницы: 32 px на компьютере, 26 px на телефоне. Одна h1 на странице. */
 export function PageHeader({ title, lead, back, actions, center }: { title: ReactNode; lead?: ReactNode; back?: { to?: string; onClick?: () => void; label: string }; actions?: ReactNode; center?: boolean }) {
   return (
     <header className={cx('trk-pagehead', center && 'center', back && 'has-back')} {...rv('up')}>
@@ -81,7 +81,7 @@ export function PageHeader({ title, lead, back, actions, center }: { title: Reac
   );
 }
 
-/** Секция с заголовком второго уровня: 30 px на компьютере, 26 px на телефоне. */
+/** Секция с заголовком второго уровня: 24 px на компьютере, 21 px на телефоне. */
 export function Section({ title, action, lead, children, id, className }: { title?: ReactNode; action?: ReactNode; lead?: ReactNode; children?: ReactNode; id?: string; className?: string }) {
   const headingId = useId();
   return (
@@ -98,7 +98,7 @@ export function Section({ title, action, lead, children, id, className }: { titl
   );
 }
 
-/** Заголовок карточки/блока внутри секции: 22 px. */
+/** Заголовок карточки/блока внутри секции: 18 px. */
 export const CardTitle = ({ children }: { children: ReactNode }) => <h3 className="trk-cardtitle">{children}</h3>;
 
 /* ---------- Поверхности ---------- */

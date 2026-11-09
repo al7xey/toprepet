@@ -3,7 +3,7 @@ import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
 import { rv } from '../../reveal';
-import { Button, Faq, Icon, IconButton, Section, Steps } from '../../ui';
+import { Button, Faq, Icon, IconButton, Panel, Section, Steps } from '../../ui';
 import { TutorShowcase } from '../../ui/tutor-showcase';
 import { HOW_STEPS, STUDENT_FAQ } from './content';
 import './home-visual.css';
@@ -43,25 +43,34 @@ export default function HomePage() {
         <TutorShowcase query={tutors} />
       </Section>
 
-      <Section title="Познакомьтесь до первого занятия" className="p-home-intro">
-        <div className="p-home-intro-layout">
-          <figure className="p-home-intro-art" {...rv('left')}>
-            <img src="/images/intro-conversation-960.webp" srcSet="/images/intro-conversation-640.webp 640w, /images/intro-conversation-960.webp 960w" sizes="(min-width:1200px) 540px, (min-width:761px) 45vw, calc(100vw - 32px)" alt="Иллюстрация: ученик и преподаватель обсуждают план занятий по видеосвязи" width={960} height={640} loading="lazy" decoding="async" />
-            <figcaption>Цель, удобный формат и понятный план</figcaption>
-          </figure>
-          <div className="trh-sec">
-            <ol className="g16">
-              {([['target', 'Определим цель', 'Разберёмся, с чем нужна помощь.'], ['cal', 'Согласуем формат', 'Обсудим график и удобный темп.'], ['checks', 'Составим план', 'Определим, с чего начать занятия.']] as const).map(([icon, title, text], index) => (
-                <li key={title} className="fr p-home-intro-step" {...rv('up', index * 0.08)}>
-                  <span className="ic-sq"><Icon name={icon} /></span>
-                  <div className="g4"><b className="u-fs18">{title}</b><span className="muted">{text}</span></div>
-                </li>
-              ))}
-            </ol>
-            <div {...rv('up', 0.1)}><Button to="/teachers?intro=1" size="lg">Бесплатное знакомство</Button></div>
-          </div>
-        </div>
+      <Section title="Познакомьтесь до первого занятия" className="trh-intro">
+        <ol className="g16">
+          {([['target', 'Определим цель', 'Разберёмся, с чем нужна помощь.'], ['cal', 'Согласуем формат', 'Обсудим график и удобный темп.'], ['checks', 'Составим план', 'Определим, с чего начать занятия.']] as const).map(([icon, title, text], index) => (
+            <li key={title} className="fr p-home-intro-step" {...rv('up', index * 0.08)}>
+              <span className="ic-sq"><Icon name={icon} /></span>
+              <div className="g4"><b className="u-fs18">{title}</b><span className="muted">{text}</span></div>
+            </li>
+          ))}
+        </ol>
+        <div {...rv('up', 0.1)}><Button to="/teachers?intro=1" size="lg">Бесплатное знакомство</Button></div>
       </Section>
+
+      <section className="p-home-trust" aria-labelledby="trust-title">
+        <img src="/images/payment-trust-figma.png" alt="Человек спокойно читает книгу, облокотившись на большой замок" width={716} height={477} loading="lazy" decoding="async" {...rv('left')} />
+        <div className="trh-sec" {...rv('right', 0.1)}>
+          <h2 id="trust-title" className="h2 trh-h2">100% гарантия возврата средств</h2>
+          <p className="cap u-fs18">100% возврат оплаты, если оплаченное занятие не было проведено.</p>
+          <p className="cap">Деньги не переводятся репетитору сразу: их списывают, когда репетитор подтвердит запись, и выплачивают после проведённого занятия. В других спорных ситуациях поддержка поможет разобраться.</p>
+          <div><Button to="/legal/payment-refund/" variant="line">Оплата и возвраты</Button></div>
+        </div>
+      </section>
+
+      <Panel>
+        <div className="trh-sec u-start">
+          <h2 className="trh-panel-h u-mw600">Вы репетитор? Найдём для вас учеников</h2>
+          <Button to="/for-repetitor/" size="lg">Стать топ-репетом</Button>
+        </div>
+      </Panel>
 
       <Section title="Вопросы и ответы">
         <Faq items={STUDENT_FAQ} />
