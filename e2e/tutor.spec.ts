@@ -18,7 +18,7 @@ test.describe('репетитор и администратор', () => {
     await page.getByRole('button', { name: 'Дальше' }).click();
     await expect(page.getByText('Напишите, чем вы занимаетесь')).toBeVisible();
     await page.getByLabel('Коротко о вас').fill('Репетитор по математике для школьников');
-    await page.getByLabel('О себе').fill('Работаю со школьниками пятый год: разбираем темы с нуля, готовимся к ОГЭ и ЕГЭ.');
+    await page.getByRole('textbox', { name: 'О себе', exact: true }).fill('Работаю со школьниками пятый год: разбираем темы с нуля, готовимся к ОГЭ и ЕГЭ.');
     await page.getByRole('button', { name: 'Дальше' }).click();
 
     // шаг 2

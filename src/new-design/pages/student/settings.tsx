@@ -4,7 +4,7 @@ import { api } from '../../api';
 import { useMutation } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { AppLayout } from '../../layout/layouts';
-import { Avatar, Button, Card, ConfirmDialog, FilePick, FormError, Icon, PageHeader, PasswordField, SelectField, Switch, TextField, useToast } from '../../ui';
+import { Avatar, Button, Card, ConfirmDialog, FilePick, FormError, NavigationRow, PageHeader, PasswordField, SelectField, Switch, TextField, useToast } from '../../ui';
 
 const ZONES = [
   { value: 'Europe/Kaliningrad', label: 'Калининград (МСК−1)' },
@@ -123,8 +123,8 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
         <FormError error={photo.error} />
       </Card>
       <div className="trk-navlist">
-        <button type="button" className="trk-navrow" onClick={openData}><Icon name="pen" /><span>Личные данные</span><Icon name="right" /></button>
-        <button type="button" className="trk-navrow" onClick={openPassword}><Icon name="lock" /><span>Сменить пароль</span><Icon name="right" /></button>
+        <NavigationRow icon="pen" onClick={openData}>Личные данные</NavigationRow>
+        <NavigationRow icon="lock" onClick={openPassword}>Сменить пароль</NavigationRow>
       </div>
       <Card>
         <div className="trk-form">

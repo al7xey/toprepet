@@ -6,6 +6,14 @@ import { Icon } from './icon';
 
 export { Icon };
 
+/** Единая строка перехода или действия в настройках и личном кабинете. */
+export function NavigationRow({ icon, children, to, onClick }: { icon: string; children: ReactNode; to?: string; onClick?: () => void }) {
+  const content = <><Icon name={icon} /><span>{children}</span><Icon name="right" /></>;
+  return to
+    ? <Link className="trk-navrow" to={to}>{content}</Link>
+    : <button type="button" className="trk-navrow" onClick={onClick}>{content}</button>;
+}
+
 const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boolean).join(' ');
 
 /* ---------- Кнопки ---------- */

@@ -29,7 +29,10 @@ function BookForm({ tutor }: { tutor: Tutor }) {
   const attempt = useRef<{ signature: string; key: string } | null>(null);
   const responses = useQuery(requestId ? 'booking-response-' + requestId : null, () => api.listResponses(requestId!));
   const response = responses.data?.find((r) => r.tutorId === tutor.id);
-  const [start, setStart] = useState<string | null>(params.get('start'));
+  const [start, setStart] = useState<string | null>(() => {
+    const value = params.get('start');
+    return value && Number.isFinite(Date.parse(value)) && Date.parse(value) > Date.now() ? value : null;
+  });
   const [subject, setSubject] = useState(tutor.subjects[0] ?? '');
   const [agree, setAgree] = useState(false);
   const [cardOpen, setCardOpen] = useState(false);
@@ -66,7 +69,9 @@ function BookForm({ tutor }: { tutor: Tutor }) {
       {kind === 'regular' && durations.length > 1 && <SelectField label="Длительность занятия" value={regularDuration} onChange={(e) => { setRegularDuration(Number(e.target.value)); setStart(null); }} options={durations.map((d) => ({ value: String(d), label: minutes(d) }))} />}
       <Section title="Когда">
         <Card>
-          <SlotPicker slots={slots.data ?? []} value={start} onChange={setStart} days={14} loading={slots.loading && !slots.data} />
+          <QueryView query={slots} loading={<SlotPicker slots={[]} value={start} onChange={setStart} days={14} loading />}>
+            {(items) => <SlotPicker slots={items} value={start} onChange={setStart} days={14} />}
+          </QueryView>
           {showErrors && problems.start && <span className="trk-error">Выберите время</span>}
         </Card>
       </Section>

@@ -6,7 +6,7 @@ import { useSession } from '../../api/session';
 import type { PaymentKind } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { ago, count, dateLong, rub } from '../../lib/format';
-import { Avatar, Button, Card, Icon, IconButton, Modal, Note, PageHeader, Status, useToast, type Tone, UnreadDot } from '../../ui';
+import { Avatar, Button, Card, IconButton, Modal, Note, NavigationRow, PageHeader, Status, useToast, type Tone, UnreadDot } from '../../ui';
 import { RequestCard } from '../requests/parts';
 import { RequestWizard } from '../requests/new';
 
@@ -85,11 +85,11 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
           </section>
         )}
 
-        {role === 'student' && <nav className="trk-navlist" aria-label="Репетиторы"><Link className="trk-navrow" to="/me/tutors"><Icon name="book" /><span>Мои репетиторы</span><Icon name="right" /></Link></nav>}
+        {role === 'student' && <nav className="trk-navlist" aria-label="Репетиторы"><NavigationRow icon="book" to="/me/tutors">Мои репетиторы</NavigationRow></nav>}
         {role === 'tutor' && (
           <nav className="trk-navlist" aria-label="Разделы кабинета">
             {TUTOR_SECTIONS.map((s) => (
-              <Link key={s.to} className="trk-navrow" to={s.to}><Icon name={s.icon} /><span>{s.label}</span><Icon name="right" /></Link>
+              <NavigationRow key={s.to} icon={s.icon} to={s.to}>{s.label}</NavigationRow>
             ))}
           </nav>
         )}
