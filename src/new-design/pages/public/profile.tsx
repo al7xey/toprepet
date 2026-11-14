@@ -11,7 +11,12 @@ import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, LoadingList
 import { NotFoundBody } from './notfound';
 import './profile.css';
 
-const achievementIcon = (title: string) => /диплом|университет|магистр|бакалавр|образован/i.test(title) ? 'school' : /сертификат|курс|квалификац/i.test(title) ? 'book' : 'star-on';
+function achievementIcon(title: string) {
+  if (/диплом|университет|институт|магистр|бакалавр|образован|педагог|специалитет/i.test(title)) return 'school';
+  if (/язык|англий|cambridge|ielts|toefl|fce|b2|c1|c2/i.test(title)) return 'globe';
+  if (/сертификат|курс|квалификац|методик/i.test(title)) return 'book';
+  return 'star';
+}
 
 /** Анкета репетитора: данные, календарь записи, цены, отзывы. Карточка записи справа (на телефоне — панель снизу). */
 export default function ProfilePage() {

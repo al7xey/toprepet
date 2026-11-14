@@ -43,8 +43,13 @@ test('главная: шаги появляются при прокрутке, �
   for (const name of ['Бесплатное знакомство', 'Стать топ-репетом']) {
     const bounds = await page.getByRole('link', { name, exact: true }).evaluate(button => {
       const box = button.getBoundingClientRect();
-      const container = button.parentElement!.getBoundingClientRect();
-      return { left: box.left - container.left, right: container.right - box.right };
+      const parent = button.parentElement!;
+      const container = parent.getBoundingClientRect();
+      const style = getComputedStyle(parent);
+      return {
+        left: box.left - container.left - parseFloat(style.paddingLeft),
+        right: container.right - box.right - parseFloat(style.paddingRight),
+      };
     });
     expect(bounds).toEqual({ left: 0, right: 0 });
   }
