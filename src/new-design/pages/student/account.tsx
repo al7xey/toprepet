@@ -85,7 +85,7 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
           </section>
         )}
 
-        {role === 'student' && <nav className="trk-navlist" aria-label="Репетиторы"><NavigationRow icon="book" to="/me/tutors">Мои репетиторы</NavigationRow></nav>}
+        {role === 'student' && <section className="trk-block" aria-label="Мои репетиторы"><BlockHead title="Мои репетиторы" all={{ label: 'Открыть моих репетиторов', to: '/me/tutors' }} /></section>}
         {role === 'tutor' && (
           <nav className="trk-navlist" aria-label="Разделы кабинета">
             {TUTOR_SECTIONS.map((s) => (

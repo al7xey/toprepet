@@ -655,7 +655,7 @@
 html{overflow-y:scroll}
 .tr .trh-tools{width:100%}
 .tr .trk-hdr-ic .trk-badge{top:-7px;right:-7px}
-.tr .i-arrow-up{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round' d='M12 19V5M5.5 11.5L12 5l6.5 6.5'/></svg>")}
+.tr .i-arrow-up{--m:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' d='M5 15l7-7 7 7'/></svg>")}
 .tr .tg-peer{display:flex;align-items:center;gap:12px;min-width:0;margin-right:auto;color:inherit;text-decoration:none}
 .tr .tg-peer .tg-head-text{margin-right:0}
 .tr .tg-row{position:relative}

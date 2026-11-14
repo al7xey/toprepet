@@ -62,7 +62,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Section title="Вы репетитор? Найдём для вас учеников">
+      <Section title="Вы репетитор? Найдём для вас учеников" className="trh-recruit">
         <Button to="/for-repetitor/" size="lg" block>Стать топ-репетом</Button>
       </Section>
 

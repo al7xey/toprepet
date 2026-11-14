@@ -11,7 +11,7 @@ import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, LoadingList
 import { NotFoundBody } from './notfound';
 import './profile.css';
 
-const ACH_ICONS = ['school', 'target', 'star-on'] as const;
+const achievementIcon = (title: string) => /диплом|университет|магистр|бакалавр|образован/i.test(title) ? 'school' : /сертификат|курс|квалификац/i.test(title) ? 'book' : 'star-on';
 
 /** Анкета репетитора: данные, календарь записи, цены, отзывы. Карточка записи справа (на телефоне — панель снизу). */
 export default function ProfilePage() {
@@ -116,9 +116,9 @@ function Profile({ tutor }: { tutor: Tutor }) {
           <hr className="rule" />
           <Section title="Образование и достижения">
             <ul className="ach">
-              {tutor.achievements.filter((item) => item.title.trim() || item.text.trim()).map((item, index) => (
+              {tutor.achievements.filter((item) => item.title.trim() || item.text.trim()).map((item) => (
                 <li key={item.title}>
-                  <span className="trh-pf-ach-icon"><Icon name={ACH_ICONS[index % ACH_ICONS.length]} /></span>
+                  <span className="trh-pf-ach-icon"><Icon name={achievementIcon(item.title)} /></span>
                   <div>{item.title.trim() && <b>{item.title}</b>}{item.text.trim() && <span className="d">{item.text}</span>}</div>
                 </li>
               ))}
@@ -126,10 +126,10 @@ function Profile({ tutor }: { tutor: Tutor }) {
           </Section>
 
           <hr className="rule" />
-          <div className="trh-pf-two">
-            <Section title="Опыт"><div><Tags items={[tutor.experience]} /></div></Section>
-            <Section title="С чем поможет"><div><Tags items={tutor.helpTopics} /></div></Section>
-          </div>
+          <Section title="Опыт"><div><Tags items={[tutor.experience]} /></div></Section>
+
+          <hr className="rule" />
+          <Section title="С чем поможет"><div><Tags items={tutor.helpTopics} /></div></Section>
 
           <hr className="rule" />
           <Section title="Как проходят занятия"><p className="cap trh-pf-text">{tutor.approach}</p></Section>

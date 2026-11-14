@@ -84,7 +84,7 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
           <div className="trk-form">
             <div className="trk-settings-who">
               <Avatar name={user?.name ?? '•'} photo={user?.photo} size={64} />
-              <FilePick accept="image/*" loading={photo.pending} onPick={(file) => void changePhoto(file)}>Изменить фото</FilePick>
+              <FilePick accept="image/*" round="edit" icon="pen" loading={photo.pending} onPick={(file) => void changePhoto(file)}>Изменить фото</FilePick>
             </div>
             <FormError error={photo.error} />
             <TextField label="Имя" value={name} onChange={(e) => setName(e.target.value)} error={nameError} autoComplete="name" />

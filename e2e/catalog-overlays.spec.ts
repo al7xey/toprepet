@@ -9,6 +9,8 @@ test('фильтры: клавиатура остаётся в окне, Escape 
   const dialog = page.getByRole('dialog', { name: 'Фильтры' });
   await expect(dialog).toBeVisible();
   await expect(page.locator('dialog:modal')).toHaveCount(1);
+  await expect(dialog.getByRole('button', { name: 'Показать', exact: true })).toHaveCount(0);
+  await dialog.getByRole('button', { name: 'Английский язык', exact: true }).click();
   const originalViewport = page.viewportSize();
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 });
@@ -20,7 +22,6 @@ test('фильтры: клавиатура остаётся в окне, Escape 
     expect(lines, `подписи кнопок на ${width} px`).toEqual([1, 1]);
   }
   if (originalViewport) await page.setViewportSize(originalViewport);
-  await expect(dialog.getByRole('button', { name: 'Закрыть фильтры' })).toBeFocused();
   await dialog.getByRole('button', { name: 'Показать', exact: true }).focus();
   await page.keyboard.press('Tab');
   await expect(dialog.getByRole('button', { name: 'Закрыть фильтры' })).toBeFocused();
@@ -44,7 +45,9 @@ test('фильтры: выбор предмета и сброс работают
   await expect(page).toHaveURL(/subject=/);
   await dialog.getByRole('button', { name: 'Сбросить', exact: true }).click();
   await expect(page).not.toHaveURL(/subject=/);
-  await dialog.getByRole('button', { name: 'Показать', exact: true }).click();
+  await expect(dialog.getByRole('button', { name: 'Показать', exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole('button', { name: 'Закрыть фильтры' })).toBeFocused();
+  await dialog.getByRole('button', { name: 'Закрыть фильтры' }).click();
   await expect(trigger).toBeFocused();
   await trigger.click();
   await expect(dialog).toBeVisible();

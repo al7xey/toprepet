@@ -124,10 +124,10 @@ export function FilterMenu({ subject, price, bonus, onReset, active }: {
           </div>
         </div>
       </div>
-      <div className="trh-fpage-foot">
-        <button type="button" className="btn btn-line btn-lg" onClick={onReset} disabled={!active}>Сбросить</button>
+      {active && <div className="trh-fpage-foot">
+        <button type="button" className="btn btn-line btn-lg" onClick={() => { onReset(); dialog.current?.querySelector<HTMLButtonElement>('.trh-fpage-head button')?.focus(); }}>Сбросить</button>
         <button type="button" className="btn btn-primary btn-lg" onClick={() => setOpen(false)}>Показать</button>
-      </div>
+      </div>}
     </dialog>
   );
   return (
