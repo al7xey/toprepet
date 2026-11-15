@@ -59,7 +59,7 @@ class ProfileQueue(APIView):
     def get(self, request):
         require_role(request, 'admin')
         checking = TutorDocument.objects.filter(tutor=OuterRef('pk'), status='checking')
-        tutors = Tutor.objects.annotate(documents_pending=Exists(checking)).filter(Q(status='review') | Q(documents_pending=True)).select_related('user').prefetch_related('documents').order_by('submitted_at')
+        tutors = Tutor.objects.annotate(documents_pending=Exists(checking)).filter(Q(status__in=['review', 'published', 'hidden']) | Q(documents_pending=True)).select_related('user').prefetch_related('documents').order_by('-submitted_at', '-created_at')
         return Response([{'tutorId': t.id, 'email': t.user.email if t.user else '', 'submittedAt': iso(t.submitted_at or t.created_at), 'profile': profile_json(t), 'documents': [document_json(d, request) for d in t.documents.all()]} for t in tutors])
 
 
@@ -70,17 +70,17 @@ class ModerateProfile(APIView):
         tutor = Tutor.objects.select_for_update().filter(id=tutor_id).first()
         if tutor is None:
             raise not_found('Анкета не найдена')
-        if tutor.status != 'review':
-            raise ApiError('Анкета не на проверке')
+        if tutor.status not in ['review', 'published', 'hidden']:
+            raise ApiError('Анкета ещё не опубликована')
         approve = boolean_input(request.data, 'approve')
         comment = str(request.data.get('note') or '').strip()
         if not approve and not comment:
             raise ApiError('Напишите, что нужно исправить')
-        tutor.status = 'published' if approve else 'draft'
+        tutor.status = 'published' if approve else 'hidden'
         tutor.moderation_note = '' if approve else comment
         tutor.save(update_fields=['status', 'moderation_note'])
         record(request.user, 'profile.moderate', tutor.pk, tutor.status)
-        notify(tutor.user, 'system', 'Анкета опубликована' if approve else 'Анкету нужно доработать', 'Теперь ученики видят вас в каталоге.' if approve else comment, '/tutor/profile')
+        notify(tutor.user, 'system', 'Анкета опубликована' if approve else 'Анкета скрыта администратором', 'Теперь ученики видят вас в каталоге.' if approve else comment, '/tutor/profile')
         return Response(profile_json(tutor))
 
 

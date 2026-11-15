@@ -116,9 +116,8 @@ class MyProfileView(APIView):
             tutor.photo = v['photo'] or ''
             tutor.photo_srcset = ''
         if tutor.status == 'published' and set(v) & {'name', 'headline', 'about', 'approach', 'experience', 'education', 'subjects', 'photo'}:
-            tutor.status = 'review'
             tutor.submitted_at = timezone.now()
-            notify_admins('system', 'Изменения анкеты ждут проверки', tutor.name, '/admin/profiles')
+            notify_admins('system', 'Анкета обновлена', tutor.name, '/admin/profiles')
         tutor.save()
         return Response(profile_json(tutor))
 
@@ -131,10 +130,12 @@ class SubmitProfileView(APIView):
             raise ApiError('Заполните имя, описание, предметы и цену')
         if not any(d.get('intervals') for d in tutor.week or []):
             raise ApiError('Откройте хотя бы одно время для записи в расписании')
+        if tutor.status == 'hidden':
+            raise ApiError('Анкета скрыта администратором. Обратитесь в поддержку.')
         if tutor.status != 'published':
-            tutor.status = 'review'
+            tutor.status = 'published'
             tutor.submitted_at = timezone.now()
-            notify_admins('system', 'Анкета ждёт проверки', f'{tutor.name} отправил анкету', '/admin/profiles')
+            notify_admins('system', 'Новая анкета опубликована', f'{tutor.name} опубликовал анкету', '/admin/profiles')
         tutor.moderation_note = ''
         tutor.save()
         request.user.onboarded = True

@@ -121,8 +121,8 @@ export function defineScenarios(title: string, make: () => ScenarioContext) {
       await api.saveMyProfile({ headline: 'Репетитор по математике', about: 'Преподаю математику десять лет', subjects: ['Математика'], price: 1500, introMinutes: 15 });
       await expect(api.submitMyProfile()).rejects.toThrow(/расписании/);
       await api.saveWeek({ days: [{ weekday: 1, intervals: [{ from: '10:00', to: '14:00' }] }, ...[2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, intervals: [] }))] });
-      expect((await api.submitMyProfile()).status).toBe('review');
-      expect((await api.listTutors({ limit: 50 })).items.some((t) => t.id === created.tutorId)).toBe(false);
+      expect((await api.submitMyProfile()).status).toBe('published');
+      expect((await api.listTutors({ limit: 50 })).items.some((t) => t.id === created.tutorId)).toBe(true);
       await api.login('admin@toprepet.ru', 'demo');
       expect((await api.adminProfileQueue()).some((q) => q.tutorId === created.tutorId)).toBe(true);
       await expect(api.adminModerateProfile(created.tutorId as string, false)).rejects.toThrow(/исправить/);

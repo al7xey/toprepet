@@ -4,13 +4,13 @@ import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
 import {
-  Button,
   ConfirmDialog,
   useToast,
   Card,
   EmptyState,
   FilePick,
   FormError,
+  IconButton,
   PageHeader,
   QueryView,
   Status,
@@ -123,16 +123,7 @@ export default function DocumentsPage() {
                       Скачать документ
                     </a>
                   )}
-                  <Button
-                    size="s"
-                    variant="line"
-                    onClick={() => {
-                      remove.reset();
-                      setRemoving(doc);
-                    }}
-                  >
-                    Удалить документ
-                  </Button>
+                  <IconButton icon="trash" label="Удалить документ" onClick={() => { remove.reset(); setRemoving(doc); }} />
                 </div>
               </Card>
             ))}

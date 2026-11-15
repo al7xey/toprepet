@@ -63,10 +63,11 @@ export default function TutorLessonsPage() {
     <AppLayout role="tutor">
       <PageHeader title="Уроки" actions={<IconButton icon="clock" label="Расписание" to="/tutor/schedule" />} />
       {profile.data?.status === 'draft' && (
-        <Note tone="info" icon="edit" action={<Button size="s" to="/tutor/profile/edit">Заполнить анкету</Button>}>Анкета ещё не опубликована: ученики вас не видят. Это займёт около 15 минут.</Note>
+        <Note tone="info" icon="edit" action={<Button size="s" to="/tutor/profile/edit">Заполнить анкету</Button>}>Анкета ещё не опубликована: ученики вас не видят. Это займёт около трёх минут.</Note>
       )}
       <FormError error={confirm.error ?? result.error} />
-      {pending.length > 0 && (
+      <Tabs<Scope> items={[{ value: 'upcoming', label: 'Предстоящие' }, { value: 'past', label: 'Прошедшие' }]} value={scope} onChange={setScope} />
+      {scope === 'upcoming' && pending.length > 0 && (
         <Section title="Ждут подтверждения">
           <div className="trk-list">
             {pending.map((l) => (
@@ -78,7 +79,6 @@ export default function TutorLessonsPage() {
           </div>
         </Section>
       )}
-      <Tabs<Scope> items={[{ value: 'upcoming', label: 'Предстоящие' }, { value: 'past', label: 'Прошедшие' }]} value={scope} onChange={setScope} />
       <QueryView
         query={lessons}
         loading={<LoadingList rows={3} height={132} />}
@@ -90,7 +90,7 @@ export default function TutorLessonsPage() {
       >
         {(items) => (
           <div className="trk-list">
-            {items.map((l) => (
+            {items.filter((l) => scope !== 'upcoming' || l.status !== 'pending').map((l) => (
               <LessonCard key={l.id} lesson={l} role="tutor" actions={ended(l) ? <>
                 <Button size="s" onClick={() => mark(l, 'happened')} loading={busy === l.id}>Урок состоялся</Button>
                 <Button size="s" variant="fill" onClick={() => mark(l, 'no_show_student')}>Ученик не пришёл</Button>

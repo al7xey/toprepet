@@ -69,18 +69,18 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
               <span className="muted sm">{count(done, 'занятие', 'занятия', 'занятий')} · {count(reviews.data?.length ?? 0, 'отзыв', 'отзыва', 'отзывов')}</span>
             </div>
           </Link>
-          <Button variant="line" size="s" to={`${settingsTo}?section=data`}>Изменить</Button>
+          <IconButton icon="pen" label="Изменить личные данные" to={`${settingsTo}?section=data`} state={{ from: pathname }} />
         </Card>
 
         {role === 'student' && (
           <section className="trk-block" aria-label="Мои заявки">
-            <BlockHead title="Мои заявки" add={{ label: 'Новая заявка', onClick: () => setNewRequest(true) }} all={{ label: 'Все заявки', to: '/me/requests' }} />
+            <BlockHead title="Мои заявки" all={{ label: 'Все заявки', to: '/me/requests' }} />
             {requests.loading && !requests.data ? <span className="muted">Загружаем…</span> : activeRequests.length ? (
               <div className="trk-list">
                 {activeRequests.slice(0, 2).map((r) => <RequestCard key={r.id} request={r} actions={<Button size="s" to={`/me/requests/${r.id}`}>Отклики</Button>} />)}
               </div>
             ) : (
-              <Card pad="sm"><div className="trk-form"><p className="muted">Активных заявок нет. Опишите, что нужно, и репетиторы сами откликнутся с ценой и временем.</p><Button icon="plus" onClick={() => setNewRequest(true)}>Создать заявку</Button></div></Card>
+              <Card pad="sm"><div className="trk-form"><p className="muted">Активных заявок нет. Опишите, что нужно, и репетиторы сами откликнутся с ценой и временем.</p><Button onClick={() => setNewRequest(true)}>Создать заявку</Button></div></Card>
             )}
           </section>
         )}

@@ -69,12 +69,12 @@ def test_week_validation_and_normalisation(api, demo):
     assert len(ok['days']) == 7 and ok['days'][1]['intervals'] == [{'from': '10:00', 'to': '12:00'}] and ok['days'][0]['intervals'] == []
 
 
-def test_profile_edit_rejects_contacts_and_requires_remoderation(api, demo):
+def test_profile_edit_rejects_contacts_and_stays_public(api, demo):
     api.login_as('anastasia@toprepet.ru')
     assert api.call('patch', '/tutor/profile', {'about': 'Пишите мне в t.me/anastasia'}).status_code == 400
     profile = api.call('patch', '/tutor/profile', {'headline': 'Английский для школьников', 'price': 1500, 'introMinutes': 15, 'subjects': ['Английский', 'История']}, 200).json()
-    assert profile['status'] == 'review' and profile['price'] == 1500
-    assert Api().call('get', '/tutors/english').status_code == 404
+    assert profile['status'] == 'published' and profile['price'] == 1500
+    assert Api().call('get', '/tutors/english').status_code == 200
     admin = Api()
     admin.login_as('admin@toprepet.ru')
     admin.post_ok('/admin/profiles/english', {'approve': True})
@@ -82,13 +82,13 @@ def test_profile_edit_rejects_contacts_and_requires_remoderation(api, demo):
     assert card['studentPrice'] == 1650 and card['cardSubjects'] == 'Английский / История' and card['introMinutes'] == 15
 
 
-def test_new_profile_goes_to_review_and_needs_schedule(api, demo):
+def test_new_profile_is_published_immediately_and_needs_schedule(api, demo):
     api.post_ok('/auth/signup', {'role': 'tutor', 'name': 'Ирина', 'email': 'irina.t@mail.ru', 'password': 'Strong-local-test-42!'}, 201)
     assert 'Заполните' in api.call('post', '/tutor/profile/submit').json()['message']
     api.call('patch', '/tutor/profile', {'headline': 'Математика', 'about': 'Преподаю математику десять лет', 'subjects': ['Математика'], 'price': 1500, 'introMinutes': 15}, 200)
     assert 'расписании' in api.call('post', '/tutor/profile/submit').json()['message']
     api.call('put', '/tutor/schedule', {'days': [{'weekday': 1, 'intervals': [{'from': '10:00', 'to': '14:00'}]}]}, 200)
-    assert api.post_ok('/tutor/profile/submit')['status'] == 'review'
+    assert api.post_ok('/tutor/profile/submit')['status'] == 'published'
     assert api.get_ok('/auth/me')['onboarded'] is True
 
 
@@ -131,3 +131,16 @@ def test_overlapping_week_and_extra_intervals_give_each_slot_once(api, demo):
     ScheduleException.objects.update_or_create(tutor=tutor, date=day, defaults={'kind': 'extra', 'intervals': [{'from': '10:00', 'to': '23:00'}]})
     starts = [s['start'] for s in slots_for(tutor, timezone.now(), 8)]
     assert len(starts) == len(set(starts))
+
+def test_admin_can_hide_published_profile_and_owner_cannot_republish(api, demo):
+    from tutors.models import Tutor
+    api.login_as('admin@toprepet.ru')
+    assert any(item['tutorId'] == 'english' for item in api.get_ok('/admin/profiles'))
+    assert api.post_ok('/admin/profiles/english', {'approve': False, 'note': 'Проверьте данные'})['status'] == 'hidden'
+    assert Api().call('get', '/tutors/english').status_code == 404
+    api.login_as('anastasia@toprepet.ru')
+    assert api.call('post', '/tutor/profile/submit').status_code == 400
+    assert Tutor.objects.get(pk='english').status == 'hidden'
+    api.login_as('admin@toprepet.ru')
+    assert api.post_ok('/admin/profiles/english', {'approve': True})['status'] == 'published'
+    assert Api().call('get', '/tutors/english').status_code == 200

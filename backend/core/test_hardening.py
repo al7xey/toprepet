@@ -18,7 +18,7 @@ def test_false_boolean_does_not_approve_profile(demo):
     Tutor.objects.filter(pk='english').update(status='review')
     client = Api()
     client.login_as('admin@toprepet.ru')
-    assert client.post_ok('/admin/profiles/english', {'approve': 'false', 'note': 'Исправьте описание'})['status'] == 'draft'
+    assert client.post_ok('/admin/profiles/english', {'approve': 'false', 'note': 'Исправьте описание'})['status'] == 'hidden'
     Tutor.objects.filter(pk='english').update(status='review')
     assert client.call('post', '/admin/profiles/english', {'approve': {'x': 1}}).status_code == 400
 

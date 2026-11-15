@@ -4,7 +4,7 @@ import { homeFor, useSession } from '../../api/session';
 import { useQuery } from '../../api/hooks';
 import { PublicLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
-import { Button, Faq, Panel, Section, Steps, Ticks } from '../../ui';
+import { Button, Faq, IconButton, Panel, Section, Steps, Ticks } from '../../ui';
 import { TutorShowcase } from '../../ui/tutor-showcase';
 import { TUTOR_FAQ, TUTOR_STEPS } from './content';
 
@@ -14,15 +14,13 @@ function PriceCalc() {
   const student = studentPriceOf(price);
   return (
     <div className="card trk-card pad-md trk-calc">
-      <span className="muted md">Пример для одного занятия</span>
       <label className="trk-calc-row">
-        <span className="muted">Вы назначаете цену</span>
+        <span>Вы назначаете цену</span>
         <b className="tn trk-calc-price">{rub(price)}</b>
       </label>
-      <input type="range" min={800} max={5000} step={100} value={price} onChange={(e) => setPrice(Number(e.target.value))} aria-label="Цена занятия" className="trk-range" />
-      <div className="trk-calc-bar" aria-hidden="true"><i /><i /></div>
-      <div className="fr fb md"><span><b className="acc">■</b> Вы получаете</span><b className="tn">{rub(price)}</b></div>
-      <div className="fr fb md"><span><b className="u-peach">■</b> <span className="muted">Сервисный сбор, 10%</span></span><b className="tn">+{rub(student - price)}</b></div>
+      <input type="range" min={500} max={5000} step={100} value={price} onChange={(e) => setPrice(Number(e.target.value))} aria-label="Цена занятия" className="trk-range" />
+      <div className="fr fb md"><span>Вы получаете</span><b className="tn">{rub(price)}</b></div>
+      <div className="fr fb md"><span><span>Сервисный сбор 10%</span></span><b className="tn">{rub(student - price)}</b></div>
       <div className="fr fb trk-calc-total"><span>Ученик заплатит</span><b className="tn">{rub(student)}</b></div>
     </div>
   );
@@ -46,7 +44,7 @@ export default function TutorsLandingPage() {
           <p className="trh-hero-lead">TopRepet показывает вашу анкету ученикам, принимает записи и оплату, напоминает об уроках и переводит выплаты.</p>
           <div className="trh-hero-btns">
             <Button to={entryHref} size="lg" className="trh-cta">{entryLabel}</Button>
-            {canReadRequests && <Button to="/requests" variant="warm" size="lg">Заявки учеников</Button>}
+            <Button variant="line" size="lg" onClick={() => document.getElementById("pricing")?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })}>Как всё устроено</Button>
           </div>
         </div>
         <div className="trh-hero-media">
@@ -54,7 +52,9 @@ export default function TutorsLandingPage() {
         </div>
       </section>
 
-      <section className="trk-split trk-price" aria-labelledby="price-title">
+      <Section title="Как начать" reveal><Steps items={TUTOR_STEPS} revealOnScroll /></Section>
+
+      <section id="pricing" className="trk-split trk-price" aria-labelledby="price-title">
         <div className="trh-sec" style={{ flex: '1 1 420px', minWidth: 0 }}>
           <h2 id="price-title" className="h2 trh-h2">Вы берёте столько, сколько напишете</h2>
           <p className="cap u-fs18">Назначьте цену занятия сами. Мы добавим 10% сервиса сверху: ученик заплатит чуть больше, а вы получите ровно свою цену.</p>
@@ -63,7 +63,6 @@ export default function TutorsLandingPage() {
         <div className="trk-calc-wrap"><PriceCalc /></div>
       </section>
 
-      <Section title="Как начать"><Steps items={TUTOR_STEPS} /></Section>
 
       {canReadRequests && (
         <Panel>
@@ -77,17 +76,17 @@ export default function TutorsLandingPage() {
         </Panel>
       )}
 
-      <Section title="Они уже с TopRepet"><TutorShowcase query={tutors} /></Section>
+      <Section reveal title="Они уже с TopRepet" action={<IconButton icon="arrow" label="Все репетиторы" to="/teachers" />}><TutorShowcase query={tutors} /></Section>
 
       <Panel>
         <div className="trh-sec u-start">
           <h2 className="trh-panel-h u-mw620">Хотите получать учеников через TopRepet?</h2>
-          <p className="muted u-mw560">Создайте анкету за 15 минут, назначьте цену и откройте расписание. Записи подтверждаете сами. Для выплат понадобится статус самозанятого.</p>
+          <p className="muted u-mw560">Создайте анкету за три минуты, назначьте цену и откройте расписание. Записи подтверждаете сами. Для выплат понадобится статус самозанятого.</p>
           <Button to={entryHref} size="lg">{entryLabel}</Button>
         </div>
       </Panel>
 
-      <Section title="Вопросы и ответы"><Faq items={TUTOR_FAQ} /></Section>
+      <Section title="Вопросы и ответы" reveal><Faq items={TUTOR_FAQ} /></Section>
     </PublicLayout>
   );
 }

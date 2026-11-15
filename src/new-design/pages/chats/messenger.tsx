@@ -112,16 +112,17 @@ function Dialog({ id, role, base, onRead }: { id: string; role: Side; base: stri
         <BackLink to={base} className="tg-back">Назад к списку</BackLink>
         {role === 'student' ? (
           <Link className="tg-peer" to={`/teachers/${c.tutorId}`} state={{ back: `${base}/${c.id}` }} aria-label={`Анкета: ${c.peerName}`}>
-            <Avatar name={c.peerName} photo={c.peerPhoto} size={44} />
             <span className="tg-head-text"><b>{c.peerName}</b><small>Репетитор</small></span>
           </Link>
         ) : (
           <span className="tg-peer">
-            <Avatar name={c.peerName} photo={c.peerPhoto} size={44} />
             <span className="tg-head-text"><b>{c.peerName}</b><small>Ученик</small></span>
           </span>
         )}
         <ReportButton conversation={c} onBlocked={() => conversation.reload()} />
+        {role === 'student'
+          ? <Link className="tg-peer-avatar" to={`/teachers/${c.tutorId}`} state={{ back: `${base}/${c.id}` }} aria-label={`Профиль: ${c.peerName}`}><Avatar name={c.peerName} photo={c.peerPhoto} size={44} /></Link>
+          : <Avatar name={c.peerName} photo={c.peerPhoto} size={44} />}
       </header>
       {(messages.error || history.error || mark.error) && <FormError error={messages.error ?? history.error ?? mark.error} />}
       <Thread conversation={c} list={list} older={hasOlder && Boolean(older.length || messages.data?.length === 100)} loadingOlder={history.pending} loadOlder={history.run} loading={messages.loading && !messages.data} onSent={(m) => { messages.setData((prev) => [...(prev ?? []), m]); onRead(); }} onRemoved={(removed) => { setOlder((prev) => prev.filter((m) => m.id !== removed)); messages.setData((prev) => (prev ?? []).filter((m) => m.id !== removed)); }} />
@@ -219,7 +220,7 @@ function Thread({ conversation, list, loading, onSent, onRemoved, older, loading
                         <Rows boxed rows={m.card.rows.map(([k, v]) => (k === 'Сообщение' || v.includes('\n') ? [k, v, 'block'] as [string, string, 'block'] : [k, v] as [string, string]))} />
                       </div>
                     ) : m.text && <span className="tg-text">{m.text}</span>}
-                    {mine && <IconButton icon="more" label="Удалить своё сообщение" className="tg-message-actions" onClick={() => { stopHold(); remove.reset(); setRemoving(m); }} />}
+                    {mine && <IconButton icon="trash" label="Удалить своё сообщение" className="tg-message-actions" onClick={() => { stopHold(); remove.reset(); setRemoving(m); }} />}
                     <small>{timeLabel(m.at)}{mine && <Icon name={m.read ? 'ticks' : 'tick'} />}</small>
                   </div>
                 )}
@@ -236,7 +237,7 @@ function Thread({ conversation, list, loading, onSent, onRemoved, older, loading
             <IconButton className="tg-attach" icon="attach" label="Прикрепить фото" disabled={sendPhoto.pending} onClick={() => fileInput.current?.click()} />
             <textarea ref={input} rows={1} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKey}
               aria-label="Сообщение" placeholder="Сообщение" className="tg-input" />
-            <IconButton type="submit" className="tg-send" icon="arrow-up" label="Отправить" disabled={!text.trim() || send.pending} />
+            <IconButton type="submit" className="tg-send" icon="send" label="Отправить" disabled={!text.trim() || send.pending} />
           </div>
         </form>
       )}
@@ -256,8 +257,8 @@ function ReportButton({ conversation, onBlocked }: { conversation: Conversation;
   };
   return (
     <>
-      <IconButton icon="flag" label="Пожаловаться" onClick={() => setOpen(true)} />
-      <Modal open={open} onClose={() => setOpen(false)} title="Пожаловаться на диалог" footer={<><Button variant="fill" onClick={() => setOpen(false)}>Отмена</Button><Button variant="danger" onClick={submit} disabled={!reason} loading={report.pending}>Отправить жалобу</Button></>}>
+      <IconButton icon="more" label="Пожаловаться" onClick={() => setOpen(true)} />
+      <Modal open={open} onClose={() => setOpen(false)} title="Жалоба на диалог" footer={<><Button variant="fill" onClick={() => setOpen(false)}>Отмена</Button><Button onClick={submit} disabled={!reason} loading={report.pending}>Отправить</Button></>}>
         <OptionChips options={REASONS} value={reason} onChange={setReason} label="Что не так" />
         <Checkbox checked={block} onChange={setBlock}>Заблокировать диалог</Checkbox>
         <FormError error={report.error} />

@@ -370,7 +370,6 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
         <nav className="trh-nav" aria-label="Разделы кабинета">
           {top.map((item) => <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{item.label}</NavLink>)}
         </nav>
-        {role === 'admin' && <span className="icons"><Button size="s" variant="fill" loading={exit.pending} onClick={() => { void exit.run(); }}>Выйти</Button></span>}
         {role !== 'admin' && (
           <span className="icons">
             {ready(`${counters.prefix}/notifications`) && <IconButton icon="bell" label="Уведомления" to={`${counters.prefix}/notifications`} badge={counters.notifications} className="trk-hdr-ic" />}
@@ -380,9 +379,10 @@ export function AppLayout({ role, children, narrow, chat }: { role: Role; childr
         )}
       </header>
       <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>
+        {role === 'admin' && <div className="trk-admin-tools"><details className="trh-drop"><summary className="chipf" aria-label="Меню администратора"><Icon name="settings" />Администратор</summary><div className="trh-drop-menu right"><Button size="s" variant="line" loading={exit.pending} onClick={() => { void exit.run(); }}>Выйти</Button></div></details></div>}
         <FormError error={exit.error} />
         {children}
-        {role === 'admin' && <div className="trk-admin-exit"><Button size="lg" variant="danger" block loading={exit.pending} onClick={() => { void exit.run(); }}>Выйти</Button></div>}
+
       </main>
       <TabBar tabs={tabs} />
     </div>

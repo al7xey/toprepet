@@ -63,6 +63,7 @@ function seedTutors(): Tutor[] {
 }
 
 interface State {
+  demoReviewsSeeded?: boolean;
   sessionUserId: Id | null;
   users: (User & { password: string })[];
   tutors: Tutor[];
@@ -191,6 +192,23 @@ function seed(): State {
 let state: State | null = null;
 const hasStorage = () => typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 
+function addDemoReviews(data: State) {
+  if (data.demoReviewsSeeded) return;
+  const examples = [
+    ['english', 'Марина', 'После занятий стало легче говорить по-английски. Разбираем темы спокойно и много практикуемся.'],
+    ['russian-literature', 'Сергей', 'Понятные объяснения и подробная обратная связь по сочинениям. Удалось разобраться со сложными темами.'],
+  ];
+  for (const [tutorId, author, text] of examples) {
+    if (!data.tutors.some((tutor) => tutor.id === tutorId)) continue;
+    data.reviews.push({ id: 'demo-review-' + tutorId, lessonId: 'demo-lesson-' + tutorId, tutorId, authorName: author, authorNote: 'Демонстрационный отзыв', rating: 5, text, status: 'published', createdAt: iso(Date.now() - 3 * DAY), reply: 'Спасибо за отзыв! Рада вашим успехам.' });
+    const tutor = data.tutors.find((item) => item.id === tutorId)!;
+    const reviews = data.reviews.filter((item) => item.tutorId === tutorId && item.status === 'published');
+    tutor.reviewsCount = reviews.length;
+    tutor.rating = Math.round(reviews.reduce((sum, item) => sum + item.rating, 0) / reviews.length * 10) / 10;
+  }
+  data.demoReviewsSeeded = true;
+}
+
 function load(): State {
   if (state) return state;
   if (hasStorage()) {
@@ -200,11 +218,18 @@ function load(): State {
         state = JSON.parse(raw) as State;
         // состояние из старых версий: у анкет нет отметки о проверке документов
         state.tutors = state.tutors.map((t) => ({ ...t, documentsVerified: t.documentsVerified ?? true }));
+        for (const tutor of state.tutors) {
+          if (tutor.status !== 'review') continue;
+          tutor.status = 'published';
+          if (state.profiles[tutor.id]) state.profiles[tutor.id].status = 'published';
+        }
+        addDemoReviews(state);
         return state;
       }
     } catch { /* повреждённые данные: начинаем заново */ }
   }
   state = seed();
+  addDemoReviews(state);
   return state;
 }
 function save() {
@@ -685,10 +710,10 @@ export function createMockApi(): Api {
       const t = myTutor(); const s = load(); const p = s.profiles[t.id] ?? profileOf(t);
       if (!p.name.trim() || !p.about.trim() || !p.subjects.length || !p.price) fail('Заполните имя, описание, предметы и цену');
       if (!(s.weeks[t.id] ?? DEFAULT_WEEK).days.some((d) => d.intervals.length)) fail('Откройте хотя бы одно время для записи в расписании');
-      // уже опубликованная анкета правится без повторной проверки (на сервере решает поддержка); новая уходит на модерацию
-      const next = t.status === 'published' ? 'published' : 'review';
+      if (t.status === 'hidden') fail('Анкета скрыта администратором. Обратитесь в поддержку.');
+      const next = 'published';
       p.status = next; t.status = next; p.moderationNote = null; s.profiles[t.id] = p;
-      if (next === 'review') note(adminUserId(), 'system', 'Анкета ждёт проверки', `${p.name || 'Репетитор'} отправил анкету`, '/admin/profiles');
+      note(adminUserId(), 'system', 'Новая анкета опубликована', `${p.name || 'Репетитор'} отправил анкету`, '/admin/profiles');
       const u = me(); u.onboarded = true;
       save(); return delay(p, 500);
     },
@@ -774,14 +799,14 @@ export function createMockApi(): Api {
     },
     async adminProfileQueue() {
       const s = load();
-      return delay(s.tutors.filter((t) => t.status === 'review' || s.documents[t.id]?.some((d) => d.status === 'checking')).map((t): AdminProfile => ({ tutorId: t.id, email: s.users.find((u) => u.tutorId === t.id)?.email ?? '', submittedAt: iso(Date.now()), profile: s.profiles[t.id] ?? profileOf(t), documents: s.documents[t.id] ?? [] })));
+      return delay(s.tutors.filter((t) => ['published', 'review', 'hidden'].includes(t.status) || s.documents[t.id]?.some((d) => d.status === 'checking')).map((t): AdminProfile => ({ tutorId: t.id, email: s.users.find((u) => u.tutorId === t.id)?.email ?? '', submittedAt: iso(Date.now()), profile: s.profiles[t.id] ?? profileOf(t), documents: s.documents[t.id] ?? [] })));
     },
     async adminModerateProfile(tutorId, approve, comment) {
       const s = load(); const t = s.tutors.find((x) => x.id === tutorId); if (!t) fail('Анкета не найдена', 404);
       const tutor = t as Tutor; const p = s.profiles[tutor.id] ?? profileOf(tutor);
-      if (tutor.status !== 'review') fail('Анкета не на проверке');
+      if (!['published', 'review', 'hidden'].includes(tutor.status)) fail('Анкета ещё не опубликована');
       if (!approve && !comment?.trim()) fail('Напишите, что нужно исправить');
-      tutor.status = approve ? 'published' : 'draft'; p.status = tutor.status; p.moderationNote = approve ? null : comment?.trim(); s.profiles[tutor.id] = p;
+      tutor.status = approve ? 'published' : 'hidden'; p.status = tutor.status; p.moderationNote = approve ? null : comment?.trim(); s.profiles[tutor.id] = p;
       note(tutorUserId(tutor.id), 'system', approve ? 'Анкета опубликована' : 'Анкету нужно доработать', approve ? 'Теперь ученики видят вас в каталоге.' : (comment ?? ''), '/tutor/profile');
       save(); return delay(p);
     },

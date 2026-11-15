@@ -8,9 +8,10 @@ export { Icon };
 
 /** Единая строка перехода или действия в настройках и личном кабинете. */
 export function NavigationRow({ icon, children, to, onClick }: { icon: string; children: ReactNode; to?: string; onClick?: () => void }) {
+  const location = useLocation();
   const content = <><Icon name={icon} /><span>{children}</span><Icon name="right" /></>;
   return to
-    ? <Link className="trk-navrow" to={to}>{content}</Link>
+    ? <Link className="trk-navrow" to={to} state={{ from: location.pathname + location.search }}>{content}</Link>
     : <button type="button" className="trk-navrow" onClick={onClick}>{content}</button>;
 }
 
@@ -21,6 +22,7 @@ const cx = (...parts: (string | false | null | undefined)[]) => parts.filter(Boo
 export type ButtonVariant = 'primary' | 'line' | 'warm' | 'fill' | 'soft' | 'ink' | 'danger';
 
 export interface ButtonProps {
+  state?: unknown;
   children?: ReactNode;
   variant?: ButtonVariant;
   size?: 's' | 'md' | 'lg';
@@ -41,11 +43,11 @@ export interface ButtonProps {
 }
 
 /** Единственная кнопка интерфейса: все действия и ссылки-кнопки собираются из неё. */
-export function Button({ children, variant = 'primary', size = 'md', block, icon, iconAfter, to, href, onClick, type = 'button', disabled, loading, className, style, ...rest }: ButtonProps) {
+export function Button({ children, variant = 'primary', size = 'md', block, icon, iconAfter, to, href, onClick, type = 'button', disabled, loading, className, style, state, ...rest }: ButtonProps) {
   const cls = cx('btn', `btn-${variant}`, size === 'lg' && 'btn-lg', size === 's' && 'btn-s', block && 'btn-block', loading && 'trk-loading', className);
   const inner = (<>{icon && <Icon name={icon} />}{children}{iconAfter && <Icon name={iconAfter} />}</>);
   const inactive = disabled || loading;
-  if (to && !inactive) return <Link className={cls} to={to} style={style} aria-label={rest['aria-label']} onClick={onClick}>{inner}</Link>;
+  if (to && !inactive) return <Link className={cls} to={to} state={state} style={style} aria-label={rest['aria-label']} onClick={onClick}>{inner}</Link>;
   if (href && !inactive) return <a className={cls} href={href} target="_blank" rel="noreferrer" style={style} aria-label={rest['aria-label']} onClick={onClick}>{inner}</a>;
   return (
     <button type={type} className={cls} onClick={onClick} disabled={inactive} aria-busy={loading || undefined} style={style} aria-label={rest['aria-label']}>
@@ -55,11 +57,11 @@ export function Button({ children, variant = 'primary', size = 'md', block, icon
 }
 
 /** Круглая кнопка со значком (уведомления, назад, закрыть). */
-export function IconButton({ icon, label, to, onClick, surf, badge, className, type = 'button', disabled }: { icon: string; label: string; to?: string; onClick?: () => void; surf?: boolean; badge?: number | boolean; className?: string; type?: 'button' | 'submit'; disabled?: boolean }) {
+export function IconButton({ icon, label, to, onClick, surf, badge, className, type = 'button', disabled, state }: { icon: string; label: string; to?: string; onClick?: () => void; surf?: boolean; badge?: number | boolean; className?: string; type?: 'button' | 'submit'; disabled?: boolean; state?: unknown }) {
   const cls = cx('trk-iconbtn', surf && 'surf', !className?.includes('trk-addbtn') && 'trk-round', className);
   // непрочитанное показываем точкой, без числа: так принято в современных приложениях
   const dot = badge ? <span className="trk-badge" aria-hidden="true" /> : null;
-  if (to && !disabled) return <Link className={cls} to={to} aria-label={label} data-unread={typeof badge === 'number' ? badge : undefined}><Icon name={icon} />{dot}</Link>;
+  if (to && !disabled) return <Link className={cls} to={to} state={state} aria-label={label} data-unread={typeof badge === 'number' ? badge : undefined}><Icon name={icon} />{dot}</Link>;
   return <button type={type} className={cls} onClick={onClick} aria-label={label} disabled={disabled}><Icon name={icon} />{dot}</button>;
 }
 
@@ -89,10 +91,21 @@ export function PageHeader({ title, lead, back, actions, center }: { title: Reac
 }
 
 /** Секция с заголовком второго уровня: 24 px на компьютере, 21 px на телефоне. */
-export function Section({ title, action, lead, children, id, className }: { title?: ReactNode; action?: ReactNode; lead?: ReactNode; children?: ReactNode; id?: string; className?: string }) {
+export function Section({ title, action, lead, children, id, className, reveal }: { title?: ReactNode; action?: ReactNode; lead?: ReactNode; children?: ReactNode; id?: string; className?: string; reveal?: boolean }) {
   const headingId = useId();
+  const section = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!reveal || !section.current || typeof IntersectionObserver === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      section.current?.setAttribute('data-section-visible', '');
+      observer.disconnect();
+    }, { threshold: .15 });
+    observer.observe(section.current);
+    return () => observer.disconnect();
+  }, [reveal]);
   return (
-    <section className={cx('trh-sec', className)} id={id} aria-labelledby={title ? headingId : undefined}>
+    <section ref={section} className={cx('trh-sec', className)} id={id} aria-labelledby={title ? headingId : undefined}>
       {(title || action) && (
         <div className="sec-h">
           {title && <h2 id={headingId} className="h2 trh-h2">{title}</h2>}

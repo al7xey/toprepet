@@ -6,17 +6,12 @@ import { TutorMetadata } from '../../../app/tutor-metadata';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
-import { minutes, rub, whenLabel } from '../../lib/format';
+import { count, minutes, rub, whenLabel } from '../../lib/format';
 import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, LoadingList, Note, PageHeader, QueryView, Rows, Section, SlotPicker, Status, Tags } from '../../ui';
 import { NotFoundBody } from './notfound';
 import './profile.css';
+import { achievementIcon } from '../../ui/icon';
 
-function achievementIcon(title: string) {
-  if (/диплом|университет|институт|магистр|бакалавр|образован|педагог|специалитет/i.test(title)) return 'school';
-  if (/язык|англий|cambridge|ielts|toefl|fce|b2|c1|c2/i.test(title)) return 'globe';
-  if (/сертификат|курс|квалификац|методик/i.test(title)) return 'book';
-  return 'star';
-}
 
 /** Анкета репетитора: данные, календарь записи, цены, отзывы. Карточка записи справа (на телефоне — панель снизу). */
 export default function ProfilePage() {
@@ -107,6 +102,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
             </div>
             <div className="trh-pf-sheet">
               <div className="trh-sec">
+                {tutor.reviewsCount > 0 && <a className="trh-pf-rating" href="#reviews"><Icon name="star-on" />{tutor.rating} · {count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')}</a>}
                 <h1 className="trh-h1" id="tutor-name">{tutor.name}</h1>
                 <p className="muted trh-pf-role">{tutor.headline}</p>
                 <div className="fr fw u-gap8">
@@ -162,14 +158,16 @@ function Profile({ tutor }: { tutor: Tutor }) {
           )}
 
           <hr className="rule" />
-          <Section title="Отзывы" action={tutor.reviewsCount > 3 ? <button type="button" className="acc sb" aria-expanded={showAllReviews} onClick={() => setShowAllReviews((v) => !v)}>{showAllReviews ? 'Свернуть' : 'Все отзывы'}</button> : undefined}>
+          <Section id="reviews" title="Отзывы" action={tutor.reviewsCount > 3 ? <button type="button" className="acc sb" aria-expanded={showAllReviews} onClick={() => setShowAllReviews((v) => !v)}>{showAllReviews ? 'Свернуть' : 'Все отзывы'}</button> : undefined}>
             <QueryView query={reviews} loading={<span />} empty={(list) => (list.length ? null : <EmptyState icon="chat" title="Отзывов пока нет" text="Отзывы появляются после оплаченных занятий." />)}>
               {(list) => (
                 <div className="trk-list">
                   {(showAllReviews ? list : list.slice(0, 3)).map((r) => (
                     <div className="rv" key={r.id}>
                       <div className="fr fb"><b>{r.authorName}</b><span className="rt">{Array.from({ length: r.rating }, (_, i) => <Icon key={i} name="star-on" />)}</span></div>
+                      {r.authorNote && <span className="muted sm">{r.authorNote}</span>}
                       <p>{r.text}</p>
+                      {r.reply && <div className="trk-review-reply"><b>Ответ репетитора</b><p>{r.reply}</p></div>}
                     </div>
                   ))}
                 </div>

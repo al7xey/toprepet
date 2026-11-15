@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../../api';
 import { useMutation } from '../../api/hooks';
 import { useSession } from '../../api/session';
@@ -33,9 +33,14 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
   const { user, setUser, logout } = useSession();
   const toast = useToast();
   const [params, setParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const from = (location.state as { from?: string } | null)?.from;
+  const editReturn = from?.startsWith('/') && !from.startsWith('//') ? from : location.pathname;
   const section = params.get('section');
   const view: View = section === 'data' || section === 'password' ? section : 'menu';
-  const setView = (next: View) => setParams(next === 'menu' ? {} : { section: next }, { replace: true });
+  const setView = (next: View) => setParams(next === 'menu' ? {} : { section: next }, { replace: true, state: { from: location.pathname } });
+  const closeEdit = () => { void navigate(editReturn, { replace: true }); };
   const [confirmExit, setConfirmExit] = useState(false);
   const [name, setName] = useState(user?.name ?? '');
   const [timezone, setTimezone] = useState(user?.timezone ?? 'Europe/Moscow');
@@ -56,7 +61,7 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
     if (!name.trim()) { setNameError('Введите имя'); return; }
     setNameError(undefined);
     const updated = await save.run({ name: name.trim(), timezone });
-    if (updated) { setUser(updated); toast('Изменения сохранены'); setView('menu'); }
+    if (updated) { setUser(updated); toast('Изменения сохранены'); closeEdit(); }
   };
   const changePhoto = async (file: File) => {
     const updated = await photo.run(file);
@@ -79,7 +84,7 @@ export function SettingsView({ role }: { role: 'student' | 'tutor' }) {
   if (view === 'data') {
     return (
       <AppLayout role={role} narrow>
-        <PageHeader title="Личные данные" back={{ onClick: () => setView('menu'), label: 'Назад к настройкам' }} />
+        <PageHeader title="Личные данные" back={{ onClick: closeEdit, label: 'Назад' }} />
         <Card>
           <div className="trk-form">
             <div className="trk-settings-who">

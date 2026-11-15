@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { login, logout } from './helpers';
 
 test.describe('репетитор и администратор', () => {
-  test('регистрация → анкета → проверка админом → публикация в каталоге', async ({ page }) => {
+  test('регистрация → немедленная публикация → просмотр администратором', async ({ page }) => {
     await page.goto('/signup');
     await page.getByText('Хочу преподавать').click();
     await page.locator('input:not([type]), input[autocomplete=name]').first().fill('Ирина Тестова');
@@ -38,7 +38,7 @@ test.describe('репетитор и администратор', () => {
     await page.getByRole('button', { name: 'Дальше' }).click();
 
     // шаг 5
-    await page.getByRole('button', { name: 'Отправить на проверку' }).click();
+    await page.getByRole('button', { name: 'Опубликовать анкету' }).click();
     await expect(page).toHaveURL(/\/tutor\/profile$/);
     await logout(page);
 
@@ -46,9 +46,9 @@ test.describe('репетитор и администратор', () => {
     await login(page, 'admin');
     await page.goto('/admin/profiles');
     await expect(page.getByText('Ирина Тестова').first()).toBeVisible();
-    await page.getByRole('button', { name: 'Опубликовать' }).first().click();
+    await page.getByRole('button', { name: 'Оставить анкету' }).first().click();
     // Published profiles can remain in this queue while their documents await review.
-    await expect(page.getByText('Ирина Тестова', { exact: true })).toHaveCount(0);
+    await expect(page.getByText('Ирина Тестова', { exact: true })).toBeVisible();
     await logout(page);
 
     // анкета появилась в каталоге

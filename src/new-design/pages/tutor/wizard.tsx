@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { subjects as allSubjects } from '../../../entities/lesson';
 import { api, studentPriceOf } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import type { Achievement, TutorProfileDraft, WeekSchedule } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { rub } from '../../lib/format';
+import { safeNext } from '../../lib/safeNext';
 import { Button, Card, CardTitle, FilePick, FormError, IconButton, OptionChips, PageHeader, QueryView, SelectField, Status, Switch, TextArea, TextField, WeekEditor, WizardProgress, weekIsEmpty, weekProblem, useToast } from '../../ui';
 
 const SUBJECTS = allSubjects.filter((s) => s !== 'Другой предмет');
@@ -33,6 +34,8 @@ export default function WizardPage() {
 
 function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialWeek: WeekSchedule }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const returnTo = safeNext((location.state as { from?: string } | null)?.from, '/tutor/profile');
   const toast = useToast();
   const [step, setStep] = useState(1);
   const [draft, setDraft] = useState(initial);
@@ -87,7 +90,7 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
   return (
     <>
       <WizardProgress step={step} total={STEPS.length} label={`Шаг ${step} из ${STEPS.length} · ${STEPS[step - 1]}`} />
-      <PageHeader title={STEPS[step - 1]} />
+      <PageHeader title={STEPS[step - 1]} back={{ to: returnTo, label: "Выйти из редактирования" }} />
       <Card>
         <div className="trk-form">
           {step === 1 && (
@@ -136,7 +139,7 @@ function Wizard({ initial, initialWeek }: { initial: TutorProfileDraft; initialW
             {step > 1 && <Button variant="fill" onClick={() => setStep(step - 1)}>Назад</Button>}
             {step < STEPS.length
               ? <Button onClick={next} loading={busy}>Дальше</Button>
-              : <Button onClick={submit} loading={publish.pending} icon="check">Отправить на проверку</Button>}
+              : <Button onClick={submit} loading={publish.pending} icon="check">Опубликовать анкету</Button>}
           </div>
         </div>
       </Card>
@@ -153,7 +156,7 @@ function Education({ value, onChange }: { value: Achievement[]; onChange: (v: Ac
         <div className="trk-edu" key={i}>
           <TextField label="Название" value={a.title} onChange={(e) => set(i, { title: e.target.value })} placeholder="Бакалавр, МГУ, 2022" />
           <TextField label="Пояснение" value={a.text} onChange={(e) => set(i, { text: e.target.value })} />
-          <Button size="s" variant="fill" onClick={() => onChange(value.filter((_, j) => j !== i))}>Убрать</Button>
+          <IconButton icon="trash" label="Удалить достижение" onClick={() => onChange(value.filter((_, j) => j !== i))} />
         </div>
       ))}
       {value.length < 5 && <IconButton icon="plus" label="Добавить достижение" onClick={() => onChange([...value, { title: '', text: '' }])} className="trk-addbtn" />}

@@ -58,9 +58,11 @@ test('профиль: сводка по заявкам, настройки от�
   await expect(main.getByRole('heading', { name: 'Уведомления' })).toBeVisible();
   await expect(main.getByRole('heading', { name: 'Платежи' })).toBeVisible();
   await expect(main.getByRole('button', { name: 'Сменить пароль' })).toHaveCount(0);
-  await main.getByRole('button', { name: 'Новая заявка' }).click();
-  await expect(page.getByRole('dialog', { name: 'Новая заявка' })).toBeVisible();
-  await page.getByRole('dialog').getByRole('button', { name: 'Закрыть' }).click();
+  await expect(main.getByRole('button', { name: 'Новая заявка' })).toHaveCount(0);
+  await main.getByRole('link', { name: 'Все заявки', exact: true }).click();
+  await page.getByRole('link', { name: 'Новая заявка', exact: true }).click();
+  await expect(page).toHaveURL(/me\/requests\/new/);
+  await page.goto('/me/account');
   // настройки — полноценная страница, её открывают шестерёнка и карточка с именем
   await page.getByRole('link', { name: 'Настройки', exact: true }).click();
   await expect(page).toHaveURL(/\/me\/account\/settings/);

@@ -76,12 +76,12 @@ def test_profile_moderation_cycle(world):
     newbie.call('put', '/tutor/schedule', {'days': [{'weekday': 1, 'intervals': [{'from': '10:00', 'to': '14:00'}]}]}, 200)
     tutor_id = newbie.post_ok('/tutor/profile/submit')['slug']
     admin = world['admin']
-    assert [q['tutorId'] for q in admin.get_ok('/admin/profiles') if q['profile']['status'] == 'review'] == [tutor_id]
+    assert tutor_id in [q['tutorId'] for q in admin.get_ok('/admin/profiles') if q['profile']['status'] == 'published']
     assert admin.call('post', f'/admin/profiles/{tutor_id}', {'approve': False}).status_code == 400
     back = admin.post_ok(f'/admin/profiles/{tutor_id}', {'approve': False, 'note': 'Загрузите фото'})
-    assert back['status'] == 'draft' and back['moderationNote'] == 'Загрузите фото'
+    assert back['status'] == 'hidden' and back['moderationNote'] == 'Загрузите фото'
     assert newbie.get_ok('/tutor/profile')['moderationNote'] == 'Загрузите фото'
-    newbie.post_ok('/tutor/profile/submit')
+    assert newbie.call('post', '/tutor/profile/submit').status_code == 400
     assert admin.post_ok(f'/admin/profiles/{tutor_id}', {'approve': True})['status'] == 'published'
     assert tutor_id in [t['id'] for t in Api().get_ok('/tutors', {'limit': 50})['items']]
     assert any(n['title'] == 'Анкета опубликована' for n in newbie.get_ok('/me/notifications'))
