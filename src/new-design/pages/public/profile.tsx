@@ -6,8 +6,8 @@ import { TutorMetadata } from '../../../app/tutor-metadata';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
-import { count, minutes, rub, whenLabel } from '../../lib/format';
-import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, LoadingList, Note, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker, Status, Tags, TextField } from '../../ui';
+import { minutes, rub } from '../../lib/format';
+import { BackLink, Button, ErrorState, Icon, IconButton, LoadingList, Note, PageHeader, Section, SelectField, SlotPicker, Status, Tags } from '../../ui';
 import { NotFoundBody } from './notfound';
 import './profile.css';
 import { achievementIcon } from '../../ui/icon';
@@ -32,13 +32,17 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const { user } = useSession();
   const lessonMinutes = tutor.durations?.includes(LESSON_MINUTES) ? LESSON_MINUTES : tutor.durations?.[0] ?? LESSON_MINUTES;
   const lessonPrice = Math.round(tutor.studentPrice * lessonMinutes / 60);
-  const [showAllReviews, setShowAllReviews] = useState(false);
   const [start, setStart] = useState<string | null>(null);
   const [subject, setSubject] = useState(tutor.subjects[0] ?? '');
-  const [topic, setTopic] = useState('');
+  const kind = subject === '__intro__' && tutor.introMinutes > 0 ? 'intro' : 'regular';
+  const duration = kind === 'intro' ? tutor.introMinutes : lessonMinutes;
+  const price = kind === 'intro' ? 0 : lessonPrice;
+  const subjects = [
+    ...tutor.subjects.map((value) => ({ value, label: value })),
+    ...(tutor.introMinutes > 0 ? [{ value: '__intro__', label: 'Бесплатное знакомство' }] : []),
+  ];
   const from = useMemo(() => new Date().toISOString(), []);
-  const slots = useQuery(`slots-${tutor.id}`, () => api.getTutorSlots(tutor.id, from, 14, Math.max(lessonMinutes, tutor.introMinutes)));
-  const reviews = useQuery(`reviews-${tutor.id}`, () => api.getTutorReviews(tutor.id));
+  const slots = useQuery(`slots-${tutor.id}-${duration}`, () => api.getTutorSlots(tutor.id, from, 14, duration));
   const isTutorAccount = user?.role === 'tutor' || user?.role === 'admin';
   const location = useLocation();
   const fromChat = (location.state as { back?: string } | null)?.back;
@@ -50,23 +54,19 @@ function Profile({ tutor }: { tutor: Tutor }) {
     else void navigator.clipboard?.writeText(url).catch(() => undefined);
   };
 
-  const bookHref = (kind: 'regular' | 'intro') => `/book/${tutor.id}?kind=${kind}&subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic.trim())}${start ? `&start=${encodeURIComponent(start)}` : ''}`;
+  const bookHref = `/book/${tutor.id}?kind=${kind}&subject=${encodeURIComponent(kind === 'intro' ? tutor.subjects[0] ?? '' : subject)}${start ? `&start=${encodeURIComponent(start)}` : ''}`;
   const write = () => navigate(`/me/chats/new?tutor=${tutor.id}`);
 
 
   const booking = (
     <div className="trh-sec trh-pf-booking">
-      <h2 className="trk-cardtitle">Запись</h2>
-      <SelectField label="Предмет" value={subject} onChange={(event) => setSubject(event.target.value)} options={tutor.subjects} />
-      <TextField label="Тема занятия" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={200} placeholder="Что хотите разобрать на занятии" hint="Можно уточнить при знакомстве" />
-      <Rows rows={[['Урок', minutes(lessonMinutes)], ['Время', start ? whenLabel(start) : 'Выберите время']]} />
-      <div className="fr fb"><span>Цена за {minutes(lessonMinutes)}</span><b className="tn trk-price-xl">{rub(lessonPrice)}</b></div>
+      <SelectField label="Предмет" value={subject} onChange={(event) => { const next = event.target.value; if ((next === '__intro__') !== (kind === 'intro')) setStart(null); setSubject(next); }} options={subjects} />
+      <div className="fr fb"><span>{kind === 'intro' ? `Знакомство, ${minutes(duration)}` : `Занятие, ${minutes(duration)}`}</span><b className="tn trk-price-xl">{kind === 'intro' ? 'Бесплатно' : rub(price)}</b></div>
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
-        <>
-          <Button to={bookHref('regular')} block disabled={!start} onClick={() => trackGoal('book_start', { kind: 'regular' })}>Записаться</Button>
-          {tutor.introMinutes > 0 && <Button to={bookHref('intro')} variant="line" block disabled={!start} onClick={() => trackGoal('book_start', { kind: 'intro' })}>Бесплатное знакомство</Button>}
-          <Button variant="line" block onClick={write}>Написать</Button>
-        </>
+        <div className="trh-pf-actions">
+          <Button to={bookHref} size="lg" block disabled={!start} onClick={() => trackGoal('book_start', { kind })}>Записаться</Button>
+          <Button variant="line" size="lg" block onClick={write}>Написать</Button>
+        </div>
       )}
     </div>
   );
@@ -85,7 +85,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
             </div>
             <div className="trh-pf-sheet">
               <div className="trh-sec">
-                <div className="trh-pf-name-row"><h1 className="trh-h1" id="tutor-name">{tutor.name}</h1>{tutor.reviewsCount > 0 && <a className="trh-pf-rating" href="#reviews" aria-label={count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')}><b>{String(tutor.rating).replace('.', ',')}</b><Icon name="star-on" /><span>{count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')}</span></a>}</div>
+                <h1 className="trh-h1" id="tutor-name">{tutor.name}</h1>
                 <p className="muted trh-pf-role">{tutor.headline}</p>
                 <div className="fr fw u-gap8">
                   {tutor.documentsVerified && <Status tone="ok" icon="shield">Документы проверены</Status>}
@@ -126,30 +126,15 @@ function Profile({ tutor }: { tutor: Tutor }) {
           </Section>
 
           <hr className="rule" />
-          <div className="trh-pf-calendar">
-            <Section title="Свободное время">
-              {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} />}
-            </Section>
+          <div className="trh-pf-scheduling">
+            <div className="trh-pf-calendar">
+              <Section title="Свободное время">
+                <span className="sm trk-tz"><Icon name="globe" />Москва · МСК (UTC+3)</span>
+                {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} showTimezone={false} />}
+              </Section>
+            </div>
+            {booking}
           </div>
-          {booking}
-
-          <hr className="rule" />
-          <Section id="reviews" title="Отзывы" action={tutor.reviewsCount > 3 ? <button type="button" className="acc sb" aria-expanded={showAllReviews} onClick={() => setShowAllReviews((v) => !v)}>{showAllReviews ? 'Свернуть' : 'Все отзывы'}</button> : undefined}>
-            <QueryView query={reviews} loading={<span />} empty={(list) => (list.length ? null : <EmptyState icon="chat" title="Отзывов пока нет" text="Отзывы появляются после оплаченных занятий." />)}>
-              {(list) => (
-                <div className="trk-list">
-                  {(showAllReviews ? list : list.slice(0, 3)).map((r) => (
-                    <div className="rv" key={r.id}>
-                      <div className="fr fb"><b>{r.authorName}</b><span className="rt">{Array.from({ length: r.rating }, (_, i) => <Icon key={i} name="star-on" />)}</span></div>
-                      {r.authorNote && <span className="muted sm">{r.authorNote}</span>}
-                      <p>{r.text}</p>
-                      {r.reply && <div className="trk-review-reply"><b>Ответ репетитора</b><p>{r.reply}</p></div>}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </QueryView>
-          </Section>
         </div>
       </div>
 

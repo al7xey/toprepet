@@ -51,8 +51,15 @@
 .tr .trh-pf-name-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-width: 0; }
 .tr .trh-pf-name-row h1 { min-width: 0; overflow-wrap: anywhere; }
 .tr .trh-pf-name-row .trh-pf-rating { flex-shrink: 0; }
-.tr .trh-pf-booking { margin-top: 20px; }
+.tr .trh-pf-booking { margin-top: 0; gap: 14px; }
 
 @media (min-width: 761px) {
   .tr .trh-pf-top .trh-pf-photo .trh-pf-back { display: none; }
+}
+
+.tr .trh-pf-scheduling { display: grid; gap: 14px; }
+.tr .trh-pf-calendar .trh-sec { gap: 12px; }
+.tr .trh-pf-actions { display: grid; gap: 14px; }
+@media (max-width: 760px) {
+  .tr .trh-pf-actions { gap: 10px; }
 }

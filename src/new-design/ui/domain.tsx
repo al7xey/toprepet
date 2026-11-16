@@ -19,7 +19,7 @@ export function TutorCard({ tutor, priority }: { priority?: boolean; tutor: Pick
     <Link state={back ? { back } : undefined} className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false}>
       <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 280px, 50vw" alt="" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : undefined} decoding="async" draggable={false} />
       <span className="pl">
-        <b><span className="trh-tutor-name">{tutor.name}</span>{tutor.reviewsCount > 0 && tutor.rating && <span className="rt">{String(tutor.rating).replace(".", ",")}<Icon name="star-on" /></span>}</b>
+        <b><span className="trh-tutor-name">{tutor.name}</span></b>
         <span>{tutor.cardSubjects}</span>
         <span className="trh-price">{fromRub(tutor.studentPrice)}</span>
       </span>
@@ -93,7 +93,7 @@ export function LessonCard({ lesson, role, actions }: { lesson: Lesson; role: Ro
  * Календарь записи: дни сверху, время ниже. Один компонент для анкеты, записи, переноса и откликов.
  * slots — свободные и занятые окна от сервера, value — выбранное начало (ISO).
  */
-export function SlotPicker({ slots, value, values, onChange, days = 7, loading }: { slots: Slot[]; value: string | null; /** Несколько выбранных окошек: тогда подсвечиваются все. */ values?: string[]; onChange: (start: string) => void; days?: number; loading?: boolean }) {
+export function SlotPicker({ slots, value, values, onChange, days = 7, loading, showTimezone = true }: { slots: Slot[]; value: string | null; /** Несколько выбранных окошек: тогда подсвечиваются все. */ values?: string[]; onChange: (start: string) => void; days?: number; loading?: boolean; showTimezone?: boolean }) {
   // занятое время не показываем вовсе: только свободные слоты и дни, где они есть
   const byDay = useMemo(() => {
     const map = new Map<string, Slot[]>();
@@ -133,7 +133,7 @@ export function SlotPicker({ slots, value, values, onChange, days = 7, loading }
           </button>
         ))}
       </div>
-      <span className="sm trk-tz"><Icon name="globe" />Москва · МСК (UTC+3)</span>
+      {showTimezone && <span className="sm trk-tz"><Icon name="globe" />Москва · МСК (UTC+3)</span>}
     </div>
   );
 }

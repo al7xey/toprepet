@@ -8,15 +8,18 @@ test('каталог: поле поиска во всю ширину, не ко�
   expect(box?.width ?? 0).toBeGreaterThan(700);
 });
 
-test('анкета: отдельное знакомство и чат находятся под календарём', async ({ page }) => {
+test('анкета: знакомство выбирается в предмете, чат находится под записью', async ({ page }) => {
   await page.goto('/teachers/english');
   await expect(page.locator('.trh-pf-cta')).toHaveCount(0);
   await page.locator('.slot:not([disabled])').first().click();
   const booking = page.locator('.trh-pf-booking');
   await expect(booking.getByRole('link', { name: 'Записаться', exact: true })).toHaveAttribute('href', /kind=regular/);
-  await expect(booking.getByRole('link', { name: 'Бесплатное знакомство', exact: true })).toHaveAttribute('href', /kind=intro/);
+  await expect(booking.getByRole('link', { name: 'Бесплатное знакомство', exact: true })).toHaveCount(0);
+  await booking.getByLabel('Предмет', { exact: true }).selectOption({ label: 'Бесплатное знакомство' });
+  await page.locator('.slot:not([disabled])').first().click();
+  await expect(booking.getByRole('link', { name: 'Записаться', exact: true })).toHaveAttribute('href', /kind=intro/);
   await expect(booking.getByRole('button', { name: 'Написать', exact: true })).toBeVisible();
-  await expect(booking.getByLabel('Тема занятия', { exact: true })).toBeVisible();
+  await expect(booking.getByLabel('Тема занятия', { exact: true })).toHaveCount(0);
 });
 
 test('платежи и уведомления на всю ширину компьютера, кнопки не узкие', async ({ page }) => {

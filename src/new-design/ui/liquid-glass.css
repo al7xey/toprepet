@@ -294,7 +294,7 @@ html:has(.tr) { scrollbar-gutter: stable; }
 /* Compact profile rhythm and stable controls on narrow screens. */
 .tr.tr .trh-pf-sheet { gap: 14px; }
 .tr.tr .trh-pf-sheet > .trh-sec { gap: 12px; }
-.tr.tr .trh-pf-intro-tag { color: var(--accent); background: #fff; font-size: 19px; font-weight: 700; line-height: 24px; padding: 4px 12px; }
+.tr.tr .trh-pf-intro-tag { color: var(--ink); background: var(--accent-soft); font-size: 13px; font-weight: 700; line-height: 20px; min-height: 28px; padding: 4px 12px; }
 .tr.tr .p-home-intro-step { align-items: flex-start; }
 .tr.tr .trk-iconbtn .i:is(.i-back,.i-arrow,.i-left,.i-right,.i-down,.i-x) { color: #202020; }
 .tr.tr .tc.s .pl > b { min-width: 0; }
