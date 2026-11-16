@@ -72,7 +72,7 @@
   .tr .trh-teachers{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:4px 16px 12px;scrollbar-width:none;scroll-padding-left:16px}
   .tr .trh-teachers::-webkit-scrollbar{display:none}
   .tr .trh-teachers>.tc:nth-child(n+5){display:block}
-  .tr .trh-teachers>.tc{flex:0 0 216px;aspect-ratio:3/4;scroll-snap-align:start;animation:none}
+  .tr .trh-teachers>.tc{flex:0 0 236px;aspect-ratio:3/4;scroll-snap-align:start;animation:none}
   .tr .trh-teachers .tc .pl{left:10px;right:10px;bottom:10px;padding:10px 14px 11px}
   .tr .trh-teachers .tc .pl b{font-size:17px}
   .tr .trh-teachers .tc .pl span{font-size:13px}
@@ -163,7 +163,7 @@
   .tr .trh-drop-menu{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-height:60vh;border-radius:32px}
   .tr .trh-sort-t{display:none}
   .tr .trh-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  .tr .trh-grid>.tc{aspect-ratio:4/5;border-radius:30px}
+  .tr .trh-grid>.tc{aspect-ratio:3/4;border-radius:32px}
   .tr .trh-grid .tc.s .pl{left:8px;right:8px;bottom:8px;padding:8px 12px 9px;border-radius:22px}
   .tr .trh-grid .tc.s .pl b{font-size:15px;gap:6px}
   .tr .trh-grid .tc.s .pl b .rt{font-size:12px}
