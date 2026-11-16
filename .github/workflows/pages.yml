@@ -2,15 +2,13 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, codex/liquid-glass]
   workflow_dispatch:
   schedule:
     - cron: '*/15 * * * *'
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -22,13 +20,19 @@ jobs:
   backend:
     uses: ./.github/workflows/backend.yml
   build:
-    if: github.ref == 'refs/heads/main'
     needs: [quality, backend]
-    env:
-      VITE_API_MODE: demo
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout production source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: production
+      - name: Checkout public design preview
+        uses: actions/checkout@v4
+        with:
+          ref: codex/liquid-glass
+          path: preview
       - uses: pnpm/action-setup@v4
         with:
           version: 10
@@ -36,16 +40,40 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run build
-      - run: pnpm exec playwright install --with-deps chromium
-      - name: Verify the exact artifact that will be published
+          cache-dependency-path: |
+            production/pnpm-lock.yaml
+            preview/pnpm-lock.yaml
+      - name: Build production site at domain root
+        working-directory: production
+        env:
+          VITE_API_MODE: demo
+        run: pnpm install --frozen-lockfile && pnpm run build
+      - name: Build design branch under /preview/
+        working-directory: preview
+        env:
+          VITE_API_MODE: demo
+          VITE_BASE_PATH: /preview/
+        run: pnpm install --frozen-lockfile && pnpm run build:e2e
+      - name: Install browser for production smoke tests
+        working-directory: production
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Verify production artifact
+        working-directory: production
         run: pnpm e2e
+      - name: Combine the unchanged production root and isolated branch preview
+        run: |
+          mkdir -p site/preview
+          cp -a production/dist/. site/
+          cp -a preview/dist/. site/preview/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: site
 
   deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
