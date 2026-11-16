@@ -3,13 +3,14 @@ import { Link, useLocation } from 'react-router-dom';
 import type { Query } from '../api/hooks';
 import { initial } from '../lib/format';
 import { Icon } from './icon';
+import { Scene, SceneIcon, sceneForIcon, type SceneKind } from './scenes';
 
 export { Icon };
 
 /** Единая строка перехода или действия в настройках и личном кабинете. */
 export function NavigationRow({ icon, children, to, onClick }: { icon: string; children: ReactNode; to?: string; onClick?: () => void }) {
   const location = useLocation();
-  const content = <><Icon name={icon} /><span>{children}</span><Icon name="right" /></>;
+  const content = <><SceneIcon name={icon} /><span>{children}</span><Icon name="right" /></>;
   return to
     ? <Link className="trk-navrow" to={to} state={{ from: location.pathname + location.search }}>{content}</Link>
     : <button type="button" className="trk-navrow" onClick={onClick}>{content}</button>;
@@ -75,7 +76,10 @@ export function BackLink({ to, children, className }: { to: string; children: Re
 /* ---------- Заголовки и секции ---------- */
 
 /** Заголовок страницы: 32 px на компьютере, 26 px на телефоне. Одна h1 на странице. */
-export function PageHeader({ title, lead, back, actions, center }: { title: ReactNode; lead?: ReactNode; back?: { to?: string; onClick?: () => void; label: string }; actions?: ReactNode; center?: boolean }) {
+export function PageHeader({ title, lead, back, actions, center, art }: { title: ReactNode; lead?: ReactNode; back?: { to?: string; onClick?: () => void; label: string }; actions?: ReactNode; center?: boolean; art?: SceneKind }) {
+  const location = useLocation();
+  const from = (location.state as { from?: string } | null)?.from;
+  if (!back && from && /^\/(me|tutor)\/account(?:\?|$)/.test(from) && from !== location.pathname) back = { to: from, label: 'Профиль' };
   return (
     <header className={cx('trk-pagehead', center && 'center', back && 'has-back')}>
       <div className="trk-pagehead-row">
@@ -85,6 +89,7 @@ export function PageHeader({ title, lead, back, actions, center }: { title: Reac
           {lead && <p className="lead">{lead}</p>}
         </div>
         {actions && <div className="trk-pagehead-actions">{actions}</div>}
+        {art && !actions && <div className="trk-pagehead-art"><Scene kind={art} compact /></div>}
       </div>
     </header>
   );
@@ -158,7 +163,7 @@ export function Note({ tone = 'info', icon, children, action }: { tone?: 'info' 
 export function EmptyState({ icon = 'inbox', title, text, actions }: { icon?: string; title: string; text?: ReactNode; actions?: ReactNode }) {
   return (
     <div className="empty trk-empty">
-      <Icon name={icon} />
+      <Scene kind={sceneForIcon(icon)} />
       <b>{title}</b>
       {text && <span>{text}</span>}
       {actions && <div className="trk-empty-actions">{actions}</div>}

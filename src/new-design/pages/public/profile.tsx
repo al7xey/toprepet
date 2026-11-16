@@ -42,7 +42,13 @@ function Profile({ tutor }: { tutor: Tutor }) {
     ...(tutor.introMinutes > 0 ? [{ value: '__intro__', label: 'Бесплатное знакомство' }] : []),
   ];
   const from = useMemo(() => new Date().toISOString(), []);
-  const slots = useQuery(`slots-${tutor.id}-${duration}`, () => api.getTutorSlots(tutor.id, from, 14, duration));
+  const slots = useQuery(`profile-slots-${tutor.id}-${lessonMinutes}-${tutor.introMinutes}`, async () => {
+    const regularRequest = api.getTutorSlots(tutor.id, from, 14, lessonMinutes);
+    const introRequest = tutor.introMinutes > 0 && tutor.introMinutes !== lessonMinutes
+      ? api.getTutorSlots(tutor.id, from, 14, tutor.introMinutes) : regularRequest;
+    const [regular, intro] = await Promise.all([regularRequest, introRequest]);
+    return { regular, intro };
+  });
   const isTutorAccount = user?.role === 'tutor' || user?.role === 'admin';
   const location = useLocation();
   const fromChat = (location.state as { back?: string } | null)?.back;
@@ -60,7 +66,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
 
   const booking = (
     <div className="trh-sec trh-pf-booking">
-      <SelectField label="Предмет" value={subject} onChange={(event) => { const next = event.target.value; if ((next === '__intro__') !== (kind === 'intro')) setStart(null); setSubject(next); }} options={subjects} />
+      <SelectField label="Предмет" value={subject} onChange={(event) => { const next = event.target.value; const nextKind = next === '__intro__' ? 'intro' : 'regular'; if (start && !slots.data?.[nextKind].some((slot) => slot.available && slot.start === start)) setStart(null); setSubject(next); }} options={subjects} />
       <div className="fr fb"><span>{kind === 'intro' ? `Знакомство, ${minutes(duration)}` : `Занятие, ${minutes(duration)}`}</span><b className="tn trk-price-xl">{kind === 'intro' ? 'Бесплатно' : rub(price)}</b></div>
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
         <div className="trh-pf-actions">
@@ -130,7 +136,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
             <div className="trh-pf-calendar">
               <Section title="Свободное время">
                 <span className="sm trk-tz"><Icon name="globe" />Москва · МСК (UTC+3)</span>
-                {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} showTimezone={false} />}
+                {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data?.[kind] ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} showTimezone={false} />}
               </Section>
             </div>
             {booking}

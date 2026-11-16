@@ -17,7 +17,8 @@ test('публичные отзывы скрыты, запись на знако
   await expect(booking.getByRole('link', { name: 'Записаться', exact: true })).toHaveAttribute('href', /kind=regular/);
   await booking.getByLabel('Предмет', { exact: true }).selectOption({ label: 'Бесплатное знакомство' });
   await expect(booking.getByText('Бесплатно', { exact: true })).toBeVisible();
-  await expect(booking.getByRole('button', { name: 'Записаться', exact: true })).toBeDisabled();
+  await expect(booking.getByRole('link', { name: 'Записаться', exact: true })).toHaveAttribute('href', /kind=intro/);
+  await expect(page.locator('.slot[aria-pressed=true]')).toHaveCount(1);
   await page.locator('.slot').first().click();
   await booking.getByRole('link', { name: 'Записаться', exact: true }).click();
   await expect(page).toHaveURL(/kind=intro/);

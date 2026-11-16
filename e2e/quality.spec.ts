@@ -110,7 +110,7 @@ test.describe('телефон: шапка, кнопки, анкета', () => {
     const before = await burger.boundingBox();
     expect(before?.width).toBe(before?.height);
     const signIn = await page.locator('.trh-actions .btn').boundingBox();
-    expect(before!.x - signIn!.x - signIn!.width).toBeCloseTo(8, 0);
+    expect(before!.x - signIn!.x - signIn!.width).toBeCloseTo(6, 0);
     const create = page.getByRole('link', { name: 'Создать заявку' });
     const find = page.getByRole('link', { name: 'Найти репетитора', exact: true }).first();
     const createBox = await create.boundingBox();

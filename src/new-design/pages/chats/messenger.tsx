@@ -1,6 +1,6 @@
 import { usePolling } from '../../lib/usePolling';
 import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
-import { Link, NavLink, useParams } from 'react-router-dom';
+import { Link, NavLink, useLocation, useParams } from 'react-router-dom';
 import { api } from '../../api';
 import { useMutation, useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
@@ -26,6 +26,9 @@ function dayLabel(iso: string) {
 /** Сообщения как в мессенджере: слева список диалогов, справа переписка. На телефоне — два экрана с кнопкой «назад». */
 export function Messenger({ role }: { role: Side }) {
   const { id } = useParams();
+  const location = useLocation();
+  const fromProfile = (location.state as { from?: string } | null)?.from;
+  const profileBack = fromProfile && /^\/(me|tutor)\/account(?:\?|$)/.test(fromProfile) ? fromProfile : null;
   const base = role === 'tutor' ? '/tutor/chats' : '/me/chats';
   const chats = useQuery('chats', () => api.listConversations());
   const reloadChats = chats.reload;
@@ -35,7 +38,7 @@ export function Messenger({ role }: { role: Side }) {
     <AppLayout role={role} chat={id ? 'thread' : 'list'}>
       <div className={`tg${id ? ' open' : ''}`}>
         <aside className="tg-list" aria-label="Диалоги">
-          <h1 className="tg-title">Сообщения</h1>
+          <div className="tg-list-title">{!id && profileBack && <BackLink to={profileBack}>Профиль</BackLink>}<h1 className="tg-title">Сообщения</h1></div>
           {chats.error && <FormError error={chats.error} />}
           {chats.loading && !chats.data && <p className="muted tg-pad">Загружаем…</p>}
           {chats.data && list.length === 0 && (

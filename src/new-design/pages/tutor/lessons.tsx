@@ -61,7 +61,7 @@ export default function TutorLessonsPage() {
 
   return (
     <AppLayout role="tutor">
-      <PageHeader title="Уроки" actions={<IconButton icon="clock" label="Расписание" to="/tutor/schedule" />} />
+      <PageHeader art="calendar" title="Уроки" actions={<IconButton icon="clock" label="Расписание" to="/tutor/schedule" />} />
       {profile.data?.status === 'draft' && (
         <Note tone="info" icon="edit" action={<Button size="s" to="/tutor/profile/edit">Заполнить анкету</Button>}>Анкета ещё не опубликована: ученики вас не видят. Это займёт около трёх минут.</Note>
       )}

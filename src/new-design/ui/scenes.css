@@ -1,0 +1,31 @@
+.tr .trk-scene { position: relative; display: block; width: min(240px, 100%); margin: 0 auto 8px; }
+.tr .trk-scene img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; }
+.tr .trk-scene.compact { width: 104px; flex: 0 0 104px; margin: 0; }
+.tr .trk-scene-spark { position: absolute; top: 12%; right: 6%; width: 18px; height: 18px; fill: var(--accent); }
+.tr .trk-scene-icon { position: relative; width: 38px; height: 38px; flex: 0 0 38px; display: grid; place-items: center; }
+.tr .trk-scene-icon > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; fill: #fff3eb; stroke: var(--ink); stroke-width: 1.2; stroke-linecap: round; }
+.tr .trk-scene-icon .accent { fill: none; stroke: var(--accent); stroke-width: 2; }
+.tr .trk-scene-icon .i { width: 22px; height: 22px; color: var(--accent); }
+.tr .trk-pagehead-art { align-self: center; }
+.tr .tg-list-title { display: flex; align-items: center; gap: 12px; padding: 16px; }
+.tr .tg-list-title .tg-title { padding: 0; margin: 0; }
+@media (max-width: 760px) {
+  .tr .trk-scene.compact { width: 72px; flex-basis: 72px; }
+  .tr .trk-scene-spark { width: 12px; height: 12px; }
+}
+@media (max-width: 360px) { .tr .trk-pagehead-art .trk-scene { width: 54px; flex-basis: 54px; } }
+@media (prefers-reduced-motion: no-preference) {
+  .tr .trk-scene[data-scene-ready]:not([data-scene-visible]) { opacity: 0; }
+  .tr .trk-scene[data-scene-visible] img { animation: tr-scene-enter 800ms cubic-bezier(.16,1,.3,1) both; }
+  .tr .trk-scene[data-scene-visible] .trk-scene-spark { animation: tr-scene-spark 1400ms ease-in-out 2; transform-origin: center; }
+  .tr .trk-scene-icon .accent { stroke-dasharray: 12; animation: tr-scene-ink 900ms ease-out both; }
+  .tr .trk-scene-icon { transition: transform 350ms ease; }
+  @media (hover: hover) { .tr .trk-navrow:hover .trk-scene-icon { transform: rotate(-3deg); } }
+}
+@keyframes tr-scene-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes tr-scene-spark { 50% { transform: scale(.75) rotate(18deg); } }
+@keyframes tr-scene-ink { from { stroke-dashoffset: 12; } to { stroke-dashoffset: 0; } }
+
+.tr .trk-navrow > .trk-scene-icon { flex: 0 0 38px; }
+
+.tr .trk-navrow .trk-scene-icon > .i { color: var(--accent); }
