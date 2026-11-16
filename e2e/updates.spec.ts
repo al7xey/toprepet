@@ -56,13 +56,13 @@ test('профиль: сводка по заявкам, настройки от�
   await login(page, 'student');
   await page.goto('/me/account');
   const main = page.locator('#main');
-  // заявки, уведомления и платежи — прямо в профиле, заявку можно создать из окна
-  await expect(main.getByRole('heading', { name: 'Мои заявки' })).toBeVisible();
-  await expect(main.getByRole('heading', { name: 'Уведомления' })).toBeVisible();
-  await expect(main.getByRole('heading', { name: 'Платежи' })).toBeVisible();
+  // Все разделы ученика собраны в одном навигационном блоке.
+  await expect(main.getByRole('navigation', { name: 'Разделы кабинета' }).getByRole('link', { name: 'Мои заявки' })).toBeVisible();
+  await expect(main.getByRole('navigation', { name: 'Разделы кабинета' }).getByRole('link', { name: 'Уведомления' })).toBeVisible();
+  await expect(main.getByRole('navigation', { name: 'Разделы кабинета' }).getByRole('link', { name: 'Платежи' })).toBeVisible();
   await expect(main.getByRole('button', { name: 'Сменить пароль' })).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Новая заявка' })).toHaveCount(0);
-  await main.getByRole('link', { name: 'Все заявки', exact: true }).click();
+  await main.getByRole('link', { name: 'Мои заявки', exact: true }).click();
   await page.getByRole('link', { name: 'Новая заявка', exact: true }).click();
   await expect(page).toHaveURL(/me\/requests\/new/);
   await page.goto('/me/account');
@@ -152,15 +152,15 @@ test('расписание: недельный шаблон и выбор дат
 
 test('уведомление: точка пропадает после открытия, «назад» возвращает в профиль', async ({ page }) => {
   await login(page, 'student');
-  await page.goto('/me/account');
-  await expect(page.locator('.trk-notice').first()).toBeVisible();
-  const dots = page.locator('.trk-notice .trk-note-dot');
+  await page.goto('/me/notifications');
+  await expect(page.locator('.trk-note-row').first()).toBeVisible();
+  const dots = page.locator('.trk-note-row .trk-note-dot');
   const before = await dots.count();
   expect(before).toBeGreaterThan(0);
-  await page.locator('.trk-notice[href^="/me/requests/"]').first().click();
+  await page.locator('.trk-note-row[href^="/me/requests/"]').first().click();
   await expect(page).toHaveURL(/\/me\/requests\//);
   await page.locator('.trk-pagehead a.trk-back').click();
-  await expect(page).toHaveURL(/\/me\/account$/);
-  await expect(page.locator('.trk-notice').first()).toBeVisible();
-  await expect(page.locator('.trk-notice .trk-note-dot')).toHaveCount(before - 1);
+  await expect(page).toHaveURL(/\/me\/notifications$/);
+  await expect(page.locator('.trk-note-row').first()).toBeVisible();
+  await expect(page.locator('.trk-note-row .trk-note-dot')).toHaveCount(before - 1);
 });

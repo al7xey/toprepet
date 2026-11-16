@@ -1,21 +1,18 @@
-import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { api } from '../../api';
 import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
-import type { PaymentKind } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
-import { ago, count, dateLong, rub } from '../../lib/format';
-import { Avatar, Button, Card, ErrorState, IconButton, LoadingList, Modal, Note, NavigationRow, PageHeader, Status, useToast, type Tone, UnreadDot } from '../../ui';
-import { RequestCard } from '../requests/parts';
-import { RequestWizard } from '../requests/new';
-
-const PAY: Record<PaymentKind, { tone: Tone; text: string; sign: string }> = {
-  hold: { tone: 'wait', text: 'Заморожено', sign: '' },
-  charge: { tone: 'ok', text: 'Списано', sign: '−' },
-  release: { tone: 'neutral', text: 'Разморожено', sign: '' },
-  refund: { tone: 'info', text: 'Возврат', sign: '+' },
-};
+import { ago, count } from '../../lib/format';
+import { Avatar, Button, Card, ErrorState, IconButton, LoadingList, Note, NavigationRow, PageHeader, UnreadDot } from '../../ui';
+const STUDENT_SECTIONS = [
+  { label: 'Мои заявки', to: '/me/requests', icon: 'list' },
+  { label: 'Мои репетиторы', to: '/me/tutors', icon: 'book' },
+  { label: 'Занятия', to: '/me/lessons', icon: 'clock' },
+  { label: 'Сообщения', to: '/me/chats', icon: 'chat' },
+  { label: 'Уведомления', to: '/me/notifications', icon: 'bell' },
+  { label: 'Платежи', to: '/me/payments', icon: 'card' },
+];
 
 /** Разделы репетитора, которых нет в нижнем меню: открываются из профиля. */
 const TUTOR_SECTIONS = [
@@ -42,17 +39,11 @@ function BlockHead({ title, add, all }: { title: string; add?: { label: string; 
 export function AccountView({ role }: { role: 'student' | 'tutor' }) {
   const { user } = useSession();
   const { pathname } = useLocation();
-  const [newRequest, setNewRequest] = useState(false);
-  const toast = useToast();
   const past = useQuery(`account-lessons-${role}`, () => api.listLessons('past'));
   const reviews = useQuery(`account-reviews-${role}`, () => api.listMyReviews());
   const notes = useQuery(`account-notes-${role}`, () => api.listNotifications());
-  const requests = useQuery(role === 'student' ? 'account-requests' : null, () => api.listMyRequests());
-  const payments = useQuery(role === 'student' ? 'account-payments' : null, () => api.listPayments());
   const done = past.data?.filter((l) => l.status === 'completed').length ?? 0;
-  const activeRequests = (requests.data ?? []).filter((r) => r.status === 'open');
   const latestNotes = [...(notes.data ?? [])].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 3);
-  const latestPayments = [...(payments.data ?? [])].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 3);
   const notesTo = role === 'tutor' ? '/tutor/notifications' : '/me/notifications';
   const settingsTo = role === 'tutor' ? '/tutor/account/settings' : '/me/account/settings';
 
@@ -72,29 +63,13 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
           <IconButton icon="pen" label="Изменить личные данные" to={`${settingsTo}?section=data`} state={{ from: pathname }} />
         </Card>
 
-        {role === 'student' && (
-          <section className="trk-block" aria-label="Мои заявки">
-            <BlockHead title="Мои заявки" all={{ label: 'Все заявки', to: '/me/requests' }} />
-            {requests.error ? <ErrorState text={requests.error} onRetry={requests.reload} /> : requests.loading && !requests.data ? <LoadingList rows={1} height={120} /> : activeRequests.length ? (
-              <div className="trk-list">
-                {activeRequests.slice(0, 2).map((r) => <RequestCard key={r.id} request={r} actions={<Button size="s" to={`/me/requests/${r.id}`}>Отклики</Button>} />)}
-              </div>
-            ) : (
-              <Card pad="sm"><div className="trk-form"><p className="muted">Активных заявок нет. Опишите, что нужно, и репетиторы сами откликнутся с ценой и временем.</p><Button onClick={() => setNewRequest(true)}>Создать заявку</Button></div></Card>
-            )}
-          </section>
-        )}
+        <nav className="trk-navlist" aria-label="Разделы кабинета">
+          {(role === 'tutor' ? TUTOR_SECTIONS : STUDENT_SECTIONS).map((section) => (
+            <NavigationRow key={section.to} icon={section.icon} to={section.to}>{section.label}</NavigationRow>
+          ))}
+        </nav>
 
-        {role === 'student' && <section className="trk-block" aria-label="Мои репетиторы"><BlockHead title="Мои репетиторы" all={{ label: 'Открыть моих репетиторов', to: '/me/tutors' }} /></section>}
-        {role === 'tutor' && (
-          <nav className="trk-navlist" aria-label="Разделы кабинета">
-            {TUTOR_SECTIONS.map((s) => (
-              <NavigationRow key={s.to} icon={s.icon} to={s.to}>{s.label}</NavigationRow>
-            ))}
-          </nav>
-        )}
-
-        <section className="trk-block" aria-label="Уведомления">
+        {role === 'tutor' && <section className="trk-block" aria-label="Уведомления">
           <BlockHead title="Уведомления" all={{ label: 'Все уведомления', to: notesTo }} />
           {notes.error ? <ErrorState text={notes.error} onRetry={notes.reload} /> : notes.loading && !notes.data ? <LoadingList rows={2} height={60} /> : latestNotes.length ? (
             <div className="trk-navlist">
@@ -110,32 +85,14 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
               ))}
             </div>
           ) : <span className="muted">Пока тихо: здесь появятся ответы на заявки, подтверждения уроков и сообщения.</span>}
-        </section>
-
-        {role === 'student' && (
-          <section className="trk-block" aria-label="Платежи">
-            <BlockHead title="Платежи" all={{ label: 'Все платежи', to: '/me/payments' }} />
-            {payments.error ? <ErrorState text={payments.error} onRetry={payments.reload} /> : payments.loading && !payments.data ? <LoadingList rows={2} height={60} /> : latestPayments.length ? (
-              <div className="trk-navlist">
-                {latestPayments.map((p) => (
-                  <Link key={p.id} className="trk-notice" to="/me/payments">
-                    <span className="trk-notice-text"><b>{p.title}</b><span>{dateLong(p.at)}</span></span>
-                    <span className="trk-right"><b className="tn">{PAY[p.kind].sign}{rub(p.amount)}</b><Status tone={PAY[p.kind].tone}>{PAY[p.kind].text}</Status></span>
-                  </Link>
-                ))}
-              </div>
-            ) : <span className="muted">Платежей пока нет. Они появятся после первой записи на урок.</span>}
-          </section>
-        )}
+        </section>}
 
         {user && !user.emailVerified && (
           <Note tone="bad">Почта не подтверждена. <Button to="/verify-email" variant="line" size="s">Подтвердить</Button></Note>
         )}
       </div>
 
-      <Modal open={newRequest} onClose={() => setNewRequest(false)} title="Новая заявка" width={640}>
-        <RequestWizard embedded onDone={() => { setNewRequest(false); requests.reload(); toast('Заявка опубликована'); }} />
-      </Modal>
+
     </AppLayout>
   );
 }

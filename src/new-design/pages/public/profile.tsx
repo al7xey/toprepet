@@ -85,7 +85,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
             </div>
             <div className="trh-pf-sheet">
               <div className="trh-sec">
-                <div className="trh-pf-name-row"><h1 className="trh-h1" id="tutor-name">{tutor.name}</h1>{tutor.reviewsCount > 0 && <a className="trh-pf-rating" href="#reviews" aria-label={count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')}><Icon name="star-on" />{String(tutor.rating).replace('.', ',')}</a>}</div>
+                <div className="trh-pf-name-row"><h1 className="trh-h1" id="tutor-name">{tutor.name}</h1>{tutor.reviewsCount > 0 && <a className="trh-pf-rating" href="#reviews" aria-label={count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')}><b>{String(tutor.rating).replace('.', ',')}</b><Icon name="star-on" /><span>{count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')}</span></a>}</div>
                 <p className="muted trh-pf-role">{tutor.headline}</p>
                 <div className="fr fw u-gap8">
                   {tutor.documentsVerified && <Status tone="ok" icon="shield">Документы проверены</Status>}

@@ -244,6 +244,8 @@ export function Steps({ items, size = 'md', revealOnScroll }: { items: StepItem[
   const list = useRef<HTMLOListElement>(null);
   useEffect(() => {
     if (!revealOnScroll || !list.current || typeof IntersectionObserver === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const element = list.current;
+    element.setAttribute('data-step-reveal', '');
     const threshold = .22;
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
@@ -253,7 +255,7 @@ export function Steps({ items, size = 'md', revealOnScroll }: { items: StepItem[
       }
     }, { threshold });
     for (const step of list.current.children) observer.observe(step);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); element.removeAttribute('data-step-reveal'); };
   }, [revealOnScroll]);
   return (
     <ol ref={list} className={cx('tl trh-steps', size === 's' && 's')}>
