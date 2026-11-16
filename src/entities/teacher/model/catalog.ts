@@ -1,4 +1,5 @@
 import teacherPhotos from '../../../shared/config/teacher-photos.json';
+import { publicAssetPath } from '../../../shared/lib/public-assets';
 import type { TutorExperience } from '../../../shared/config/tutor-experience';
 
 export interface Teacher {
@@ -31,7 +32,7 @@ export const teachers: readonly Teacher[] = [
       'Разговорный английский',
       'Английский для путешествий',
     ],
-    photo: teacherPhotos['english'].src,
+    photo: publicAssetPath(teacherPhotos['english'].src),
     experience: '3–5 лет',
     intro:
       'Работает с дошкольниками и школьниками. Подбирает материалы по возрасту и уровню подготовки ученика, объясняет сложное простыми словами и помогает спокойно разбирать ошибки.',
@@ -65,7 +66,7 @@ export const teachers: readonly Teacher[] = [
       'Подготовка к ОГЭ',
       'Подготовка к ЕГЭ',
     ],
-    photo: teacherPhotos['russian-literature'].src,
+    photo: publicAssetPath(teacherPhotos['russian-literature'].src),
     experience: '1–3 года',
     intro:
       'Учитель общеобразовательной школы с высшим педагогическим образованием по профилям «Русский язык и литература». Проводит занятия для учеников 5–11 классов: помогает разобраться в школьной программе, укрепить знания по русскому языку и литературе, подготовиться к ОГЭ и ЕГЭ. Сама сдала ЕГЭ по русскому языку на 98 баллов.',
@@ -94,7 +95,7 @@ export const teachers: readonly Teacher[] = [
       'Домашние задания',
       'Подготовка к ОГЭ',
     ],
-    photo: teacherPhotos['chemistry-biology'].src,
+    photo: publicAssetPath(teacherPhotos['chemistry-biology'].src),
     experience: '3–5 лет',
     intro:
       'Помогает ученикам 5–11 классов разобраться в химии и биологии и подготовиться к ОГЭ. Объясняет сложные темы понятным языком и делает конспекты, к которым удобно возвращаться при повторении.',
@@ -123,7 +124,7 @@ export const teachers: readonly Teacher[] = [
       'Подготовка к ОГЭ',
       'Подготовка к ЕГЭ',
     ],
-    photo: teacherPhotos['informatics'].src,
+    photo: publicAssetPath(teacherPhotos['informatics'].src),
     experience: '1–3 года',
     intro:
       'Имеет опыт работы с учениками как репетитор и куратор: регулярно проводит индивидуальные созвоны, помогает разобраться в сложных темах и выстроить понятный план учёбы. Основное направление — информатика, включая школьную программу, ОГЭ и ЕГЭ. Также помогает с математикой, домашними заданиями и другими школьными предметами.',
@@ -159,7 +160,7 @@ export const teachers: readonly Teacher[] = [
       'Домашние задания',
       'Подготовка к ОГЭ',
     ],
-    photo: teacherPhotos['russian'].src,
+    photo: publicAssetPath(teacherPhotos['russian'].src),
     experience: 'Менее 1 года',
     intro:
       'Уверенно знает русский язык и всю школьную программу. Помогает разобраться в правилах, восполнить пробелы и научиться применять теорию на практике — от домашних заданий и текущих тем до подготовки к ОГЭ. В занятиях делает акцент на понятной логике языка, внимательном разборе ошибок и спокойном темпе.',
@@ -187,7 +188,7 @@ export const teachers: readonly Teacher[] = [
       'Домашние задания',
       'Подготовка к ОГЭ',
     ],
-    photo: teacherPhotos['mathematics'].src,
+    photo: publicAssetPath(teacherPhotos['mathematics'].src),
     experience: '1–3 года',
     intro:
       'Умеет понятно объяснять сложные темы и находить подход к детям. Помогает устранить пробелы, разобраться с домашними заданиями и системно подготовиться к ОГЭ. В работе сочетает спокойное объяснение, последовательную практику и регулярное закрепление материала.',
@@ -221,7 +222,7 @@ export const teachers: readonly Teacher[] = [
       'Подготовка к ЕГЭ',
       'Подготовка к ОГЭ',
     ],
-    photo: teacherPhotos['physics-mathematics'].src,
+    photo: publicAssetPath(teacherPhotos['physics-mathematics'].src),
     experience: '5–10 лет',
     intro:
       'Преподаёт физику и математику. Может преподавать на русском и английском языках. Подбирает индивидуальную программу под цели каждого ученика, использует интерактивную доску и помогает разбирать задачи по шагам. На занятиях поддерживает комфортную атмосферу без давления.',
@@ -271,7 +272,7 @@ export const teachers: readonly Teacher[] = [
       'Разговорный английский',
       'Английский для путешествий',
     ],
-    photo: teacherPhotos['english-elizaveta'].src,
+    photo: publicAssetPath(teacherPhotos['english-elizaveta'].src),
     experience: '1–3 года',
     intro:
       'Проводит индивидуальные онлайн-занятия по английскому языку. Помогает разобраться в школьной программе и домашних заданиях, развить разговорные навыки и освоить английский для путешествий. Подбирает обучение под уровень, цели и темп ученика. На занятиях создаёт спокойную атмосферу, в которой можно задавать вопросы и не бояться ошибок.',
@@ -297,7 +298,7 @@ export const teachers: readonly Teacher[] = [
       'Подготовка к ЕГЭ',
       'Подготовка к ОГЭ',
     ],
-    photo: teacherPhotos['history'].src,
+    photo: publicAssetPath(teacherPhotos['history'].src),
     experience: 'Менее 1 года',
     intro:
       'Преподаёт историю, помогает со школьной программой, домашними заданиями и подготовкой к ЕГЭ и ОГЭ. Стремится объяснять материал ясно и понятно, раскрывать логику исторических процессов и делать изучение истории интересным.',
@@ -325,7 +326,7 @@ export const teachers: readonly Teacher[] = [
       'Подготовка к ВПР',
       'Вступительные испытания',
     ],
-    photo: teacherPhotos['chemistry'].src,
+    photo: publicAssetPath(teacherPhotos['chemistry'].src),
     experience: '5–10 лет',
     intro:
       'Преподаёт химию 10 лет. За это время работал с учениками индивидуально, в мини-группах и на вебинарах для большой аудитории. Готовит к ОГЭ, ЕГЭ, ВПР и вступительным испытаниям в вуз, помогает повысить успеваемость и разобраться в школьной программе. Автор собственных учебных материалов.',
@@ -363,7 +364,7 @@ export const teachers: readonly Teacher[] = [
       'ЕГЭ по литературе',
       'ОГЭ по математике',
     ],
-    photo: teacherPhotos['russian-literature-math'].src,
+    photo: publicAssetPath(teacherPhotos['russian-literature-math'].src),
     experience: '3–5 лет',
     intro:
       'Помогает школьникам с русским языком, литературой и математикой: разбирает темы программы и домашние задания. Готовит к ОГЭ и ЕГЭ по русскому языку и литературе, а также к ОГЭ по математике. Математику преподаёт ученикам 5–9 классов. Окончила Нижневартовский государственный университет.',

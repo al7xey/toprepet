@@ -7,6 +7,7 @@ import { rub } from '../../lib/format';
 import { Button, Faq, IconButton, Panel, Section, Steps, Ticks } from '../../ui';
 import { TutorShowcase } from '../../ui/tutor-showcase';
 import { TUTOR_FAQ, TUTOR_STEPS } from './content';
+import { publicAssetPath, publicAssetSrcSet } from '../../../shared/lib/public-assets';
 
 /** Калькулятор: репетитор получает свою цену, ученик платит на 10% больше. */
 function PriceCalc() {
@@ -48,7 +49,7 @@ export default function TutorsLandingPage() {
           </div>
         </div>
         <div className="trh-hero-media">
-          <img src="/images/for-repetitor-hero-1200.webp" srcSet="/images/for-repetitor-hero-640.webp 640w, /images/for-repetitor-hero-1200.webp 1200w" sizes="(min-width:1440px) 640px, (min-width:761px) 46vw, calc(100vw - 32px)" alt="Репетиторы TopRepet" width={1200} height={900} fetchPriority="high" />
+          <img src={publicAssetPath('/images/for-repetitor-hero-1200.webp')} srcSet={publicAssetSrcSet('/images/for-repetitor-hero-640.webp 640w, /images/for-repetitor-hero-1200.webp 1200w')} sizes="(min-width:1440px) 640px, (min-width:761px) 46vw, calc(100vw - 32px)" alt="Репетиторы TopRepet" width={1200} height={900} fetchPriority="high" />
         </div>
       </section>
 

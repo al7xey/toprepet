@@ -7,7 +7,7 @@ export default defineConfig(({ command, mode }) => {
     throw new Error('Set VITE_API_URL for the service, or VITE_API_MODE=demo for an explicit demo build.');
   }
   return {
-  base: '/',
+  base: env.VITE_BASE_PATH || '/',
   plugins: [react()],
   resolve: { alias: { '@': fileURLToPath(new URL('./', import.meta.url)) } },
   server: { host: '127.0.0.1' },

@@ -5,6 +5,7 @@ import { PublicLayout } from '../../layout/layouts';
 import { Button, Faq, Icon, IconButton, Section, Steps } from '../../ui';
 import { TutorShowcase } from '../../ui/tutor-showcase';
 import { HOW_STEPS, STUDENT_FAQ } from './content';
+import { publicAssetPath, publicAssetSrcSet } from '../../../shared/lib/public-assets';
 import './home-visual.css';
 
 export default function HomePage() {
@@ -27,7 +28,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="trh-hero-media">
-          <img src="/images/hero-slide-3-1200.webp" srcSet="/images/hero-slide-3-640.webp 640w, /images/hero-slide-3-1200.webp 1200w" sizes="(min-width:1440px) 640px, (min-width:761px) 46vw, calc(100vw - 32px)" alt="Ученица занимается за ноутбуком" width={1200} height={900} fetchPriority="high" />
+          <img src={publicAssetPath('/images/hero-slide-3-1200.webp')} srcSet={publicAssetSrcSet('/images/hero-slide-3-640.webp 640w, /images/hero-slide-3-1200.webp 1200w')} sizes="(min-width:1440px) 640px, (min-width:761px) 46vw, calc(100vw - 32px)" alt="Ученица занимается за ноутбуком" width={1200} height={900} fetchPriority="high" />
         </div>
       </section>
 

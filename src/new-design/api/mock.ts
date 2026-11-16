@@ -1,6 +1,7 @@
 import { teachers } from '../../entities/teacher';
 import { PRICE } from '../../shared/config/site';
 import teacherPhotos from '../../shared/config/teacher-photos.json';
+import { publicAssetSrcSet } from '../../shared/lib/public-assets';
 import { optimizeImage } from '../lib/images';
 import { ApiError, type Api } from './contract';
 import type {
@@ -58,7 +59,7 @@ function seedTutors(variedPrices = true): Tutor[] {
     id: t.id,
     name: t.name,
     photo: t.photo,
-    photoSrcSet: photos[t.id]?.srcSet,
+    photoSrcSet: photos[t.id] ? publicAssetSrcSet(photos[t.id].srcSet) : undefined,
     headline: t.role,
     subjects: t.cardSubjects.split(' / '),
     cardSubjects: t.cardSubjects,

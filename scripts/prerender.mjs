@@ -16,8 +16,16 @@ import { createHash } from 'node:crypto';
 const distIndexPath = resolve('dist/index.html');
 const serverEntryPath = resolve('dist-server/entry-server.js');
 
-const template = await readFile(distIndexPath, 'utf8');
+let template = await readFile(distIndexPath, 'utf8');
 const manifest = JSON.parse(await readFile(resolve('dist/.vite/manifest.json'), 'utf8'));
+const assetBase = (process.env.VITE_BASE_PATH || '/').replace(/^\/+|\/+$/g, '');
+const assetUrl = path => `/${assetBase ? `${assetBase}/` : ''}${path.replace(/^\/+/, '')}`;
+if (assetBase) {
+  template = template.replace(
+    /<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/i,
+    '<meta name="robots" content="noindex,nofollow" />',
+  );
+}
 const fontFiles = (await readdir(resolve('dist/assets')))
   .filter(file => /^manrope-(?:cyrillic|latin)-wght-normal-.*\.woff2$/.test(file));
 
@@ -36,8 +44,9 @@ function addRouteAssets(html, route) {
   const visited = new Set();
   const links = [];
   const add = (file, rel) => {
-    if (!html.includes(`href="/${file}"`)) {
-      links.push(`<link rel="${rel}" href="/${file}"${rel === 'modulepreload' ? ' crossorigin' : ''}>`);
+    const url = assetUrl(file);
+    if (!html.includes(`href="${url}"`)) {
+      links.push(`<link rel="${rel}" href="${url}"${rel === 'modulepreload' ? ' crossorigin' : ''}>`);
     }
   };
   const visit = key => {
@@ -51,7 +60,7 @@ function addRouteAssets(html, route) {
   };
   if (entry) visit(entry);
   for (const file of fontFiles) {
-    links.push(`<link rel="preload" as="font" type="font/woff2" href="/assets/${file}" crossorigin>`);
+    links.push(`<link rel="preload" as="font" type="font/woff2" href="${assetUrl(`assets/${file}`)}" crossorigin>`);
   }
   return html.replace('</head>', `${[...new Set(links)].join('\n')}\n</head>`);
 }

@@ -16,7 +16,7 @@ if (!rootElement) {
 
 const app = (
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <AppContent />
     </BrowserRouter>
   </React.StrictMode>
@@ -26,7 +26,11 @@ const app = (
 // Кабинеты, формы и неизвестные адреса получают index.html или 404.html: их рисуем заново, без гидрации.
 const normalize = (value: string) => value.replace(/\/+$/, '') || '/';
 const prerendered = rootElement.dataset.prerendered;
-if (rootElement.hasChildNodes() && prerendered !== undefined && normalize(prerendered) === normalize(window.location.pathname)) {
+const basePath = import.meta.env.BASE_URL.replace(/\/+$/, '');
+const appPath = basePath && window.location.pathname.startsWith(`${basePath}/`)
+  ? window.location.pathname.slice(basePath.length) || '/'
+  : window.location.pathname;
+if (rootElement.hasChildNodes() && prerendered !== undefined && normalize(prerendered) === normalize(appPath)) {
   hydrateRoot(rootElement, app);
 } else {
   rootElement.replaceChildren();
