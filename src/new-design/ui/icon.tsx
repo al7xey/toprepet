@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import { iconAliases, iconArtwork } from './icon-artwork';
 import './icon.css';
 
-/** The same approved SVG artwork is reused in navigation, forms and the editor. */
+/** Shared minimal monochrome SVGs for navigation, forms and the editor. */
 export function Icon({ name, style, size, className = '' }: { name: string; style?: CSSProperties; size?: number; className?: string }) {
   const canonical = iconAliases[name] ?? name;
   return (
@@ -27,11 +27,8 @@ export function Icon({ name, style, size, className = '' }: { name: string; styl
 }
 
 export function achievementIcon(title: string) {
-  if (/олимпиад|медаль|приз[ёе]р/i.test(title)) return 'medal';
-  if (/побед|наград|конкурс|лауреат/i.test(title)) return 'trophy';
-  if (/диплом/i.test(title)) return 'diploma';
-  if (/университет|институт|магистр|бакалавр|образован|педагог|специалитет/i.test(title)) return 'school';
-  if (/язык|англий|cambridge|ielts|toefl|fce|b2|c1|c2/i.test(title)) return 'languages';
+  if (/диплом|университет|институт|магистр|бакалавр|образован|педагог|специалитет/i.test(title)) return 'school';
+  if (/язык|англий|cambridge|ielts|toefl|fce|b2|c1|c2/i.test(title)) return 'globe';
   if (/сертификат|квалификац/i.test(title)) return 'doc';
   if (/курс|методик/i.test(title)) return 'book';
   return 'star';

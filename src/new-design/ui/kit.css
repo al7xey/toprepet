@@ -746,6 +746,8 @@ html{overflow-y:scroll}
 .tr .trk-navrow span{flex:1}
 .tr .trk-navrow .i{width:22px;height:22px;color:var(--accent)}
 .tr .trk-navrow > .i:last-child{width:18px;height:18px;color:var(--muted)}
+.tr .tg-list-title{display:flex;align-items:center;gap:12px;padding:16px}
+.tr .tg-list-title .tg-title{padding:0;margin:0}
 .tr .trk-request{gap:10px}
 .tr .trk-request-title{font-size:18px}
 @media (max-width:760px){

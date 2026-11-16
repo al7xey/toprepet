@@ -17,7 +17,7 @@ const FAQ_SCHEMA = {
 export default function HelpPage() {
   return (
     <PublicLayout tight>
-      <PageHeader art="search" title="Помощь" />
+      <PageHeader title="Помощь" />
       <script type="application/ld+json">{JSON.stringify(FAQ_SCHEMA).replace(/</g, '\\u003c')}</script>
       <Section title="Вопросы и ответы"><Faq items={FAQ} /></Section>
     </PublicLayout>

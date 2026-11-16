@@ -18,7 +18,7 @@ export default function PaymentsPage() {
   const [tab, setTab] = useState<'history' | 'cards'>('history');
   return (
     <AppLayout role="student">
-      <PageHeader art="finance" title="Платежи" back={{ to: '/me/account', label: 'Профиль' }} />
+      <PageHeader title="Платежи" back={{ to: '/me/account', label: 'Профиль' }} />
       <Tabs items={[{ value: 'history', label: 'История' }, { value: 'cards', label: 'Карты' }]} value={tab} onChange={setTab} />
       {tab === 'history' ? <History /> : <Cards />}
     </AppLayout>

@@ -12,7 +12,7 @@ export default function LessonsPage() {
   const lessons = useQuery(`lessons-${scope}`, () => api.listLessons(scope));
   return (
     <AppLayout role="student">
-      <PageHeader art="calendar" title="Мои уроки" />
+      <PageHeader title="Мои уроки" />
       <Tabs<Scope> items={[{ value: 'upcoming', label: 'Предстоящие' }, { value: 'past', label: 'Прошедшие' }]} value={scope} onChange={setScope} />
       <QueryView
         query={lessons}

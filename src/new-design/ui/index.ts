@@ -4,4 +4,3 @@ export * from './overlay';
 export * from './filters';
 export * from './schedule';
 export * from './month';
-export * from './scenes';

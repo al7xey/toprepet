@@ -54,13 +54,9 @@ export default function HomePage() {
         <Button to="/teachers?intro=1" size="lg" block>Бесплатное знакомство</Button>
       </Section>
 
-      <section className="p-home-trust" aria-labelledby="trust-title">
-        <img src="/images/payment-trust.webp" alt="Человек спокойно читает книгу, облокотившись на большой замок" width={1536} height={1024} loading="lazy" decoding="async" />
-        <div className="trh-sec">
-          <h2 id="trust-title" className="h2 trh-h2">100% гарантия возврата средств</h2>
+      <Section className="p-home-trust" title="100% гарантия возврата средств">
           <p className="cap">Если оплаченное занятие не состоялось, вернём деньги полностью. Оплата списывается после подтверждения записи, а репетитор получает её после занятия. В спорной ситуации поможет поддержка.</p>
-        </div>
-      </section>
+      </Section>
 
       <Section title="Вы репетитор? Найдём для вас учеников" className="trh-recruit" reveal>
         <Button to="/for-repetitor/" size="lg" block>Стать топ-репетом</Button>
