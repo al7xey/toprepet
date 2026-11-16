@@ -57,7 +57,7 @@ export default function VerifyEmailPage() {
       <PageHeader title="Проверьте почту" lead={<>Введите шестизначный код для <b>{user.email}</b>. Код действует 10 минут. Если письма нет, запросите новый код.</>} center />
       <AuthCard>
         <form className="trk-form" onSubmit={(event) => { event.preventDefault(); void submitCode(); }}>
-          <TextField label="Код из письма" name="verificationCode" value={code} onChange={(event) => { setCode(event.target.value.replace(/\D/g, '').slice(0, 6)); confirm.reset(); }} inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="000000" />
+          <TextField label="Код из письма" name="verificationCode" value={code} onChange={(event) => { setCode(event.target.value.replace(/\D/g, '').slice(0, 6)); confirm.reset(); }} inputMode="numeric" autoComplete="one-time-code" autoCapitalize="none" spellCheck={false} maxLength={12} placeholder="000000" />
           {api.mode === 'mock' && <Note tone="plain">Демо-код — 123456. В этой версии письма не отправляются.</Note>}
           <Button type="submit" block disabled={code.length !== 6} loading={confirm.pending}>Подтвердить почту</Button>
           <FormError error={resend.error ?? confirm.error} />

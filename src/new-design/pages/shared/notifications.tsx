@@ -27,7 +27,10 @@ export default function NotificationsPage() {
   const open = (n: Notification) => {
     if (n.read) return;
     list.setData((prev) => (prev ?? []).map((x) => (x.id === n.id ? { ...x, read: true } : x)));
-    void api.markNotificationRead(n.id).then(() => window.dispatchEvent(new Event('tr:notes'))).catch(() => toast('Не удалось отметить уведомление прочитанным'));
+    void api.markNotificationRead(n.id).then(() => window.dispatchEvent(new Event('tr:notes'))).catch(() => {
+      list.setData((prev) => (prev ?? []).map((item) => item.id === n.id ? { ...item, read: false } : item));
+      toast('Не удалось отметить уведомление прочитанным');
+    });
   };
   return (
     <AppLayout role={role}>

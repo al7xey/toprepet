@@ -33,7 +33,10 @@ export function Modal({ open, onClose, title, children, footer, width = 520 }: {
     };
     document.addEventListener('keydown', onKey);
     document.documentElement.style.overflow = 'hidden';
-    box.current?.querySelector<HTMLElement>('input,textarea,select,button:not(.trk-modal-x)')?.focus();
+    const initialFocus = window.matchMedia('(max-width: 760px)').matches
+      ? box.current
+      : focusable().find((node) => !node.classList.contains('trk-modal-x')) ?? box.current;
+    initialFocus?.focus({ preventScroll: true });
     return () => {
       document.removeEventListener('keydown', onKey);
       document.documentElement.style.overflow = overflowBefore;
@@ -49,10 +52,15 @@ export function Modal({ open, onClose, title, children, footer, width = 520 }: {
     let startAt = 0;
     let delta = 0;
     let dragging = false;
+    let canDrag = false;
     let closeTimer: number | undefined;
     const scrim = el.parentElement?.querySelector<HTMLElement>('.trk-scrim');
-    const onStart = (e: TouchEvent) => { startY = e.touches[0].clientY; startAt = Date.now(); delta = 0; dragging = false; };
+    const onStart = (e: TouchEvent) => {
+      startY = e.touches[0].clientY; startAt = Date.now(); delta = 0; dragging = false;
+      canDrag = e.touches.length === 1 && !(e.target instanceof Element && e.target.closest('input,textarea,select,button,a,[contenteditable]'));
+    };
     const onMove = (e: TouchEvent) => {
+      if (!canDrag || e.touches.length !== 1 || window.getSelection()?.isCollapsed === false) return;
       const dy = e.touches[0].clientY - startY;
       if (!dragging) { if (dy > 8 && el.scrollTop <= 0) dragging = true; else return; }
       delta = Math.max(0, dy);
@@ -79,13 +87,14 @@ export function Modal({ open, onClose, title, children, footer, width = 520 }: {
     el.addEventListener('touchstart', onStart, { passive: true });
     el.addEventListener('touchmove', onMove, { passive: false });
     el.addEventListener('touchend', onEnd);
-    el.addEventListener('touchcancel', onEnd);
+    const onCancel = () => { delta = 0; onEnd(); };
+    el.addEventListener('touchcancel', onCancel);
     return () => {
       window.clearTimeout(closeTimer);
       el.removeEventListener('touchstart', onStart);
       el.removeEventListener('touchmove', onMove);
       el.removeEventListener('touchend', onEnd);
-      el.removeEventListener('touchcancel', onEnd);
+      el.removeEventListener('touchcancel', onCancel);
     };
   }, [open]);
   if (!open || typeof document === 'undefined') return null;

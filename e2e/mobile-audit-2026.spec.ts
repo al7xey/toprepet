@@ -53,7 +53,8 @@ test('неверный код не подтверждает почту, прав
   await submit.click();
   await expect(page.getByRole('alert')).toBeVisible();
   await expect(page).toHaveURL(/verify-email/);
-  await page.getByLabel('Код из письма', { exact: true }).fill('123456');
+  await page.getByLabel('Код из письма', { exact: true }).fill('123 456');
+  await expect(page.getByLabel('Код из письма', { exact: true })).toHaveValue('123456');
   await submit.click();
   await expect(page).toHaveURL(/\/onboarding/);
   await page.getByRole('button', { name: 'Пропустить', exact: true }).click();

@@ -413,3 +413,10 @@ html:has(.tr) { scrollbar-gutter: stable; }
 @media (max-width: 420px) {
   .tr.tr .trh-public-nav > .hdr.surf:not(.m) { height: 56px; min-height: 56px; }
 }
+
+/* Keep the name and rating on one line on narrow catalogue cards. */
+@media (max-width: 360px) {
+  .tr.tr .trh-grid .tc.s .pl { inset: auto 6px 6px; padding: 10px 8px; border-radius: 20px; }
+  .tr.tr .trh-grid .tc.s .pl > b { font-size: 14px; gap: 4px; }
+  .tr.tr .trh-grid .tc.s .pl .rt { font-size: 12px; gap: 2px; padding-right: 0; }
+}
