@@ -5,20 +5,21 @@ import { useSession } from '../../api/session';
 import type { Notification } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { ago } from '../../lib/format';
-import { Card, EmptyState, Icon, IconButton, PageHeader, QueryView, UnreadDot } from '../../ui';
+import { Card, EmptyState, FormError, Icon, IconButton, PageHeader, QueryView, UnreadDot, useToast } from '../../ui';
 
 const ICON: Record<Notification['kind'], string> = { lesson: 'book', request: 'circle-check', message: 'chat-bubble', payment: 'card', review: 'star', system: 'info' };
 
 /** Уведомления: уроки, заявки, сообщения, платежи, отзывы. Общая страница для ученика и репетитора. */
 export default function NotificationsPage() {
   const { user } = useSession();
+  const toast = useToast();
   const role = user?.role === 'tutor' ? 'tutor' : 'student';
   const list = useQuery(user ? `notes-page-${user.id}` : null, () => api.listNotifications());
   const { pathname } = useLocation();
-  const readAll = useMutation(() => api.markNotificationsRead());
+  const readAll = useMutation(async () => { await api.markNotificationsRead(); return true; });
   const unread = list.data?.some((n) => !n.read) ?? false;
   const markAll = async () => {
-    await readAll.run();
+    if (!(await readAll.run())) return;
     list.setData((prev) => (prev ?? []).map((n) => ({ ...n, read: true })));
     window.dispatchEvent(new Event('tr:notes'));
   };
@@ -26,11 +27,12 @@ export default function NotificationsPage() {
   const open = (n: Notification) => {
     if (n.read) return;
     list.setData((prev) => (prev ?? []).map((x) => (x.id === n.id ? { ...x, read: true } : x)));
-    void api.markNotificationRead(n.id).then(() => window.dispatchEvent(new Event('tr:notes')));
+    void api.markNotificationRead(n.id).then(() => window.dispatchEvent(new Event('tr:notes'))).catch(() => toast('Не удалось отметить уведомление прочитанным'));
   };
   return (
     <AppLayout role={role}>
-      <PageHeader title="Уведомления" back={{ to: role === 'tutor' ? '/tutor/account' : '/me/account', label: 'Профиль' }} actions={unread ? <IconButton icon="checks" label="Прочитать все" onClick={() => void markAll()} /> : undefined} />
+      <PageHeader title="Уведомления" back={{ to: role === 'tutor' ? '/tutor/account' : '/me/account', label: 'Профиль' }} actions={unread ? <IconButton icon="checks" label="Прочитать все" disabled={readAll.pending} onClick={() => void markAll()} /> : undefined} />
+      <FormError error={readAll.error} />
       <QueryView query={list} empty={(items) => items.length === 0 ? <EmptyState icon="bell" title="Пока тихо" text="Здесь появятся ответы на заявки, подтверждения уроков и сообщения." /> : null}>
         {(items) => (
           <div className="trk-list">

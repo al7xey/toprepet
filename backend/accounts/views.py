@@ -192,10 +192,16 @@ class ResendVerificationView(Throttled):
 
 
 class VerifyEmailView(Throttled):
-    @transaction.atomic
     def post(self, request):
         parsed = TokenIn(data=request.data)
         parsed.is_valid(raise_exception=True)
+        code = parsed.validated_data['token']
+        if len(code) == 6 and code.isascii() and code.isdigit():
+            _require(request)
+            user = EmailToken.verify_code(request.user, code)
+            if not user:
+                raise ApiError('Код неверный или истёк. Проверьте его или запросите новый.', 400, 'code')
+            return Response(user_json(user))
         item = EmailToken.consume(parsed.validated_data['token'], EmailToken.VERIFY)
         if not item:
             raise ApiError('Ссылка устарела. Запросите письмо ещё раз.', 400, 'token')

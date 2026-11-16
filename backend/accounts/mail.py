@@ -14,8 +14,7 @@ SIGNATURE = '\n\nКоманда TopRepet'
 
 def send_verification(user, token: str):
     ensure_mail_available()
-    link = f'{settings.SITE_URL}/auth/verify?token={token}'
-    send_mail('Подтвердите почту на TopRepet', f'Здравствуйте, {user.name}!\n\nПодтвердите почту по ссылке: {link}\nСсылка действует сутки.{SIGNATURE}', settings.DEFAULT_FROM_EMAIL, [user.email])
+    send_mail('Код подтверждения TopRepet', f'Здравствуйте, {user.name}!\n\nКод подтверждения: {token}\n\nВведите его на сайте. Код действует 10 минут. Если вы не регистрировались, проигнорируйте письмо.{SIGNATURE}', settings.DEFAULT_FROM_EMAIL, [user.email])
 
 
 def send_reset(user, token: str):

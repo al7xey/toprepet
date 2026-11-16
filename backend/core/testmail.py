@@ -14,7 +14,7 @@ class CaptureBackend(BaseEmailBackend):
 
 
 def last_token(email: str, kind: str) -> str | None:
-    marker = 'auth/verify?token=' if kind == 'verify' else 'reset-password?token='
+    marker = 'Код подтверждения: ' if kind == 'verify' else 'reset-password?token='
     for item in reversed(OUTBOX):
         if email in item['to'] and marker in item['body']:
             return re.search(re.escape(marker) + r'([\w-]+)', item['body']).group(1)

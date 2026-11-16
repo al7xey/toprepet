@@ -17,6 +17,15 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 
   componentDidCatch(error: Error, _info: ErrorInfo) {
     console.error(error);
+    if (/dynamically imported module|Loading chunk|ChunkLoadError/i.test(error.message)) {
+      try {
+        const key = 'tr:chunk-reload:' + import.meta.url;
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, '1');
+          window.location.reload();
+        }
+      } catch { /* The retry button remains available when storage is blocked. */ }
+    }
   }
 
   render() {

@@ -380,8 +380,7 @@ export function createMockApi(): Api {
     },
     async resendVerification() { me(); return delay(undefined); },
     async verifyEmail(token) {
-      // в моке подходит любой непустой токен; на сервере токен одноразовый и привязан к пользователю
-      if (!token.trim()) fail('Ссылка устарела. Запросите письмо ещё раз.');
+      if (token !== '123456') fail('Код неверный или истёк. Запросите новый.');
       const u = me(); u.emailVerified = true; save(); return delay(publicUser(u));
     },
     async completeOnboarding() { const u = me(); u.onboarded = true; save(); return delay(publicUser(u)); },

@@ -64,7 +64,7 @@ function Cards() {
               <Card key={c.id}>
                 <div className="trk-exrow">
                   <div><b>{c.brand} ···· {c.last4}</b>{c.primary && <><br /><span className="muted">Основная</span></>}</div>
-                  <Button size="s" variant="fill" onClick={() => { remove.reset(); setRemoving(c); }}>Удалить</Button>
+                  <IconButton icon="trash" label="Удалить карту" onClick={() => { remove.reset(); setRemoving(c); }} />
                 </div>
               </Card>
             ))}

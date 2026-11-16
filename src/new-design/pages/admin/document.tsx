@@ -32,6 +32,7 @@ export function Document({
             ? 'Проверен'
             : 'Отклонён'}
       </span>
+      {doc.status === 'checking' && !doc.downloadUrl && <p className="sm">Файл не приложен. Проверка станет доступна после загрузки документа.</p>}
       {doc.status === 'checking' && doc.downloadUrl && (
         <div className="trk-actions">
           <Button

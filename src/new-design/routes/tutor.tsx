@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { Route } from 'react-router-dom';
+import { Navigate, Route } from 'react-router-dom';
 import { RequireRole } from '../api/session';
 
 const DocumentsPage = lazy(() => import('../pages/tutor/documents'));
@@ -31,6 +31,7 @@ export const tutorRoutes = (
     <Route path="/tutor/account" element={tutor(<TutorAccountPage />)} />
     <Route path="/tutor/account/settings" element={tutor(<TutorSettingsPage />)} />
     <Route path="/tutor/requests" element={tutor(<TutorRequestsPage />)} />
+    <Route path="/tutor/requests/:id" element={tutor(<Navigate to="/tutor/requests" replace />)} />
     <Route path="/tutor/chats" element={tutor(<TutorChatsPage />)} />
     <Route path="/tutor/chats/:id" element={tutor(<TutorChatPage />)} />
     <Route path="/tutor/reviews" element={tutor(<TutorReviewsPage />)} />

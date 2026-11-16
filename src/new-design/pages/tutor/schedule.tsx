@@ -5,7 +5,7 @@ import { useMutation, useQuery } from '../../api/hooks';
 import type { ScheduleException, WeekSchedule } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { dateLong } from '../../lib/format';
-import { Button, Card, CardTitle, FormError, IconButton, LoadingList, MonthCalendar, OptionChips, PageHeader, QueryView, SelectField, Tabs, WeekEditor, weekProblem, useToast, type DayMark } from '../../ui';
+import { Button, Card, CardTitle, FormError, Icon, IconButton, LoadingList, MonthCalendar, OptionChips, PageHeader, QueryView, SelectField, Tabs, WeekEditor, weekProblem, useToast, type DayMark } from '../../ui';
 
 const HOURS = Array.from({ length: 19 }, (_, i) => `${String(i + 5).padStart(2, '0')}:00`);
 type Mode = 'bookings' | 'week' | 'dates';
@@ -20,7 +20,7 @@ export default function SchedulePage() {
   const exceptions = useQuery('my-exceptions', () => api.listExceptions());
   return (
     <AppLayout role="tutor">
-      <PageHeader title="Расписание" lead="Время московское" back={{ to: '/tutor/account', label: 'Профиль' }} />
+      <PageHeader title="Расписание" lead={<span className="sm trk-tz"><Icon name="globe" />Москва · МСК (UTC+3)</span>} back={{ to: '/tutor/account', label: 'Профиль' }} />
       <Tabs<Mode> items={[{ value: 'bookings', label: 'Записи' }, { value: 'week', label: 'Неделя' }, { value: 'dates', label: 'Даты' }]} value={mode} onChange={setMode} />
       <QueryView query={week}>
         {(saved) => mode === 'bookings'
@@ -89,7 +89,7 @@ function WeekPanel({ saved, onSaved }: { saved: WeekSchedule; onSaved: (w: WeekS
   return (
     <Card>
       <div className="trk-form">
-        <p className="cap">Эти часы повторяются каждую неделю. Чтобы изменить отдельный день, откройте вкладку «По датам».</p>
+        <p className="cap">Эти часы повторяются каждую неделю. Чтобы изменить отдельный день, откройте вкладку «Даты».</p>
         <WeekEditor value={draft} onChange={setDraft} />
         {problem && <span className="trk-error">{problem}</span>}
         <FormError error={save.error} />

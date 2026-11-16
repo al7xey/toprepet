@@ -11,6 +11,7 @@ test.describe('репетитор и администратор', () => {
     await page.getByText(/Принимаю/).click();
     await page.getByRole('button', { name: 'Создать аккаунт' }).click();
     await expect(page).toHaveURL(/verify-email/);
+    await page.getByLabel('Код из письма', { exact: true }).fill('123456');
     await page.getByRole('button', { name: /Подтвердить почту/ }).click();
     await expect(page).toHaveURL(/\/tutor\/profile\/edit/);
 

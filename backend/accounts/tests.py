@@ -14,7 +14,7 @@ def test_signup_logs_in_and_sends_verification(api):
     assert response.status_code == 201
     assert response.json() == {'id': response.json()['id'], 'role': 'student', 'name': 'Ольга', 'email': 'olga.test@mail.ru', 'emailVerified': False, 'timezone': 'Europe/Moscow', 'onboarded': False, 'photo': None, 'notifications': {'lessons': True, 'messages': True, 'reminders': True}}
     assert api.get_ok('/auth/me')['email'] == 'olga.test@mail.ru'
-    assert len(mail.outbox) == 1 and '/auth/verify?token=' in mail.outbox[0].body
+    assert len(mail.outbox) == 1 and 'Код подтверждения: ' in mail.outbox[0].body
 
 
 def test_signup_rejects_duplicate_and_short_password(api):
@@ -45,7 +45,7 @@ def test_login_email_is_case_insensitive_and_logout_clears_session(api):
 
 def test_verify_email_is_one_time(api):
     signup(api)
-    token = mail.outbox[0].body.split('token=')[1].split()[0]
+    token = mail.outbox[0].body.split('Код подтверждения: ')[1].split()[0]
     assert api.post_ok('/auth/verify', {'token': token})['emailVerified'] is True
     assert api.call('post', '/auth/verify', {'token': token}).status_code == 400
     assert api.call('post', '/auth/verify', {'token': ''}).status_code == 400
@@ -120,3 +120,49 @@ def test_profile_photo_upload(api, settings, tmp_path):
     assert ok.status_code == 200 and ok.json()['photo'].endswith('.png')
     bad = api.post('/me/photo', {'file': SimpleUploadedFile('a.png', b'not an image', 'image/png')}, format='multipart')
     assert bad.status_code == 400
+
+
+def test_verification_code_locks_after_five_wrong_attempts(api):
+    from accounts.models import EmailToken
+    signup(api)
+    code = mail.outbox[-1].body.split('Код подтверждения: ')[1].split()[0]
+    wrong = '000000' if code != '000000' else '111111'
+    for _ in range(5):
+        assert api.call('post', '/auth/verify', {'token': wrong}).status_code == 400
+    assert api.call('post', '/auth/verify', {'token': code}).status_code == 400
+    assert EmailToken.objects.get(user__email='olga.test@mail.ru', kind='verify').attempts == 5
+
+
+def test_code_is_scoped_to_the_signed_in_user(api):
+    from unittest.mock import patch
+    other = Api()
+    with patch('accounts.models.secrets.randbelow', side_effect=[123456, 654321]):
+        signup(api)
+        code = mail.outbox[-1].body.split('Код подтверждения: ')[1].split()[0]
+        signup(other, email='other@example.invalid')
+    assert other.call('post', '/auth/verify', {'token': code}).status_code == 400
+    assert api.post_ok('/auth/verify', {'token': code})['emailVerified']
+
+
+def test_expired_code_cannot_verify_and_resend_replaces_it(api):
+    from datetime import timedelta
+    from django.utils import timezone
+    from accounts.models import EmailToken
+    signup(api)
+    code = mail.outbox[-1].body.split('Код подтверждения: ')[1].split()[0]
+    EmailToken.objects.filter(kind='verify').update(expires_at=timezone.now() - timedelta(seconds=1))
+    assert api.call('post', '/auth/verify', {'token': code}).status_code == 400
+    assert api.call('post', '/auth/verify/resend').status_code == 204
+    replacement = mail.outbox[-1].body.split('Код подтверждения: ')[1].split()[0]
+    assert replacement != code
+    assert api.call('post', '/auth/verify', {'token': code}).status_code == 400
+    assert api.post_ok('/auth/verify', {'token': replacement})['emailVerified']
+
+
+def test_code_preserves_leading_zeros_and_requires_a_session(api):
+    from unittest.mock import patch
+    with patch('accounts.models.secrets.randbelow', return_value=42):
+        signup(api)
+    assert 'Код подтверждения: 000042' in mail.outbox[-1].body
+    assert Api().call('post', '/auth/verify', {'token': '000042'}).status_code == 401
+    assert api.post_ok('/auth/verify', {'token': '000042'})['emailVerified']

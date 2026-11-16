@@ -4,6 +4,8 @@
  */
 export async function optimizeImage(file: File): Promise<File> {
   if (!file.type.startsWith('image/') || file.type === 'image/gif') return file;
+  // Tiny attachments are already lightweight; starting a compression worker only delays sending.
+  if (file.size <= 128 * 1024) return file;
   try {
     const { default: compress } = await import('browser-image-compression');
     const small = await compress(file, { maxSizeMB: 1, maxWidthOrHeight: 1600, useWebWorker: true });

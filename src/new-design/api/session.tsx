@@ -57,6 +57,7 @@ export function RequireRole({ role, children }: { role: Role | Role[]; children:
   const location = useLocation();
   if (checking || error) return <main id="main" tabIndex={-1} className="trh-main trk-session-state"><PageHeader title={checking ? 'Проверяем вход…' : 'Вход в кабинет'} />{checking ? <LoadingList rows={2} /> : <ErrorState text={error!} onRetry={retry} />}</main>;
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(location.pathname + location.search)}`} replace />;
+  if (!user.emailVerified) return <Navigate to={`/verify-email?next=${encodeURIComponent(location.pathname + location.search)}`} replace />;
   const roles = Array.isArray(role) ? role : [role];
   if (!roles.includes(user.role)) return <Navigate to={homeFor(user.role)} replace />;
   return <>{children}</>;

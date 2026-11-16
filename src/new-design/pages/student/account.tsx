@@ -6,7 +6,7 @@ import { useSession } from '../../api/session';
 import type { PaymentKind } from '../../api/types';
 import { AppLayout } from '../../layout/layouts';
 import { ago, count, dateLong, rub } from '../../lib/format';
-import { Avatar, Button, Card, IconButton, Modal, Note, NavigationRow, PageHeader, Status, useToast, type Tone, UnreadDot } from '../../ui';
+import { Avatar, Button, Card, ErrorState, IconButton, LoadingList, Modal, Note, NavigationRow, PageHeader, Status, useToast, type Tone, UnreadDot } from '../../ui';
 import { RequestCard } from '../requests/parts';
 import { RequestWizard } from '../requests/new';
 
@@ -75,7 +75,7 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
         {role === 'student' && (
           <section className="trk-block" aria-label="Мои заявки">
             <BlockHead title="Мои заявки" all={{ label: 'Все заявки', to: '/me/requests' }} />
-            {requests.loading && !requests.data ? <span className="muted">Загружаем…</span> : activeRequests.length ? (
+            {requests.error ? <ErrorState text={requests.error} onRetry={requests.reload} /> : requests.loading && !requests.data ? <LoadingList rows={1} height={120} /> : activeRequests.length ? (
               <div className="trk-list">
                 {activeRequests.slice(0, 2).map((r) => <RequestCard key={r.id} request={r} actions={<Button size="s" to={`/me/requests/${r.id}`}>Отклики</Button>} />)}
               </div>
@@ -96,7 +96,7 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
 
         <section className="trk-block" aria-label="Уведомления">
           <BlockHead title="Уведомления" all={{ label: 'Все уведомления', to: notesTo }} />
-          {latestNotes.length ? (
+          {notes.error ? <ErrorState text={notes.error} onRetry={notes.reload} /> : notes.loading && !notes.data ? <LoadingList rows={2} height={60} /> : latestNotes.length ? (
             <div className="trk-navlist">
               {latestNotes.map((n) => (
                 <Link key={n.id} className="trk-notice" to={n.link ?? notesTo} state={{ from: pathname }} onClick={() => {
@@ -115,7 +115,7 @@ export function AccountView({ role }: { role: 'student' | 'tutor' }) {
         {role === 'student' && (
           <section className="trk-block" aria-label="Платежи">
             <BlockHead title="Платежи" all={{ label: 'Все платежи', to: '/me/payments' }} />
-            {latestPayments.length ? (
+            {payments.error ? <ErrorState text={payments.error} onRetry={payments.reload} /> : payments.loading && !payments.data ? <LoadingList rows={2} height={60} /> : latestPayments.length ? (
               <div className="trk-navlist">
                 {latestPayments.map((p) => (
                   <Link key={p.id} className="trk-notice" to="/me/payments">

@@ -8,7 +8,7 @@ import { requestRoutes } from './routes/requests';
 import { studentRoutes } from './routes/student';
 import { tutorRoutes } from './routes/tutor';
 import { tutorProfileRoutes } from './routes/tutorprofile';
-import { ToastProvider } from './ui';
+import { LoadingList, ToastProvider } from './ui';
 import './tr.css';
 import './home.css';
 import './ui/kit.css';
@@ -31,7 +31,7 @@ export function NewApp() {
         <LiquidGlassEffects />
         <ToastProvider>
           <ScrollToTop />
-          <Suspense fallback={<div className="trk-route-loading" aria-busy="true" />}>
+          <Suspense fallback={<div className="trk-route-loading"><LoadingList rows={3} height={88} /></div>}>
             <Routes>
               {publicRoutes}
               {authRoutes}

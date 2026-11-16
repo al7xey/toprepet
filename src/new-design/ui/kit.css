@@ -918,7 +918,7 @@ html{overflow-y:scroll}
 .tr .trk-choice.on:active{box-shadow:inset 0 0 0 2px var(--accent)}
 
 /* v47: точки пароля тоньше и мельче */
-.tr input.trk-input[type=password]{font-weight:750;font-size:18px;letter-spacing:.025em}
+.tr input.trk-input[type=password]{font-weight:400;font-size:17px;letter-spacing:normal}
 .tr input.trk-input[type=password]::placeholder{letter-spacing:normal;font-size:17px;font-weight:400}
 
 /* v48: страница фильтров в стиле проекта */

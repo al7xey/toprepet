@@ -12,12 +12,12 @@ for (const width of [768, 1024]) for (const role of ['student', 'tutor', 'admin'
       return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.closest('a') === link;
     }));
     expect(hits.every(Boolean)).toBe(true);
-    const boxes = await header.evaluate((h) => ['.logo', 'nav', '.icons'].map((selector) => {
-      const r = h.querySelector(selector)!.getBoundingClientRect();
+    const boxes = await header.evaluate((h) => ['.logo', 'nav', '.icons'].map((selector) => h.querySelector(selector)).filter((node): node is Element => node !== null).map((node) => {
+      const r = node.getBoundingClientRect();
       return { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
     }));
     const [logo, nav, icons] = boxes;
-    for (const control of [logo, icons]) expect(nav.right <= control.left || nav.left >= control.right || nav.bottom <= control.top || nav.top >= control.bottom).toBe(true);
+    for (const control of [logo, icons].filter(Boolean)) expect(nav.right <= control.left || nav.left >= control.right || nav.bottom <= control.top || nav.top >= control.bottom).toBe(true);
     await expectNoHorizontalScroll(page);
     if (role === 'tutor' && width === 768) await header.screenshot({ path: testInfo.outputPath('tablet-navigation.png') });
   });

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { subjects } from '../../../entities/lesson';
 import { api } from '../../api';
 import { useMutation } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { AuthLayout } from '../../layout/layouts';
+import { safeNext } from '../../lib/safeNext';
 import { Button, ChoiceCards, FormError, OptionChips, PageHeader, WizardProgress } from '../../ui';
 import { AuthCard } from './shared';
 
@@ -15,6 +16,7 @@ const SUBJECTS = subjects.filter((s) => s !== 'Другой предмет');
 /** Онбординг ученика: три коротких вопроса, чтобы открыть каталог с нужным предметом. Можно пропустить. */
 export default function OnboardingPage() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const { setUser } = useSession();
   const [step, setStep] = useState(1);
   const [forWhom, setForWhom] = useState<(typeof FOR_WHOM)[number] | null>(null);
@@ -26,7 +28,9 @@ export default function OnboardingPage() {
     const user = await save.run(skip ? { forWhom: '', subjects: [], goal: '' } : { forWhom: forWhom ?? '', subjects: picked, goal: goal ?? '' });
     if (!user) return;
     setUser(user);
-    void navigate(!skip && picked[0] ? `/teachers?subject=${encodeURIComponent(picked[0])}` : '/teachers', { replace: true });
+    const fallback = !skip && picked[0] ? `/teachers?subject=${encodeURIComponent(picked[0])}` : '/teachers';
+    const next = safeNext(params.get('next'), fallback);
+    void navigate(next.startsWith('/onboarding') ? fallback : next, { replace: true });
   };
 
   const titles = ['Для кого занятия?', 'Какие предметы нужны?', 'Какая цель?'];

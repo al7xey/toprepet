@@ -36,7 +36,7 @@ export default function MyTutorsPage() {
           <div className="trk-list">
             {items.map((t) => (
               <Card key={t.tutorId}>
-                <Person name={t.name} sub={t.subject} />
+                <Person name={t.name} photo={t.photo} sub={t.subject} />
                 <Rows
                   rows={[
                     ['Уроков', String(t.lessonsCount)],

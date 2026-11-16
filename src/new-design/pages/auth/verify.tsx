@@ -5,20 +5,29 @@ import { useMutation, useQuery } from '../../api/hooks';
 import { homeFor, useSession } from '../../api/session';
 import type { User } from '../../api/types';
 import { AuthLayout } from '../../layout/layouts';
-import { Button, EmptyState, ErrorState, FormError, Note, PageHeader, useToast } from '../../ui';
+import { safeNext } from '../../lib/safeNext';
+import { Button, EmptyState, ErrorState, FormError, Note, PageHeader, TextField, useToast } from '../../ui';
 import { AuthCard } from './shared';
 
 const RESEND_SECONDS = 60;
 
 /** Куда вести после подтверждения почты: ученика — на онбординг, остальных — в их кабинет. */
-export const afterVerify = (user: Pick<User, 'role' | 'onboarded'>) => (!user.onboarded && user.role === 'student' ? '/onboarding' : !user.onboarded && user.role === 'tutor' ? '/tutor/profile/edit' : homeFor(user.role));
+export const afterVerify = (user: Pick<User, 'role' | 'onboarded'>, next?: string | null) => {
+  if (!user.onboarded && user.role === 'tutor') return '/tutor/profile/edit';
+  const destination = safeNext(next, '');
+  if (!user.onboarded && user.role === 'student') return '/onboarding' + (destination && !destination.startsWith('/onboarding') ? `?next=${encodeURIComponent(destination)}` : '');
+  return destination || homeFor(user.role);
+};
 
 /** «Проверьте почту»: письмо отправлено, можно отправить ещё раз. */
 export default function VerifyEmailPage() {
+  const [params] = useSearchParams();
+  const next = params.get('next');
   const { user, setUser, checking } = useSession();
   const navigate = useNavigate();
   const toast = useToast();
-  const [left, setLeft] = useState(RESEND_SECONDS);
+  const [left, setLeft] = useState(params.get('sent') === '1' ? RESEND_SECONDS : 0);
+  const [code, setCode] = useState('');
   const resend = useMutation(async () => { await api.resendVerification(); return true; });
   const confirm = useMutation((token: string) => api.verifyEmail(token));
 
@@ -30,29 +39,30 @@ export default function VerifyEmailPage() {
 
   if (checking) return null;
   if (!user) return <Navigate to="/login" replace />;
-  if (user.emailVerified) return <Navigate to={afterVerify(user)} replace />;
+  if (user.emailVerified) return <Navigate to={afterVerify(user, next)} replace />;
 
   const sendAgain = async () => {
     if (!(await resend.run())) return;
     setLeft(RESEND_SECONDS);
     toast('Письмо отправлено ещё раз');
   };
-  // В демо-режиме писем нет: подтверждаем по кнопке. С настоящим бэкендом её нет, подтверждение идёт по ссылке из письма.
-  const demoConfirm = async () => {
-    const verified = await confirm.run('demo');
-    if (verified) { setUser(verified); void navigate(afterVerify(verified), { replace: true }); }
+  const submitCode = async () => {
+    if (!/^\d{6}$/.test(code)) return;
+    const verified = await confirm.run(code);
+    if (verified) { setUser(verified); void navigate(afterVerify(verified, next), { replace: true }); }
   };
 
   return (
     <AuthLayout>
-      <PageHeader title="Проверьте почту" lead={<>Мы отправили письмо на <b>{user.email}</b>. Откройте его и нажмите на ссылку, чтобы подтвердить адрес.</>} center />
+      <PageHeader title="Проверьте почту" lead={<>Введите шестизначный код для <b>{user.email}</b>. Код действует 10 минут. Если письма нет, запросите новый код.</>} center />
       <AuthCard>
-        <div className="trk-form">
-          <Note tone="plain" icon="info">Письма может не быть пару минут. Загляните в папку «Спам» и проверьте, что адрес написан верно.</Note>
+        <form className="trk-form" onSubmit={(event) => { event.preventDefault(); void submitCode(); }}>
+          <TextField label="Код из письма" name="verificationCode" value={code} onChange={(event) => { setCode(event.target.value.replace(/\D/g, '').slice(0, 6)); confirm.reset(); }} inputMode="numeric" autoComplete="one-time-code" maxLength={6} placeholder="000000" />
+          {api.mode === 'mock' && <Note tone="plain">Демо-код — 123456. В этой версии письма не отправляются.</Note>}
+          <Button type="submit" block disabled={code.length !== 6} loading={confirm.pending}>Подтвердить почту</Button>
           <FormError error={resend.error ?? confirm.error} />
-          <Button variant="line" size="lg" block onClick={sendAgain} disabled={left > 0} loading={resend.pending}>{left > 0 ? `Отправить ещё раз через ${left} с` : 'Отправить письмо ещё раз'}</Button>
-          {api.mode === 'mock' && <Button size="lg" block onClick={demoConfirm} loading={confirm.pending}>Подтвердить почту (демо)</Button>}
-        </div>
+          <Button variant="line" size="lg" block onClick={sendAgain} disabled={left > 0} loading={resend.pending}>{left > 0 ? `Запросить код · ${left} с` : 'Отправить код ещё раз'}</Button>
+        </form>
       </AuthCard>
     </AuthLayout>
   );

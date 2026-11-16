@@ -6,6 +6,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models, transaction
 from django.utils import timezone as djtz
+from django.utils.crypto import salted_hmac
 
 from core.ids import ShortIdField
 
@@ -57,7 +58,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class EmailToken(models.Model):
-    """Одноразовая ссылка из письма: подтверждение почты и сброс пароля. В базе хранится только хеш токена."""
+    """Код подтверждения почты или токен сброса пароля. В базе хранится только хеш."""
 
     VERIFY, RESET = 'verify', 'reset'
     id = ShortIdField('tok')
@@ -66,20 +67,48 @@ class EmailToken(models.Model):
     token_hash = models.CharField(max_length=64, unique=True)
     expires_at = models.DateTimeField()
     used_at = models.DateTimeField(null=True, blank=True)
+    attempts = models.PositiveSmallIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
     def digest(token: str) -> str:
         return hashlib.sha256(token.encode()).hexdigest()
 
+    @staticmethod
+    def code_digest(user, code):
+        return salted_hmac('toprepet.verify-code', f'{user.pk}:{code}', algorithm='sha256').hexdigest()
+
     @classmethod
     @transaction.atomic
     def issue(cls, user: User, kind: str, hours: int) -> str:
         User.objects.select_for_update(no_key=True).get(pk=user.pk)
         cls.objects.filter(user=user, kind=kind, used_at__isnull=True).update(used_at=djtz.now())
-        token = secrets.token_urlsafe(32)
-        cls.objects.create(user=user, kind=kind, token_hash=cls.digest(token), expires_at=djtz.now() + timedelta(hours=hours))
+        token = f'{secrets.randbelow(1000000):06d}' if kind == cls.VERIFY else secrets.token_urlsafe(32)
+        hashed = cls.code_digest(user, token) if kind == cls.VERIFY else cls.digest(token)
+        while cls.objects.filter(token_hash=hashed).exists():
+            token = f'{secrets.randbelow(1000000):06d}' if kind == cls.VERIFY else secrets.token_urlsafe(32)
+            hashed = cls.code_digest(user, token) if kind == cls.VERIFY else cls.digest(token)
+        lifetime = timedelta(minutes=10) if kind == cls.VERIFY else timedelta(hours=hours)
+        cls.objects.create(user=user, kind=kind, token_hash=hashed, expires_at=djtz.now() + lifetime)
         return token
+
+    @classmethod
+    @transaction.atomic
+    def verify_code(cls, user, code):
+        User.objects.select_for_update(no_key=True).get(pk=user.pk)
+        item = cls.objects.filter(user=user, kind=cls.VERIFY, used_at__isnull=True, expires_at__gt=djtz.now()).order_by('-created_at').first()
+        if not item or item.attempts >= 5:
+            return None
+        item.attempts += 1
+        matches = secrets.compare_digest(item.token_hash, cls.code_digest(user, code))
+        if matches or item.attempts >= 5:
+            item.used_at = djtz.now()
+        item.save(update_fields=['attempts', 'used_at'])
+        if not matches:
+            return None
+        user.email_verified = True
+        user.save(update_fields=['email_verified'])
+        return user
 
     @classmethod
     @transaction.atomic

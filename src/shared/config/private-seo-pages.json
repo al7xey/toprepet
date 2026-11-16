@@ -33,6 +33,7 @@
   "/tutor/account": "Аккаунт репетитора",
   "/tutor/account/settings": "Настройки репетитора",
   "/tutor/requests": "Заявки для репетитора",
+  "/tutor/requests/:id": "Переход к заявкам репетитора",
   "/tutor/chats": "Сообщения репетитора",
   "/tutor/chats/:id": "Переписка с учеником",
   "/tutor/reviews": "Отзывы учеников",

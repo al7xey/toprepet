@@ -6,6 +6,7 @@ import { useMutation } from '../../api/hooks';
 import type { Role } from '../../api/types';
 import { homeFor, useSession } from '../../api/session';
 import { AuthLayout } from '../../layout/layouts';
+import { safeNext } from '../../lib/safeNext';
 import { Button, ChoiceCards, Checkbox, FormError, PageHeader, PasswordField, TextField } from '../../ui';
 import { AuthCard, emailValid } from './shared';
 
@@ -38,7 +39,11 @@ export default function SignupPage() {
     setErrors(found);
     if (Object.values(found).some(Boolean)) return;
     const created = await signup.run({ role, name: name.trim(), email: email.trim(), password });
-    if (created) { trackGoal('signup_submit', { role }); setUser(created); void navigate('/verify-email', { replace: true }); }
+    if (created) {
+      trackGoal('signup_submit', { role }); setUser(created);
+      const next = safeNext(params.get('next'), '');
+      void navigate('/verify-email?sent=1' + (next ? `&next=${encodeURIComponent(next)}` : ''), { replace: true });
+    }
   };
 
   return (
