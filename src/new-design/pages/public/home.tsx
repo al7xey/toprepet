@@ -44,7 +44,7 @@ export default function HomePage() {
 
       <Section title="Познакомьтесь до первого занятия" className="trh-intro">
         <ol className="g16">
-          {([['target', 'Определим цель', 'Разберёмся, с чем нужна помощь.'], ['cal', 'Согласуем формат', 'Обсудим график и удобный темп.'], ['checks', 'Составим план', 'Определим, с чего начать занятия.']] as const).map(([icon, title, text]) => (
+          {([['target', 'Определим цель', 'Разберёмся, с чем нужна помощь.'], ['cal', 'Согласуем формат', 'Обсудим график и удобный темп.'], ['route', 'Составим план', 'Определим, с чего начать занятия.']] as const).map(([icon, title, text]) => (
             <li key={title} className="fr p-home-intro-step">
               <span className="ic-sq"><Icon name={icon} /></span>
               <div className="g4"><b className="u-fs18">{title}</b><span className="muted">{text}</span></div>

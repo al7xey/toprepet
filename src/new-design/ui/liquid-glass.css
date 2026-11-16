@@ -211,7 +211,7 @@ html:has(.tr) { scrollbar-gutter: stable; }
 
 .tr .trk-tabbar .tab .i { width: 28px; height: 28px; }
 .tr .trk-tabbar .tab.cur { color: var(--lg-active-ink); }
-.tr .trk-tabbar .tab.cur .i { background: currentColor; }
+.tr .trk-tabbar .tab.cur .i { background: none; }
 .tr .trk-tabbar .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .tr .trk-tabbar .tab .dot {
   width: 7px;

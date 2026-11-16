@@ -4,19 +4,7 @@ import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapImage from '@tiptap/extension-image'
 import { TableKit } from '@tiptap/extension-table'
-import {
-  Bold,
-  ImagePlus,
-  Italic,
-  Link2,
-  List,
-  ListOrdered,
-  Minus,
-  Quote,
-  Strikethrough,
-  Table2,
-  Trash2,
-} from 'lucide-react'
+import { Icon } from '../new-design/ui/icon'
 import { useCallback, useRef, useState, type SyntheticEvent, type ReactNode } from 'react'
 
 const ArticleImage = TiptapImage.extend({
@@ -221,9 +209,9 @@ export function RichEditor({ initial, onChange, onUpload, onDeleteImage }: Props
           <option value="h6">Заголовок H6</option>
         </select>
         <div className="simple-editor-toolbar-group">
-          {command('Жирный', () => editor.chain().focus().toggleBold().run(), editor.isActive('bold'), false, <Bold size={18} />)}
-          {command('Курсив', () => editor.chain().focus().toggleItalic().run(), editor.isActive('italic'), false, <Italic size={18} />)}
-          {command('Зачёркнутый', () => editor.chain().focus().toggleStrike().run(), editor.isActive('strike'), false, <Strikethrough size={18} />)}
+          {command('Жирный', () => editor.chain().focus().toggleBold().run(), editor.isActive('bold'), false, <Icon name="bold" size={18} />)}
+          {command('Курсив', () => editor.chain().focus().toggleItalic().run(), editor.isActive('italic'), false, <Icon name="italic" size={18} />)}
+          {command('Зачёркнутый', () => editor.chain().focus().toggleStrike().run(), editor.isActive('strike'), false, <Icon name="strikethrough" size={18} />)}
           <button
             type="button"
             aria-label="Ссылка"
@@ -233,16 +221,16 @@ export function RichEditor({ initial, onChange, onUpload, onDeleteImage }: Props
             disabled={busy}
             onClick={openLinkPanel}
           >
-            <Link2 size={18} />
+            <Icon name="link" size={18} />
           </button>
         </div>
         <div className="simple-editor-toolbar-group">
-          {command('Маркированный список', () => editor.chain().focus().toggleBulletList().run(), editor.isActive('bulletList'), false, <List size={18} />)}
-          {command('Нумерованный список', () => editor.chain().focus().toggleOrderedList().run(), editor.isActive('orderedList'), false, <ListOrdered size={18} />)}
-          {command('Цитата', () => editor.chain().focus().toggleBlockquote().run(), editor.isActive('blockquote'), false, <Quote size={18} />)}
-          {command('Разделитель', () => editor.chain().focus().setHorizontalRule().run(), false, false, <Minus size={18} />)}
-          {command('Добавить изображение', () => { setPanel(panel === 'image' ? null : 'image'); setError('') }, panel === 'image', false, <ImagePlus size={18} />)}
-          {command('Таблица', () => { setPanel(panel === 'table' ? null : 'table'); setError('') }, editor.isActive('table') || panel === 'table', false, <Table2 size={18} />)}
+          {command('Маркированный список', () => editor.chain().focus().toggleBulletList().run(), editor.isActive('bulletList'), false, <Icon name="list" size={18} />)}
+          {command('Нумерованный список', () => editor.chain().focus().toggleOrderedList().run(), editor.isActive('orderedList'), false, <Icon name="list-ordered" size={18} />)}
+          {command('Цитата', () => editor.chain().focus().toggleBlockquote().run(), editor.isActive('blockquote'), false, <Icon name="quote" size={18} />)}
+          {command('Разделитель', () => editor.chain().focus().setHorizontalRule().run(), false, false, <Icon name="minus" size={18} />)}
+          {command('Добавить изображение', () => { setPanel(panel === 'image' ? null : 'image'); setError('') }, panel === 'image', false, <Icon name="image-plus" size={18} />)}
+          {command('Таблица', () => { setPanel(panel === 'table' ? null : 'table'); setError('') }, editor.isActive('table') || panel === 'table', false, <Icon name="table" size={18} />)}
         </div>
         <div className="simple-editor-history">
           {command('Отменить', () => editor.chain().focus().undo().run(), false, !editor.can().undo())}
@@ -361,7 +349,7 @@ export function RichEditor({ initial, onChange, onUpload, onDeleteImage }: Props
               editor.chain().focus().deleteSelection().run()
             }}
           >
-            <Trash2 size={17} />
+            <Icon name="trash" size={17} />
             Удалить изображение
           </button>
         </div>

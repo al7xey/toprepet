@@ -1,0 +1,42 @@
+/* Approved cartoon SVGs: one palette, with a contrast treatment on filled buttons. */
+svg.i {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.tr svg.i {
+  background: none;
+  mask: none;
+  -webkit-mask: none;
+}
+
+:is(.btn-primary, .btn-ink, .trk-addbtn, .tg-send, .blog-button, .button-primary) .i,
+.tr .chk.on > i .i {
+  --icon-ink: currentColor;
+  --icon-accent: currentColor;
+  --icon-fill: transparent;
+  --icon-paper: transparent;
+  --icon-tint: transparent;
+}
+
+/* Empty and selected stars must remain distinct when leaving a review. */
+.tr .trk-rating-star:not(.on) .i {
+  --icon-fill: transparent;
+}
+
+.trk-response-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tr .st-ok .i, .tr .st-bad .i, .tr .trk-toast .i {
+  --icon-ink: currentColor;
+  --icon-accent: currentColor;
+  --icon-fill: transparent;
+  --icon-paper: transparent;
+  --icon-tint: transparent;
+}

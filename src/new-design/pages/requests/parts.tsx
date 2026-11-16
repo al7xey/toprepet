@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { RequestResponse, RequestStatus, StudyRequest } from '../../api/types';
 import { ago, count, fromRub, rub, whenLabel } from '../../lib/format';
-import { Button, Card, Person, Rows, Status, StudentCard } from '../../ui';
+import { Button, Card, Icon, Person, Rows, Status, StudentCard } from '../../ui';
 
 export const REQUEST_STATUS: Record<RequestStatus, { tone: 'wait' | 'ok' | 'neutral'; icon: string; text: string }> = {
   open: { tone: 'wait', icon: 'clock', text: 'Ищем репетитора' },
@@ -46,7 +46,7 @@ export function RequestCard({ request, actions, showStatus = true }: { request: 
 export function ResponseCard({ response, bookable, bookHref, chatHref }: { response: RequestResponse; bookable: boolean; bookHref: (start: string) => string; chatHref: string }) {
   return (
     <Card as="article" className="trk-request">
-      <Person name={response.tutorName} photo={response.tutorPhoto} sub={response.tutorRating ? `★ ${String(response.tutorRating).replace('.', ',')}` : 'Новый репетитор'} right={<b className="tn">{fromRub(response.price)}</b>} />
+      <Person name={response.tutorName} photo={response.tutorPhoto} sub={response.tutorRating ? <span className="trk-response-rating">{String(response.tutorRating).replace('.', ',')}<Icon name="star" size={16} /></span> : 'Новый репетитор'} right={<b className="tn">{fromRub(response.price)}</b>} />
       <p className="trk-request-text">{response.message}</p>
       {response.status === 'accepted' && <Status tone="ok" icon="check">Вы записались к этому репетитору</Status>}
       {response.slots.length > 0 && bookable && (
