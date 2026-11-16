@@ -14,7 +14,6 @@ import './home.css';
 import './ui/kit.css';
 import { LiquidGlassEffects } from './ui/liquid-glass';
 import './ui/liquid-motion.css';
-import './ui/standards.css';
 
 const NotFoundPage = lazy(() => import('./pages/public/notfound'));
 

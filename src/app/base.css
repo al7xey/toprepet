@@ -2,17 +2,17 @@
 :root {
   color-scheme: only light;
   font-family: 'Manrope Variable', Arial, sans-serif;
-  color: #171717;
+  color: #202838;
   background: #fff;
   font-synthesis: none;
   font-weight: 450;
   scroll-behavior: smooth;
-  --ink: #171717;
-  --muted: #626262;
+  --ink: #202838;
+  --muted: #756a68;
   --accent: #f26a2e;
   --accent-hover: #f7874f;
   --surface: #fff;
-  --line: #dedede;
+  --line: #f0e2d8;
 }
 * { box-sizing: border-box; }
 html, body, #root { width: 100%; max-width: 100%; overflow-x: clip; }

@@ -17,7 +17,7 @@ export function TutorCard({ tutor, priority }: { priority?: boolean; tutor: Pick
   const back = /^\/teachers\/?$/.test(pathname) ? pathname + search : undefined;
   return (
     <Link state={back ? { back } : undefined} className="tc s" to={`/teachers/${tutor.id}/`} aria-label={`${tutor.name}, ${tutor.cardSubjects}`} draggable={false}>
-      <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 280px, 50vw" width={960} height={1280} alt="" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : undefined} decoding="async" draggable={false} />
+      <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 280px, 50vw" alt="" loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : undefined} decoding="async" draggable={false} />
       <span className="pl">
         <b><span className="trh-tutor-name">{tutor.name}</span></b>
         <span>{tutor.cardSubjects}</span>

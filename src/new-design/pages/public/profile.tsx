@@ -85,7 +85,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
         <div className="trh-pf-main">
           <section className="trh-pf-top" aria-labelledby="tutor-name">
             <div className="trh-pf-photo">
-              <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 300px, 100vw" width={960} height={1280} alt={`Фото: ${tutor.name}`} fetchPriority="high" decoding="async" />
+              <img src={tutor.photo} srcSet={tutor.photoSrcSet} sizes="(min-width: 761px) 300px, 100vw" alt={`Фото: ${tutor.name}`} fetchPriority="high" decoding="async" />
               <IconButton icon="back" label="Назад" onClick={close} className="trh-pf-back" />
               <IconButton icon="share" label="Поделиться" onClick={share} className="trh-pf-share" />
             </div>

@@ -29,22 +29,21 @@ test.describe('качество: доступность и вёрстка', () =
 
   for (const [role, pages] of Object.entries(ROLE_PAGES)) {
     test(`кабинет «${role}»: 0 нарушений axe, нет горизонтальной прокрутки`, async ({ page }) => {
-      test.setTimeout(180_000); // Several full-page axe scans plus navigation, not a single interaction.
       await login(page, role);
       for (const url of pages) await check(page, url);
     });
   }
 
-  test('единая типографика: 40/32 у страницы, 28/24 у раздела', async ({ page }) => {
+  test('размеры заголовков: 34/28 у страницы, 26/23 у раздела', async ({ page }) => {
     const phone = isPhone(page);
     for (const url of ['/teachers/', '/help/', '/legal/terms/', '/login']) {
       await page.goto(url);
       const h1 = await page.locator('h1').first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-      expect(h1, `${url} h1`).toBe(phone ? 32 : 40);
+      expect(h1, `${url} h1`).toBe(phone ? 28 : 34);
     }
     await page.goto('/help/');
     const h2 = await page.locator('h2.trh-h2').first().evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
-    expect(h2).toBe(phone ? 24 : 28);
+    expect(h2).toBe(phone ? 23 : 26);
   });
 
   test('телефон: кнопки и поля не меньше 36 px по высоте, основные кнопки не меньше 44', async ({ page }) => {
@@ -111,7 +110,7 @@ test.describe('телефон: шапка, кнопки, анкета', () => {
     const before = await burger.boundingBox();
     expect(before?.width).toBe(before?.height);
     const signIn = await page.locator('.trh-actions .btn').boundingBox();
-    expect(before!.x - signIn!.x - signIn!.width).toBeCloseTo(8, 0);
+    expect(before!.x - signIn!.x - signIn!.width).toBeCloseTo(6, 0);
     const create = page.getByRole('link', { name: 'Создать заявку' });
     const find = page.getByRole('link', { name: 'Найти репетитора', exact: true }).first();
     const createBox = await create.boundingBox();

@@ -420,7 +420,7 @@
 .tr .trk-app .trk-hdr-ic .i{width:22px;height:22px}
 .tr .trk-app .trk-badge{top:-2px;right:-2px}
 /* список в рамке тёмного цвета */
-.tr .trh-drop-menu{box-shadow:inset 0 0 0 1.5px var(--line),0 12px 28px rgb(32 40 56 / 10%)}
+.tr .trh-drop-menu{box-shadow:inset 0 0 0 1.5px #f0d9c8,0 12px 28px rgb(32 40 56 / 10%)}
 /* поиск крупнее */
 .tr .trh-tools .search{min-height:58px;padding-left:22px}
 .tr .search .trh-search-input{font-size:18px;min-height:56px}
@@ -513,8 +513,8 @@
   /* справа от «Войти»: круг с тёмной обводкой, без заливки */
   .tr .hdr.surf:not(.m) .trh-actions{order:2;margin-left:auto;flex-shrink:0}
   .tr .hdr.surf:not(.m){gap:0}
-  .tr .hdr.surf:not(.m) .trh-burger{order:3;margin-left:6px;width:46px;min-width:46px;height:46px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line);padding:0}
-  .tr .hdr.surf:not(.m) .trh-burger:hover{background:#fff;box-shadow:inset 0 0 0 1.5px var(--line)}
+  .tr .hdr.surf:not(.m) .trh-burger{order:3;margin-left:6px;width:46px;min-width:46px;height:46px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px #f0d9c8;padding:0}
+  .tr .hdr.surf:not(.m) .trh-burger:hover{background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8}
   .tr .hdr.surf:not(.m) .trh-burger .i{width:24px;height:24px;color:var(--ink)}
   /* анкета без «назад» и без своей шапки: шапка общая */
   .tr .trh-pf-backwrap{display:none}
@@ -844,7 +844,7 @@ html{overflow-y:scroll}
 .tr .trk-navrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;text-align:left;cursor:pointer}
 
 /* Значок выбранной вкладки выделен более плотным штрихом. */
-.tr .trk-back,.tr .trk-back:hover{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink)}
+.tr .trk-back,.tr .trk-back:hover{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;color:var(--ink)}
 .tr .trk-back .i{width:22px;height:22px}
 .tr .trk-pagehead{gap:12px}
 
@@ -869,7 +869,7 @@ html{overflow-y:scroll}
 .tr .trk-modal-body p,.tr .trk-modal-body .cap{margin:0;text-align:left}
 .tr .trk-modal-foot{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:12px;justify-content:stretch}
 .tr .trk-modal-foot .btn{width:100%}
-.tr .trk-round,.tr .trk-round:hover{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink)}
+.tr .trk-round,.tr .trk-round:hover{width:44px;height:44px;min-width:44px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;color:var(--ink)}
 .tr .trk-round .i{width:22px;height:22px}
 .tr .chk > i{border-color:#c9bdb5}
 .tr .chk > i .i{display:none;width:16px;height:16px}
@@ -925,13 +925,13 @@ html{overflow-y:scroll}
 
 /* v50: анкета репетитора: теги-таблетки в стиле проекта, круглые белые кнопки с обводкой на фото */
 .tr .trk-tags{display:flex;flex-wrap:wrap;gap:8px}
-.tr .trk-tags .tag,.tr .trk-tags .tag+.tag{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border:0;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);font-size:15px;font-weight:600;color:var(--ink)}
+.tr .trk-tags .tag,.tr .trk-tags .tag+.tag{display:inline-flex;align-items:center;min-height:38px;padding:0 16px;border:0;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;font-size:15px;font-weight:600;color:var(--ink)}
 .tr .trk-tags .tag::before,.tr .trk-tags .tag+.tag::before{content:none;margin:0}
-.tr .trk-iconbtn.surf.trh-pf-back,.tr .trk-iconbtn.surf.trh-pf-share{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.tr .trk-iconbtn.surf.trh-pf-back,.tr .trk-iconbtn.surf.trh-pf-share{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px #f0d9c8}
 .tr .trk-iconbtn.surf.trh-pf-back:hover,.tr .trk-iconbtn.surf.trh-pf-share:hover{background:#fff}
 
 /* v51: верхние кнопки анкеты — ровно как остальные круглые кнопки проекта */
-.tr .trk-iconbtn.trk-round.trh-pf-back,.tr .trk-iconbtn.trk-round.trh-pf-share,.tr .trk-iconbtn.trk-round.trh-pf-back:hover,.tr .trk-iconbtn.trk-round.trh-pf-share:hover{width:44px;min-width:44px;height:44px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--line)}
+.tr .trk-iconbtn.trk-round.trh-pf-back,.tr .trk-iconbtn.trk-round.trh-pf-share,.tr .trk-iconbtn.trk-round.trh-pf-back:hover,.tr .trk-iconbtn.trk-round.trh-pf-share:hover{width:44px;min-width:44px;height:44px;border-radius:50%;background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1.5px #f0d9c8}
 .tr .trk-iconbtn.trh-pf-back .i,.tr .trk-iconbtn.trh-pf-share .i{width:22px;height:22px;color:var(--ink)}
 
 /* админка на телефоне: шапки нет, кнопка «Выйти» стоит внизу страницы */
@@ -971,7 +971,7 @@ html{overflow-y:scroll}
 .tr .tg-card .trk-rows.boxed{background:#fff}
 .tr .rowline.block p{white-space:pre-line}
 .tr .trk-chosen{display:flex;flex-wrap:wrap;gap:8px}
-.tr .trk-chosen-chip{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 12px 0 16px;border:0;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.tr .trk-chosen-chip{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 12px 0 16px;border:0;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;color:var(--ink);font:inherit;font-size:15px;font-weight:600;cursor:pointer}
 .tr .trk-chosen-chip .i{width:16px;height:16px}
 .tr .trk-timetable{display:grid}
 .tr .trk-tt-row{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:start;padding:14px 4px;border-top:1px solid var(--line)}
@@ -981,7 +981,7 @@ html{overflow-y:scroll}
 .tr .trk-tt-day span{font-size:13px;color:var(--muted)}
 .tr .trk-tt-row.today{background:#fdece3;border-radius:20px;padding-left:14px;padding-right:14px;margin:0 -10px;border-top-color:transparent}
 .tr .trk-tt-items{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.tr .trk-tt-item{display:inline-grid;gap:1px;padding:8px 14px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line);color:var(--ink);text-decoration:none}
+.tr .trk-tt-item{display:inline-grid;gap:1px;padding:8px 14px;border-radius:18px;background:#fff;box-shadow:inset 0 0 0 1.5px #f0d9c8;color:var(--ink);text-decoration:none}
 .tr .trk-tt-item b{font-size:15px}
 .tr .trk-tt-item span{font-size:13px;color:var(--muted)}
 .tr .trk-tt-item.pending{box-shadow:inset 0 0 0 1.5px var(--accent)}
@@ -1008,6 +1008,68 @@ html{overflow-y:scroll}
 /* Existing message actions remain available by pointer, keyboard and assistive technology. */
 .tr .tg-msg.out .tg-message-actions{position:absolute;right:calc(100% + 4px);top:50%;transform:translateY(-50%);opacity:0;pointer-events:none}
 .tr .tg-msg.out:hover .tg-message-actions,.tr .tg-msg.out:focus-within .tg-message-actions{opacity:1;pointer-events:auto}
+
+/* Shared scale for actions and page headings. */
+.tr {
+  --tr-button-label: 19px;
+  --tr-button-height: 48px;
+  --tr-button-small: 44px;
+  --tr-button-large: 52px;
+  --tr-page-title: 34px;
+  --tr-section-title: 26px;
+}
+.tr .trh-h1,
+.tr .trk-blocktitle.trh-h1 { font-size: var(--tr-page-title); font-weight: 700; line-height: 1.14; letter-spacing: -.035em; }
+.tr .trh-h2,
+.tr .trk-modal-head .trk-cardtitle { font-size: var(--tr-section-title); font-weight: 700; line-height: 1.2; letter-spacing: -.025em; }
+.tr .trh-sec > .cap,
+.tr .trh-pf-text,
+.tr .trh-pf-intro { font-size: 16px; line-height: 1.6; }
+
+.tr .btn.btn-s { --tr-action-height: var(--tr-button-small); --tr-action-padding: 0 14px; }
+.tr .btn.btn-lg { --tr-action-height: var(--tr-button-large); --tr-action-padding: 8px 18px; }
+.tr :is(.btn:not(.btn-icon), .hdr .btn:not(.btn-icon), main .btn:not(.btn-icon):not(.search .btn), .trk-modal-foot .btn, .trh-fpage-foot .btn) {
+  min-height: var(--tr-action-height, var(--tr-button-height));
+  height: auto;
+  padding: var(--tr-action-padding, 0 16px);
+  font-size: var(--tr-button-label);
+  line-height: 1.2;
+  font-weight: 700;
+  max-width: 100%;
+}
+.tr .trh-tools .search .btn { --tr-action-height: 44px; --tr-action-padding: 0 16px; }
+.tr .btn.btn-primary, .tr .btn.btn-primary:hover:not(:disabled) { background: var(--accent); }
+.tr .btn:not(.btn-block, .btn-icon) { justify-self: start; }
+
+@media (max-width: 760px) {
+  .tr { --tr-page-title: 28px; --tr-section-title: 23px; }
+  .tr .trh-public-nav > .hdr.surf:not(.m) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 48px;
+    column-gap: 8px;
+    padding-inline-start: 14px;
+  }
+  .tr .trh-public-nav > .hdr .logo { justify-self: start; }
+  .tr .trh-public-nav > .hdr .trh-actions { grid-column: 2; grid-row: 1; }
+  .tr .trh-public-nav > .hdr.surf:not(.m) .trh-actions .btn { min-height: 46px; padding-inline: 14px; }
+  .tr .trh-public-nav > .hdr.surf:not(.m) .trh-burger {
+    grid-column: 3;
+    grid-row: 1;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
+    margin-left: 0;
+    border-radius: 50%;
+  }
+  .tr .trh-pf-cta-slot { min-height: var(--tr-button-height); }
+  .tr .trh-pf-cta .btn { width: 100%; }
+}
+
+@media (max-width: 360px) {
+  .tr .trh-public-nav > .hdr .logo { font-size: 20px; gap: 7px; }
+  .tr .trh-public-nav > .hdr .logo-mark { width: 28px; height: 28px; }
+}
 
 .tr .trk-account-hero { gap: 10px; flex-wrap: wrap; }
 .tr .trk-account-identity { flex: 1 1 160px; min-width: 0; display: flex; align-items: center; gap: 12px; }

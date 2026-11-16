@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useState, type SyntheticEvent } from 'react'
 import './blog.css'
 import './blog-adapter.css'
-import './admin-standards.css'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { transliterate } from 'transliteration'
 import { Icon } from '../new-design/ui/icon'

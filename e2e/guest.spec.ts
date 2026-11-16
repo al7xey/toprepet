@@ -13,9 +13,8 @@ test.describe('гость', () => {
     await expect(page.getByRole('button', { name: 'Закрыть меню' })).toHaveAttribute('aria-expanded', 'true');
     const rect = await panel.boundingBox();
     expect(rect!.height).toBeLessThan(page.viewportSize()!.height);
-    await expect(panel.getByRole('link', { name: 'Репетиторы', exact: true })).toBeFocused();
     await page.keyboard.press('Tab');
-    await expect(panel.getByRole('link', { name: 'Для репетиторов', exact: true })).toBeFocused();
+    await expect(panel.getByRole('link', { name: 'Репетиторы', exact: true })).toBeFocused();
     await page.keyboard.press('Escape');
     await expect(panel).toHaveCount(0);
     await expect(trigger).toBeFocused();

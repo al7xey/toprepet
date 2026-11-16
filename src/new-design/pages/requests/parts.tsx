@@ -52,12 +52,12 @@ export function ResponseCard({ response, bookable, bookHref, chatHref }: { respo
       {response.slots.length > 0 && bookable && (
         <div className="g8">
           <span className="muted sm">Репетитор предлагает время:</span>
-          <div className="trk-actions">{response.slots.map((slot) => <Button key={slot} size="s" variant="warm" to={bookHref(slot)}>{whenLabel(slot)}</Button>)}</div>
+          <div className="trk-actions">{response.slots.map((slot) => <Button key={slot} size="s" to={bookHref(slot)}>{whenLabel(slot)}</Button>)}</div>
         </div>
       )}
       <div className="trk-actions">
-        <Button size="s" variant="line" to={`/teachers/${response.tutorId}/`}>Анкета</Button>
-        <Button size="s" variant="line" icon="chat" to={chatHref}>Написать</Button>
+        <Button size="s" to={`/teachers/${response.tutorId}/`}>Анкета</Button>
+        <Button size="s" icon="chat" to={chatHref}>Написать</Button>
       </div>
     </Card>
   );

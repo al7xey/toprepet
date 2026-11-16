@@ -22,7 +22,7 @@ for (const width of [320, 390, 768, 1440]) {
         const login = element.querySelector('.trh-actions')!.getBoundingClientRect();
         return [button.left - login.right, edge.right - button.right, button.top - edge.top, edge.bottom - button.bottom];
       });
-      expect(gaps.map(Math.round)).toEqual([8, 8, 8, 8]);
+      expect(gaps.map(Math.round)).toEqual([6, 6, 6, 6]);
       await page.getByRole('button', { name: 'Открыть меню', exact: true }).click();
       await expect(page.locator('.trh-menu-scrim')).toBeVisible();
       await expect(page.locator('.trh-menu-scrim')).toHaveCSS('position', 'fixed');
