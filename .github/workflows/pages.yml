@@ -15,12 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality:
-    uses: ./.github/workflows/quality.yml
-  backend:
-    uses: ./.github/workflows/backend.yml
   build:
-    needs: [quality, backend]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout production source
@@ -53,7 +48,7 @@ jobs:
         env:
           VITE_API_MODE: demo
           VITE_BASE_PATH: /preview/
-        run: pnpm install --frozen-lockfile && pnpm run build:e2e
+        run: pnpm install --frozen-lockfile && pnpm run build:e2e && pnpm exec tsc --noEmit
       - name: Install browser for production smoke tests
         working-directory: production
         run: pnpm exec playwright install --with-deps chromium
