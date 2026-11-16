@@ -255,6 +255,17 @@ export function PublicLayout({ children, tight, bareMobile, narrow, hideSignIn }
   const setMenu = (open: boolean) => setMenuAt(open ? pathname : null);
   const menuButton = useRef<HTMLButtonElement>(null);
   const menuPanel = useRef<HTMLDivElement>(null);
+  const header = useRef<HTMLElement>(null);
+  const headerSlot = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const element = header.current;
+    if (!element || !headerSlot.current) return;
+    const update = () => { if (headerSlot.current) headerSlot.current.style.height = `${element.getBoundingClientRect().height}px`; };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [pathname, user?.role]);
   useEffect(() => {
     if (!menu) return;
     const close = (event: KeyboardEvent) => {
@@ -279,8 +290,10 @@ export function PublicLayout({ children, tight, bareMobile, narrow, hideSignIn }
   return (
     <>
       <div className={cx('wash trh-page', tight && 'trh-tight', bareMobile && 'trh-bare')}>
+        <div ref={headerSlot} className="trh-public-nav-slot">
         <div className="trh-public-nav">
-          <header className="hdr surf trh-hdr">
+          {menu && <div className="trh-menu-scrim" aria-hidden="true" onClick={() => setMenu(false)} />}
+          <header ref={header} className="hdr surf trh-hdr">
             <Logo />
             <nav className="trh-nav" aria-label="Основная навигация">
               {PUBLIC_NAV.map(([label, to]) => <NavLink key={to} to={to} className={({ isActive }) => (isActive ? 'cur' : undefined)}>{label}</NavLink>)}
@@ -296,6 +309,7 @@ export function PublicLayout({ children, tight, bareMobile, narrow, hideSignIn }
               <div className="g10 u-mt-auto"><SessionActions block /></div>
             </div>
           )}
+        </div>
         </div>
         <main id="main" tabIndex={-1} className={cx('trh-main', narrow && 'trk-narrow')}>{children}</main>
         <Footer />

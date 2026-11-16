@@ -420,3 +420,19 @@ html:has(.tr) { scrollbar-gutter: stable; }
   .tr.tr .trh-grid .tc.s .pl > b { font-size: 14px; gap: 4px; }
   .tr.tr .trh-grid .tc.s .pl .rt { font-size: 12px; gap: 2px; padding-right: 0; }
 }
+
+/* The public header and menu share a viewport-fixed layer. */
+.tr .trh-public-nav-slot { height: 68px; flex: none; }
+.tr.tr .trh-public-nav { display: block; position: fixed; top: calc(8px + env(safe-area-inset-top, 0px)); left: max(48px, calc((100% - 1184px) / 2)); right: max(48px, calc((100% - 1184px) / 2)); margin: 0; z-index: 100; }
+.tr.tr .trh-public-nav > .hdr.surf:not(.m) { position: relative; top: auto; margin: 0; z-index: 1; }
+.tr .trh-menu-scrim { position: fixed; inset: 0; background: rgb(20 26 36 / 38%); z-index: 0; }
+.tr .trh-public-nav > .trh-menu { z-index: 1; }
+@media (max-width: 760px) {
+  .tr.tr .trh-public-nav { left: 16px; right: 16px; }
+  .tr.tr .trh-public-nav > .hdr.surf:not(.m) { column-gap: 6px; }
+  .tr .trh-public-nav-slot { height: 60px; }
+  .tr .trh-bare:has(.trh-pf) .trh-public-nav-slot { display: none; }
+  .tr .trh-public-nav .trh-menu { max-height: calc(100dvh - 92px - env(safe-area-inset-top, 0px)); }
+}
+@media (max-width: 420px) { .tr .trh-public-nav-slot { height: 56px; } }
+@media (min-width: 761px) { .tr .trh-menu-scrim { display: none; } }
