@@ -20,6 +20,22 @@ const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
 const FEE = 0.1;
 
+// Distinct demo prices make range filters and sorting useful across subjects.
+const DEMO_PRICES: Record<string, number> = {
+  english: 1200,
+  'russian-literature': 750,
+  'chemistry-biology': 1800,
+  informatics: 3500,
+  russian: 900,
+  mathematics: 1500,
+  'physics-mathematics': 2600,
+  'english-elizaveta': 2200,
+  history: 500,
+  chemistry: 3000,
+  'russian-literature-math': 4500,
+};
+const demoPrice = (id: string, index: number) => DEMO_PRICES[id] ?? 5000 + index * 500;
+
 /** Недельное расписание по умолчанию: будни вечером и суббота днём. Другие репетиторы в демо работают по нему же. */
 const DEFAULT_WEEK: WeekSchedule = { days: [1, 2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, intervals: weekday <= 5 ? [{ from: '17:00', to: '21:00' }] : weekday === 6 ? [{ from: '10:00', to: '14:00' }] : [] })) };
 const EMPTY_WEEK: WeekSchedule = { days: [1, 2, 3, 4, 5, 6, 7].map((weekday) => ({ weekday, intervals: [] })) };
@@ -37,7 +53,7 @@ export const studentPriceOf = (price: number) => Math.round(price * (1 + FEE));
 type Photos = Record<string, { src: string; srcSet: string }>;
 const photos = teacherPhotos as Photos;
 
-function seedTutors(): Tutor[] {
+function seedTutors(variedPrices = true): Tutor[] {
   return teachers.map((t, index) => ({
     id: t.id,
     name: t.name,
@@ -51,8 +67,8 @@ function seedTutors(): Tutor[] {
     intro: t.intro,
     approach: t.approach,
     achievements: t.achievements.map((a) => ({ ...a })),
-    price: PRICE,
-    studentPrice: studentPriceOf(PRICE),
+    price: variedPrices ? demoPrice(t.id, index) : PRICE,
+    studentPrice: studentPriceOf(variedPrices ? demoPrice(t.id, index) : PRICE),
     introMinutes: [20, 30, 15][index % 3],
     rating: null,
     reviewsCount: 0,
@@ -63,6 +79,7 @@ function seedTutors(): Tutor[] {
 }
 
 interface State {
+  demoPricesSeeded?: boolean;
   demoReviewsSeeded?: boolean;
   sessionUserId: Id | null;
   users: (User & { password: string })[];
@@ -224,11 +241,24 @@ function load(): State {
           if (state.profiles[tutor.id]) state.profiles[tutor.id].status = 'published';
         }
         addDemoReviews(state);
+        if (!state.demoPricesSeeded) {
+          // Only migrate the old default: preserve edited profiles and agreed lesson prices.
+          state.tutors.forEach((tutor, index) => {
+            if (!(tutor.id in DEMO_PRICES) || tutor.price !== PRICE) return;
+            tutor.price = demoPrice(tutor.id, index);
+            tutor.studentPrice = studentPriceOf(tutor.price);
+            const profile = state!.profiles[tutor.id];
+            if (profile?.price === PRICE) profile.price = tutor.price;
+          });
+          state.demoPricesSeeded = true;
+          save();
+        }
         return state;
       }
     } catch { /* повреждённые данные: начинаем заново */ }
   }
   state = seed();
+  state.demoPricesSeeded = true;
   addDemoReviews(state);
   return state;
 }
@@ -813,4 +843,4 @@ export function createMockApi(): Api {
 }
 
 /** Данные для пререндера каталога и анкет: синхронно, без ожидания. */
-export const staticTutors = (): Tutor[] => seedTutors();
+export const staticTutors = (): Tutor[] => seedTutors(!import.meta.env.VITE_API_URL);

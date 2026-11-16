@@ -398,7 +398,8 @@ html:has(.tr) { scrollbar-gutter: stable; }
 .tr.tr .trh-pf-backwrap .trk-iconbtn { width: 48px; min-width: 48px; height: 48px; min-height: 48px; }
 .tr.tr .trh-pf .trh-pf-photo .trk-iconbtn .i { width: 25px; height: 25px; }
 .tr.tr .trh-pf-backwrap a { min-height: 48px; font-size: 18px; }
-.tr.tr input.trk-input[type=password] { font-size: 16px; font-weight: 400; letter-spacing: 0; }
+.tr.tr input.trk-input[type=password] { font-family: Arial, sans-serif; font-size: 16px; font-weight: 400; letter-spacing: 0; }
+.tr.tr input.trk-input[type=password]::placeholder { font-family: var(--font); font-size: 16px; font-weight: 400; }
 .tr.tr .trk-calc-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; text-align: left; }
 .tr.tr .trk-calc-row > span { flex: 1; }
 .tr.tr .trk-calc-price { font-size: 28px; white-space: nowrap; }

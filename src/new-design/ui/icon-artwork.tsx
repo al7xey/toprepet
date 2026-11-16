@@ -44,7 +44,7 @@ export const iconArtwork: Record<string, ReactNode> = {
   'chart': <><g><path fill="none" stroke="var(--icon-ink,#202020)" strokeWidth="3" strokeLinecap="round" d="M5 20v-6M12 20V9M19 20V4" /></g></>,
   'user': <><g><g fill="none" stroke="var(--icon-ink,#202020)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8.5" r="4" /><path d="M4.5 20c.9-3.7 3.8-5.8 7.5-5.8s6.6 2.1 7.5 5.8" /></g></g></>,
   'person-plus': <><g><g fill="none" stroke="var(--icon-ink,#202020)" strokeWidth="2" strokeLinecap="round"><circle cx="10" cy="8.500" r="4" /><path d="M3 20c.8-3.600 3.500-5.600 7-5.600M18 12v6M15 15h6" /></g></g></>,
-  'chat': <><g><path fill="none" stroke="var(--icon-ink,#202020)" strokeWidth="2" strokeLinejoin="round" d="M4 6.500a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4z" /></g></>,
+  'chat': <><path d="M12 3.5c5.2 0 9 3.2 9 7.5s-3.8 7.5-9 7.5c-1.1 0-2.1-.2-3.1-.5L4.5 20l1.3-3.9C4 14.7 3 12.9 3 11c0-4.3 3.8-7.5 9-7.5Z" fill="none" stroke="var(--icon-ink,#202020)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></>,
   'chat-round': <><g><path fill="none" stroke="var(--icon-ink,#202020)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 3a9 9 0 1 0 4.500 16.800L21 21l-1.300-4.400A9 9 0 0 0 12 3z" /></g></>,
   'send': <><g><path fill="none" stroke="var(--icon-ink,#202020)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M21.500 3L10 14M21.500 3l-6.500 18-4-8-8-4z" /></g></>,
   'email': <><g fill="none" stroke="var(--icon-ink,#202020)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M5 5h14q3 0 3 3v10q0 2-3 2H5q-3 0-3-2V8q0-3 3-3Z" /><path d="m3 7 9 7 9-7" stroke="var(--icon-ink,#202020)" fill="none" /></g></>,
