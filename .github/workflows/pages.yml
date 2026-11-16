@@ -2,13 +2,15 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, codex/liquid-glass]
+    branches: [main]
   workflow_dispatch:
   schedule:
     - cron: '*/15 * * * *'
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
@@ -18,16 +20,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout production source
-        uses: actions/checkout@v4
-        with:
-          ref: main
-          path: production
-      - name: Checkout public design preview
-        uses: actions/checkout@v4
-        with:
-          ref: codex/liquid-glass
-          path: preview
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
           version: 10
@@ -35,34 +28,13 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: |
-            production/pnpm-lock.yaml
-            preview/pnpm-lock.yaml
-      - name: Build production site at domain root
-        working-directory: production
-        env:
-          VITE_API_MODE: demo
-        run: pnpm install --frozen-lockfile && pnpm run build
-      - name: Build design branch under /preview/
-        working-directory: preview
-        env:
-          VITE_API_MODE: demo
-          VITE_BASE_PATH: /preview/
-        run: pnpm install --frozen-lockfile && pnpm run build:e2e && pnpm exec tsc --noEmit
-      - name: Combine the unchanged production root and isolated branch preview
-        run: |
-          mkdir -p site/preview
-          cp -a production/dist/. site/
-          cp -a preview/dist/. site/preview/
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: dist
 
   deploy:
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -7,7 +7,7 @@ import { rub } from '../../lib/format';
 import { Button, Faq, IconButton, Panel, Section, Steps, Ticks } from '../../ui';
 import { TutorShowcase } from '../../ui/tutor-showcase';
 import { TUTOR_FAQ, TUTOR_STEPS } from './content';
-import { publicAssetPath, publicAssetSrcSet } from '../../../shared/lib/public-assets';
+import { HeroTutors } from '../../ui/hero-tutors';
 
 /** Калькулятор: репетитор получает свою цену, ученик платит на 10% больше. */
 function PriceCalc() {
@@ -49,7 +49,7 @@ export default function TutorsLandingPage() {
           </div>
         </div>
         <div className="trh-hero-media">
-          <img src={publicAssetPath('/images/for-repetitor-hero-1200.webp')} srcSet={publicAssetSrcSet('/images/for-repetitor-hero-640.webp 640w, /images/for-repetitor-hero-1200.webp 1200w')} sizes="(min-width:1440px) 640px, (min-width:761px) 46vw, calc(100vw - 32px)" alt="Репетиторы TopRepet" width={1200} height={900} fetchPriority="high" />
+          <HeroTutors tutors={staticTutors().filter((tutor) => ['english', 'informatics'].includes(tutor.id))} />
         </div>
       </section>
 
@@ -83,7 +83,7 @@ export default function TutorsLandingPage() {
         <div className="trh-sec u-start">
           <h2 className="trh-panel-h u-mw620">Хотите получать учеников через TopRepet?</h2>
           <p className="muted u-mw560">Создайте анкету за три минуты, назначьте цену и откройте расписание. Записи подтверждаете сами. Для выплат понадобится статус самозанятого.</p>
-          <Button to={entryHref} size="lg">{entryLabel}</Button>
+          <Button to={entryHref} size="lg" block>{entryLabel}</Button>
         </div>
       </Panel>
 

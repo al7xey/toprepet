@@ -67,7 +67,8 @@ test('длинные данные анкеты не создают горизо�
     const card = page.locator('a.tc').first();
     await expect(card).toContainText('А'.repeat(100));
     const name = card.locator('.trh-tutor-name');
-    await expect(card.locator('.rt')).toHaveText('4,9');
+    // Ratings are intentionally hidden on public cards at the owner's request.
+    await expect(card.locator('.rt')).toHaveCount(0);
     expect(await name.evaluate((element) => {
       const text = getComputedStyle(element);
       const row = getComputedStyle(element.parentElement!);

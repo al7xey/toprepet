@@ -257,6 +257,32 @@ export function PublicLayout({ children, tight, bareMobile, narrow, hideSignIn }
   const menuPanel = useRef<HTMLDivElement>(null);
   const header = useRef<HTMLElement>(null);
   const headerSlot = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menu) return;
+    const trigger = menuButton.current;
+    const shell = header.current?.closest('.trh-page');
+    const background = [...(shell?.querySelectorAll<HTMLElement>('main,footer') ?? [])];
+    const previousInert = background.map((node) => node.inert);
+    const previousOverflow = document.documentElement.style.overflow;
+    background.forEach((node) => { node.inert = true; });
+    document.documentElement.style.overflow = 'hidden';
+    menuPanel.current?.querySelector<HTMLElement>('a,button')?.focus({ preventScroll: true });
+    const trap = (event: KeyboardEvent) => {
+      if (event.key !== 'Tab') return;
+      const nodes = [...(header.current?.parentElement?.querySelectorAll<HTMLElement>('a,button') ?? [])]
+        .filter((node) => node.getClientRects().length && !node.matches(':disabled'));
+      const first = nodes[0]; const last = nodes.at(-1);
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener('keydown', trap);
+    return () => {
+      background.forEach((node, index) => { node.inert = previousInert[index]; });
+      document.documentElement.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', trap);
+      trigger?.focus({ preventScroll: true });
+    };
+  }, [menu]);
   useLayoutEffect(() => {
     const element = header.current;
     if (!element || !headerSlot.current) return;

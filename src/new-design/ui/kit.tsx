@@ -45,7 +45,7 @@ export interface ButtonProps {
 /** Единственная кнопка интерфейса: все действия и ссылки-кнопки собираются из неё. */
 export function Button({ children, variant = 'primary', size = 'md', block, icon, iconAfter, to, href, onClick, type = 'button', disabled, loading, className, style, state, ...rest }: ButtonProps) {
   const cls = cx('btn', `btn-${variant}`, size === 'lg' && 'btn-lg', size === 's' && 'btn-s', block && 'btn-block', loading && 'trk-loading', className);
-  const inner = (<>{icon && <Icon name={icon} />}{children}{iconAfter && <Icon name={iconAfter} />}</>);
+  const inner = (<>{icon && <Icon name={icon} />}<span className="trk-button-label">{children}</span>{iconAfter && <Icon name={iconAfter} />}</>);
   const inactive = disabled || loading;
   if (to && !inactive) return <Link className={cls} to={to} state={state} style={style} aria-label={rest['aria-label']} onClick={onClick}>{inner}</Link>;
   if (href && !inactive) return <a className={cls} href={href} target="_blank" rel="noreferrer" style={style} aria-label={rest['aria-label']} onClick={onClick}>{inner}</a>;
@@ -74,7 +74,7 @@ export function BackLink({ to, children, className }: { to: string; children: Re
 
 /* ---------- Заголовки и секции ---------- */
 
-/** Заголовок страницы: 32 px на компьютере, 26 px на телефоне. Одна h1 на странице. */
+/** Заголовок страницы использует общую адаптивную типографическую роль. */
 export function PageHeader({ title, lead, back, actions, center }: { title: ReactNode; lead?: ReactNode; back?: { to?: string; onClick?: () => void; label: string }; actions?: ReactNode; center?: boolean }) {
   const location = useLocation();
   const from = (location.state as { from?: string } | null)?.from;
@@ -93,7 +93,7 @@ export function PageHeader({ title, lead, back, actions, center }: { title: Reac
   );
 }
 
-/** Секция с заголовком второго уровня: 24 px на компьютере, 21 px на телефоне. */
+/** Секция с заголовком второго уровня из общей шкалы. */
 export function Section({ title, action, lead, children, id, className, reveal }: { title?: ReactNode; action?: ReactNode; lead?: ReactNode; children?: ReactNode; id?: string; className?: string; reveal?: boolean }) {
   const headingId = useId();
   const section = useRef<HTMLElement>(null);
@@ -121,7 +121,7 @@ export function Section({ title, action, lead, children, id, className, reveal }
   );
 }
 
-/** Заголовок карточки/блока внутри секции: 18 px. */
+/** Заголовок карточки или подраздела. */
 export const CardTitle = ({ children }: { children: ReactNode }) => <h3 className="trk-cardtitle">{children}</h3>;
 
 /* ---------- Поверхности ---------- */
@@ -346,7 +346,7 @@ export function TextField({ label, hint, error, right, labelAction, id, ...input
   return (
     <FieldWrap id={fid} label={label} hint={hint} error={error} labelAction={labelAction}>
       <div className="field ink trk-input-box">
-        <input id={fid} className="trk-input" aria-invalid={error ? true : undefined} aria-describedby={error ? `${fid}-err` : hint ? `${fid}-hint` : undefined} {...input} />
+        <input id={fid} className="trk-input" name={input.name ?? fid} spellCheck={input.type === 'email' ? false : undefined} aria-invalid={error ? true : undefined} aria-describedby={error ? `${fid}-err` : hint ? `${fid}-hint` : undefined} {...input} />
         {right}
       </div>
     </FieldWrap>
@@ -369,7 +369,7 @@ export function TextArea({ label, hint, error, labelAction, id, ...area }: Field
   const fid = id ?? auto;
   return (
     <FieldWrap id={fid} label={label} hint={hint} error={error} labelAction={labelAction}>
-      <div className="field area ink trk-input-box"><textarea id={fid} className="trk-input" aria-invalid={error ? true : undefined} rows={4} {...area} /></div>
+      <div className="field area ink trk-input-box"><textarea id={fid} name={area.name ?? fid} className="trk-input" aria-invalid={error ? true : undefined} aria-describedby={error ? `${fid}-err` : hint ? `${fid}-hint` : undefined} rows={4} {...area} /></div>
     </FieldWrap>
   );
 }
@@ -380,7 +380,7 @@ export function SelectField({ label, hint, error, options, id, ...select }: Fiel
   return (
     <FieldWrap id={fid} label={label} hint={hint} error={error}>
       <div className="field ink trk-input-box trk-select">
-        <select id={fid} className="trk-input" {...select}>
+        <select id={fid} name={select.name ?? fid} className="trk-input" aria-invalid={error ? true : undefined} aria-describedby={error ? `${fid}-err` : hint ? `${fid}-hint` : undefined} {...select}>
           {options.map((o) => (typeof o === 'string' ? <option key={o} value={o}>{o}</option> : <option key={o.value} value={o.value}>{o.label}</option>))}
         </select>
         <Icon name="down" />

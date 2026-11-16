@@ -1,0 +1,27 @@
+/* Blog administration follows the same sizing roles as the application UI. */
+.blog-root.blog-admin {
+  --ink: #171717; --muted: #626262; --line: #dedede; --orange: #f26a2e;
+  font-size: 1rem; line-height: 1.5; font-weight: 400;
+}
+.blog-admin .blog-admin-header { border-bottom: 1px solid var(--line); backdrop-filter: blur(16px); }
+.blog-admin .blog-admin-main { padding-block: 32px 64px; }
+.blog-admin :is(.blog-admin-main h1,.blog-login h1) { font-size: 2.5rem; line-height: 1.2; font-weight: 700; letter-spacing: -.025em; margin: 0 0 24px; }
+.blog-admin .blog-admin-form h2 { font-size: 1.5rem; line-height: 1.33; }
+.blog-admin :is(.blog-admin-form,.blog-login form) { gap: 24px; }
+.blog-admin :is(.blog-admin-form label,.blog-login label) { gap: 8px; font-size: 1rem; font-weight: 600; }
+.blog-admin :is(.blog-admin-form input,.blog-admin-form textarea,.blog-admin-form select,.blog-login input) {
+  min-height: 52px; padding: 12px 16px; font-size: 1rem; line-height: 1.5; border-radius: 24px; border-color: var(--line);
+}
+.blog-admin :is(.blog-button,.blog-actions button,.blog-preview-actions button) {
+  min-height: 48px; padding: 11px 20px; line-height: 24px; font-size: 1rem; font-weight: 600; border: 1px solid var(--line); border-radius: 999px;
+}
+.blog-admin .blog-button,.blog-admin .blog-button:hover { background: var(--orange); color: var(--ink); border-color: transparent; }
+.blog-admin .blog-login { padding: 24px; border-radius: 28px; }
+.blog-admin .blog-login > a { display: inline-flex; min-height: 44px; align-items: center; margin-bottom: 24px; }
+.blog-admin :is(.blog-admin-list small,.blog-stats > div) { font-size: .875rem; }
+.blog-admin .blog-stats > div { padding: 20px; }
+.blog-admin :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+@media (max-width: 760px) {
+  .blog-admin :is(.blog-admin-main h1,.blog-login h1) { font-size: 2rem; }
+  .blog-admin .blog-login { padding: 20px; }
+}
