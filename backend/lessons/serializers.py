@@ -14,7 +14,7 @@ def lesson_json(lesson, viewer) -> dict:
         price = tutor_price
     data = {
         'id': lesson.id, 'kind': lesson.kind, 'tutorId': lesson.tutor_id, 'tutorName': lesson.tutor.name, 'tutorPhoto': lesson.tutor.photo,
-        'studentId': lesson.student_id, 'studentName': lesson.student.name, 'studentPhoto': lesson.student.photo or None, 'subject': lesson.subject, 'start': iso(lesson.start),
+        'studentId': lesson.student_id, 'studentName': lesson.student.name, 'studentPhoto': lesson.student.photo or None, 'subject': lesson.subject, 'topic': lesson.topic, 'start': iso(lesson.start),
         'durationMin': lesson.duration_min, 'status': lesson.status, 'price': price, 'tutorPrice': tutor_price, 'payment': lesson.payment,
         'meetingUrl': lesson.meeting_url or None, 'moveProposal': {'start': iso(lesson.move_start), 'by': lesson.move_by} if lesson.move_start else None,
         'reviewId': _reverse_id(lesson, 'review'), 'disputeId': _reverse_id(lesson, 'dispute'), 'seriesId': lesson.series_id or None,
@@ -48,6 +48,7 @@ class BookingIn(serializers.Serializer):
     start = serializers.DateTimeField()
     durationMin = serializers.IntegerField(min_value=15, max_value=240)
     subject = serializers.CharField(max_length=120)
+    topic = serializers.CharField(max_length=200, required=False, allow_blank=True)
     cardId = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     requestId = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 

@@ -441,7 +441,7 @@ export function createMockApi(): Api {
       const price = input.kind === 'intro' ? 0 : Math.round((response?.price ?? tutor.studentPrice) * input.durationMin / 60);
       const lesson: Lesson = {
         id: nextId('l'), kind: input.kind, tutorId: tutor.id, tutorName: tutor.name, tutorPhoto: tutor.photo, studentId: u.id, studentName: u.name, studentPhoto: u.photo ?? null,
-        subject: input.subject, start: input.start, durationMin: input.kind === 'intro' ? tutor.introMinutes : input.durationMin, status: 'pending',
+        subject: input.subject, topic: input.topic?.trim() ?? "", start: input.start, durationMin: input.kind === 'intro' ? tutor.introMinutes : input.durationMin, status: 'pending',
         price, tutorPrice: input.kind === 'intro' ? 0 : Math.round((response ? Math.round(response.price / (1 + FEE)) : tutor.price) * input.durationMin / 60), payment: price ? 'hold' : 'none',
         confirmBy: iso(Math.min(startMs - 2 * HOUR, Date.now() + DAY)), meetingUrl: null, moveProposal: null, reviewId: null, disputeId: null, seriesId: null,
       };

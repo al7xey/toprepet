@@ -47,6 +47,7 @@ function View({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson) => v
       <Card>
         <StudentCard name={lesson.studentName} photo={lesson.studentPhoto} sub={lesson.subject} />
         <Rows rows={[
+          ...(lesson.topic ? [['Тема', lesson.topic] as [string, string]] : []),
           ['Когда', whenLabel(lesson.start)],
           ['Длительность', minutes(lesson.durationMin)],
           ['Вы получите', lesson.tutorPrice ? rub(lesson.tutorPrice) : 'Бесплатное знакомство'],

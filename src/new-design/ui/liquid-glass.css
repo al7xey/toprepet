@@ -366,3 +366,7 @@ html:has(.tr) { scrollbar-gutter: stable; }
 .tr.tr .trk-admin-content { min-width: 0; }
 .tr.tr .trk-admin-content > summary { cursor: pointer; padding-block: 12px; font-weight: 650; }
 .tr.tr .trk-admin-content[open] > summary { margin-bottom: 12px; }
+
+.tr.tr .tc.s .pl > b { min-width: 0; align-items: flex-start; }
+.tr.tr .tc.s .pl .trh-tutor-name { flex: 1; min-width: 0; white-space: normal; }
+.tr.tr .tc.s .pl .rt { flex-shrink: 0; margin-left: auto; }

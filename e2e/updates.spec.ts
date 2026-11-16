@@ -8,12 +8,15 @@ test('каталог: поле поиска во всю ширину, не ко�
   expect(box?.width ?? 0).toBeGreaterThan(700);
 });
 
-test('анкета: в карточке записи нет отдельной кнопки знакомства', async ({ page }) => {
-  test.skip(isPhone(page), 'карточка записи справа только на компьютере');
+test('анкета: отдельное знакомство и чат находятся под календарём', async ({ page }) => {
   await page.goto('/teachers/english');
-  const aside = page.locator('.trh-pf-aside');
-  await expect(aside.getByRole('button', { name: 'Бесплатное знакомство' })).toHaveCount(0);
-  await expect(aside.getByRole('link', { name: 'Бесплатное знакомство' })).toHaveCount(0);
+  await expect(page.locator('.trh-pf-cta')).toHaveCount(0);
+  await page.locator('.slot:not([disabled])').first().click();
+  const booking = page.locator('.trh-pf-booking');
+  await expect(booking.getByRole('link', { name: 'Записаться', exact: true })).toHaveAttribute('href', /kind=regular/);
+  await expect(booking.getByRole('link', { name: 'Бесплатное знакомство', exact: true })).toHaveAttribute('href', /kind=intro/);
+  await expect(booking.getByRole('button', { name: 'Написать', exact: true })).toBeVisible();
+  await expect(booking.getByLabel('Тема занятия', { exact: true })).toBeVisible();
 });
 
 test('платежи и уведомления на всю ширину компьютера, кнопки не узкие', async ({ page }) => {

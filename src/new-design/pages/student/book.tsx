@@ -4,7 +4,7 @@ import { api, LESSON_MINUTES, staticTutors, type Card as PayCard, type Tutor } f
 import { useMutation, useQuery } from '../../api/hooks';
 import { AppLayout } from '../../layout/layouts';
 import { minutes, rub, whenLabel } from '../../lib/format';
-import { AddCardModal, Button, Card, Checkbox, CardTitle, EmptyState, FormError, IconButton, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker } from '../../ui';
+import { AddCardModal, Button, Card, Checkbox, CardTitle, EmptyState, FormError, IconButton, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker, TextField } from '../../ui';
 
 /** Запись на урок или бесплатное знакомство: проверить сводку, выбрать карту и подтвердить. */
 export default function BookPage() {
@@ -33,7 +33,8 @@ function BookForm({ tutor }: { tutor: Tutor }) {
     const value = params.get('start');
     return value && Number.isFinite(Date.parse(value)) && Date.parse(value) > Date.now() ? value : null;
   });
-  const [subject, setSubject] = useState(tutor.subjects[0] ?? '');
+  const [subject, setSubject] = useState(tutor.subjects.includes(params.get('subject') ?? '') ? params.get('subject')! : tutor.subjects[0] ?? '');
+  const [topic, setTopic] = useState((params.get('topic') ?? '').slice(0, 200));
   const [agree, setAgree] = useState(false);
   const [cardOpen, setCardOpen] = useState(false);
   const [cardId, setCardId] = useState<string | null>(null);
@@ -56,7 +57,7 @@ function BookForm({ tutor }: { tutor: Tutor }) {
     setShowErrors(true);
     if (problems.start || problems.card || problems.agree || !start) return;
     if (requestId && !response) return;
-    const input = { tutorId: tutor.id, kind, start, durationMin: duration, subject, cardId: card?.id, requestId };
+    const input = { tutorId: tutor.id, kind, start, durationMin: duration, subject, topic: topic.trim(), cardId: card?.id, requestId };
     const signature = JSON.stringify(input);
     if (attempt.current?.signature !== signature) attempt.current = { signature, key: crypto.randomUUID() };
     const lesson = await book.run({ ...input, idempotencyKey: attempt.current.key });
@@ -76,11 +77,13 @@ function BookForm({ tutor }: { tutor: Tutor }) {
         </Card>
       </Section>
       {tutor.subjects.length > 1 && <SelectField label="Предмет" value={subject} onChange={(e) => setSubject(e.target.value)} options={tutor.subjects} />}
+      <TextField label="Тема занятия" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={200} placeholder="Что хотите разобрать на занятии" />
       <Section title="Итог">
         <Card className="trk-summary">
           <Rows boxed rows={[
             ['Репетитор', tutor.name],
             ['Предмет', subject],
+            ...(topic.trim() ? [['Тема', topic.trim()] as [string, string]] : []),
             ['Когда', start ? whenLabel(start) : 'Время не выбрано'],
             ['Длительность', minutes(duration)],
           ]} />

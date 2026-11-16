@@ -112,7 +112,7 @@ def create_booking(user, data: dict, idempotency_key: str = '') -> Lesson:
         if card is None:
             raise ApiError('Добавьте карту, чтобы записаться', 402, 'card_required')
     now = timezone.now()
-    lesson = Lesson(kind=data['kind'], tutor=tutor, student=user, subject=data['subject'], start=start, duration_min=duration, status='pending',
+    lesson = Lesson(kind=data['kind'], tutor=tutor, student=user, subject=data['subject'], topic=data.get('topic', ''), start=start, duration_min=duration, status='pending',
                     price=price, tutor_price=tutor_price, confirm_by=min(start - 2 * HOUR, now + DAY), idempotency_key=idempotency_key, booking_fingerprint=fingerprint)
     lesson.save()
     money.hold(lesson, card)

@@ -98,6 +98,7 @@ export interface Lesson {
   /** Фото ученика: видно репетитору. */
   studentPhoto?: string | null;
   subject: string;
+  topic?: string;
   start: IsoDate;
   durationMin: number;
   status: LessonStatus;
@@ -126,6 +127,7 @@ export interface CreateBookingInput {
   start: IsoDate;
   durationMin: number;
   subject: string;
+  topic?: string;
   cardId?: Id;
   /** Если запись создана из отклика на заявку. */
   requestId?: Id;

@@ -13,6 +13,7 @@ class Lesson(models.Model):
     tutor = models.ForeignKey('tutors.Tutor', on_delete=models.PROTECT, related_name='lessons')
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='lessons')
     subject = models.CharField(max_length=120)
+    topic = models.CharField(max_length=200, blank=True)
     start = models.DateTimeField()
     duration_min = models.PositiveIntegerField()
     status = models.CharField(max_length=20, default='pending')

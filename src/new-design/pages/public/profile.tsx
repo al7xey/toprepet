@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { api, LESSON_MINUTES, staticTutors, type Tutor } from '../../api';
 import { trackGoal } from '../../../shared/lib/analytics';
@@ -7,7 +7,7 @@ import { useQuery } from '../../api/hooks';
 import { useSession } from '../../api/session';
 import { PublicLayout } from '../../layout/layouts';
 import { count, minutes, rub, whenLabel } from '../../lib/format';
-import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, LoadingList, Note, PageHeader, QueryView, Rows, Section, SlotPicker, Status, Tags } from '../../ui';
+import { BackLink, Button, EmptyState, ErrorState, Icon, IconButton, LoadingList, Note, PageHeader, QueryView, Rows, Section, SelectField, SlotPicker, Status, Tags, TextField } from '../../ui';
 import { NotFoundBody } from './notfound';
 import './profile.css';
 import { achievementIcon } from '../../ui/icon';
@@ -34,31 +34,14 @@ function Profile({ tutor }: { tutor: Tutor }) {
   const lessonPrice = Math.round(tutor.studentPrice * lessonMinutes / 60);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [start, setStart] = useState<string | null>(null);
+  const [subject, setSubject] = useState(tutor.subjects[0] ?? '');
+  const [topic, setTopic] = useState('');
   const from = useMemo(() => new Date().toISOString(), []);
-  const slots = useQuery(`slots-${tutor.id}`, () => api.getTutorSlots(tutor.id, from, 14, lessonMinutes));
+  const slots = useQuery(`slots-${tutor.id}`, () => api.getTutorSlots(tutor.id, from, 14, Math.max(lessonMinutes, tutor.introMinutes)));
   const reviews = useQuery(`reviews-${tutor.id}`, () => api.getTutorReviews(tutor.id));
   const isTutorAccount = user?.role === 'tutor' || user?.role === 'admin';
   const location = useLocation();
   const fromChat = (location.state as { back?: string } | null)?.back;
-  // «Записаться» закреплена внизу экрана, а у блока со временем встаёт на своё место
-  const ctaSlot = useRef<HTMLDivElement>(null);
-  const calendar = useRef<HTMLDivElement>(null);
-  const [docked, setDocked] = useState(false);
-  useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const node = ctaSlot.current;
-      if (!node) return;
-      const r = node.getBoundingClientRect();
-      setDocked(r.bottom <= window.innerHeight - 12);
-    };
-    const onScroll = () => { if (!frame) frame = requestAnimationFrame(update); };
-    update();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => { window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); if (frame) cancelAnimationFrame(frame); };
-  }, []);
   // назад — по истории, если она есть; иначе к каталогу
   const close = () => { if (location.key !== 'default') void navigate(-1); else void navigate('/teachers'); };
   const share = () => {
@@ -67,22 +50,22 @@ function Profile({ tutor }: { tutor: Tutor }) {
     else void navigator.clipboard?.writeText(url).catch(() => undefined);
   };
 
-  const bookHref = (kind: 'regular' | 'intro') => `/book/${tutor.id}?kind=${kind}${start ? `&start=${encodeURIComponent(start)}` : ''}`;
+  const bookHref = (kind: 'regular' | 'intro') => `/book/${tutor.id}?kind=${kind}&subject=${encodeURIComponent(subject)}&topic=${encodeURIComponent(topic.trim())}${start ? `&start=${encodeURIComponent(start)}` : ''}`;
   const write = () => navigate(`/me/chats/new?tutor=${tutor.id}`);
-  const showCalendar = () => calendar.current?.scrollIntoView({
-    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
-    block: 'center',
-  });
+
 
   const booking = (
-    <div className="card sum trh-pf-booking">
+    <div className="trh-sec trh-pf-booking">
       <h2 className="trk-cardtitle">Запись</h2>
-      <Rows boxed rows={[['Репетитор', tutor.name], ['Занятие', minutes(lessonMinutes)], ['Когда', start ? whenLabel(start) : 'Выберите время'], ...(tutor.introMinutes ? [['Знакомство', `${minutes(tutor.introMinutes)}, бесплатно`] as [string, string]] : [])]} />
+      <SelectField label="Предмет" value={subject} onChange={(event) => setSubject(event.target.value)} options={tutor.subjects} />
+      <TextField label="Тема занятия" value={topic} onChange={(event) => setTopic(event.target.value)} maxLength={200} placeholder="Что хотите разобрать на занятии" hint="Можно уточнить при знакомстве" />
+      <Rows rows={[['Урок', minutes(lessonMinutes)], ['Время', start ? whenLabel(start) : 'Выберите время']]} />
       <div className="fr fb"><span>Цена за {minutes(lessonMinutes)}</span><b className="tn trk-price-xl">{rub(lessonPrice)}</b></div>
       {isTutorAccount ? <Note tone="plain">Записываться могут ученики. Войдите в аккаунт ученика.</Note> : (
         <>
-          <Button to={bookHref('regular')} size="lg" block disabled={!start} onClick={() => trackGoal('book_start', { kind: 'regular' })}>{start ? 'Записаться' : 'Выберите время'}</Button>
-          <Button variant="fill" block icon="chat" onClick={write}>Написать репетитору</Button>
+          <Button to={bookHref('regular')} block disabled={!start} onClick={() => trackGoal('book_start', { kind: 'regular' })}>Записаться</Button>
+          {tutor.introMinutes > 0 && <Button to={bookHref('intro')} variant="line" block disabled={!start} onClick={() => trackGoal('book_start', { kind: 'intro' })}>Бесплатное знакомство</Button>}
+          <Button variant="line" block onClick={write}>Написать</Button>
         </>
       )}
     </div>
@@ -102,8 +85,7 @@ function Profile({ tutor }: { tutor: Tutor }) {
             </div>
             <div className="trh-pf-sheet">
               <div className="trh-sec">
-                {tutor.reviewsCount > 0 && <a className="trh-pf-rating" href="#reviews"><Icon name="star-on" />{tutor.rating} · {count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')}</a>}
-                <h1 className="trh-h1" id="tutor-name">{tutor.name}</h1>
+                <div className="trh-pf-name-row"><h1 className="trh-h1" id="tutor-name">{tutor.name}</h1>{tutor.reviewsCount > 0 && <a className="trh-pf-rating" href="#reviews" aria-label={count(tutor.reviewsCount, 'отзыв', 'отзыва', 'отзывов')}><Icon name="star-on" />{String(tutor.rating).replace('.', ',')}</a>}</div>
                 <p className="muted trh-pf-role">{tutor.headline}</p>
                 <div className="fr fw u-gap8">
                   {tutor.documentsVerified && <Status tone="ok" icon="shield">Документы проверены</Status>}
@@ -144,18 +126,12 @@ function Profile({ tutor }: { tutor: Tutor }) {
           </Section>
 
           <hr className="rule" />
-          <div className="trh-pf-calendar" ref={calendar}>
+          <div className="trh-pf-calendar">
             <Section title="Свободное время">
               {slots.error ? <Note tone="bad">{slots.error}</Note> : <SlotPicker slots={slots.data ?? []} loading={slots.loading && !slots.data} value={start} onChange={setStart} />}
             </Section>
           </div>
-          {!isTutorAccount && (
-            <div className="trh-pf-cta-slot" ref={ctaSlot}>
-              <div className={`trh-pf-cta${docked ? ' docked' : ''}`}>
-                <Button to={start ? bookHref('regular') : undefined} onClick={start ? () => trackGoal('book_start', { kind: 'regular' }) : showCalendar}>Записаться</Button>
-              </div>
-            </div>
-          )}
+          {booking}
 
           <hr className="rule" />
           <Section id="reviews" title="Отзывы" action={tutor.reviewsCount > 3 ? <button type="button" className="acc sb" aria-expanded={showAllReviews} onClick={() => setShowAllReviews((v) => !v)}>{showAllReviews ? 'Свернуть' : 'Все отзывы'}</button> : undefined}>
@@ -175,7 +151,6 @@ function Profile({ tutor }: { tutor: Tutor }) {
             </QueryView>
           </Section>
         </div>
-        <aside className="trh-pf-aside" aria-label="Запись">{booking}</aside>
       </div>
 
     </PublicLayout>

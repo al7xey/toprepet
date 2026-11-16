@@ -49,6 +49,7 @@ function LessonView({ lesson, onChange }: { lesson: Lesson; onChange: (l: Lesson
       <Card>
         <Person name={lesson.tutorName} photo={lesson.tutorPhoto} sub={lesson.subject} right={<Button to={`/teachers/${lesson.tutorId}/`} variant="line" size="s">Анкета</Button>} />
         <Rows rows={[
+          ...(lesson.topic ? [['Тема', lesson.topic] as [string, string]] : []),
           ['Когда', whenLabel(lesson.start)],
           ['Длительность', minutes(lesson.durationMin)],
           ['Стоимость', lesson.price ? rub(lesson.price) : 'Бесплатно'],

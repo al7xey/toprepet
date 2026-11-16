@@ -42,12 +42,14 @@ def book(api, start, tutor='english', kind='regular', **extra):
 
 
 def test_booking_holds_money_and_hides_the_fee_from_the_student(olga):
-    response = book(olga, free_slot(olga))
+    response = book(olga, free_slot(olga), topic='Past Simple')
     assert response.status_code == 201
     lesson = response.json()
     assert lesson['status'] == 'pending' and lesson['payment'] == 'hold' and lesson['price'] == 1320
     assert lesson['tutorPrice'] == 1320  # ученик не видит цену репетитора
     assert 'confirmBy' in lesson
+    assert lesson['topic'] == 'Past Simple'
+    assert Lesson.objects.get(pk=lesson['id']).topic == 'Past Simple'
     assert PaymentRecord.objects.filter(lesson_id=lesson['id'], kind='hold', amount=1320).exists()
 
 
