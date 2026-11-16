@@ -408,7 +408,7 @@ html:has(.tr) { scrollbar-gutter: stable; }
 .tr.tr .hdr.surf .trh-burger:is(:hover, :active, :focus) { --lg-control-fill: var(--lg-button); --lg-control-rim: var(--lg-rim); color: var(--ink); background: var(--lg-control-highlight), var(--lg-button); box-shadow: inset 0 0 0 1px var(--lg-rim); transition: none; }
 .tr.tr .hdr.surf .trh-burger:focus:not(:focus-visible) { outline: none; }
 @media (max-width: 760px) {
-  .tr.tr .trh-public-nav > .hdr.surf:not(.m) { height: 60px; min-height: 60px; padding-right: 6px; padding-block: 6px; }
+  .tr.tr .trh-public-nav > .hdr.surf:not(.m) { height: 60px; min-height: 60px; padding-right: 6px; padding-block: 0; align-items: center; }
 }
 @media (max-width: 420px) {
   .tr.tr .trh-public-nav > .hdr.surf:not(.m) { height: 56px; min-height: 56px; }
