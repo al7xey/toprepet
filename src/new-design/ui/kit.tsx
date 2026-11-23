@@ -94,7 +94,7 @@ export function PageHeader({ title, lead, back, actions, center }: { title: Reac
 }
 
 /** Секция с заголовком второго уровня: 24 px на компьютере, 21 px на телефоне. */
-export function Section({ title, action, lead, children, id, className, reveal }: { title?: ReactNode; action?: ReactNode; lead?: ReactNode; children?: ReactNode; id?: string; className?: string; reveal?: boolean }) {
+export function Section({ title, action, lead, children, id, className, reveal = true }: { title?: ReactNode; action?: ReactNode; lead?: ReactNode; children?: ReactNode; id?: string; className?: string; reveal?: boolean }) {
   const headingId = useId();
   const section = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -243,7 +243,7 @@ export interface StepItem { title: ReactNode; text?: ReactNode; state?: 'done' |
  * Нумерованные шаги с линией (главная, «Для репетиторов», «Что будет дальше»).
  * size="s" — компактный вариант для карточек.
  */
-export function Steps({ items, size = 'md', revealOnScroll }: { items: StepItem[]; size?: 'md' | 's'; revealOnScroll?: boolean }) {
+export function Steps({ items, size = 'md', revealOnScroll = true }: { items: StepItem[]; size?: 'md' | 's'; revealOnScroll?: boolean }) {
   const list = useRef<HTMLOListElement>(null);
   useEffect(() => {
     if (!revealOnScroll || !list.current || typeof IntersectionObserver === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
